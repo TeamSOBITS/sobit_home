@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<robot name="sobit_home"
+       xmlns:xacro="http://ros.org/wiki/xacro" >
+  <xacro:macro name="base" >
+  
+    <link name="base_footprint" />
+
+
+    <joint name="base_joint" type="fixed" >
+      <parent link="base_footprint" />
+      <child link="base_link" />
+      <origin xyz="0 0 0.07555856" rpy="0.0 0.0 0.0" />
+    </joint>
+
+    <link name="base_link" />
+
+  </xacro:macro>
+</robot>

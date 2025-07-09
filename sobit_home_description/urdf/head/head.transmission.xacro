@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<robot name="sobit_home"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="head_transmission" params="prefix">
+
+    <xacro:position_joint_transmission joint="${prefix}_pan_joint"  reduction="1" />
+    <xacro:position_joint_transmission joint="${prefix}_tilt_joint" reduction="1" />
+
+  </xacro:macro>
+</robot>
