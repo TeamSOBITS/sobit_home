@@ -50,7 +50,7 @@
   <!-- <xacro:controllers name="joints_control" enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" /> -->
   <!-- <xacro:open_manipulator_x_ros2_control name="open_manipulator_x_ros2_control" /> -->
   <!-- <xacro:controllers_DxUpper name="joints_control_upper" enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" /> -->
-  <xacro:controllers_Dx name="joints_control" enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" />
+  <xacro:wheel_controllers name="wheel" enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" />
 
 
   <!-- enable_mb: true, enable_arm: true, enable_head: true -->
