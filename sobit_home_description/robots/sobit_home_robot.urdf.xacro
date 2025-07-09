@@ -45,7 +45,7 @@
   <!-- Add variables -->
   <xacro:arg name="enable_gz"                 default="True" />
   <xacro:arg name="enable_gz_lidar"           default="True" />
-  <xacro:arg name="robot_name"                default="sobit_pro" />
+  <xacro:arg name="robot_name"                default="sobit_home" />
 
   <!-- <xacro:controllers name="joints_control" enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" /> -->
   <!-- <xacro:open_manipulator_x_ros2_control name="open_manipulator_x_ros2_control" /> -->
