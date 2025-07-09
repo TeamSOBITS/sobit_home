@@ -4,8 +4,8 @@
   <xacro:macro name="plate" params="prefix parent">
 
     <joint name="${prefix}_bottom_joint" type="fixed">
-      <origin xyz="0 0 0.0225" rpy="0.0 0.0 0.0" />
-      <parent link="${parent}" />
+      <origin xyz="0 0 -0.11" rpy="0.0 0.0 0.0" />
+      <parent link="${prefix}_middle_link" />
       <child link="${prefix}_bottom_link" />
     </joint>
 
@@ -34,8 +34,8 @@
 
 
     <joint name="${prefix}_middle_joint" type="fixed">
-      <origin xyz="0.0 0.0 0.1" rpy="0.0 0.0 0.0" />
-      <parent link="${prefix}_bottom_link" />
+      <origin xyz="0.0 0.0 0.271358" rpy="0.0 0.0 0.0" />
+      <parent link="${parent}" />
       <child link="${prefix}_middle_link" />
     </joint>
 
@@ -64,7 +64,7 @@
     
 
     <joint name="${prefix}_top_joint" type="fixed">
-      <origin xyz="0.0 0.0 0.03985" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 0.0 0.0997" rpy="0.0 0.0 0.0" />
       <parent link="${prefix}_middle_link" />
       <child link="${prefix}_top_link" />
     </joint>
