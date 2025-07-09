@@ -3,15 +3,15 @@
        xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find sobit_home_description)/urdf/wheel/wheel.transmission.xacro" />
 
-  <xacro:macro name="stack_wheel_steer_base" params="parent prefix number x_loc y_loc z_loc roll=0.0 pitch=0.0 yaw=0.0">
+  <xacro:macro name="stack_wheel_steer_base" params="parent id number x_loc y_loc z_loc roll=0.0 pitch=0.0 yaw=0.0">
 
-    <joint name="wheel_${prefix}_steer_base_joint" type="fixed">
+    <joint name="wheel_steer_base_${id}_joint" type="fixed">
       <origin xyz="${x_loc} ${y_loc} ${z_loc}" rpy="${roll} ${pitch} ${yaw}" />
       <parent link="${parent}" />
-      <child link="wheel_${prefix}_steer_base_link" />
+      <child link="wheel_steer_base_${id}_link" />
     </joint>
 
-    <link name="wheel_${prefix}_steer_base_link">
+    <link name="wheel_steer_base_${id}_link">
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2.0}" />
         <geometry>
@@ -37,18 +37,18 @@
   </xacro:macro>
 
 
-  <xacro:macro name="stack_wheel_steer" params="parent prefix number x_loc y_loc z_loc roll=0.0 pitch=0.0 yaw=0.0">
+  <xacro:macro name="stack_wheel_steer" params="parent id number x_loc y_loc z_loc roll=0.0 pitch=0.0 yaw=0.0">
 
-    <joint name="wheel_${prefix}_steer_joint" type="revolute">
+    <joint name="wheel_steer_${id}_joint" type="revolute">
       <origin xyz="${x_loc} ${y_loc} ${z_loc}" rpy="${roll} ${pitch} ${yaw}" />
       <parent link="${parent}" />
-      <child link="wheel_${prefix}_steer_link" />
+      <child link="wheel_steer_${id}_link" />
       <axis xyz="0.0 0.0 1.0 " />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="4.1" velocity="4.796165" />
       <!-- <dynamics damping="0.2" friction="0" /> -->
     </joint>
 
-    <link name="wheel_${prefix}_steer_link">
+    <link name="wheel_steer_${id}_link">
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
         <geometry>
@@ -74,17 +74,17 @@
   </xacro:macro>
 
 
-  <xacro:macro name="stack_wheel_drive" params="parent prefix number x_loc y_loc z_loc roll=0.0 pitch=0.0 yaw=0.0">
+  <xacro:macro name="stack_wheel_drive" params="parent id number x_loc y_loc z_loc roll=0.0 pitch=0.0 yaw=0.0">
 
-    <joint name="wheel_${prefix}_drive_joint" type="continuous">
+    <joint name="wheel_drive_${id}_joint" type="continuous">
       <origin xyz="${x_loc+0.0019} ${y_loc} ${z_loc}" rpy="${roll} ${pitch} ${yaw}" />
       <parent link="${parent}" />
-      <child link="wheel_${prefix}_drive_link" />
+      <child link="wheel_drive_${id}_link" />
       <axis xyz="0.0 -1.0 0.0 " />
       <limit effort="3.0" velocity="7.913672" />
     </joint>
 
-    <link name="wheel_${prefix}_drive_link">
+    <link name="wheel_drive_${id}_link">
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="${M_PI/2.0} 0.0 ${M_PI}" />
         <geometry>
@@ -112,20 +112,20 @@
 
   <xacro:macro name="wheel" params="parent prefix">
   
-    <xacro:stack_wheel_steer_base parent="${parent}" prefix="f_r" number="1" x_loc= " 0.176" y_loc= "-0.176" z_loc="-0.01"/>
-    <xacro:stack_wheel_steer_base parent="${parent}" prefix="f_l" number="2" x_loc= " 0.176" y_loc= " 0.176" z_loc="-0.01"/>
-    <xacro:stack_wheel_steer_base parent="${parent}" prefix="b_r" number="3" x_loc= "-0.176" y_loc= "-0.176" z_loc="-0.01" yaw="${M_PI}"/>
-    <xacro:stack_wheel_steer_base parent="${parent}" prefix="b_l" number="4" x_loc= "-0.176" y_loc= " 0.176" z_loc="-0.01" yaw="${M_PI}"/>
+    <xacro:stack_wheel_steer_base parent="${parent}" id="f_r" number="1" x_loc= " 0.176" y_loc= "-0.176" z_loc="-0.01"/>
+    <xacro:stack_wheel_steer_base parent="${parent}" id="f_l" number="2" x_loc= " 0.176" y_loc= " 0.176" z_loc="-0.01"/>
+    <xacro:stack_wheel_steer_base parent="${parent}" id="b_r" number="3" x_loc= "-0.176" y_loc= "-0.176" z_loc="-0.01" yaw="${M_PI}"/>
+    <xacro:stack_wheel_steer_base parent="${parent}" id="b_l" number="4" x_loc= "-0.176" y_loc= " 0.176" z_loc="-0.01" yaw="${M_PI}"/>
 
-    <xacro:stack_wheel_steer parent="wheel_f_r_steer_base_link" prefix="f_r" number="1" x_loc= "0.0" y_loc= "0.0" z_loc="-0.175502" />
-    <xacro:stack_wheel_steer parent="wheel_f_l_steer_base_link" prefix="f_l" number="2" x_loc= "0.0" y_loc= "0.0" z_loc="-0.175502" />
-    <xacro:stack_wheel_steer parent="wheel_b_r_steer_base_link" prefix="b_r" number="3" x_loc= "0.0" y_loc= "0.0" z_loc="-0.175502"/>
-    <xacro:stack_wheel_steer parent="wheel_b_l_steer_base_link" prefix="b_l" number="4" x_loc= "0.0" y_loc= "0.0" z_loc="-0.175502"/>
+    <xacro:stack_wheel_steer parent="${prefix}_steer_base_f_r_link" id="f_r" number="1" x_loc= "0.0" y_loc= "0.0" z_loc="-0.175502" />
+    <xacro:stack_wheel_steer parent="${prefix}_steer_base_f_l_link" id="f_l" number="2" x_loc= "0.0" y_loc= "0.0" z_loc="-0.175502" />
+    <xacro:stack_wheel_steer parent="${prefix}_steer_base_b_r_link" id="b_r" number="3" x_loc= "0.0" y_loc= "0.0" z_loc="-0.175502"/>
+    <xacro:stack_wheel_steer parent="${prefix}_steer_base_b_l_link" id="b_l" number="4" x_loc= "0.0" y_loc= "0.0" z_loc="-0.175502"/>
 
-    <xacro:stack_wheel_drive parent="wheel_f_r_steer_link" prefix="f_r" number="1" x_loc= "0.0" y_loc= "0.0" z_loc="-0.068706" />
-    <xacro:stack_wheel_drive parent="wheel_f_l_steer_link" prefix="f_l" number="2" x_loc= "0.0" y_loc= "0.0" z_loc="-0.068706" />
-    <xacro:stack_wheel_drive parent="wheel_b_r_steer_link" prefix="b_r" number="3" x_loc= "0.0" y_loc= "0.0" z_loc="-0.068706" />
-    <xacro:stack_wheel_drive parent="wheel_b_l_steer_link" prefix="b_l" number="4" x_loc= "0.0" y_loc= "0.0" z_loc="-0.068706" />
+    <xacro:stack_wheel_drive parent="${prefix}_steer_f_r_link" id="f_r" number="1" x_loc= "0.0" y_loc= "0.0" z_loc="-0.068706" />
+    <xacro:stack_wheel_drive parent="${prefix}_steer_f_l_link" id="f_l" number="2" x_loc= "0.0" y_loc= "0.0" z_loc="-0.068706" />
+    <xacro:stack_wheel_drive parent="${prefix}_steer_b_r_link" id="b_r" number="3" x_loc= "0.0" y_loc= "0.0" z_loc="-0.068706" />
+    <xacro:stack_wheel_drive parent="${prefix}_steer_b_l_link" id="b_l" number="4" x_loc= "0.0" y_loc= "0.0" z_loc="-0.068706" />
 
     <xacro:wheel_transmission prefix="${prefix}" />
 
