@@ -93,8 +93,8 @@ def launch_gz(context, *args, **kwargs):
         robot_description,
         mappings={
             'enable_gz'  : enable_gz,
-            'enable_mb': enable_mb,
-            'enable_arm': enable_arm,
+            'enable_mb'  : enable_mb,
+            'enable_arm' : enable_arm,
             'enable_head': enable_head,
             'robot_namespace': robot_name
         })
@@ -124,36 +124,44 @@ def launch_gz(context, *args, **kwargs):
         ],
         output='screen'
     )
+    # joint_state_broadcaster = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     # namespace=robot_name,
+    #     arguments=['joint_state_broadcaster', '--controller-manager', robot_name+'/controller_manager'],
+    # )
 
-    joint_trajectory_controller = ExecuteProcess(
+    wheel_steer_position_controller = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller',
             '--set-state', 'active',
             '--controller-manager', robot_name+'/controller_manager',
             # '--use-sim-time',
-            'joint_trajectory_controller'
+            'wheel_steer_position_controller'
         ],
         output='screen'
     )
+    # wheel_steer_position_controller = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     # namespace=robot_name,
+    #     arguments=['wheel_steer_position_controller', '--controller-manager', robot_name+'/controller_manager', '--param-file', controller_config],
+    # )
 
-    velocity_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'configured',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'velocity_controller'
-        ],
-        output='screen'
-    )
-
-    diff_controller = ExecuteProcess(
+    wheel_drive_velocity_controller = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller',
             '--set-state', 'active',
             '--controller-manager', robot_name+'/controller_manager',
             # '--use-sim-time',
-            'diff_controller'
+            'wheel_drive_velocity_controller'
         ],
         output='screen'
     )
+    # wheel_drive_velocity_controller = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     # namespace=robot_name,
+    #     arguments=['wheel_drive_velocity_controller', '--controller-manager', robot_name+'/controller_manager', '--param-file', controller_config],
+    # )
 
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
@@ -273,9 +281,9 @@ def launch_gz(context, *args, **kwargs):
     
         return [
             controller_manager,
+            wheel_steer_position_controller,
+            wheel_drive_velocity_controller,
             joint_state_broadcaster,
-            joint_trajectory_controller,
-            velocity_controller,
             robot_state_publisher_node,
             # RegisterEventHandler(
             #     event_handler=OnProcessExit(
