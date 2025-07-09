@@ -112,20 +112,20 @@
 
   <xacro:macro name="wheel" params="parent prefix">
   
-    <xacro:stack_wheel_steer_base parent="${parent}" id="f_r" number="1" x_loc= " 0.176" y_loc= "-0.176" z_loc="-0.01"/>
-    <xacro:stack_wheel_steer_base parent="${parent}" id="f_l" number="2" x_loc= " 0.176" y_loc= " 0.176" z_loc="-0.01"/>
-    <xacro:stack_wheel_steer_base parent="${parent}" id="b_r" number="3" x_loc= "-0.176" y_loc= "-0.176" z_loc="-0.01" yaw="${M_PI}"/>
-    <xacro:stack_wheel_steer_base parent="${parent}" id="b_l" number="4" x_loc= "-0.176" y_loc= " 0.176" z_loc="-0.01" yaw="${M_PI}"/>
+    <xacro:stack_wheel_steer_base parent="${parent}" id="f_r" number="1" x_loc= " 0.176" y_loc= "-0.176" z_loc="0.0473"/>
+    <xacro:stack_wheel_steer_base parent="${parent}" id="f_l" number="2" x_loc= " 0.176" y_loc= " 0.176" z_loc="0.0473"/>
+    <xacro:stack_wheel_steer_base parent="${parent}" id="b_r" number="3" x_loc= "-0.176" y_loc= "-0.176" z_loc="0.0473" yaw="${M_PI}"/>
+    <xacro:stack_wheel_steer_base parent="${parent}" id="b_l" number="4" x_loc= "-0.176" y_loc= " 0.176" z_loc="0.0473" yaw="${M_PI}"/>
 
-    <xacro:stack_wheel_steer parent="${prefix}_steer_base_f_r_link" id="f_r" number="1" x_loc= "0.0" y_loc= "0.0" z_loc="-0.175502" />
-    <xacro:stack_wheel_steer parent="${prefix}_steer_base_f_l_link" id="f_l" number="2" x_loc= "0.0" y_loc= "0.0" z_loc="-0.175502" />
-    <xacro:stack_wheel_steer parent="${prefix}_steer_base_b_r_link" id="b_r" number="3" x_loc= "0.0" y_loc= "0.0" z_loc="-0.175502"/>
-    <xacro:stack_wheel_steer parent="${prefix}_steer_base_b_l_link" id="b_l" number="4" x_loc= "0.0" y_loc= "0.0" z_loc="-0.175502"/>
+    <xacro:stack_wheel_steer parent="${prefix}_steer_base_f_r_link" id="f_r" number="1" x_loc= "0.0" y_loc= "0.0" z_loc="-0.09545" />
+    <xacro:stack_wheel_steer parent="${prefix}_steer_base_f_l_link" id="f_l" number="2" x_loc= "0.0" y_loc= "0.0" z_loc="-0.09545" />
+    <xacro:stack_wheel_steer parent="${prefix}_steer_base_b_r_link" id="b_r" number="3" x_loc= "0.0" y_loc= "0.0" z_loc="-0.09545"/>
+    <xacro:stack_wheel_steer parent="${prefix}_steer_base_b_l_link" id="b_l" number="4" x_loc= "0.0" y_loc= "0.0" z_loc="-0.09545"/>
 
-    <xacro:stack_wheel_drive parent="${prefix}_steer_f_r_link" id="f_r" number="1" x_loc= "0.0" y_loc= "0.0" z_loc="-0.068706" />
-    <xacro:stack_wheel_drive parent="${prefix}_steer_f_l_link" id="f_l" number="2" x_loc= "0.0" y_loc= "0.0" z_loc="-0.068706" />
-    <xacro:stack_wheel_drive parent="${prefix}_steer_b_r_link" id="b_r" number="3" x_loc= "0.0" y_loc= "0.0" z_loc="-0.068706" />
-    <xacro:stack_wheel_drive parent="${prefix}_steer_b_l_link" id="b_l" number="4" x_loc= "0.0" y_loc= "0.0" z_loc="-0.068706" />
+    <xacro:stack_wheel_drive parent="${prefix}_steer_f_r_link" id="f_r" number="1" x_loc= "0.0" y_loc= "0.0" z_loc="-0.148208" />
+    <xacro:stack_wheel_drive parent="${prefix}_steer_f_l_link" id="f_l" number="2" x_loc= "0.0" y_loc= "0.0" z_loc="-0.148208" />
+    <xacro:stack_wheel_drive parent="${prefix}_steer_b_r_link" id="b_r" number="3" x_loc= "0.0" y_loc= "0.0" z_loc="-0.148208" />
+    <xacro:stack_wheel_drive parent="${prefix}_steer_b_l_link" id="b_l" number="4" x_loc= "0.0" y_loc= "0.0" z_loc="-0.148208" />
 
     <xacro:wheel_transmission prefix="${prefix}" />
 
