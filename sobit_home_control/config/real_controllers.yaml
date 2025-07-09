@@ -1,49 +1,85 @@
 /**/controller_manager:
   ros__parameters:
-    update_rate: 1000  # Hz
-
-    velocity_controller:
-      type: velocity_controllers/JointGroupVelocityController
-
-    joint_trajectory_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
+    update_rate: 50  # Hz
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-/**/velocity_controller:
-  ros__parameters:
-    joints:
-      - arm_shoulder_roll_joint
-      - arm_shoulder_pitch_joint
-      - arm_shoulder_pitch_sub_joint
-      - arm_elbow_pitch_joint
-      - arm_forearm_roll_joint
-      - arm_wrist_pitch_joint
-      - arm_wrist_roll_joint
-      - hand_joint
-      - head_yaw_joint
-      - head_pitch_joint
+    wheel_steer_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
 
-/**/joint_trajectory_controller:
-  ros__parameters:
-    joints:
-      - arm_shoulder_roll_joint
-      - arm_shoulder_pitch_joint
-      - arm_shoulder_pitch_sub_joint
-      - arm_elbow_pitch_joint
-      - arm_forearm_roll_joint
-      - arm_wrist_pitch_joint
-      - arm_wrist_roll_joint
-      - hand_joint
-      - head_yaw_joint
-      - head_pitch_joint
+    wheel_drive_velocity_controller:
+      # type: forward_command_controller/ForwardCommandController
+      type: joint_trajectory_controller/JointTrajectoryController
 
+
+/**/wheel_steer_position_controller:
+  ros__parameters:
+    controller_name: "wheel_steer_position_controller"
+    joints:
+      - wheel_steer_f_l_joint
+      - wheel_steer_f_r_joint
+      - wheel_steer_b_l_joint
+      - wheel_steer_b_r_joint
     command_interfaces:
       - position
 
     state_interfaces:
       - position
       - velocity
-
+      # - effort
+    allow_integration_in_goal_trajectories: true
+    allow_nonzero_velocity_at_trajectory_end: true
     allow_partial_joints_goal: true
+
+# /**/wheel_drive_velocity_controller:
+#   ros__parameters:
+#     joints:
+#       - wheel_drive_f_l_joint
+#       - wheel_drive_f_r_joint
+#       - wheel_drive_b_l_joint
+#       - wheel_drive_b_r_joint
+#     interface_name: velocity
+
+/**/wheel_drive_velocity_controller:
+  ros__parameters:
+    controller_name: "wheel_drive_velocity_controller"
+    joints:
+      - wheel_drive_f_l_joint
+      - wheel_drive_f_r_joint
+      - wheel_drive_b_l_joint
+      - wheel_drive_b_r_joint
+    command_interfaces:
+      - velocity
+    state_interfaces:
+      - position
+      - velocity
+    allow_integration_in_goal_trajectories: true
+    # allow_nonzero_velocity_at_trajectory_end: true
+    # allow_partial_joints_goal: true
+    gains:
+      wheel_drive_f_l_joint:
+        # Do not assume these parameters will work for your use case.
+        d: 10.0
+        ff_velocity_scale: 0.0
+        i: 50.0
+        i_clamp: 80.0
+        p: 120.0
+      wheel_drive_f_r_joint:
+        d: 10.0
+        ff_velocity_scale: 0.0
+        i: 50.0
+        i_clamp: 80.0
+        p: 120.0
+      wheel_drive_b_l_joint:
+        d: 10.0
+        ff_velocity_scale: 0.0
+        i: 50.0
+        i_clamp: 80.0
+        p: 120.0
+      wheel_drive_b_r_joint:
+        d: 10.0
+        ff_velocity_scale: 0.0
+        i: 50.0
+        i_clamp: 80.0
+        p: 120.0
