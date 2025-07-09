@@ -2,9 +2,9 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction, IncludeLaunchDescription, RegisterEventHandler
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction, IncludeLaunchDescription, RegisterEventHandler, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.event_handlers import OnProcessExit
+from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch.conditions import LaunchConfigurationEquals
 from launch_ros.substitutions import FindPackageShare
@@ -110,10 +110,14 @@ def launch_gz(context, *args, **kwargs):
             package="controller_manager",
             executable="ros2_control_node",
             namespace=robot_name,
-            parameters=[
-                {"robot_description": robot_description_config.toxml()}, controller_config],
+            parameters=[controller_config],
+            remappings=[
+                ("controller_manager/robot_description", "robot_description"),
+            ],
             output="screen",
         )
+        delayed_controller_manager = TimerAction(period=3.0, actions=[controller_manager])
+
 
     joint_state_broadcaster = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller',
@@ -124,12 +128,12 @@ def launch_gz(context, *args, **kwargs):
         ],
         output='screen'
     )
-    # joint_state_broadcaster = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     # namespace=robot_name,
-    #     arguments=['joint_state_broadcaster', '--controller-manager', robot_name+'/controller_manager'],
-    # )
+    delayed_joint_state_broadcaster = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[joint_state_broadcaster],
+        )
+    )
 
     wheel_steer_position_controller = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller',
@@ -140,12 +144,12 @@ def launch_gz(context, *args, **kwargs):
         ],
         output='screen'
     )
-    # wheel_steer_position_controller = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     # namespace=robot_name,
-    #     arguments=['wheel_steer_position_controller', '--controller-manager', robot_name+'/controller_manager', '--param-file', controller_config],
-    # )
+    delayed_wheel_steer_position_controller = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[wheel_steer_position_controller],
+        )
+    )
 
     wheel_drive_velocity_controller = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller',
@@ -156,12 +160,12 @@ def launch_gz(context, *args, **kwargs):
         ],
         output='screen'
     )
-    # wheel_drive_velocity_controller = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     # namespace=robot_name,
-    #     arguments=['wheel_drive_velocity_controller', '--controller-manager', robot_name+'/controller_manager', '--param-file', controller_config],
-    # )
+    delayed_wheel_drive_velocity_controller = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[wheel_drive_velocity_controller],
+        )
+    )
 
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
@@ -280,10 +284,10 @@ def launch_gz(context, *args, **kwargs):
         )
     
         return [
-            controller_manager,
-            wheel_steer_position_controller,
-            wheel_drive_velocity_controller,
-            joint_state_broadcaster,
+            delayed_controller_manager,
+            delayed_wheel_steer_position_controller,
+            delayed_wheel_drive_velocity_controller,
+            delayed_joint_state_broadcaster,
             robot_state_publisher_node,
             # RegisterEventHandler(
             #     event_handler=OnProcessExit(
