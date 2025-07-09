@@ -105,9 +105,9 @@
   <xacro:if value="${$(arg enable_mb) and not $(arg enable_arm) and not $(arg enable_head)}">
     <xacro:base/>
     <xacro:plate prefix="plate" parent="base_link" />
-    <xacro:wheel prefix="wheel" parent="plate_top_link" />
+    <xacro:wheel prefix="wheel" parent="plate_middle_link" />
     <!-- <xacro:cover prefix="cover" parent="plate_top_link" /> -->
-    <xacro:lidar prefix="lidar" parent="plate_top_link" />
+    <xacro:lidar prefix="lidar" parent="plate_middle_link" />
   </xacro:if>
 
   <!-- enable_mb: false, enable_arm: true, enable_head: true -->
