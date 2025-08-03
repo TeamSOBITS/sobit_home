@@ -28,7 +28,7 @@
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/realsense_d405.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/realsense_d415.urdf.xacro" />
 
-  <xacro:include filename="$(find urg_node)/urdf/hokuyo_ust.urdf.xacro" />
+  <xacro:include filename="$(find urg_node)/urdf/hokuyo_ust10.urdf.xacro" />
   <!-- <xacro:include filename="$(find sobit_home_description)/urdf/azure_kinect.urdf.xacro" /> -->
   <!-- <xacro:include filename="$(find azure_kinect_ros_driver)/urdf/azure_kinect.urdf.xacro" /> -->
   <!-- <xacro:include filename="$(find azure_kinect_ros_driver)/urdf/azure_kinect.urdf.xacro" /> -->
