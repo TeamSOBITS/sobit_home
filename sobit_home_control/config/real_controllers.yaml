@@ -27,8 +27,3 @@
       - wheel_drive_f_r_joint
       - wheel_drive_b_l_joint
       - wheel_drive_b_r_joint
-    command_interfaces:
-      - effort
-    state_interfaces:
-      - position
-      - velocity
