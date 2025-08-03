@@ -118,53 +118,54 @@ def launch_gz(context, *args, **kwargs):
         )
         delayed_controller_manager = TimerAction(period=3.0, actions=[controller_manager])
 
-        joint_state_broadcaster = ExecuteProcess(
-            cmd=['ros2', 'control', 'load_controller',
-                '--set-state', 'active',
-                '--controller-manager', robot_name+'/controller_manager',
-                # '--use-sim-time',
-                'joint_state_broadcaster'
-            ],
-            output='screen'
-        )
-        delayed_joint_state_broadcaster = RegisterEventHandler(
-            event_handler=OnProcessStart(
-                target_action=controller_manager,
-                on_start=[joint_state_broadcaster],
-            )
-        )
 
-        wheel_steer_position_controller = ExecuteProcess(
-            cmd=['ros2', 'control', 'load_controller',
-                '--set-state', 'active',
-                '--controller-manager', robot_name+'/controller_manager',
-                # '--use-sim-time',
-                'wheel_steer_position_controller'
-            ],
-            output='screen'
+    joint_state_broadcaster = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller',
+            '--set-state', 'active',
+            '--controller-manager', robot_name+'/controller_manager',
+            # '--use-sim-time',
+            'joint_state_broadcaster'
+        ],
+        output='screen'
+    )
+    delayed_joint_state_broadcaster = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[joint_state_broadcaster],
         )
-        delayed_wheel_steer_position_controller = RegisterEventHandler(
-            event_handler=OnProcessStart(
-                target_action=controller_manager,
-                on_start=[wheel_steer_position_controller],
-            )
-        )
+    )
 
-        wheel_drive_velocity_controller = ExecuteProcess(
-            cmd=['ros2', 'control', 'load_controller',
-                '--set-state', 'active',
-                '--controller-manager', robot_name+'/controller_manager',
-                # '--use-sim-time',
-                'wheel_drive_velocity_controller'
-            ],
-            output='screen'
+    wheel_steer_position_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller',
+            '--set-state', 'active',
+            '--controller-manager', robot_name+'/controller_manager',
+            # '--use-sim-time',
+            'wheel_steer_position_controller'
+        ],
+        output='screen'
+    )
+    delayed_wheel_steer_position_controller = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[wheel_steer_position_controller],
         )
-        delayed_wheel_drive_velocity_controller = RegisterEventHandler(
-            event_handler=OnProcessStart(
-                target_action=controller_manager,
-                on_start=[wheel_drive_velocity_controller],
-            )
+    )
+
+    wheel_drive_velocity_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller',
+            '--set-state', 'active',
+            '--controller-manager', robot_name+'/controller_manager',
+            # '--use-sim-time',
+            'wheel_drive_velocity_controller'
+        ],
+        output='screen'
+    )
+    delayed_wheel_drive_velocity_controller = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[wheel_drive_velocity_controller],
         )
+    )
 
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
@@ -309,12 +310,6 @@ def launch_gz(context, *args, **kwargs):
         ]
     
     else:
-        # For Gazebo simulation, create dummy controllers for the event handlers
-        joint_state_broadcaster = ExecuteProcess(
-            cmd=['echo', 'Gazebo joint state broadcaster placeholder'],
-            output='screen'
-        )
-        
         return [
             gz_spawn_entity_node,
             gz_bridge_node,
@@ -326,26 +321,24 @@ def launch_gz(context, *args, **kwargs):
                     on_exit=[joint_state_broadcaster],
                 )
             ),
-            # Note: joint_trajectory_controller, velocity_controller, and diff_controller
-            # are not needed for Gazebo simulation in this configuration
-            # RegisterEventHandler(
-            #     event_handler=OnProcessExit(
-            #         target_action=joint_state_broadcaster,
-            #         on_exit=[joint_trajectory_controller],
-            #     )
-            # ),
-            # RegisterEventHandler(
-            #     event_handler=OnProcessExit(
-            #         target_action=joint_state_broadcaster,
-            #         on_exit=[velocity_controller],
-            #     )
-            # ),
-            # RegisterEventHandler(
-            #     event_handler=OnProcessExit(
-            #         target_action=joint_state_broadcaster,
-            #         on_exit=[diff_controller],
-            #     )
-            # ),
+            RegisterEventHandler(
+                event_handler=OnProcessExit(
+                    target_action=joint_state_broadcaster,
+                    on_exit=[joint_trajectory_controller],
+                )
+            ),
+            RegisterEventHandler(
+                event_handler=OnProcessExit(
+                    target_action=joint_state_broadcaster,
+                    on_exit=[velocity_controller],
+                )
+            ),
+            RegisterEventHandler(
+                event_handler=OnProcessExit(
+                    target_action=joint_state_broadcaster,
+                    on_exit=[diff_controller],
+                )
+            ),
             # RegisterEventHandler(
             #     event_handler=OnProcessExit(
             #         target_action=joint_state_broadcaster,
