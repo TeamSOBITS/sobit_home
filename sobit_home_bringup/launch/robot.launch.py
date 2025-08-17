@@ -134,12 +134,12 @@ def launch_gz(context, *args, **kwargs):
         ],
         output="screen",
     )
-    
+
     joint_state_broadcaster = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller',
             '--set-state', 'active',
             '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
+            # '--uses-sim-time',
             'joint_state_broadcaster'
         ],
         output='screen'
@@ -171,7 +171,25 @@ def launch_gz(context, *args, **kwargs):
         ],
         output='screen'
     )
+    wheel_steer_position_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller',
+            '--set-state', 'active',
+            '--controller-manager', robot_name+'/controller_manager',
+            # '--use-sim-time',
+            'wheel_steer_position_controller'
+        ],
+        output='screen'
+    )
 
+    wheel_drive_velocity_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller',
+            '--set-state', 'active',
+            '--controller-manager', robot_name+'/controller_manager',
+            # '--use-sim-time',
+            'wheel_drive_velocity_controller'
+        ],
+        output='screen'
+    )
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -211,25 +229,6 @@ def launch_gz(context, *args, **kwargs):
                 target_action=controller_manager,
                 on_start=[wheel_steer_position_controller],
             )
-        )
-        wheel_steer_position_controller = ExecuteProcess(
-            cmd=['ros2', 'control', 'load_controller',
-                '--set-state', 'active',
-                '--controller-manager', robot_name+'/controller_manager',
-                # '--use-sim-time',
-                'wheel_steer_position_controller'
-            ],
-            output='screen'
-        )
-
-        wheel_drive_velocity_controller = ExecuteProcess(
-            cmd=['ros2', 'control', 'load_controller',
-                '--set-state', 'active',
-                '--controller-manager', robot_name+'/controller_manager',
-                # '--use-sim-time',
-                'wheel_drive_velocity_controller'
-            ],
-            output='screen'
         )
         delayed_wheel_drive_velocity_controller = RegisterEventHandler(
             event_handler=OnProcessStart(
@@ -359,30 +358,34 @@ def launch_gz(context, *args, **kwargs):
             gz_bridge_node,
             # gz_tf_head_cam_node,
             # gz_tf_hand_cam_node,
-            RegisterEventHandler(
-                event_handler=OnProcessExit(
-                    target_action=gz_spawn_entity_node,
-                    on_exit=[joint_state_broadcaster],
-                )
-            ),
-            RegisterEventHandler(
-                event_handler=OnProcessExit(
-                    target_action=joint_state_broadcaster,
-                    on_exit=[joint_trajectory_controller],
-                )
-            ),
-            RegisterEventHandler(
-                event_handler=OnProcessExit(
-                    target_action=joint_state_broadcaster,
-                    on_exit=[velocity_controller],
-                )
-            ),
-            RegisterEventHandler(
-                event_handler=OnProcessExit(
-                    target_action=joint_state_broadcaster,
-                    on_exit=[diff_controller],
-                )
-            ),
+            controller_manager,
+            wheel_steer_position_controller,
+            wheel_drive_velocity_controller,
+            joint_state_broadcaster,
+            # RegisterEventHandler(
+            #     event_handler=OnProcessExit(
+            #         target_action=gz_spawn_entity_node,
+            #         on_exit=[joint_state_broadcaster],
+            #     )
+            # ),
+            # RegisterEventHandler(
+            #     event_handler=OnProcessExit(
+            #         target_action=joint_state_broadcaster,
+            #         on_exit=[joint_trajectory_controller],
+            #     )
+            # ),
+            # RegisterEventHandler(
+            #     event_handler=OnProcessExit(
+            #         target_action=joint_state_broadcaster,
+            #         on_exit=[velocity_controller],
+            #     )
+            # ),
+            # RegisterEventHandler(
+            #     event_handler=OnProcessExit(
+            #         target_action=joint_state_broadcaster,
+            #         on_exit=[diff_controller],
+            #     )
+            # ),
             # RegisterEventHandler(
             #     event_handler=OnProcessExit(
             #         target_action=joint_state_broadcaster,
