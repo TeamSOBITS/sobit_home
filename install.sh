@@ -9,9 +9,8 @@ cd ..
 
 # Download required packages
 ros_packages=(
-    "sobits_msgs"
     "urg_node"
-    # "sobits_interfaces"
+    "sobits_interfaces"
     # "dynamixel_hardware"
     # "realsense_ros"
 )
