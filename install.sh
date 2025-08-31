@@ -48,13 +48,10 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-velocity-controllers \
     ros-$ROS_DISTRO-effort-controllers \
     ros-$ROS_DISTRO-joint-trajectory-controller \
-    ros-$ROS_DISTRO-joint-group-impedance-controller \
     ros-$ROS_DISTRO-joint-state-publisher \
     ros-$ROS_DISTRO-joint-state-publisher-gui \
     ros-$ROS_DISTRO-joint-state-broadcaster \
     ros-$ROS_DISTRO-joint-limits \
-    ros-$ROS_DISTRO-robot-controllers \
-    ros-$ROS_DISTRO-robot-controllers-interface \
     ros-$ROS_DISTRO-robot-state-publisher \
     ros-$ROS_DISTRO-hardware-interface \
     ros-$ROS_DISTRO-transmission-interface \
@@ -73,7 +70,11 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-joy-linux \
     ros-$ROS_DISTRO-launch \
     ros-$ROS_DISTRO-launch-ros \
-    ros-$ROS_DISTRO-gz-ros2-control
+    ros-$ROS_DISTRO-gz-ros2-control \
+    ros-$ROS_DISTRO-actuator-msgs \
+    ros-$ROS_DISTRO-gps-msgs \
+    ros-$ROS_DISTRO-ros-gz-interfaces
+
 
 # Set up the environment
 sudo usermod -aG dialout $USER
