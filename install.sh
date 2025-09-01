@@ -33,7 +33,7 @@ for ((i = 0; i < ${#ros_packages[@]}; i++)) {
 cd ${DIR}
 
 # Download required dependencies
-python3 -m pip install \
+python3 -m pip install --break-system-packages \
     transforms3d
 
 # Download ROS packages
@@ -73,8 +73,9 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-gz-ros2-control \
     ros-$ROS_DISTRO-actuator-msgs \
     ros-$ROS_DISTRO-gps-msgs \
+    ros-$ROS_DISTRO-ros-gz-bridge \
+    ros-$ROS_DISTRO-ros-gz-sim \
     ros-$ROS_DISTRO-ros-gz-interfaces
-
 
 # Set up the environment
 sudo usermod -aG dialout $USER
@@ -106,6 +107,5 @@ sudo apt-get install -y \
 
 # Go back to previous directory
 cd ${DIR}
-
 
 echo "╚══╣ Setup: SOBIT LIGHT (FINISHED) ╠══╝"
