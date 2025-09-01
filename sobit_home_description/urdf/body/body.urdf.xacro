@@ -4,14 +4,14 @@
   <xacro:macro name="body" params="prefix parent" >
   
     <joint name="${prefix}_joint" type="fixed" >
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 0.0 0.565" rpy="0.0 0.0 0.0" />
       <parent link="${parent}" />
       <child link="${prefix}_link" />
     </joint>
 
     <link name="${prefix}_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.565" rpy="0.0 0.0 ${M_PI}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/body/linear_actuator.stl" scale="0.001 0.001 0.001" />
         </geometry>
