@@ -20,7 +20,7 @@ def generate_launch_description():
     arg_robot_coords_z = DeclareLaunchArgument('robot_coords_z', default_value='0')
     arg_robot_coords_Y = DeclareLaunchArgument('robot_coords_Y', default_value='0')
 
-    arg_enable_gz = DeclareLaunchArgument('enable_gz', default_value='True')
+    arg_enable_gz = DeclareLaunchArgument('enable_gz', default_value='False')
     arg_enable_mb = DeclareLaunchArgument('enable_mb', default_value='True')
     arg_enable_arm = DeclareLaunchArgument('enable_arm', default_value='False')
     arg_enable_head = DeclareLaunchArgument('enable_head', default_value='False')
@@ -98,13 +98,13 @@ def launch_gz(context, *args, **kwargs):
             'enable_head': enable_head,
             'robot_namespace': robot_name
         })
-
+    
     if enable_gz == 'False':
         rviz_file = 'real.rviz'
         control_file = 'real_controllers.yaml'
     else:
         rviz_file = 'gazebo.rviz'
-        control_file = 'sim_controllers.yaml'
+        control_file = 'gz_controllers.yaml'
 
     rviz_config = PathJoinSubstitution([
         FindPackageShare('sobit_home_bringup'),
@@ -135,42 +135,25 @@ def launch_gz(context, *args, **kwargs):
         output="screen",
     )
 
+    delayed_controller_manager = TimerAction(period=3.0, actions=[controller_manager])
+
+
     joint_state_broadcaster = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller',
             '--set-state', 'active',
             '--controller-manager', robot_name+'/controller_manager',
-            # '--uses-sim-time',
+            # '--use-sim-time',
             'joint_state_broadcaster'
         ],
         output='screen'
     )
-    joint_trajectory_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'active',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'joint_trajectory_controller'
-        ],
-        output='screen'
+    delayed_joint_state_broadcaster = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[joint_state_broadcaster],
+        )
     )
-    velocity_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'active',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'velocity_controller'
-        ],
-        output='screen'
-    )
-    diff_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'active',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'diff_controller'
-        ],
-        output='screen'
-    )
+
     wheel_steer_position_controller = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller',
             '--set-state', 'active',
@@ -179,6 +162,12 @@ def launch_gz(context, *args, **kwargs):
             'wheel_steer_position_controller'
         ],
         output='screen'
+    )
+    delayed_wheel_steer_position_controller = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[wheel_steer_position_controller],
+        )
     )
 
     wheel_drive_velocity_controller = ExecuteProcess(
@@ -190,6 +179,13 @@ def launch_gz(context, *args, **kwargs):
         ],
         output='screen'
     )
+    delayed_wheel_drive_velocity_controller = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[wheel_drive_velocity_controller],
+        )
+    )
+
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -202,6 +198,7 @@ def launch_gz(context, *args, **kwargs):
         ],
         output="screen",
     )
+
     action_server_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
             PathJoinSubstitution([
@@ -358,10 +355,12 @@ def launch_gz(context, *args, **kwargs):
             gz_bridge_node,
             # gz_tf_head_cam_node,
             # gz_tf_hand_cam_node,
-            controller_manager,
-            wheel_steer_position_controller,
-            wheel_drive_velocity_controller,
-            joint_state_broadcaster,
+            delayed_controller_manager,
+            delayed_wheel_steer_position_controller,
+            delayed_wheel_drive_velocity_controller,
+            delayed_joint_state_broadcaster,
+            robot_state_publisher_node,
+            rviz_node,
             # RegisterEventHandler(
             #     event_handler=OnProcessExit(
             #         target_action=gz_spawn_entity_node,
@@ -392,6 +391,4 @@ def launch_gz(context, *args, **kwargs):
             #         on_exit=[action_server_launch],
             #     )
             # ),
-            robot_state_publisher_node,
-            rviz_node,
         ]
