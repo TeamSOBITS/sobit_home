@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <robot name="sobit_home"
        xmlns:xacro="http://ros.org/wiki/xacro" >
-  <xacro:macro name="cover" params="prefix parent" >
+  <xacro:macro name="body" params="prefix parent" >
   
     <joint name="${prefix}_joint" type="fixed" >
-      <origin xyz="0.179108 0.0 -0.034" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 0.0 0.565" rpy="0.0 0.0 0.0" />
       <parent link="${parent}" />
       <child link="${prefix}_link" />
     </joint>
 
     <link name="${prefix}_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="${M_PI/2} 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
         <geometry>
-          <mesh filename="file://$(find sobit_home_description)/meshes/body/cover.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find sobit_home_description)/meshes/body/linear_actuator.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="blue" />
+        <material name="grey" />
       </visual>
       <collision>
         <origin xyz="-${0.02893+0.3/2} 0.0 ${0.034-0.489/2}" rpy="0.0 0.0 0.0" />

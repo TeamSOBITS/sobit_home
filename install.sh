@@ -9,9 +9,8 @@ cd ..
 
 # Download required packages
 ros_packages=(
-    "sobits_msgs"
     "urg_node"
-    # "sobits_interfaces"
+    "sobits_interfaces"
     # "dynamixel_hardware"
     # "realsense_ros"
 )
@@ -34,7 +33,7 @@ for ((i = 0; i < ${#ros_packages[@]}; i++)) {
 cd ${DIR}
 
 # Download required dependencies
-python3 -m pip install \
+python3 -m pip install --break-system-packages \
     transforms3d
 
 # Download ROS packages
@@ -49,13 +48,10 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-velocity-controllers \
     ros-$ROS_DISTRO-effort-controllers \
     ros-$ROS_DISTRO-joint-trajectory-controller \
-    ros-$ROS_DISTRO-joint-group-impedance-controller \
     ros-$ROS_DISTRO-joint-state-publisher \
     ros-$ROS_DISTRO-joint-state-publisher-gui \
     ros-$ROS_DISTRO-joint-state-broadcaster \
     ros-$ROS_DISTRO-joint-limits \
-    ros-$ROS_DISTRO-robot-controllers \
-    ros-$ROS_DISTRO-robot-controllers-interface \
     ros-$ROS_DISTRO-robot-state-publisher \
     ros-$ROS_DISTRO-hardware-interface \
     ros-$ROS_DISTRO-transmission-interface \
@@ -73,22 +69,28 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-tf-transformations \
     ros-$ROS_DISTRO-joy-linux \
     ros-$ROS_DISTRO-launch \
-    ros-$ROS_DISTRO-launch-ros
+    ros-$ROS_DISTRO-launch-ros \
+    ros-$ROS_DISTRO-gz-ros2-control \
+    ros-$ROS_DISTRO-actuator-msgs \
+    ros-$ROS_DISTRO-gps-msgs \
+    ros-$ROS_DISTRO-ros-gz-bridge \
+    ros-$ROS_DISTRO-ros-gz-sim \
+    ros-$ROS_DISTRO-ros-gz-interfaces
 
 # Set up the environment
 sudo usermod -aG dialout $USER
 
 # Install Gazebo Harmonic with binaries
-# sudo apt-get update
-# sudo apt-get install -y \
-#     curl \
-#     lsb-release gnupg
+sudo apt-get update
+sudo apt-get install -y \
+    curl \
+    lsb-release gnupg
 
-# sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
-# echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
-# sudo apt-get update
-# sudo apt-get install -y \
-#     gz-harmonic
+sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y \
+    gz-harmonic
 
 # # Setting up PS4 Joystick USB configuration
 # echo "KERNEL==\"uinput\", MODE=\"0666\"
@@ -105,6 +107,5 @@ sudo usermod -aG dialout $USER
 
 # Go back to previous directory
 cd ${DIR}
-
 
 echo "╚══╣ Setup: SOBIT LIGHT (FINISHED) ╠══╝"
