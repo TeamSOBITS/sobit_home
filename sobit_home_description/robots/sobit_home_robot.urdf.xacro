@@ -10,7 +10,7 @@
   <!-- Add URDF: links, joints -->
   <xacro:include filename="$(find sobit_home_description)/urdf/base/base.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/body/plate.urdf.xacro" />
-  <xacro:include filename="$(find sobit_home_description)/urdf/body/cover.urdf.xacro" />
+  <xacro:include filename="$(find sobit_home_description)/urdf/body/body.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/back/back.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/wheel/wheel.urdf.xacro" />
 
@@ -45,12 +45,12 @@
   <!-- Add variables -->
   <xacro:arg name="enable_gz"                 default="True" />
   <xacro:arg name="enable_gz_lidar"           default="True" />
-  <xacro:arg name="robot_name"                default="sobit_pro" />
+  <xacro:arg name="robot_name"                default="sobit_home" />
 
   <!-- <xacro:controllers name="joints_control" enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" /> -->
   <!-- <xacro:open_manipulator_x_ros2_control name="open_manipulator_x_ros2_control" /> -->
   <!-- <xacro:controllers_DxUpper name="joints_control_upper" enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" /> -->
-  <xacro:controllers_Dx name="joints_control" enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" />
+  <xacro:wheel_controllers name="wheel" enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" />
 
 
   <!-- enable_mb: true, enable_arm: true, enable_head: true -->
@@ -105,9 +105,9 @@
   <xacro:if value="${$(arg enable_mb) and not $(arg enable_arm) and not $(arg enable_head)}">
     <xacro:base/>
     <xacro:plate prefix="plate" parent="base_link" />
-    <xacro:wheel prefix="wheel" parent="plate_top_link" />
-    <!-- <xacro:cover prefix="cover" parent="plate_top_link" /> -->
-    <xacro:lidar prefix="lidar" parent="plate_top_link" />
+    <xacro:wheel prefix="wheel" parent="plate_middle_link" />
+    <xacro:body  prefix="body"  parent="plate_top_link" />
+    <xacro:lidar prefix="lidar" parent="plate_middle_link" />
   </xacro:if>
 
   <!-- enable_mb: false, enable_arm: true, enable_head: true -->

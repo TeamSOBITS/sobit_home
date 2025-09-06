@@ -24,6 +24,7 @@ find_package(tf2_ros REQUIRED)
 
 find_package(ros_gz_bridge REQUIRED)
 find_package(ros_gz_sim REQUIRED)
+find_package(gz_ros2_control REQUIRED)
 
 find_package(sobit_home_description REQUIRED)
 find_package(sobit_home_control REQUIRED)

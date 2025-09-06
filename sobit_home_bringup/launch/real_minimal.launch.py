@@ -10,19 +10,6 @@ def generate_launch_description():
     robot_name = 'sobit_home'
     robot_id = 0
 
-    rviz_config = PathJoinSubstitution([
-            FindPackageShare('sobit_home_bringup'),
-            'rviz',
-            'real.rviz'
-    ])
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        arguments=['-d', rviz_config],
-        output='screen',
-    )
-
     return LaunchDescription([
         # Launch Robot No. 1
         IncludeLaunchDescription(
@@ -34,11 +21,13 @@ def generate_launch_description():
                 ])
             ]),
             launch_arguments={
-                'robot_name': robot_name if robot_id == 0 else robot_name + '_' + str(robot_id),
-                'enable_gz' : 'False',
+                'robot_name' : robot_name if robot_id == 0 else robot_name + '_' + str(robot_id),
+                'enable_gz'  : 'False',
+                'enable_mb': 'True',
+                'enable_arm': 'False',
+                'enable_head': 'False',
                 'enable_real_head_cam' : 'True', # TODO: toggle head camera
                 'enable_real_hand_cam' : 'False', # TODO: toggle hand camera
             }.items()
         ),
-        rviz_node,
     ])

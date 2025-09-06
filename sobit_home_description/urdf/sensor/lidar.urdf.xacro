@@ -7,12 +7,12 @@
     <joint name="${prefix}_base_joint" type="fixed">
       <parent link="${parent}" />
       <child link="${prefix}_base_link" />
-      <origin xyz="${stand_x} ${stand_y} ${stand_z}" rpy="0.0 0.0 0.0" />
+      <origin xyz="${stand_x} ${stand_y} ${stand_z}" rpy="0.0 0.0 ${yaw-M_PI/2}" />
     </joint>
 
     <link name="${prefix}_base_link">
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${yaw}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/sensor/lidar_stand_edge.stl" scale="0.001 0.001 0.001" />
         </geometry>
@@ -35,7 +35,7 @@
 
 
     <xacro:hokuyo_ust_mount prefix="${prefix}" parent="${prefix}_base_link" topic="scan" >
-      <origin xyz="${hokuyo_x} ${hokuyo_y} ${hokuyo_z}" rpy="0.0 0.0 ${yaw}" />
+      <origin xyz="${hokuyo_x} ${hokuyo_y} ${hokuyo_z}" rpy="0.0 0.0 0.0" />
     </xacro:hokuyo_ust_mount>
 
   </xacro:macro>
@@ -43,8 +43,8 @@
 
   <xacro:macro name="lidar" params="parent prefix">
   
-    <xacro:lidar_edge parent="${parent}" prefix="${prefix}_lf" stand_x= " 0.2357767" stand_y=" 0.2357767" stand_z=" 0.05485" hokuyo_x=" 0.0459" hokuyo_y=" 0.0459" hokuyo_z="-0.142" yaw="${M_PI-M_PI/4}"/>
-    <xacro:lidar_edge parent="${parent}" prefix="${prefix}_rb" stand_x= "-0.2357767" stand_y="-0.2357767" stand_z="-0.05485" hokuyo_x="-0.0459" hokuyo_y="-0.0459" hokuyo_z="-0.142" yaw="${-M_PI/4}"/>
+    <xacro:lidar_edge parent="${parent}" prefix="${prefix}_lf" stand_x= " 0.2357767" stand_y=" 0.2357767" stand_z="0.01" hokuyo_x="0.06914214" hokuyo_y=" 0.0" hokuyo_z="-0.142" yaw="${M_PI-M_PI/4}"/>
+    <xacro:lidar_edge parent="${parent}" prefix="${prefix}_rb" stand_x= "-0.2357767" stand_y="-0.2357767" stand_z="0.01" hokuyo_x="0.06914214" hokuyo_y="0.0" hokuyo_z="-0.142" yaw="${-M_PI/4}"/>
 
   </xacro:macro>
 </robot>

@@ -30,18 +30,6 @@ def generate_launch_description():
         'empty_w_physics.sdf'
     )
 
-    rviz_config = PathJoinSubstitution([
-            FindPackageShare('sobit_home_bringup'),
-            'rviz',
-            'gazebo.rviz'
-    ])
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        output='screen',
-        arguments=['-d', rviz_config],
-    )
-
     return LaunchDescription([
         # Launch gazebo environment
         IncludeLaunchDescription(
@@ -107,5 +95,4 @@ def generate_launch_description():
         #         'enable_gz_imu' : 'True',
         #     }.items()
         # ),
-        rviz_node,
     ])
