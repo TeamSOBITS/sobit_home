@@ -24,7 +24,7 @@ def generate_launch_description():
     xacro_arguments = {
         'enable_gz': 'True',
         'enable_mb': 'True',
-        'enable_arm': 'False',
+        'enable_arm': 'True',
         'enable_head': 'False',
         'robot_namespace': robot_namespace
     }
