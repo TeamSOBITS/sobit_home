@@ -80,6 +80,7 @@
     <xacro:body  prefix="body"  parent="plate_top_link" />
     <xacro:lidar prefix="lidar" parent="plate_middle_link" />
     <xacro:arm   prefix="arm"   position="left" parent="linear_actuator_link" />
+    <xacro:arm   prefix="arm"   position="right" parent="linear_actuator_link" />
     <!-- <xacro:hand  prefix_hand="hand" prefix_finger="finger" parent="arm_wrist_tilt_link" /> -->
   </xacro:if>
 
