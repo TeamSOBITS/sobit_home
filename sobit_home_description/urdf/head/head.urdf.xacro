@@ -7,14 +7,14 @@
     <joint name="${prefix}_base_joint" type="fixed">
       <parent link="${parent}" />
       <child link="${prefix}_base_link" />
-      <origin xyz="0.0900 0.0 0.5270" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.015 0.0 0.085" rpy="0.0 0.0 0.0" />
     </joint>
 
     <link name="${prefix}_base_link">
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="${M_PI/2.0} 0.0 ${M_PI/2.0}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2.0}" />
         <geometry>
-          <mesh filename="file://$(find sobit_home_description)/meshes/head/head_camera_base.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find sobit_home_description)/meshes/head/neck_base.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="black" />
       </visual>
@@ -37,16 +37,16 @@
     <joint name="${prefix}_pan_joint" type="revolute">
       <parent link="${prefix}_base_link" />
       <child link="${prefix}_pan_link" />
-      <origin xyz="0.03985 0.0 0.0190" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0 0 1" />
-      <limit lower="${-M_PI/2.0}" upper="${M_PI/2.0}" effort="4.1" velocity="4.796165" />
+      <limit lower="${-M_PI/4.0}" upper="${M_PI/4.0}" effort="4.1" velocity="4.796165" />
     </joint>
 
     <link name="${prefix}_pan_link">
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2.0}" />
+        <origin xyz="0.0 0.0 -0.0272" rpy="0.0 0.0 ${M_PI/2.0}" />
         <geometry>
-          <mesh filename="file://$(find sobit_home_description)/meshes/head/head_camera_pan.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find sobit_home_description)/meshes/head/neck.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="black" />
       </visual>
@@ -69,16 +69,16 @@
     <joint name="${prefix}_tilt_joint" type="revolute">
       <parent link="${prefix}_pan_link" />
       <child link="${prefix}_tilt_link" />
-      <origin xyz="0.0 0.0 0.0405" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.05 0.0 0.131" rpy="0.0 0.0 0.0" />
       <axis xyz="0 -1 0" />
-      <limit lower="${-M_PI/2.0}" upper="${M_PI/2.0}" effort="4.1" velocity="4.796165" />
+      <limit lower="${-M_PI/4.0}" upper="${M_PI/6.0}" effort="4.1" velocity="4.796165" />
     </joint>
 
     <link name="${prefix}_tilt_link">
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2.0}" />
         <geometry>
-          <mesh filename="file://$(find sobit_home_description)/meshes/head/head_camera_tilt.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find sobit_home_description)/meshes/head/head.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="black" />
       </visual>
