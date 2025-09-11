@@ -25,7 +25,7 @@ def generate_launch_description():
         'enable_gz': 'True',
         'enable_mb': 'True',
         'enable_arm': 'True',
-        'enable_head': 'False',
+        'enable_head': 'True',
         'robot_namespace': robot_namespace
     }
 
