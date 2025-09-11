@@ -5,7 +5,7 @@
   <xacro:macro name="body" params="prefix parent" >
   
     <joint name="${prefix}_joint" type="fixed" >
-      <origin xyz="0.0 -0.0525 0.565" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 0.0 0.565" rpy="0.0 0.0 0.0" />
       <parent link="${parent}" />
       <child link="${prefix}_link" />
     </joint>
@@ -34,7 +34,7 @@
     </link>
 
     <joint name="linear_actuator_joint" type="prismatic" >
-      <origin xyz="0.0961 0.0525 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.11275 0.0 0.0" rpy="0.0 0.0 0.0" />
       <parent link="${prefix}_link" />
       <child link="linear_actuator_link" />
       <axis xyz="0.0 0.0 1.0" />
