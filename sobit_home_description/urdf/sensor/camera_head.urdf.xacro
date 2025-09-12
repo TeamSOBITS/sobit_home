@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<robot name="sobit_home"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find orbbec_description)/urdf/gemini_336.urdf.xacro" />
+  <xacro:macro name="camera_head" params="prefix parent">
+
+    <joint name="${prefix}_base_joint" type="fixed">
+      <parent link="${parent}" />
+      <child link="${prefix}_base_link" />
+      <origin xyz="0.0398 0.0 0.074" rpy="0.0 0.0 0.0" />
+    </joint>
+
+    <link name="${prefix}_base_link"/>
+
+    <xacro:gemini_336 parent="${prefix}_base_link" tf_prefix="${prefix}_">
+      <origin xyz="0.01 0 -0.0125" rpy="0 0 0"/>
+    </xacro:gemini_336>
+
+  </xacro:macro>
+</robot>

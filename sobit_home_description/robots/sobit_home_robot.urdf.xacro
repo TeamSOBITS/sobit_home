@@ -20,6 +20,8 @@
   <xacro:include filename="$(find sobit_home_description)/urdf/hand/hand.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/head/head.urdf.xacro" />
 
+  <xacro:include filename="$(find sobit_home_description)/urdf/sensor/camera_head.urdf.xacro" />
+
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/azure_camera.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/matrix.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/mic.urdf.xacro" />
@@ -64,7 +66,8 @@
     <xacro:arm   prefix="arm"   position="right" parent="linear_actuator_link" />
     <!-- <xacro:hand  prefix_hand="hand" prefix_finger="finger" parent="arm_wrist_tilt_link" /> -->
     <xacro:head  prefix="head"  parent="linear_actuator_link" /> 
-    <!-- <xacro:mic  prefix="mic"  parent="head_tilt_link" />  -->
+    <xacro:camera_head  prefix="head_camera"  parent="head_tilt_link" /> 
+    <xacro:mic  prefix="mic"  parent="head_tilt_link" /> 
   </xacro:if>
 
   <!-- enable_mb: true, enable_arm: true, enable_head: false -->
