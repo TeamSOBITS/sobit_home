@@ -10,6 +10,9 @@
 
     wheel_drive_velocity_controller:
       type: effort_controllers/JointGroupEffortController
+    
+    linear_actuator_position_controller:
+      type: position_controllers/JointGroupPositionController
 
 
 /**/wheel_steer_position_controller:
@@ -27,3 +30,8 @@
       - wheel_drive_f_r_joint
       - wheel_drive_b_l_joint
       - wheel_drive_b_r_joint
+
+/**/linear_actuator_position_controller:
+  ros__parameters:
+    joints:
+      - linear_actuator_joint

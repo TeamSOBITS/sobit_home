@@ -51,6 +51,8 @@
   <!-- <xacro:open_manipulator_x_ros2_control name="open_manipulator_x_ros2_control" /> -->
   <!-- <xacro:controllers_DxUpper name="joints_control_upper" enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" /> -->
   <xacro:wheel_controllers name="wheel" enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" />
+  <xacro:linear_actuator_controllers name="linear_actuator" enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" />
+  <xacro:ros2_controllers enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" />
 
 
   <!-- enable_mb: true, enable_arm: true, enable_head: true -->
