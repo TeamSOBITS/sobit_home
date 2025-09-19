@@ -109,4 +109,4 @@ sudo apt-get install -y \
 # Go back to previous directory
 cd ${DIR}
 
-echo "╚══╣ Setup: SOBIT LIGHT (FINISHED) ╠══╝"
+echo "╚══╣ Setup: SOBIT HOME (FINISHED) ╠══╝"
