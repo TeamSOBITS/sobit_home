@@ -6,12 +6,12 @@
     <joint name="${prefix}_base_joint" type="fixed">
       <parent link="${parent}" />
       <child link="${prefix}_base_link" />
-      <origin xyz="0.0 0.0 0.5400" rpy="0.0 0.0 0.0" />
+      <origin xyz="-0.042 0.0 0.082" rpy="0.0 -${M_PI/9.0} 0.0" />
     </joint>
 
     <link name="${prefix}_base_link">
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="${M_PI/2} 0.0 ${M_PI}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2.0}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/sensor/mic_base.stl" scale="0.001 0.001 0.001" />
         </geometry>
@@ -38,12 +38,12 @@
     <joint name="${prefix}_joint" type="fixed">
       <parent link="${prefix}_base_link" />
       <child link="${prefix}_link" />
-      <origin xyz="0.0 -0.099 0.0240" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 0.0 0.005" rpy="0.0 0.0 0.0" />
     </joint>
 
     <link name="${prefix}_link">
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="${M_PI/2} 0.0 ${M_PI}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2.0}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/sensor/mic.stl" scale="0.001 0.001 0.001" />
         </geometry>

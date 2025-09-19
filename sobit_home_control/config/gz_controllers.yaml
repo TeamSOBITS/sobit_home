@@ -11,8 +11,9 @@
     wheel_drive_velocity_controller:
       type: effort_controllers/JointGroupEffortController
     
-    linear_actuator_position_controller:
+    joint_position_controller:
       type: position_controllers/JointGroupPositionController
+
 
 
 /**/wheel_steer_position_controller:
@@ -31,7 +32,20 @@
       - wheel_drive_b_l_joint
       - wheel_drive_b_r_joint
 
-/**/linear_actuator_position_controller:
+/**/joint_position_controller:
   ros__parameters:
     joints:
+      - arm_left_shoulder_tilt_joint
+      - arm_left_upper_roll_joint
+      - arm_left_upper_flex_joint
+      - arm_left_elbow_joint
+      - arm_left_wrist_joint
+      - arm_right_shoulder_tilt_joint
+      - arm_right_upper_roll_joint
+      - arm_right_upper_flex_joint
+      - arm_right_elbow_joint
+      - arm_right_wrist_joint
+      - head_pan_joint
+      - head_tilt_joint
       - linear_actuator_joint
+
