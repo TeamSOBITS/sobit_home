@@ -20,10 +20,10 @@ def generate_launch_description():
     arg_robot_coords_z = DeclareLaunchArgument('robot_coords_z', default_value='0')
     arg_robot_coords_Y = DeclareLaunchArgument('robot_coords_Y', default_value='0')
 
-    arg_enable_gz = DeclareLaunchArgument('enable_gz', default_value='False')
+    arg_enable_gz = DeclareLaunchArgument('enable_gz', default_value='True')
     arg_enable_mb = DeclareLaunchArgument('enable_mb', default_value='True')
-    arg_enable_arm = DeclareLaunchArgument('enable_arm', default_value='False')
-    arg_enable_head = DeclareLaunchArgument('enable_head', default_value='False')
+    arg_enable_arm = DeclareLaunchArgument('enable_arm', default_value='True')
+    arg_enable_head = DeclareLaunchArgument('enable_head', default_value='True')
     arg_enable_gz_front_cam_color = DeclareLaunchArgument('enable_gz_front_cam_color', default_value='True')
     arg_enable_gz_back_cam_color = DeclareLaunchArgument('enable_gz_back_cam_color', default_value='True')
     arg_enable_gz_head_cam_color = DeclareLaunchArgument('enable_gz_head_cam_color', default_value='True')
@@ -183,6 +183,23 @@ def launch_gz(context, *args, **kwargs):
         event_handler=OnProcessStart(
             target_action=controller_manager,
             on_start=[wheel_drive_velocity_controller],
+        )
+    )
+
+
+    joint_position_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller',
+            '--set-state', 'active',
+            '--controller-manager', robot_name+'/controller_manager',
+            # '--use-sim-time',
+            'joint_position_controller'
+        ],
+        output='screen'
+    )
+    delayed_joint_position_controller = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[joint_position_controller],
         )
     )
 
@@ -358,6 +375,7 @@ def launch_gz(context, *args, **kwargs):
             delayed_controller_manager,
             delayed_wheel_steer_position_controller,
             delayed_wheel_drive_velocity_controller,
+            delayed_joint_position_controller,
             delayed_joint_state_broadcaster,
             robot_state_publisher_node,
             rviz_node,

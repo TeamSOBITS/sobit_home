@@ -38,7 +38,7 @@
       <parent link="${prefix}_link" />
       <child link="linear_actuator_link" />
       <axis xyz="0.0 0.0 1.0" />
-      <limit lower="-0.4" upper="0.4" effort="50.0" velocity="0.1" />
+      <limit lower="-0.4" upper="0.4" effort="150.0" velocity="0.1" />
     </joint>
 
     <link name="linear_actuator_link" >
