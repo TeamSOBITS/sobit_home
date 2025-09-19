@@ -35,6 +35,7 @@
 /**/joint_position_controller:
   ros__parameters:
     joints:
+      - linear_actuator_joint
       - arm_left_shoulder_tilt_joint
       - arm_left_upper_roll_joint
       - arm_left_upper_flex_joint
@@ -47,5 +48,4 @@
       - arm_right_wrist_joint
       - head_pan_joint
       - head_tilt_joint
-      - linear_actuator_joint
 

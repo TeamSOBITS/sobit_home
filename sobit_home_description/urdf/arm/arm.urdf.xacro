@@ -49,14 +49,14 @@
     <joint name="${prefix}_${position}_shoulder_tilt_joint" type="revolute" >
       <parent link="${prefix}_${position}_base_link" />
       <child link="${prefix}_${position}_shoulder_tilt_link" />
-      <origin xyz="0.0 ${y_sign * 0.19875} 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 ${y_sign * 0.126} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 -1.0 0.0 " />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6*2}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix}_${position}_shoulder_tilt_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2+yaw_rot}" />
+        <origin xyz="0.0 ${y_sign * 0.07275} 0.0" rpy="0.0 0.0 ${M_PI/2+yaw_rot}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_shoulder.stl" scale="0.001 0.001 0.001" />
         </geometry>
@@ -80,7 +80,7 @@
     <joint name="${prefix}_${position}_upper_roll_joint" type="revolute" >
       <parent link="${prefix}_${position}_shoulder_tilt_link" />
       <child link="${prefix}_${position}_upper_roll_link" />
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 ${y_sign * 0.0725} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
       <limit lower="${upper_roll_limit_lower}" upper="${upper_roll_limit_upper}" effort="${10.6*2}" velocity="11.031179004" />
     </joint>
