@@ -165,6 +165,7 @@
       </hardware>
 
       <joint name="arm_left_shoulder_tilt_joint">
+      <joint name="${name}_joint">
         <xacro:unless value="${$(arg enable_gz)}">
           <param name="id">20</param>
           <param name="control_mode">3</param>
@@ -416,3 +417,4 @@
     </xacro:if>
   </xacro:macro>
 </robot>
+

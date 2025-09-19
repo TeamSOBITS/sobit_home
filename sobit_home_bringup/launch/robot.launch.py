@@ -188,6 +188,7 @@ def launch_gz(context, *args, **kwargs):
 
 
     joint_position_controller = ExecuteProcess(
+
         cmd=['ros2', 'control', 'load_controller',
             '--set-state', 'active',
             '--controller-manager', robot_name+'/controller_manager',
@@ -343,6 +344,7 @@ def launch_gz(context, *args, **kwargs):
             delayed_controller_manager,
             delayed_wheel_steer_position_controller,
             delayed_wheel_drive_velocity_controller,
+            delayed_linear_actuator_position_controller,
             delayed_joint_state_broadcaster,
             robot_state_publisher_node,
             rviz_node,
