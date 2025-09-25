@@ -33,15 +33,15 @@
       </inertial>
     </link>
 
-    <joint name="linear_actuator_joint" type="prismatic" >
+    <joint name="${prefix}_lift_joint" type="prismatic" >
       <origin xyz="0.11275 0.0 0.0" rpy="0.0 0.0 0.0" />
       <parent link="${prefix}_link" />
-      <child link="linear_actuator_link" />
+      <child link="${prefix}_lift_link" />
       <axis xyz="0.0 0.0 1.0" />
       <limit lower="-0.4" upper="0.4" effort="150.0" velocity="0.1" />
     </joint>
 
-    <link name="linear_actuator_link" >
+    <link name="${prefix}_lift_link" >
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
         <geometry>
@@ -64,7 +64,7 @@
       </inertial>
     </link>
 
-    <xacro:body_transmission />
+    <xacro:body_transmission prefix="${prefix}" />
 
   </xacro:macro>
 </robot>
