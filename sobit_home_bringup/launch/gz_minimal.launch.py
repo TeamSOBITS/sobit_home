@@ -61,14 +61,14 @@ def generate_launch_description():
                 'robot_coords_z': '0.2', # z
                 'robot_coords_Y': '0', # yaw
                 'enable_gz' : 'True',
-                'enable_gz_front_cam_color' : 'True',
-                'enable_gz_back_cam_color' : 'True',
                 'enable_gz_head_cam_color' : 'True',
                 'enable_gz_head_cam_depth' : 'True',
-                'enable_gz_hand_cam_color' : 'True',
-                'enable_gz_hand_cam_depth' : 'True',
-                'enable_gz_lidar' : 'True',
-                'enable_gz_imu' : 'True',
+                'enable_gz_hand_left_cam_color' : 'True',
+                'enable_gz_hand_left_cam_depth' : 'True',
+                'enable_gz_hand_right_cam_color' : 'True',
+                'enable_gz_hand_right_cam_depth' : 'True',
+                'enable_gz_lidar_front' : 'True',
+                'enable_gz_lidar_back' : 'True',
             }.items()
         ),
         # Launch Robot No. 2
@@ -85,14 +85,15 @@ def generate_launch_description():
         #         'robot_coords_x': '0', # x 
         #         'robot_coords_y': '2', # y
         #         'robot_coords_Y': '0', # yaw
-        #         'enable_gz_front_cam_color' : 'True',
-        #         'enable_gz_back_cam_color' : 'True',
+        #         'enable_gz' : 'True',
         #         'enable_gz_head_cam_color' : 'True',
         #         'enable_gz_head_cam_depth' : 'True',
-        #         'enable_gz_hand_cam_color' : 'True',
-        #         'enable_gz_hand_cam_depth' : 'True',
-        #         'enable_gz_lidar' : 'True',
-        #         'enable_gz_imu' : 'True',
+        #         'enable_gz_hand_left_cam_color' : 'True',
+        #         'enable_gz_hand_left_cam_depth' : 'True',
+        #         'enable_gz_hand_right_cam_color' : 'True',
+        #         'enable_gz_hand_right_cam_depth' : 'True',
+        #         'enable_gz_lidar_front' : 'True',
+        #         'enable_gz_lidar_back' : 'True',
         #     }.items()
         # ),
     ])
