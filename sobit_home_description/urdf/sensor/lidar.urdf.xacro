@@ -2,7 +2,7 @@
 <robot name="sobit_home"
        xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <xacro:macro name="lidar_edge" params="prefix parent stand_x stand_y stand_z hokuyo_x hokuyo_y hokuyo_z yaw">
+  <xacro:macro name="lidar_edge" params="prefix parent robot_name stand_x stand_y stand_z hokuyo_x hokuyo_y hokuyo_z yaw">
 
     <joint name="${prefix}_base_joint" type="fixed">
       <parent link="${parent}" />
@@ -34,17 +34,17 @@
     </link>
 
 
-    <xacro:hokuyo_ust_mount prefix="${prefix}" parent="${prefix}_base_link" topic="scan" >
+    <xacro:hokuyo_ust_mount prefix="${prefix}" parent="${prefix}_base_link" topic="${prefix}/scan" model="ust-20" robot_name="${robot_name}">
       <origin xyz="${hokuyo_x} ${hokuyo_y} ${hokuyo_z}" rpy="0.0 0.0 0.0" />
     </xacro:hokuyo_ust_mount>
 
   </xacro:macro>
 
 
-  <xacro:macro name="lidar" params="parent prefix">
+  <xacro:macro name="lidar" params="parent prefix robot_name">
   
-    <xacro:lidar_edge parent="${parent}" prefix="${prefix}_lf" stand_x= " 0.2357767" stand_y=" 0.2357767" stand_z="0.01" hokuyo_x="0.06914214" hokuyo_y=" 0.0" hokuyo_z="-0.142" yaw="${M_PI-M_PI/4}"/>
-    <xacro:lidar_edge parent="${parent}" prefix="${prefix}_rb" stand_x= "-0.2357767" stand_y="-0.2357767" stand_z="0.01" hokuyo_x="0.06914214" hokuyo_y="0.0" hokuyo_z="-0.142" yaw="${-M_PI/4}"/>
+    <xacro:lidar_edge parent="${parent}" prefix="${prefix}_front" robot_name="${robot_name}" stand_x= " 0.2357767" stand_y=" 0.2357767" stand_z="0.01" hokuyo_x="0.06914214" hokuyo_y="0.0" hokuyo_z="-0.142" yaw="${M_PI-M_PI/4}"/>
+    <xacro:lidar_edge parent="${parent}" prefix="${prefix}_back"  robot_name="${robot_name}" stand_x= "-0.2357767" stand_y="-0.2357767" stand_z="0.01" hokuyo_x="0.06914214" hokuyo_y="0.0" hokuyo_z="-0.142" yaw="${-M_PI/4}"/>
 
   </xacro:macro>
 </robot>
