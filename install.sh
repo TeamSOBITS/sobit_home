@@ -11,6 +11,7 @@ cd ..
 ros_packages=(
     "urg_node"
     "sobits_interfaces"
+    "orbbecsdk_ros2"
     # "dynamixel_hardware"
     # "realsense_ros"
 )
@@ -108,4 +109,4 @@ sudo apt-get install -y \
 # Go back to previous directory
 cd ${DIR}
 
-echo "╚══╣ Setup: SOBIT LIGHT (FINISHED) ╠══╝"
+echo "╚══╣ Setup: SOBIT HOME (FINISHED) ╠══╝"

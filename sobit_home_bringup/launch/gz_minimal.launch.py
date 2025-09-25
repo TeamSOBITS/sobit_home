@@ -13,6 +13,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     robot_name = 'sobit_home'
     robot_id = 0
+    world_model = 'empty' # empty, wrs, small_house
 
     gz_bridge_node = Node(
         package='ros_gz_bridge',
@@ -23,6 +24,26 @@ def generate_launch_description():
                    ],
         output='screen'
     )
+
+    world_file = ''
+    if world_model == 'empty':
+        world_file = os.path.join(get_package_share_directory(
+            'sobit_home_description'), 
+            'worlds',
+            'empty_w_physics.sdf'
+        )
+    elif world_model == 'wrs':
+        world_file = os.path.join(get_package_share_directory(
+            'tmc_wrs_gz_worlds'), 
+            'worlds',
+            'wrs2020.world.xacro'
+        )
+    elif world_model == 'small_house':
+        world_file = os.path.join(get_package_share_directory(
+            'aws_small_house_world'), 
+            'worlds',
+            'small_house.world'
+        )
 
     world_file = os.path.join(get_package_share_directory(
         'sobit_home_description'), 
@@ -61,14 +82,14 @@ def generate_launch_description():
                 'robot_coords_z': '0.2', # z
                 'robot_coords_Y': '0', # yaw
                 'enable_gz' : 'True',
-                'enable_gz_front_cam_color' : 'True',
-                'enable_gz_back_cam_color' : 'True',
-                'enable_gz_head_cam_color' : 'True',
-                'enable_gz_head_cam_depth' : 'True',
-                'enable_gz_hand_cam_color' : 'True',
-                'enable_gz_hand_cam_depth' : 'True',
-                'enable_gz_lidar' : 'True',
-                'enable_gz_imu' : 'True',
+                'enable_gz_head_cam_color'      : 'True',
+                'enable_gz_head_cam_depth'      : 'True',
+                'enable_gz_hand_left_cam_color' : 'True',
+                'enable_gz_hand_left_cam_depth' : 'True',
+                'enable_gz_hand_right_cam_color': 'True',
+                'enable_gz_hand_right_cam_depth': 'True',
+                'enable_gz_lidar_front'         : 'True',
+                'enable_gz_lidar_back'          : 'True',
             }.items()
         ),
         # Launch Robot No. 2
@@ -85,14 +106,15 @@ def generate_launch_description():
         #         'robot_coords_x': '0', # x 
         #         'robot_coords_y': '2', # y
         #         'robot_coords_Y': '0', # yaw
-        #         'enable_gz_front_cam_color' : 'True',
-        #         'enable_gz_back_cam_color' : 'True',
+        #         'enable_gz' : 'True',
         #         'enable_gz_head_cam_color' : 'True',
         #         'enable_gz_head_cam_depth' : 'True',
-        #         'enable_gz_hand_cam_color' : 'True',
-        #         'enable_gz_hand_cam_depth' : 'True',
-        #         'enable_gz_lidar' : 'True',
-        #         'enable_gz_imu' : 'True',
+        #         'enable_gz_hand_left_cam_color' : 'True',
+        #         'enable_gz_hand_left_cam_depth' : 'True',
+        #         'enable_gz_hand_right_cam_color' : 'True',
+        #         'enable_gz_hand_right_cam_depth' : 'True',
+        #         'enable_gz_lidar_front' : 'True',
+        #         'enable_gz_lidar_back' : 'True',
         #     }.items()
         # ),
     ])

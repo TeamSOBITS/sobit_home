@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<robot name="sobit_home"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="body_transmission" params="prefix" >
+
+    <xacro:SimpleTransmissionPosition joint="${prefix}_lift_joint" reduction="1" />
+
+  </xacro:macro>
+</robot>
