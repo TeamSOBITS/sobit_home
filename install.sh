@@ -12,8 +12,9 @@ ros_packages=(
     "urg_node"
     "sobits_interfaces"
     "orbbecsdk_ros2"
-    # "dynamixel_hardware"
-    # "realsense_ros"
+    "dynamixel_hardware"
+    "rm_motors_ros"
+    # "iai_hardware"
 )
 
 #Clone all packages
