@@ -1,15 +1,15 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <robot name="sobit_home"
        xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:macro name="hand_transmission" params="prefix_hand prefix_finger">
+  <xacro:macro name="hand_transmission" params="prefix_hand position prefix_finger">
 
-    <xacro:position_joint_transmission joint="${prefix_hand}_joint"         reduction="1" />
-    <!-- <xacro:position_joint_transmission joint="${prefix_hand}_inner_l_joint" reduction="1" /> -->
-    <!-- <xacro:position_joint_transmission joint="${prefix_hand}_inner_r_joint" reduction="1" /> -->
-    <!-- <xacro:position_joint_transmission joint="${prefix_hand}_outer_l_joint" reduction="1" /> -->
-    <!-- <xacro:position_joint_transmission joint="${prefix_hand}_outer_r_joint" reduction="1" /> -->
-    <!-- <xacro:position_joint_transmission joint="${prefix_hand}_${prefix_finger}_l_joint" reduction="1" /> -->
-    <!-- <xacro:position_joint_transmission joint="${prefix_hand}_${prefix_finger}_r_joint" reduction="1" /> -->
+    <xacro:SimpleTransmissionPosition joint="${prefix_hand}_${position}_mcp_joint"                     reduction="1" />
+    <xacro:SimpleTransmissionPosition joint="${prefix_hand}_${position}_${prefix_finger}_l_cmc_joint"  reduction="1" />
+    <xacro:SimpleTransmissionPosition joint="${prefix_hand}_${position}_${prefix_finger}_l_mcp_joint"  reduction="1" />
+    <xacro:SimpleTransmissionPosition joint="${prefix_hand}_${position}_${prefix_finger}_c_cmc_joint"  reduction="1" />
+    <xacro:SimpleTransmissionPosition joint="${prefix_hand}_${position}_${prefix_finger}_c_mcp_joint"  reduction="1" />
+    <xacro:SimpleTransmissionPosition joint="${prefix_hand}_${position}_${prefix_finger}_r_cmc_joint"  reduction="1" />
+    <xacro:SimpleTransmissionPosition joint="${prefix_hand}_${position}_${prefix_finger}_r_mcp_joint"  reduction="1" />
 
   </xacro:macro>
 </robot>
