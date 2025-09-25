@@ -27,7 +27,6 @@
     <li>
     　<a href="#実行操作方法">実行・操作方法</a>
       <ul>
-        <li><a href="#テレオペレーション(遠隔操作)">テレオペレーション(遠隔操作)</a></li>
         <li><a href="#Rviz上の可視化">Rviz上の可視化</a></li>
         <li><a href="#シミュレータの実行方法">シミュレータの実行方法</a></li>
       </ul>
@@ -61,7 +60,7 @@
 <!-- 概要 -->
 ## 概要
 
-![SOBIT HOME](sobit_home/docs/img/sobit_home.png)
+<!-- ![SOBIT HOME](sobit_home/docs/img/sobit_home.png) -->
 
 4輪独立ステアリング移動機構・昇降機構・2椀・パンチルト機構を組み合わせたSOBITS自作モバイルマニピュレータを動かすためのパッケージです．
 
