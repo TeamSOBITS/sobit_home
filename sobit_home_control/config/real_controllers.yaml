@@ -2,8 +2,23 @@
   ros__parameters:
     update_rate: 50  # Hz
 
-    joint_state_broadcaster:
-      type: joint_state_broadcaster/JointStateBroadcaster
+    head_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    arm_left_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    arm_right_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    hand_left_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    hand_right_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    body_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
 
     wheel_steer_position_controller:
       type: position_controllers/JointGroupPositionController
@@ -11,6 +26,97 @@
     wheel_drive_velocity_controller:
       type: effort_controllers/JointGroupEffortController
 
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+
+/**/head_position_controller:
+  ros__parameters:
+    joints:
+      - head_pan_joint
+      - head_tilt_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    allow_partial_joints_goal: true
+
+/**/arm_left_position_controller:
+  ros__parameters:
+    joints:
+      - arm_left_shoulder_tilt_joint
+      - arm_left_upper_roll_joint
+      - arm_left_upper_flex_joint
+      - arm_left_elbow_joint
+      - arm_left_wrist_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    allow_partial_joints_goal: true
+
+/**/arm_right_position_controller:
+  ros__parameters:
+    joints:
+      - arm_right_shoulder_tilt_joint
+      - arm_right_upper_roll_joint
+      - arm_right_upper_flex_joint
+      - arm_right_elbow_joint
+      - arm_right_wrist_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    allow_partial_joints_goal: true
+
+/**/hand_left_position_controller:
+  ros__parameters:
+    joints:
+      - hand_left_finger_mcp_joint
+      - hand_left_finger_l_cmc_joint
+      - hand_left_finger_l_mcp_joint
+      - hand_left_finger_c_cmc_joint
+      - hand_left_finger_c_mcp_joint
+      - hand_left_finger_r_cmc_joint
+      - hand_left_finger_r_mcp_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    allow_partial_joints_goal: true
+
+/**/hand_right_position_controller:
+  ros__parameters:
+    joints:
+      - hand_right_finger_mcp_joint
+      - hand_right_finger_l_cmc_joint
+      - hand_right_finger_l_mcp_joint
+      - hand_right_finger_c_cmc_joint
+      - hand_right_finger_c_mcp_joint
+      - hand_right_finger_r_cmc_joint
+      - hand_right_finger_r_mcp_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    allow_partial_joints_goal: true
+
+/**/body_position_controller:
+  ros__parameters:
+    joints:
+      - body_lift_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    allow_partial_joints_goal: true
 
 /**/wheel_steer_position_controller:
   ros__parameters:

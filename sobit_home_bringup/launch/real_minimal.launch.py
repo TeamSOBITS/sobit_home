@@ -23,8 +23,9 @@ def generate_launch_description():
             launch_arguments={
                 'robot_name' : robot_name if robot_id == 0 else robot_name + '_' + str(robot_id),
                 'enable_gz'  : 'False',
-                'enable_mb': 'True',
-                'enable_arm': 'False',
+                'enable_mobile_base': 'True',
+                'enable_arm_left': 'False',
+                'enable_arm_right': 'False',
                 'enable_head': 'False',
                 'enable_real_head_cam' : 'True', # TODO: toggle head camera
                 'enable_real_hand_cam' : 'False', # TODO: toggle hand camera

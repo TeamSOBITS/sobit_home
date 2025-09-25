@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
       Splitter Ratio: 0.5222482681274414
-    Tree Height: 420
+    Tree Height: 1017
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -19,7 +19,6 @@ Panels:
   - Class: rviz_common/Views
     Expanded:
       - /Current View1
-      - /Current View1/Focal Point1
     Name: Views
     Splitter Ratio: 0.5
   - Class: rviz_common/Time
@@ -50,28 +49,84 @@ Visualization Manager:
       Value: true
     - Class: rviz_default_plugins/TF
       Enabled: true
-      Filter (blacklist): ""
-      Filter (whitelist): ""
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        sobit_home/arm_left_base_link:
+          Value: true
+        sobit_home/arm_left_elbow_link:
+          Value: true
+        sobit_home/arm_left_shoulder_tilt_link:
+          Value: true
+        sobit_home/arm_left_upper_flex_link:
+          Value: true
+        sobit_home/arm_left_upper_roll_link:
+          Value: true
+        sobit_home/arm_left_wrist_link:
+          Value: true
+        sobit_home/arm_right_base_link:
+          Value: true
+        sobit_home/arm_right_elbow_link:
+          Value: true
+        sobit_home/arm_right_shoulder_tilt_link:
+          Value: true
+        sobit_home/arm_right_upper_flex_link:
+          Value: true
+        sobit_home/arm_right_upper_roll_link:
+          Value: true
+        sobit_home/arm_right_wrist_link:
+          Value: true
         sobit_home/base_footprint:
           Value: true
         sobit_home/base_link:
           Value: true
+        sobit_home/body_lift_link:
+          Value: true
         sobit_home/body_link:
           Value: true
-        sobit_home/lidar_lf_base_link:
+        sobit_home/head_base_link:
           Value: true
-        sobit_home/lidar_lf_laser:
+        sobit_home/head_camera_base_link:
           Value: true
-        sobit_home/lidar_lf_laser_mount:
+        sobit_home/head_camera_camera_bottom_screw_frame:
           Value: true
-        sobit_home/lidar_rb_base_link:
+        sobit_home/head_camera_camera_color_frame:
           Value: true
-        sobit_home/lidar_rb_laser:
+        sobit_home/head_camera_camera_color_optical_frame:
           Value: true
-        sobit_home/lidar_rb_laser_mount:
+        sobit_home/head_camera_camera_depth_frame:
+          Value: true
+        sobit_home/head_camera_camera_depth_optical_frame:
+          Value: true
+        sobit_home/head_camera_camera_infra2_frame:
+          Value: true
+        sobit_home/head_camera_camera_infra2_optical_frame:
+          Value: true
+        sobit_home/head_camera_camera_infra_1_frame:
+          Value: true
+        sobit_home/head_camera_camera_infra_1_optical_frame:
+          Value: true
+        sobit_home/head_camera_plug_base_link:
+          Value: true
+        sobit_home/head_pan_link:
+          Value: true
+        sobit_home/head_tilt_link:
+          Value: true
+        sobit_home/lidar_back_base_link:
+          Value: true
+        sobit_home/lidar_back_laser:
+          Value: true
+        sobit_home/lidar_back_laser_mount:
+          Value: true
+        sobit_home/lidar_front_base_link:
+          Value: true
+        sobit_home/lidar_front_laser:
+          Value: true
+        sobit_home/lidar_front_laser_mount:
+          Value: true
+        sobit_home/mic_base_link:
+          Value: true
+        sobit_home/mic_link:
           Value: true
         sobit_home/plate_bottom_link:
           Value: true
@@ -112,19 +167,58 @@ Visualization Manager:
         sobit_home/base_footprint:
           sobit_home/base_link:
             sobit_home/plate_middle_link:
-              sobit_home/lidar_lf_base_link:
-                sobit_home/lidar_lf_laser_mount:
-                  sobit_home/lidar_lf_laser:
+              sobit_home/lidar_back_base_link:
+                sobit_home/lidar_back_laser_mount:
+                  sobit_home/lidar_back_laser:
                     {}
-              sobit_home/lidar_rb_base_link:
-                sobit_home/lidar_rb_laser_mount:
-                  sobit_home/lidar_rb_laser:
+              sobit_home/lidar_front_base_link:
+                sobit_home/lidar_front_laser_mount:
+                  sobit_home/lidar_front_laser:
                     {}
               sobit_home/plate_bottom_link:
                 {}
               sobit_home/plate_top_link:
                 sobit_home/body_link:
-                  {}
+                  sobit_home/body_lift_link:
+                    sobit_home/arm_left_base_link:
+                      sobit_home/arm_left_shoulder_tilt_link:
+                        sobit_home/arm_left_upper_roll_link:
+                          sobit_home/arm_left_upper_flex_link:
+                            sobit_home/arm_left_elbow_link:
+                              sobit_home/arm_left_wrist_link:
+                                {}
+                    sobit_home/arm_right_base_link:
+                      sobit_home/arm_right_shoulder_tilt_link:
+                        sobit_home/arm_right_upper_roll_link:
+                          sobit_home/arm_right_upper_flex_link:
+                            sobit_home/arm_right_elbow_link:
+                              sobit_home/arm_right_wrist_link:
+                                {}
+                    sobit_home/head_base_link:
+                      sobit_home/head_pan_link:
+                        sobit_home/head_tilt_link:
+                          sobit_home/head_camera_base_link:
+                            sobit_home/head_camera_plug_base_link:
+                              sobit_home/head_camera_camera_bottom_screw_frame:
+                                sobit_home/head_camera_camera_color_frame:
+                                  {}
+                                sobit_home/head_camera_camera_color_optical_frame:
+                                  {}
+                                sobit_home/head_camera_camera_depth_frame:
+                                  {}
+                                sobit_home/head_camera_camera_depth_optical_frame:
+                                  {}
+                                sobit_home/head_camera_camera_infra2_frame:
+                                  {}
+                                sobit_home/head_camera_camera_infra2_optical_frame:
+                                  {}
+                                sobit_home/head_camera_camera_infra_1_frame:
+                                  {}
+                                sobit_home/head_camera_camera_infra_1_optical_frame:
+                                  {}
+                          sobit_home/mic_base_link:
+                            sobit_home/mic_link:
+                              {}
               sobit_home/wheel_steer_base_b_l_link:
                 sobit_home/wheel_steer_b_l_link:
                   sobit_home/wheel_drive_b_l_link:
@@ -144,40 +238,6 @@ Visualization Manager:
       Update Interval: 0
       Value: true
     - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz_default_plugins/LaserScan
-      Color: 255; 255; 255
-      Color Transformer: Intensity
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 0
-      Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: LaserScan
-      Position Transformer: XYZ
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.009999999776482582
-      Style: Flat Squares
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        Filter size: 10
-        History Policy: Keep Last
-        Reliability Policy: Best Effort
-        Value: /sobit_home/lidar/scan
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: true
-    - Alpha: 1
       Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
       Description File: ""
@@ -195,6 +255,66 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        arm_left_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_left_elbow_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_left_shoulder_tilt_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_left_upper_flex_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_left_upper_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_left_wrist_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_right_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_right_elbow_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_right_shoulder_tilt_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_right_upper_flex_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_right_upper_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_right_wrist_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         base_footprint:
           Alpha: 1
           Show Axes: false
@@ -203,35 +323,119 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        body_lift_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         body_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        lidar_lf_base_link:
+        head_base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        lidar_lf_laser:
+        head_camera_base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        lidar_lf_laser_mount:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        lidar_rb_base_link:
+        head_camera_camera_bottom_screw_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        lidar_rb_laser:
+        head_camera_camera_color_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        lidar_rb_laser_mount:
+          Value: true
+        head_camera_camera_color_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_depth_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_depth_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_infra2_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_infra2_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_infra_1_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_infra_1_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_plug_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_pan_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_tilt_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lidar_back_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lidar_back_laser:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        lidar_back_laser_mount:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lidar_front_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lidar_front_laser:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        lidar_front_laser_mount:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        mic_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        mic_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -319,6 +523,74 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz_default_plugins/LaserScan
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 0
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: FrontLiDAR
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /sobit_home/lidar_front/scan
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz_default_plugins/LaserScan
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 0
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: RearLiDAR
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /sobit_home/lidar_back/scan
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -365,33 +637,33 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 1.308318853378296
+      Distance: 4.809481620788574
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.06008169427514076
-        Y: -0.05247015878558159
-        Z: 0.3452911078929901
+        X: 0
+        Y: 0
+        Z: 0.75
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.26500022411346436
-      Target Frame: odom
+      Pitch: 0.5235990285873413
+      Target Frame: sobit_home/base_footprint
       Value: Orbit (rviz)
-      Yaw: 2.2184103727340698e-05
+      Yaw: 0.5235990285873413
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 773
+  Height: 1531
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001ad0000026bfc020000000cfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003b000001df000000c700fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000220000000860000005c00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d0061006700650100000318000000cb0000000000000000fb000000160043006f006c006f007200200049006d00610067006501000001980000011f0000000000000000fb0000000a0049006d00610067006501000002d3000000c80000000000000000fb0000000a0049006d00610067006501000002d3000000c8000000000000000000000001000001300000037dfc020000000afb000000160044006500700074006800200049006d0061006700650100000039000000aa0000000000000000fb000000160048006500610064002000430061006d0065007200610100000039000000db0000000000000000fb0000001600480061006e0064002000430061006d0065007200610100000039000001260000000000000000fb000000220042006100730065002000460072006f006e0074002000430061006d0065007200610100000039000001bb0000000000000000fb000000220048006500610064002000440065007000740068002000430061006d0065007200610100000111000000d40000000000000000fb0000002000420061007300650020004200610063006b002000430061006d00650072006101000000390000037d0000000000000000fb0000002000420061007300650020004200610063006b002000430061006d0065007200610100000287000001140000000000000000fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003900000362000000a000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000005a00000003efc0100000002fb0000000800540069006d00650100000000000005a00000025300fffffffb0000000800540069006d00650100000000000004500000000000000000000003ed0000026b00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001ad00000565fc020000000cfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003900000432000000c500fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007301000004710000012d0000005c00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d0061006700650100000318000000cb0000000000000000fb000000160043006f006c006f007200200049006d00610067006501000001980000011f0000000000000000fb0000000a0049006d00610067006501000002d3000000c80000000000000000fb0000000a0049006d00610067006501000002d3000000c8000000000000000000000001000001ba00000565fc020000000afb000000160044006500700074006800200049006d0061006700650100000039000000aa0000000000000000fb000000160048006500610064002000430061006d0065007200610100000039000000db0000000000000000fb0000001600480061006e0064002000430061006d0065007200610100000039000001260000000000000000fb000000220042006100730065002000460072006f006e0074002000430061006d0065007200610100000039000001bb0000000000000000fb000000220048006500610064002000440065007000740068002000430061006d0065007200610100000111000000d40000000000000000fb0000002000420061007300650020004200610063006b002000430061006d00650072006101000000390000037d0000000000000000fb0000002000420061007300650020004200610063006b002000430061006d0065007200610100000287000001140000000000000000fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730100000039000005650000009d00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000009be0000003efc0100000002fb0000000800540069006d00650100000000000009be0000021400fffffffb0000000800540069006d006501000000000000045000000000000000000000064b0000056500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -400,6 +672,6 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: false
-  Width: 1440
-  X: 2048
-  Y: 193
+  Width: 2494
+  X: 66
+  Y: 32
