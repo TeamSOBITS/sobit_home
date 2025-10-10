@@ -79,6 +79,9 @@
     <joint name="${prefix}_drive_f_l_joint">
       <param name="motor_id">1</param>
       <param name="motor_type">m3508</param>
+      <param name="velocity_kp">1.0</param>
+      <param name="velocity_ki">0.01</param>
+      <param name="velocity_kd">0.001</param>
       <command_interface name="velocity">
         <param name="min">-10</param>
         <param name="max">10</param>
@@ -91,6 +94,9 @@
     <joint name="${prefix}_drive_f_r_joint">
       <param name="motor_id">2</param>
       <param name="motor_type">m3508</param>
+      <param name="velocity_kp">1.0</param>
+      <param name="velocity_ki">0.01</param>
+      <param name="velocity_kd">0.001</param>
       <command_interface name="velocity">
         <param name="min">-10</param>
         <param name="max">10</param>
@@ -103,6 +109,9 @@
     <joint name="${prefix}_drive_b_l_joint">
       <param name="motor_id">3</param>
       <param name="motor_type">m3508</param>
+      <param name="velocity_kp">1.0</param>
+      <param name="velocity_ki">0.01</param>
+      <param name="velocity_kd">0.001</param>
       <command_interface name="velocity">
         <param name="min">-10</param>
         <param name="max">10</param>
@@ -115,6 +124,9 @@
     <joint name="${prefix}_drive_b_r_joint">
       <param name="motor_id">4</param>
       <param name="motor_type">m3508</param>
+      <param name="velocity_kp">1.0</param>
+      <param name="velocity_ki">0.01</param>
+      <param name="velocity_kd">0.001</param>
       <command_interface name="velocity">
         <param name="min">-10</param>
         <param name="max">10</param>
