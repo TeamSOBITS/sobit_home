@@ -41,36 +41,39 @@
 
   <!-- Activate Components -->
   <xacro:arg name="enable_mobile_base"  default="True" />
-  <xacro:arg name="enable_head"         default="True" />
+  <xacro:arg name="enable_body"         default="True" />
   <xacro:arg name="enable_arm_left"     default="True" />
   <xacro:arg name="enable_arm_right"    default="True" />
   <xacro:arg name="enable_hand_left"    default="True" />
   <xacro:arg name="enable_hand_right"   default="True" />
-  <xacro:arg name="enable_body"         default="True" />
+  <xacro:arg name="enable_head"         default="True" />
 
 
-  <!-- All components enabled -->
-  <xacro:if value="${
-        $(arg enable_mobile_base)
-        and $(arg enable_arm_left)
-        and $(arg enable_arm_right)
-        and $(arg enable_hand_left)
-        and $(arg enable_hand_right)
-        and $(arg enable_head)
-        and $(arg enable_body)
-      }">
+  <xacro:if value="${ $(arg enable_mobile_base) }">
     <xacro:base/>
     <xacro:plate prefix="plate" parent="base_link" />
     <xacro:wheel prefix="wheel" parent="plate_middle_link" />
+    <xacro:lidar prefix="lidar" parent="plate_middle_link" robot_name="$(arg robot_name)" />
+  </xacro:if>
+  <xacro:if value="${ $(arg enable_body) }">
     <xacro:body  prefix="body"  parent="plate_top_link" />
+  </xacro:if>
+  <xacro:if value="${ $(arg enable_arm_left) }">
     <xacro:arm   prefix="arm"   position="left"  parent="body_lift_link" />
+  </xacro:if>
+  <xacro:if value="${ $(arg enable_arm_right) }">
     <xacro:arm   prefix="arm"   position="right" parent="body_lift_link" />
-    <!-- <xacro:hand  prefix_hand="hand" position="left"  prefix_finger="finger" parent="arm_wrist_tilt_link" /> -->
-    <!-- <xacro:hand  prefix_hand="hand" position="right" prefix_finger="finger" parent="arm_wrist_tilt_link" /> -->
+  </xacro:if>
+  <xacro:if value="${ $(arg enable_hand_left) }">
+    <xacro:hand  prefix_hand="hand" position="left"  prefix_finger="finger" parent="arm_wrist_tilt_link" />
+  </xacro:if>
+  <xacro:if value="${ $(arg enable_hand_right) }">
+    <xacro:hand  prefix_hand="hand" position="right" prefix_finger="finger" parent="arm_wrist_tilt_link" />
+  </xacro:if>
+  <xacro:if value="${ $(arg enable_head) }">
     <xacro:head  prefix="head"  parent="body_lift_link" /> 
     <xacro:mic   prefix="mic"   parent="head_tilt_link" /> 
-    <xacro:camera_head  prefix="head_camera"  parent="head_tilt_link" /> 
-    <xacro:lidar prefix="lidar" parent="plate_middle_link" robot_name="$(arg robot_name)" />
+    <xacro:camera_head  prefix="head_camera"  parent="head_tilt_link" />
   </xacro:if>
 
 
