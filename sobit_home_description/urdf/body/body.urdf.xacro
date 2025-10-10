@@ -19,9 +19,9 @@
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="-${0.02893+0.3/2} 0.0 ${0.034-0.489/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 -0.053 -0.018" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="${(0.02893+0.3/2)*2} 0.3965 0.489"/>
+          <box size="0.0675 0.19 1.07"/>
         </geometry>
       </collision>
       <inertial>
@@ -50,9 +50,9 @@
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="-${0.02893+0.3/2} 0.0 ${0.034-0.489/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="${(0.02893+0.3/2)*2} 0.3965 0.489"/>
+          <box size="0.15 0.35 0.15"/>
         </geometry>
       </collision>
       <inertial>

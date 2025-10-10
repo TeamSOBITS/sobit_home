@@ -32,9 +32,9 @@
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 ${y_sign * 0.124/2} 0.0" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.140 0.156 0.043" />
+          <box size="0.054 0.124 0.054" />
         </geometry>
       </collision>
       <inertial>
@@ -56,16 +56,17 @@
 
     <link name="${prefix}_${position}_shoulder_tilt_link" >
       <visual>
-        <origin xyz="0.0 ${y_sign * 0.07275} 0.0" rpy="0.0 0.0 ${M_PI/2+yaw_rot}" />
+        <origin xyz="0.0 0.0  0.0" rpy="0.0 0.0 ${M_PI/2+yaw_rot}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_shoulder.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="0 ${y_sign * 0.104/2} 0.0" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.1166 0.124 0.043" />
+          <!-- <cylinder length="0.104" radius="${0.08/2}" /> -->
+          <box size="0.0535 0.104 0.045" />
         </geometry>
       </collision>
       <inertial>
@@ -93,12 +94,12 @@
         </geometry>
         <material name="grey" />
       </visual>
-      <collision>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 0.0" />
+      <!-- <collision>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
         <geometry>
           <box size="0.1166 0.124 0.043" />
         </geometry>
-      </collision>
+      </collision> -->
       <inertial>
         <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
         <mass value="0.08" />
@@ -108,7 +109,7 @@
       </inertial>
     </link>
   
-    <joint name="${prefix}_${position}_upper_flex_joint" type="revolute" >
+    <!-- <joint name="${prefix}_${position}_upper_flex_joint" type="revolute" >
       <parent link="${prefix}_${position}_upper_roll_link" />
       <child link="${prefix}_${position}_upper_flex_link" />
       <origin xyz="0.0 0.0 -0.215813" rpy="0.0 0.0 0.0" />
@@ -199,7 +200,7 @@
                  iyy="${1/12*0.08*(0.124**2 +0.043**2)}" iyz="0.0"
                  izz="${1/12*0.08*(0.1166**2+0.124**2)}" />
       </inertial>
-    </link>
+    </link> -->
 
     <xacro:arm_transmission prefix="${prefix}" position="${position}" />
 

@@ -19,12 +19,12 @@
         </geometry>
         <material name="black" />
       </visual>
-      <collision>
+      <!-- <collision>
         <origin xyz="${0.01388-0.05525/2} 0.0 -${0.005+0.034/2+0.02/2}" rpy="0.0 0.0 0.0" />
         <geometry>
           <box size="0.05525 0.0285 0.084" />
         </geometry>
-      </collision>
+      </collision> -->
       <inertial>
         <origin xyz="${0.01388-0.05525/2} 0.0 -${0.005+0.034/2+0.02/2}" rpy="0.0 0.0 0.0" />
         <mass value="1" />
@@ -56,12 +56,12 @@
         </geometry>
         <material name="black" />
       </visual>
-      <collision>
+      <!-- <collision>
         <origin xyz="${0.0244+0.0436/2} 0.0 ${0.034/2+0.0149-0.1766/2}" rpy="0.0 0.0 0.0" />
         <geometry>
           <box size="0.0436 0.0495 0.1766" />
         </geometry>
-      </collision>
+      </collision> -->
       <inertial>
         <origin xyz="${0.0244+0.0436/2} 0.0 ${0.034/2+0.0149-0.1766/2}" rpy="0.0 0.0 0.0" />
         <mass value="1" />
@@ -93,17 +93,17 @@
         <material name="wheel" />
       </visual>
       <collision>
-        <origin xyz="-${0.0055+0.029/2} 0.0 0.0" rpy="${M_PI/2} 0.0 ${M_PI+M_PI/2.0}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${M_PI/2.0} 0.0 ${M_PI}" />
         <geometry>
-          <cylinder radius="${0.144/2}" length="0.029"/>
+          <cylinder radius="0.075" length="0.017"/>
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="-${0.0055+0.029/2} 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="-${0.0055+0.017/2} 0.0 0.0" rpy="0.0 0.0 0.0" />
         <mass value="1" />
         <inertia ixx="${1/2 *1*(0.144/2)**2}"              ixy="0.0" ixz="0.0"
-                 iyy="${1/12*1*(3*(0.144/2)**2+0.029**2)}" iyz="0.0"
-                 izz="${1/12*1*(3*(0.144/2)**2+0.029**2)}" />
+                 iyy="${1/12*1*(3*(0.144/2)**2+0.017**2)}" iyz="0.0"
+                 izz="${1/12*1*(3*(0.144/2)**2+0.017**2)}" />
       </inertial>
     </link>
 
