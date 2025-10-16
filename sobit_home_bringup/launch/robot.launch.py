@@ -24,6 +24,8 @@ def generate_launch_description():
     arg_enable_mobile_base              = DeclareLaunchArgument('enable_mobile_base', default_value='True')
     arg_enable_arm_left                 = DeclareLaunchArgument('enable_arm_left', default_value='True')
     arg_enable_arm_right                = DeclareLaunchArgument('enable_arm_right', default_value='True')
+    arg_enable_hand_left                = DeclareLaunchArgument('enable_hand_left', default_value='True')
+    arg_enable_hand_right               = DeclareLaunchArgument('enable_hand_right', default_value='True')
     arg_enable_head                     = DeclareLaunchArgument('enable_head', default_value='True')
     arg_enable_gz_head_cam_color        = DeclareLaunchArgument('enable_gz_head_cam_color', default_value='True')
     arg_enable_gz_head_cam_depth        = DeclareLaunchArgument('enable_gz_head_cam_depth', default_value='True')
@@ -44,6 +46,8 @@ def generate_launch_description():
         arg_enable_mobile_base,
         arg_enable_arm_left,
         arg_enable_arm_right,
+        arg_enable_hand_left,
+        arg_enable_hand_right,
         arg_enable_head,
         arg_enable_gz_head_cam_color,
         arg_enable_gz_head_cam_depth,
@@ -69,6 +73,8 @@ def launch_gz(context, *args, **kwargs):
     enable_mobile_base              = LaunchConfiguration('enable_mobile_base').perform(context)
     enable_arm_left                 = LaunchConfiguration('enable_arm_left').perform(context)
     enable_arm_right                = LaunchConfiguration('enable_arm_right').perform(context)
+    enable_hand_left                =LaunchConfiguration('enable_hand_left').perform(context)
+    enable_hand_right               =LaunchConfiguration('enable_hand_right').perform(context)
     enable_head                     = LaunchConfiguration('enable_head').perform(context)
     enable_gz_head_cam_color        = LaunchConfiguration('enable_gz_head_cam_color').perform(context)
     enable_gz_head_cam_depth        = LaunchConfiguration('enable_gz_head_cam_depth').perform(context)
@@ -92,6 +98,8 @@ def launch_gz(context, *args, **kwargs):
             'enable_mobile_base' : enable_mobile_base,
             'enable_arm_left' : enable_arm_left,
             'enable_arm_right' : enable_arm_right,
+            'enable_hand_left' : enable_hand_left,
+            'enable_hand_right' : enable_hand_right,
             'enable_head' : enable_head,
             'enable_gz_head_cam_color' : enable_gz_head_cam_color,
             'enable_gz_head_cam_depth' : enable_gz_head_cam_depth,
@@ -216,6 +224,36 @@ def launch_gz(context, *args, **kwargs):
         event_handler=OnProcessStart(
             target_action=controller_manager,
             on_start=[arm_right_position_controller],
+        )
+    )
+    hand_left_position_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller',
+            '--set-state', 'active',
+            '--controller-manager', robot_name+'/controller_manager',
+            # '--use-sim-time',
+            'hand_left_position_controller'
+        ],
+        output='screen'
+    )
+    delayed_hand_left_position_controller = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[hand_left_position_controller],
+        )
+    )
+    hand_right_position_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller',
+            '--set-state', 'active',
+            '--controller-manager', robot_name+'/controller_manager',
+            # '--use-sim-time',
+            'hand_right_position_controller'
+        ],
+        output='screen'
+    )
+    delayed_hand_right_position_controller = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[hand_right_position_controller],
         )
     )
 
@@ -351,6 +389,8 @@ def launch_gz(context, *args, **kwargs):
             delayed_wheel_drive_velocity_controller,
             delayed_arm_left_position_controller,
             delayed_arm_right_position_controller,
+            delayed_hand_left_position_controller,
+            delayed_hand_right_position_controller,
             delayed_head_position_controller,
             delayed_body_position_controller,
             delayed_joint_state_broadcaster,
@@ -369,6 +409,8 @@ def launch_gz(context, *args, **kwargs):
             delayed_wheel_drive_velocity_controller,
             delayed_arm_left_position_controller,
             delayed_arm_right_position_controller,
+            delayed_hand_left_position_controller,
+            delayed_hand_right_position_controller,
             delayed_head_position_controller,
             delayed_body_position_controller,
             delayed_joint_state_broadcaster,

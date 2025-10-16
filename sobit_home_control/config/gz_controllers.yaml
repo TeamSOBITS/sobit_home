@@ -26,10 +26,8 @@
     wheel_drive_velocity_controller:
       type: effort_controllers/JointGroupEffortController
 
-
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
-
 
 /**/head_position_controller:
   ros__parameters:
@@ -50,7 +48,8 @@
       - arm_left_upper_roll_joint
       - arm_left_upper_flex_joint
       - arm_left_elbow_joint
-      - arm_left_wrist_joint
+      - arm_left_wrist_tilt_joint
+      - arm_left_wrist_roll_joint
     command_interfaces:
       - position
     state_interfaces:
@@ -65,7 +64,8 @@
       - arm_right_upper_roll_joint
       - arm_right_upper_flex_joint
       - arm_right_elbow_joint
-      - arm_right_wrist_joint
+      - arm_right_wrist_tilt_joint
+      - arm_right_wrist_roll_joint
     command_interfaces:
       - position
     state_interfaces:
@@ -76,13 +76,13 @@
 /**/hand_left_position_controller:
   ros__parameters:
     joints:
-      - hand_left_finger_mcp_joint
-      - hand_left_finger_l_cmc_joint
       - hand_left_finger_l_mcp_joint
-      - hand_left_finger_c_cmc_joint
+      - hand_left_finger_l_dip_joint
+      - hand_left_finger_l_pip_joint
       - hand_left_finger_c_mcp_joint
-      - hand_left_finger_r_cmc_joint
-      - hand_left_finger_r_mcp_joint
+      - hand_left_finger_c_ip_joint
+      - hand_left_finger_r_dip_joint
+      - hand_left_finger_r_pip_joint
     command_interfaces:
       - position
     state_interfaces:
@@ -93,13 +93,13 @@
 /**/hand_right_position_controller:
   ros__parameters:
     joints:
-      - hand_right_finger_mcp_joint
-      - hand_right_finger_l_cmc_joint
       - hand_right_finger_l_mcp_joint
-      - hand_right_finger_c_cmc_joint
+      - hand_right_finger_l_dip_joint
+      - hand_right_finger_l_pip_joint
       - hand_right_finger_c_mcp_joint
-      - hand_right_finger_r_cmc_joint
-      - hand_right_finger_r_mcp_joint
+      - hand_right_finger_c_ip_joint
+      - hand_right_finger_r_dip_joint
+      - hand_right_finger_r_pip_joint
     command_interfaces:
       - position
     state_interfaces:
