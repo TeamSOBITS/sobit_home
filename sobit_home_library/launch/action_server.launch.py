@@ -76,6 +76,6 @@ def launch_gz(context, *args, **kwargs):
 
 
     return [
-        # joint_action_server_node,
+        joint_action_server_node,
         wheel_action_server_node,
     ]
