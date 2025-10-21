@@ -67,8 +67,11 @@ def launch_gz(context, *args, **kwargs):
 
     enable_gz                       = LaunchConfiguration('enable_gz').perform(context)
     enable_mobile_base              = LaunchConfiguration('enable_mobile_base').perform(context)
+    enable_body                     = LaunchConfiguration('enable_body').perform(context)
     enable_arm_left                 = LaunchConfiguration('enable_arm_left').perform(context)
     enable_arm_right                = LaunchConfiguration('enable_arm_right').perform(context)
+    enable_hand_left                = LaunchConfiguration('enable_hand_left').perform(context)
+    enable_hand_right               = LaunchConfiguration('enable_hand_right').perform(context)
     enable_head                     = LaunchConfiguration('enable_head').perform(context)
     enable_gz_head_cam_color        = LaunchConfiguration('enable_gz_head_cam_color').perform(context)
     enable_gz_head_cam_depth        = LaunchConfiguration('enable_gz_head_cam_depth').perform(context)
@@ -89,10 +92,13 @@ def launch_gz(context, *args, **kwargs):
         mappings={
             'robot_namespace': robot_name,
             'enable_gz' : enable_gz,
-            'enable_mobile_base' : enable_mobile_base,
-            'enable_arm_left' : enable_arm_left,
-            'enable_arm_right' : enable_arm_right,
-            'enable_head' : enable_head,
+            'enable_mobile_base': enable_mobile_base,
+            'enable_body': enable_body,
+            'enable_arm_left': enable_arm_left,
+            'enable_arm_right': enable_arm_right,
+            'enable_hand_left': enable_hand_left,
+            'enable_hand_right': enable_hand_right,
+            'enable_head': enable_head,
             'enable_gz_head_cam_color' : enable_gz_head_cam_color,
             'enable_gz_head_cam_depth' : enable_gz_head_cam_depth,
             'enable_gz_hand_left_cam_color' : enable_gz_hand_left_cam_color,
