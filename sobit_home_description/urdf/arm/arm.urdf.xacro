@@ -63,10 +63,9 @@
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="0 ${y_sign * 0.104/2} 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="0 ${y_sign * 0.104/2} 0.0" rpy="${M_PI/2+yaw_rot} 0.0 0.0" />
         <geometry>
-          <!-- <cylinder length="0.104" radius="${0.08/2}" /> -->
-          <box size="0.0535 0.104 0.045" />
+          <cylinder length="0.104" radius="${0.08/2}" />
         </geometry>
       </collision>
       <inertial>
@@ -94,12 +93,12 @@
         </geometry>
         <material name="grey" />
       </visual>
-      <!-- <collision>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+      <collision>
+        <origin xyz="0.0 0.0 -0.13445" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.1166 0.124 0.043" />
+          <cylinder length="0.129" radius="${0.076/2}" />
         </geometry>
-      </collision> -->
+      </collision>
       <inertial>
         <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
         <mass value="0.08" />
@@ -109,7 +108,7 @@
       </inertial>
     </link>
   
-    <!-- <joint name="${prefix}_${position}_upper_flex_joint" type="revolute" >
+    <joint name="${prefix}_${position}_upper_flex_joint" type="revolute" >
       <parent link="${prefix}_${position}_upper_roll_link" />
       <child link="${prefix}_${position}_upper_flex_link" />
       <origin xyz="0.0 0.0 -0.215813" rpy="0.0 0.0 0.0" />
@@ -126,9 +125,9 @@
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 0.0 -0.06943603" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.1166 0.124 0.043" />
+          <cylinder length="0.171" radius="${0.076/2}" />
         </geometry>
       </collision>
       <inertial>
@@ -157,9 +156,9 @@
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 0.0 -0.265" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.1166 0.124 0.043" />
+          <cylinder length="0.38679886" radius="${0.088156/2}" />
         </geometry>
       </collision>
       <inertial>
@@ -188,9 +187,9 @@
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 0.0 -0.0462" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.1166 0.124 0.043" />
+          <cylinder length="0.04529731" radius="${0.08/2}" />
         </geometry>
       </collision>
       <inertial>
@@ -200,7 +199,7 @@
                  iyy="${1/12*0.08*(0.124**2 +0.043**2)}" iyz="0.0"
                  izz="${1/12*0.08*(0.1166**2+0.124**2)}" />
       </inertial>
-    </link> -->
+    </link>
 
     <xacro:arm_transmission prefix="${prefix}" position="${position}" />
 
