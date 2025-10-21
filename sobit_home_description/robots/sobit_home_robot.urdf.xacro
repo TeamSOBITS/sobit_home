@@ -11,7 +11,6 @@
   <xacro:include filename="$(find sobit_home_description)/urdf/base/base.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/body/plate.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/body/body.urdf.xacro" />
-  <xacro:include filename="$(find sobit_home_description)/urdf/back/back.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/wheel/wheel.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/arm/arm.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/hand/hand.urdf.xacro" />
