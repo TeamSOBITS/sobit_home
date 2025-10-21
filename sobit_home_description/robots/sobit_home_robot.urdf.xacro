@@ -18,7 +18,7 @@
   <xacro:include filename="$(find sobit_home_description)/urdf/head/head.urdf.xacro" />
 
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/camera_head.urdf.xacro" />
-  <xacro:include filename="$(find sobit_home_description)/urdf/sensor/mic.urdf.xacro" />
+  <!-- <xacro:include filename="$(find sobit_home_description)/urdf/sensor/mic.urdf.xacro" /> -->
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/lidar.urdf.xacro" />
   <!-- <xacro:include filename="$(find sobit_home_description)/urdf/sensor/realsense_d405.urdf.xacro" /> -->
 
@@ -72,7 +72,7 @@
   </xacro:if>
   <xacro:if value="${ $(arg enable_head) }">
     <xacro:head  prefix="head"  parent="body_lift_link" /> 
-    <xacro:mic   prefix="mic"   parent="head_tilt_link" /> 
+    <!-- <xacro:mic   prefix="mic"   parent="head_tilt_link" />  -->
     <xacro:camera_head  prefix="head_camera"  parent="head_tilt_link" />
   </xacro:if>
 
