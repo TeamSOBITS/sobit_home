@@ -16,12 +16,24 @@
         </xacro:unless>
       </hardware>
 
-      <xacro:dx_head_controllers        prefix="head"       enable_gz="${$(arg enable_gz)}"/>
-      <xacro:dx_arm_left_controllers    prefix="arm_left"   enable_gz="${$(arg enable_gz)}"/>
-      <xacro:dx_arm_right_controllers   prefix="arm_right"  enable_gz="${$(arg enable_gz)}"/>
-      <!-- <xacro:dx_hand_left_controllers   prefix="hand_left"  enable_gz="${$(arg enable_gz)}"/> -->
-      <!-- <xacro:dx_hand_right_controllers  prefix="hand_right" enable_gz="${$(arg enable_gz)}"/> -->
-      <xacro:dx_wheel_steer_controllers prefix="wheel"      enable_gz="${$(arg enable_gz)}"/>
+      <xacro:if value="${$(arg enable_head)}">
+        <xacro:dx_head_controllers        prefix="head"       enable_gz="${$(arg enable_gz)}"/>
+      </xacro:if>
+      <xacro:if value="${$(arg enable_arm_left)}">
+        <xacro:dx_arm_left_controllers    prefix="arm_left"   enable_gz="${$(arg enable_gz)}"/>
+      </xacro:if>
+      <xacro:if value="${$(arg enable_arm_right)}">
+        <xacro:dx_arm_right_controllers   prefix="arm_right"  enable_gz="${$(arg enable_gz)}"/>
+      </xacro:if>
+      <xacro:if value="${$(arg enable_hand_left)}">
+        <xacro:dx_hand_left_controllers   prefix="hand_left"  enable_gz="${$(arg enable_gz)}"/>
+      </xacro:if>
+      <xacro:if value="${$(arg enable_hand_right)}">
+        <xacro:dx_hand_right_controllers  prefix="hand_right" enable_gz="${$(arg enable_gz)}"/>
+      </xacro:if>
+      <xacro:if value="${$(arg enable_mobile_base)}">
+        <xacro:dx_wheel_steer_controllers prefix="wheel"      enable_gz="${$(arg enable_gz)}"/>
+      </xacro:if>
 
     </ros2_control>
 
