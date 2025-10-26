@@ -13,7 +13,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     robot_name = 'sobit_home'
     robot_id = 0
-    world_model = 'empty' # empty, wrs, small_house
+    world_model = 'rcjo2025_arena' # empty, wrs, small_house, rcjo2025_arena
 
     gz_bridge_node = Node(
         package='ros_gz_bridge',
@@ -44,12 +44,12 @@ def generate_launch_description():
             'worlds',
             'small_house.world'
         )
-
-    world_file = os.path.join(get_package_share_directory(
-        'sobit_home_description'), 
-        'worlds',
-        'empty_w_physics.sdf'
-    )
+    elif world_model == 'rcjo2025_arena':
+        world_file = os.path.join(get_package_share_directory(
+            'sobits_gazebo_worlds'), 
+            'worlds',
+            'rcjo2025_arena.world.xacro'
+        )
 
     return LaunchDescription([
         # Launch gazebo environment
@@ -77,26 +77,26 @@ def generate_launch_description():
             ]),
             launch_arguments={
                 'robot_name': robot_name if robot_id == 0 else robot_name + '_' + str(robot_id),
-                'robot_coords_x': '0', # x 
-                'robot_coords_y': '0', # y
+                'robot_coords_x': '-6.0', # x 
+                'robot_coords_y': '1.5', # y
                 'robot_coords_z': '0.2', # z
                 'robot_coords_Y': '0', # yaw
                 'enable_gz' : 'True',
                 'enable_mobile_base': 'True',
                 'enable_body': 'True',
-                'enable_arm_left': 'False',
-                'enable_arm_right': 'False',
+                'enable_arm_left': 'True',
+                'enable_arm_right': 'True',
                 'enable_hand_left': 'False',
                 'enable_hand_right': 'False',
                 'enable_head': 'True',
-                'enable_gz_head_cam_color'      : 'False',
-                'enable_gz_head_cam_depth'      : 'False',
+                'enable_gz_head_cam_color'      : 'True',
+                'enable_gz_head_cam_depth'      : 'True',
                 'enable_gz_hand_left_cam_color' : 'False',
                 'enable_gz_hand_left_cam_depth' : 'False',
                 'enable_gz_hand_right_cam_color': 'False',
                 'enable_gz_hand_right_cam_depth': 'False',
-                'enable_gz_lidar_front'         : 'False',
-                'enable_gz_lidar_back'          : 'False',
+                'enable_gz_lidar_front'         : 'True',
+                'enable_gz_lidar_back'          : 'True',
             }.items()
         ),
         # Launch Robot No. 2
