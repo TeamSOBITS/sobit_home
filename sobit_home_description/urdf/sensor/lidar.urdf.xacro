@@ -26,10 +26,10 @@
       </collision>
       <inertial>
         <origin xyz="${0.092/2} 0.0 -${0.007/2}" rpy="0.0 0.0 0.0" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.092**2+0.007**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.184**2+0.007**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.092**2+0.184**2)}" />
+        <mass value="0.172" />
+        <inertia ixx="${1/12*0.172*(0.092**2+0.007**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.172*(0.184**2+0.007**2)}" iyz="0.0"
+                 izz="${1/12*0.172*(0.092**2+0.184**2)}" />
       </inertial>
     </link>
 
@@ -43,8 +43,8 @@
 
   <xacro:macro name="lidar" params="parent prefix robot_name">
   
-    <xacro:lidar_edge parent="${parent}" prefix="${prefix}_front" robot_name="${robot_name}" stand_x= " 0.2357767" stand_y=" 0.2357767" stand_z="0.01" hokuyo_x="0.06914214" hokuyo_y="0.0" hokuyo_z="-0.142" yaw="${M_PI-M_PI/4}"/>
-    <xacro:lidar_edge parent="${parent}" prefix="${prefix}_back"  robot_name="${robot_name}" stand_x= "-0.2357767" stand_y="-0.2357767" stand_z="0.01" hokuyo_x="0.06914214" hokuyo_y="0.0" hokuyo_z="-0.142" yaw="${-M_PI/4}"/>
+    <xacro:lidar_edge prefix="${prefix}_front" parent="${parent}" robot_name="${robot_name}" stand_x= " 0.2357767" stand_y=" 0.2357767" stand_z="0.01" hokuyo_x="0.06914214" hokuyo_y="0.0" hokuyo_z="-0.142" yaw="${M_PI-M_PI/4}"/>
+    <xacro:lidar_edge prefix="${prefix}_back"  parent="${parent}" robot_name="${robot_name}" stand_x= "-0.2357767" stand_y="-0.2357767" stand_z="0.01" hokuyo_x="0.06914214" hokuyo_y="0.0" hokuyo_z="-0.142" yaw="${-M_PI/4}"/>
 
   </xacro:macro>
 </robot>
