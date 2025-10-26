@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- SOBIT HOME (Gazebo) -->
+<robot name="sobit_home_gazebo" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="gazebo_sensors" params="robot_name enable_gz_head_cam_color:=True enable_gz_head_cam_depth:=True enable_gz_hand_left_cam_color:=True enable_gz_hand_left_cam_depth:=True enable_gz_hand_right_cam_color:=True enable_gz_hand_right_cam_depth:=True enable_gz_lidar_front:=True enable_gz_lidar_back:=True">
+
+    <!-- Sensor - Head Camera (Color) -->
+    <xacro:if value="${enable_gz_head_cam_color}">
+      <gazebo reference="head_camera_color_optical_frame">
+        <sensor name="head_camera_color" type="camera">
+          <pose>0 0 ${0.0175/2} ${M_PI/2} -${M_PI/2} 0 </pose>
+          
+          <ignition_frame_id>${robot_name}/head_camera_color_optical_frame</ignition_frame_id>
+          <!-- <gz_frame_id>${robot_name}/head_camera_color_optical_frame</gz_frame_id> -->
+          <topic>${robot_name}/head_camera/color</topic>
+
+          <always_on>1</always_on>
+          <visualize>true</visualize>
+          <update_rate>1</update_rate>
+
+          <camera name="head_camera_color">
+            <horizontal_fov>1.21126</horizontal_fov>
+            <image>
+              <width>640</width>
+              <height>480</height>
+              <format>RGB_INT8</format>
+            </image>
+            <clip>
+              <near>0.1</near>
+              <far>10</far>
+            </clip>
+            <!-- TODO - adjust noise -->
+            <!-- <noise>
+              <type>gaussian</type>
+              <mean>0</mean>
+              <stddev>0.007</stddev>
+            </noise> -->
+          </camera>
+        </sensor>
+      </gazebo>
+    </xacro:if>
+
+    <!-- Sensor - Head Camera (Depth) -->
+    <xacro:if value="${enable_gz_head_cam_depth}">
+      <gazebo reference="head_camera_depth_optical_frame">
+        <sensor name="head_camera_depth" type="depth">
+          <pose>0 0 ${0.0175/2} ${M_PI/2} -${M_PI/2} 0 </pose>
+          
+          <ignition_frame_id>${robot_name}/head_camera_depth_optical_frame</ignition_frame_id>
+          <!-- <gz_frame_id>${robot_name}/head_camera_depth_optical_frame</gz_frame_id> -->
+          <topic>${robot_name}/head_camera/depth</topic>
+
+          <always_on>1</always_on>
+          <visualize>true</visualize>
+          <update_rate>1</update_rate>
+
+          <camera name="head_camera_depth">
+            <horizontal_fov>1.48702</horizontal_fov>
+            <image>
+              <width>1280</width>
+              <height>720</height>
+            </image>
+            <clip>
+              <near>0.1</near>
+              <far>10</far>
+            </clip>
+            <!-- TODO - adjust noise -->
+            <!-- <noise>
+              <type>gaussian</type>
+              <mean>0</mean>
+              <stddev>0.1</stddev>
+            </noise> -->
+          </camera>
+        </sensor>
+      </gazebo>
+    </xacro:if>
+
+    <!-- Sensor - Hand Left Camera (Color) -->
+    <xacro:if value="${enable_gz_hand_left_cam_color}">
+      <gazebo reference="hand_camera_color_optical_frame">
+        <sensor name="hand_camera_color" type="camera">
+          <pose>0 0 ${0.0175/2} ${M_PI/2} -${M_PI/2} 0 </pose>
+          
+          <ignition_frame_id>${robot_name}/hand_camera_color_optical_frame</ignition_frame_id>
+          <!-- <gz_frame_id>${robot_name}/hand_camera_color_optical_frame</gz_frame_id> -->
+          <topic>${robot_name}/hand_camera/color</topic>
+
+          <always_on>1</always_on>
+          <visualize>true</visualize>
+          <update_rate>1</update_rate>
+
+          <camera name="hand_camera_color">
+            <horizontal_fov>1.21126</horizontal_fov>
+            <image>
+              <width>640</width>
+              <height>480</height>
+              <format>RGB_INT8</format>
+            </image>
+            <clip>
+              <near>0.1</near>
+              <far>10</far>
+            </clip>
+            <!-- TODO - adjust noise -->
+            <!-- <noise>
+              <type>gaussian</type>
+              <mean>0</mean>
+              <stddev>0.007</stddev>
+            </noise> -->
+          </camera>
+        </sensor>
+      </gazebo>
+    </xacro:if>
+
+    <!-- Sensor - Hand Left Camera (Depth) -->
+    <xacro:if value="${enable_gz_hand_left_cam_depth}">
+      <gazebo reference="hand_camera_depth_optical_frame">
+        <sensor name="hand_camera_depth" type="depth">
+          <pose>0 0 ${0.0175/2} ${M_PI/2} -${M_PI/2} 0 </pose>
+          
+          <ignition_frame_id>${robot_name}/hand_camera_depth_optical_frame</ignition_frame_id>
+          <!-- <gz_frame_id>${robot_name}/hand_camera_depth_optical_frame</gz_frame_id> -->
+          <topic>${robot_name}/hand_camera/depth</topic>
+
+          <always_on>1</always_on>
+          <visualize>true</visualize>
+          <update_rate>1</update_rate>
+
+          <camera name="head_camera_depth">
+            <horizontal_fov>1.48702</horizontal_fov>
+            <image>
+              <width>1280</width>
+              <height>720</height>
+            </image>
+            <clip>
+              <near>0.1</near>
+              <far>10</far>
+            </clip>
+            <!-- TODO - adjust noise -->
+            <!-- <noise>
+              <type>gaussian</type>
+              <mean>0</mean>
+              <stddev>0.1</stddev>
+            </noise> -->
+          </camera>
+        </sensor>
+      </gazebo>
+    </xacro:if>
+
+    <!-- Sensor - LiDAR -->
+    <xacro:macro name="gz_lidar" params="frame topic enable_gz_lidar update_rate sample_rate min_angle max_angle min_range max_range">
+      <xacro:if value="${enable_gz_lidar}">
+        <gazebo reference="${frame}">
+          <sensor name='${frame}_sensor' type='gpu_lidar'>
+            <pose>0 0 0 0 0 0</pose>
+            <gz_frame_id>${robot_name}/${frame}</gz_frame_id>
+            <topic>${robot_name}/${topic}</topic>
+            <update_rate>${update_rate}</update_rate>
+            <ray>
+              <scan>
+                <horizontal>
+                  <samples>${sample_rate}</samples>
+                  <resolution>1</resolution>
+                  <min_angle>${min_angle}</min_angle>
+                  <max_angle>${max_angle}</max_angle>
+                </horizontal>
+                <vertical>
+                  <samples>1</samples>
+                  <resolution>0.01</resolution>
+                  <min_angle>0</min_angle>
+                  <max_angle>0</max_angle>
+                </vertical>
+                </scan>
+              <range>
+                <min>${min_range}</min>
+                <max>${max_range}</max>
+                <resolution>0.01</resolution>
+              </range>
+            </ray>
+            <always_on>1</always_on>
+            <visualize>true</visualize>
+          </sensor>
+        </gazebo>
+      </xacro:if>
+    </xacro:macro>
+    <xacro:gz_lidar frame="lidar_front_laser" topic="lidar_front/scan" enable_gz_lidar="${enable_gz_lidar_front}" update_rate="50" sample_rate="720" min_angle="-2.35619" max_angle="2.35619" min_range="0.1" max_range="60.0" />
+    <xacro:gz_lidar frame="lidar_back_laser"  topic="lidar_back/scan"  enable_gz_lidar="${enable_gz_lidar_back}"  update_rate="50" sample_rate="720" min_angle="-2.35619" max_angle="2.35619" min_range="0.1" max_range="60.0" />
+
+    <gazebo reference="base_link">
+      <self_collide>0</self_collide>
+      <collision>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.0</mu>
+              <mu2>0.0</mu2>
+              <fdir1>0 0 0</fdir1>
+              <slip1>0.0</slip1>
+              <slip2>0.0</slip2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </gazebo>
+
+
+    <!-- Publish Joint States -->
+    <gazebo>
+      <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+        <topic>${robot_name}/joint_states</topic>
+      </plugin>
+    </gazebo>
+
+  </xacro:macro>
+</robot>
