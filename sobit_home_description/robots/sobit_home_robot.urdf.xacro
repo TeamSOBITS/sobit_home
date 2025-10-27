@@ -75,7 +75,7 @@
   <xacro:if value="${ $(arg enable_head) }">
     <xacro:head  prefix="head"  parent="body_lift_link" /> 
     <!-- <xacro:mic   prefix="mic"   parent="head_tilt_link" />  -->
-    <xacro:camera_head  prefix="head_camera"  parent="head_tilt_link" />
+    <xacro:camera_head  prefix="head"  parent="head_tilt_link" />
   </xacro:if>
 
 
