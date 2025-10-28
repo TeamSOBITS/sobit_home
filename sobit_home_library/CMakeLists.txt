@@ -27,14 +27,14 @@ include_directories(include)
 
 # Library
 add_library(${PROJECT_NAME} SHARED
-  # src/sobit_home_joint_action_server.cpp
+  src/sobit_home_joint_action_server.cpp
   src/sobit_home_wheel_action_server.cpp
 )
 
 
-# rclcpp_components_register_node(${PROJECT_NAME}
-#   PLUGIN "sobit_home::JointActionServer"
-#   EXECUTABLE joint_action_server)
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "sobit_home::JointActionServer"
+  EXECUTABLE joint_action_server)
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN "sobit_home::WheelActionServer"
   EXECUTABLE wheel_action_server)
