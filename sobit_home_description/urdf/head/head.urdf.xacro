@@ -25,11 +25,11 @@
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.05125-0.15125/2} 0.0 0.0" rpy="0.0 0.0 0.0" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.15125**2+0.044**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.0285**2 +0.044**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.15125**2+0.0285**2)}" />
+        <origin xyz="-0.015 0.0 -${0.01/2}" rpy="0.0 0.0 0.0" />
+        <mass value="0.424" />
+        <inertia ixx="${1/12*0.424*(0.125**2+0.01**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.424*(0.01**2 +0.15**2)}" iyz="0.0"
+                 izz="${1/12*0.424*(0.15**2+0.125**2)}" />
       </inertial>
     </link>
 
@@ -39,7 +39,7 @@
       <child link="${prefix}_pan_link" />
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0 0 1" />
-      <limit lower="${-M_PI/4.0}" upper="${M_PI/4.0}" effort="4.1" velocity="4.796165" />
+      <limit lower="${-M_PI/4.0}" upper="${M_PI/4.0}" effort="4.1" velocity="4.81" />
     </joint>
 
     <link name="${prefix}_pan_link">
@@ -50,18 +50,18 @@
         </geometry>
         <material name="black" />
       </visual>
-      <!-- <collision>
-        <origin xyz="0.0 0.0 ${0.00525+0.03525/2}" rpy="0.0 0.0 0.0" />
+      <collision>
+        <origin xyz="0.0 0.0 0.0046" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.0285 0.037 0.03525"/>
+          <cylinder length="0.0092" radius="${0.065/2}"/>
         </geometry>
-      </collision> -->
+      </collision>
       <inertial>
-        <origin xyz="0.0 0.0 ${0.00525+0.03525/2}" rpy="0.0 0.0 ${M_PI/2}" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.0285**2+0.03525**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.037**2 +0.03525**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.0285**2+0.037**2)}" />
+        <origin xyz="0.0 0.0 0.0046" rpy="0.0 0.0 0.0" />
+        <mass value="0.457" />
+        <inertia ixx="${1/12*0.457*(3*0.0325**2+0.0092**2)}"     ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.457*(3*0.0325**2+0.04009253**2)}" iyz="0.0"
+                 izz="${1/2*0.457*0.0325**2}" />
       </inertial>
     </link>
 
@@ -71,7 +71,7 @@
       <child link="${prefix}_tilt_link" />
       <origin xyz="0.05 0.0 0.131" rpy="0.0 0.0 0.0" />
       <axis xyz="0 -1 0" />
-      <limit lower="${-M_PI/4.0}" upper="${M_PI/6.0}" effort="4.1" velocity="4.796165" />
+      <limit lower="${-M_PI/4.0}" upper="${M_PI/6.0}" effort="4.1" velocity="4.81" />
     </joint>
 
     <link name="${prefix}_tilt_link">
@@ -89,11 +89,11 @@
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 ${0.028+0.0115/2}" rpy="0.0 0.0 0.0" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.046**2 +0.0115**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.0466**2+0.0115**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.046**2 +0.0466**2)}" />
+        <origin xyz="-0.01 0.0 0.00943" rpy="0.0 0.0 0.0" />
+        <mass value="1.88" /> <!-- mass without camera and display-->
+        <inertia ixx="${1/12*1.88*(0.278**2 +0.2**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*1.88*(0.2**2+0.155**2)}"  iyz="0.0"
+                 izz="${1/12*1.88*(0.155**2 +0.278**2)}" />
       </inertial>
     </link>
 

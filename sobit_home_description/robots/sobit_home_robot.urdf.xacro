@@ -11,19 +11,21 @@
   <xacro:include filename="$(find sobit_home_description)/urdf/base/base.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/body/plate.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/body/body.urdf.xacro" />
-  <xacro:include filename="$(find sobit_home_description)/urdf/back/back.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/wheel/wheel.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/arm/arm.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/hand/hand.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/head/head.urdf.xacro" />
 
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/camera_head.urdf.xacro" />
-  <xacro:include filename="$(find sobit_home_description)/urdf/sensor/mic.urdf.xacro" />
+  <!-- <xacro:include filename="$(find sobit_home_description)/urdf/sensor/mic.urdf.xacro" /> -->
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/lidar.urdf.xacro" />
   <!-- <xacro:include filename="$(find sobit_home_description)/urdf/sensor/realsense_d405.urdf.xacro" /> -->
 
   <xacro:include filename="$(find urg_node)/urdf/hokuyo_ust.urdf.xacro" />
   <!-- <xacro:include filename="$(find realsense2_description)/urdf/_d405.urdf.xacro" /> -->
+  
+  <!-- Add Gazebo Xacro-->
+  <xacro:include filename="$(find sobit_home_description)/urdf/gazebo.urdf.xacro" />
 
 
   <!-- Add variables -->
@@ -72,16 +74,16 @@
   </xacro:if>
   <xacro:if value="${ $(arg enable_head) }">
     <xacro:head  prefix="head"  parent="body_lift_link" /> 
-    <xacro:mic   prefix="mic"   parent="head_tilt_link" /> 
-    <xacro:camera_head  prefix="head_camera"  parent="head_tilt_link" />
+    <!-- <xacro:mic   prefix="mic"   parent="head_tilt_link" />  -->
+    <xacro:camera_head  prefix="head"  parent="head_tilt_link" />
   </xacro:if>
 
 
-    <!-- Add Actuators Controllers -->
+  <!-- Add Actuators Controllers -->
   <xacro:controllers enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" />
 
   <!-- Add Gazebo plugins -->
-  <!-- <xacro:if value="${$(arg enable_gz)}">
+  <xacro:if value="${$(arg enable_gz)}">
     <xacro:gazebo_sensors robot_name="$(arg robot_name)"
       enable_gz_head_cam_color="$(arg enable_gz_head_cam_color)"
       enable_gz_head_cam_depth="$(arg enable_gz_head_cam_depth)"
@@ -90,8 +92,8 @@
       enable_gz_hand_right_cam_color="$(arg enable_gz_hand_right_cam_color)"
       enable_gz_hand_right_cam_depth="$(arg enable_gz_hand_right_cam_depth)"
       enable_gz_lidar_front="$(arg enable_gz_lidar_front)"
-      enable_gz_lidar="$(arg enable_gz_lidar_back)"
+      enable_gz_lidar_back="$(arg enable_gz_lidar_back)"
     />
-  </xacro:if> -->
+  </xacro:if>
 
 </robot>
