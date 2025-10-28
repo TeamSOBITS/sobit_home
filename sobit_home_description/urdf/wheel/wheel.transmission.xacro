@@ -8,10 +8,10 @@
     <xacro:SimpleTransmissionPosition joint="${prefix}_steer_b_l_joint" reduction="1" />
     <xacro:SimpleTransmissionPosition joint="${prefix}_steer_b_r_joint" reduction="1" />
 
-    <xacro:SimpleTransmissionEffort joint="${prefix}_drive_f_l_joint" reduction="1" />
-    <xacro:SimpleTransmissionEffort joint="${prefix}_drive_f_r_joint" reduction="1" />
-    <xacro:SimpleTransmissionEffort joint="${prefix}_drive_b_l_joint" reduction="1" />
-    <xacro:SimpleTransmissionEffort joint="${prefix}_drive_b_r_joint" reduction="1" />
+    <xacro:SimpleTransmissionVelocity joint="${prefix}_drive_f_l_joint" reduction="1" />
+    <xacro:SimpleTransmissionVelocity joint="${prefix}_drive_f_r_joint" reduction="1" />
+    <xacro:SimpleTransmissionVelocity joint="${prefix}_drive_b_l_joint" reduction="1" />
+    <xacro:SimpleTransmissionVelocity joint="${prefix}_drive_b_r_joint" reduction="1" />
 
   </xacro:macro>
 </robot>
