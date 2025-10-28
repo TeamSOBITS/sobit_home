@@ -80,7 +80,7 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-ros-gz-interfaces
 
 # Set up the environment
-sudo usermod -aG dialout $USER
+sudo usermod -aG dialout $USERNAME
 
 # Install Gazebo Harmonic with binaries
 sudo apt-get update
@@ -93,19 +93,6 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-
 sudo apt-get update
 sudo apt-get install -y \
     gz-harmonic
-
-# # Setting up PS4 Joystick USB configuration
-# echo "KERNEL==\"uinput\", MODE=\"0666\"
-#       KERNEL==\"hidraw*\", SUBSYSTEM==\"hidraw\", ATTRS{idVendor}==\"054c\", ATTRS{idProduct}==\"05c4\", MODE=\"0666\"
-#       KERNEL==\"hidraw*\", SUBSYSTEM==\"hidraw\", KERNELS==\"0005:054C:05C4.*\", MODE=\"0666\"
-#       KERNEL==\"hidraw*\", SUBSYSTEM==\"hidraw\", ATTRS{idVendor}==\"054c\", ATTRS{idProduct}==\"09cc\", MODE=\"0666\"
-#       KERNEL==\"hidraw*\", SUBSYSTEM==\"hidraw\", KERNELS==\"0005:054C:09CC.*\", MODE=\"0666\"" | sudo tee /etc/udev/rules.d/50-ds4drv.rules
-
-# # Reload udev rules
-# sudo udevadm control --reload-rules
-
-# # Trigger the new rules
-# sudo udevadm trigger
 
 # Go back to previous directory
 cd ${DIR}
