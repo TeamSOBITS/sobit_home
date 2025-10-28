@@ -18,17 +18,17 @@
         <material name="black" />
       </visual>
       <collision>
-        <origin xyz="0.0 0.0 -${0.009/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.3 0.3 0.009" />
+          <box size="0.47 0.19 0.20" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 -${0.009/2}" rpy="0.0 0.0 0.0" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.3**2+0.009**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.3**2+0.009**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.3**2+0.3**2)}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <mass value="5.0" /> <!-- TODO -->
+        <inertia ixx="${1/12*5.0*(0.19**2+0.20**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*5.0*(0.20**2+0.47**2)}" iyz="0.0"
+                 izz="${1/12*5.0*(0.47**2+0.19**2)}" />
       </inertial>
     </link>
 
@@ -48,17 +48,17 @@
         <material name="black" />
       </visual>
       <collision>
-        <origin xyz="0.0 0.0 -${0.009/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.3 0.3 0.009" />
+          <box size="0.47 0.47 0.02" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 -${0.009/2}" rpy="0.0 0.0 0.0" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.3**2+0.009**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.3**2+0.009**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.3**2+0.3**2)}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <mass value="1.0" /> <!-- TODO -->
+        <inertia ixx="${1/12*1.0*(0.47**2+0.02**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*1.0*(0.02**2+0.47**2)}" iyz="0.0"
+                 izz="${1/12*1.0*(0.47**2+0.47**2)}" />
       </inertial>
     </link>
     
@@ -78,17 +78,17 @@
         <material name="black" />
       </visual>
       <collision>
-        <origin xyz="0.0 0.0 -${0.009/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.3 0.3 0.009" />
+          <box size="0.47 0.47 0.02" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 -${0.009/2}" rpy="0.0 0.0 0.0" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.3**2+0.009**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.3**2+0.009**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.3**2+0.3**2)}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <mass value="1.5" /> <!-- TODO -->
+        <inertia ixx="${1/12*1.5*(0.47**2+0.02**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*1.5*(0.02**2+0.47**2)}" iyz="0.0"
+                 izz="${1/12*1.5*(0.47**2+0.47**2)}" />
       </inertial>
     </link>
 

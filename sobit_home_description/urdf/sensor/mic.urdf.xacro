@@ -17,13 +17,13 @@
         </geometry>
         <material name="black" />
       </visual>
-      <collision>
+      <!-- <collision>
         <origin xyz="0.0 ${(0.02-0.1146-0.0146)/2} -${0.02/2}" rpy="0.0 0.0 0.0" />
         <geometry>
           <box size="0.0292 ${0.1146+0.0146} 0.03"/>
         </geometry>
         <material name="black" />
-      </collision>
+      </collision> -->
       <inertial>
         <origin xyz="0.0 ${(0.02-0.1146-0.0146)/2} -${0.02/2}" rpy="0.0 0.0 0.0" />
         <!-- APPROX -->
@@ -49,13 +49,13 @@
         </geometry>
         <material name="black" />
       </visual>
-      <collision>
+      <!-- <collision>
         <origin xyz="${0.0+0.04911} -${0.0112/2} ${0.035+0.0266}" rpy="0.0 ${M_PI/2-25*M_PI/180} 0.0" />
         <geometry>
           <cylinder radius="${0.022/2}" length="0.281"/>
         </geometry>
         <material name="black" />
-      </collision>
+      </collision> -->
       <inertial>
         <origin xyz="${0.0+0.04911} -${0.0112/2} ${0.035+0.0266}" rpy="0.0 ${M_PI/2-25*M_PI/180} 0.0" />
         <mass value="0.235" />

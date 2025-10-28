@@ -23,12 +23,15 @@ def generate_launch_description():
 
     xacro_arguments = {
         'enable_gz': 'True',
-        'enable_mb': 'True',
-        'enable_arm': 'True',
+        'enable_mobile_base': 'True',
+        'enable_body': 'True',
+        'enable_arm_left': 'True',
+        'enable_arm_right': 'True',
+        'enable_hand_left': 'False',
+        'enable_hand_right': 'False',
         'enable_head': 'True',
         'robot_namespace': robot_namespace
     }
-
     robot_description_config = xacro.process_file(
         robot_description,
         mappings=xacro_arguments
