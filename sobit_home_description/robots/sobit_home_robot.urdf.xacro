@@ -11,19 +11,21 @@
   <xacro:include filename="$(find sobit_home_description)/urdf/base/base.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/body/plate.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/body/body.urdf.xacro" />
-  <xacro:include filename="$(find sobit_home_description)/urdf/back/back.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/wheel/wheel.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/arm/arm.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/hand/hand.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/head/head.urdf.xacro" />
 
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/camera_head.urdf.xacro" />
-  <xacro:include filename="$(find sobit_home_description)/urdf/sensor/mic.urdf.xacro" />
+  <!-- <xacro:include filename="$(find sobit_home_description)/urdf/sensor/mic.urdf.xacro" /> -->
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/lidar.urdf.xacro" />
   <!-- <xacro:include filename="$(find sobit_home_description)/urdf/sensor/realsense_d405.urdf.xacro" /> -->
 
   <xacro:include filename="$(find urg_node)/urdf/hokuyo_ust.urdf.xacro" />
   <!-- <xacro:include filename="$(find realsense2_description)/urdf/_d405.urdf.xacro" /> -->
+  
+  <!-- Add Gazebo Xacro-->
+  <xacro:include filename="$(find sobit_home_description)/urdf/gazebo.urdf.xacro" />
 
 
   <!-- Add variables -->
@@ -41,44 +43,47 @@
 
   <!-- Activate Components -->
   <xacro:arg name="enable_mobile_base"  default="True" />
-  <xacro:arg name="enable_head"         default="True" />
+  <xacro:arg name="enable_body"         default="True" />
   <xacro:arg name="enable_arm_left"     default="True" />
   <xacro:arg name="enable_arm_right"    default="True" />
   <xacro:arg name="enable_hand_left"    default="True" />
   <xacro:arg name="enable_hand_right"   default="True" />
-  <xacro:arg name="enable_body"         default="True" />
+  <xacro:arg name="enable_head"         default="True" />
 
 
-  <!-- All components enabled -->
-  <xacro:if value="${
-        $(arg enable_mobile_base)
-        and $(arg enable_arm_left)
-        and $(arg enable_arm_right)
-        and $(arg enable_hand_left)
-        and $(arg enable_hand_right)
-        and $(arg enable_head)
-        and $(arg enable_body)
-      }">
+  <xacro:if value="${ $(arg enable_mobile_base) }">
     <xacro:base/>
     <xacro:plate prefix="plate" parent="base_link" />
     <xacro:wheel prefix="wheel" parent="plate_middle_link" />
-    <xacro:body  prefix="body"  parent="plate_top_link" />
-    <xacro:arm   prefix="arm"   position="left"  parent="body_lift_link" />
-    <xacro:arm   prefix="arm"   position="right" parent="body_lift_link" />
-    <!-- <xacro:hand  prefix_hand="hand" position="left"  prefix_finger="finger" parent="arm_wrist_tilt_link" /> -->
-    <!-- <xacro:hand  prefix_hand="hand" position="right" prefix_finger="finger" parent="arm_wrist_tilt_link" /> -->
-    <xacro:head  prefix="head"  parent="body_lift_link" /> 
-    <xacro:mic   prefix="mic"   parent="head_tilt_link" /> 
-    <xacro:camera_head  prefix="head_camera"  parent="head_tilt_link" /> 
     <xacro:lidar prefix="lidar" parent="plate_middle_link" robot_name="$(arg robot_name)" />
+  </xacro:if>
+  <xacro:if value="${ $(arg enable_body) }">
+    <xacro:body  prefix="body"  parent="plate_top_link" />
+  </xacro:if>
+  <xacro:if value="${ $(arg enable_arm_left) }">
+    <xacro:arm   prefix="arm"   position="left"  parent="body_lift_link" />
+  </xacro:if>
+  <xacro:if value="${ $(arg enable_arm_right) }">
+    <xacro:arm   prefix="arm"   position="right" parent="body_lift_link" />
+  </xacro:if>
+  <xacro:if value="${ $(arg enable_hand_left) }">
+    <xacro:hand  prefix_hand="hand" position="left"  prefix_finger="finger" parent="arm_wrist_tilt_link" />
+  </xacro:if>
+  <xacro:if value="${ $(arg enable_hand_right) }">
+    <xacro:hand  prefix_hand="hand" position="right" prefix_finger="finger" parent="arm_wrist_tilt_link" />
+  </xacro:if>
+  <xacro:if value="${ $(arg enable_head) }">
+    <xacro:head  prefix="head"  parent="body_lift_link" /> 
+    <!-- <xacro:mic   prefix="mic"   parent="head_tilt_link" />  -->
+    <xacro:camera_head  prefix="head"  parent="head_tilt_link" />
   </xacro:if>
 
 
-    <!-- Add Actuators Controllers -->
+  <!-- Add Actuators Controllers -->
   <xacro:controllers enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" />
 
   <!-- Add Gazebo plugins -->
-  <!-- <xacro:if value="${$(arg enable_gz)}">
+  <xacro:if value="${$(arg enable_gz)}">
     <xacro:gazebo_sensors robot_name="$(arg robot_name)"
       enable_gz_head_cam_color="$(arg enable_gz_head_cam_color)"
       enable_gz_head_cam_depth="$(arg enable_gz_head_cam_depth)"
@@ -87,8 +92,8 @@
       enable_gz_hand_right_cam_color="$(arg enable_gz_hand_right_cam_color)"
       enable_gz_hand_right_cam_depth="$(arg enable_gz_hand_right_cam_depth)"
       enable_gz_lidar_front="$(arg enable_gz_lidar_front)"
-      enable_gz_lidar="$(arg enable_gz_lidar_back)"
+      enable_gz_lidar_back="$(arg enable_gz_lidar_back)"
     />
-  </xacro:if> -->
+  </xacro:if>
 
 </robot>

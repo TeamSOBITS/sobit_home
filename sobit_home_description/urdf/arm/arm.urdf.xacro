@@ -6,15 +6,13 @@
   <xacro:macro name="arm" params="prefix position parent" >
     <xacro:if value="${position == 'left'}">
       <xacro:property name="y_sign" value="1.0" />
-      <xacro:property name="yaw_rot" value="0.0" />
-        <xacro:property name="upper_roll_limit_lower" value="0" />
-        <xacro:property name="upper_roll_limit_upper" value="${M_PI}" />
+        <xacro:property name="upper_roll_limit_lower" value="${-M_PI/2}" />
+        <xacro:property name="upper_roll_limit_upper" value="${M_PI/2}" />
     </xacro:if>
     <xacro:if value="${position == 'right'}">
       <xacro:property name="y_sign" value="-1.0" />
-      <xacro:property name="yaw_rot" value="${M_PI}" />
-        <xacro:property name="upper_roll_limit_lower" value="${-M_PI}" />
-        <xacro:property name="upper_roll_limit_upper" value="0" />
+        <xacro:property name="upper_roll_limit_lower" value="${M_PI/2}" />
+        <xacro:property name="upper_roll_limit_upper" value="${-M_PI/2}" />
     </xacro:if>
 
     <joint name="${prefix}_${position}_base_joint" type="fixed" >
@@ -25,24 +23,24 @@
 
     <link name="${prefix}_${position}_base_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="${M_PI/2} 0.0 ${M_PI/2+yaw_rot}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${M_PI/2} 0.0 ${y_sign * M_PI/2}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_scapula.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 ${y_sign * 0.124/2} 0.0" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.140 0.156 0.043" />
+          <box size="0.054 0.124 0.054" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 ${M_PI/2}" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.140**2+0.043**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.156**2+0.043**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.140**2+0.156**2)}" />
+        <origin xyz="0.0 ${y_sign * 0.124/2} 0.0" rpy="0.0 0.0 0.0" />
+        <mass value="0.855" /> <!-- mass without FRP54-A110K -->
+        <inertia ixx="${1/12*0.855*(0.124**2+0.054**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.855*(0.054**2+0.054**2)}" iyz="0.0"
+                 izz="${1/12*0.855*(0.054**2+0.124**2)}" />
       </inertial>
     </link>
 
@@ -50,30 +48,30 @@
       <parent link="${prefix}_${position}_base_link" />
       <child link="${prefix}_${position}_shoulder_tilt_link" />
       <origin xyz="0.0 ${y_sign * 0.126} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 -1.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6*2}" velocity="11.031179004" />
+      <axis xyz="0.0 1.0 0.0 " />
+      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="44.7" velocity="3.0" />
     </joint>
 
     <link name="${prefix}_${position}_shoulder_tilt_link" >
       <visual>
-        <origin xyz="0.0 ${y_sign * 0.07275} 0.0" rpy="0.0 0.0 ${M_PI/2+yaw_rot}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${y_sign * M_PI/2}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_shoulder.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 ${y_sign * 0.104/2} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
         <geometry>
-          <box size="0.1166 0.124 0.043" />
+          <cylinder length="0.104" radius="${0.08/2}" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.1166**2+0.043**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.124**2 +0.043**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.1166**2+0.124**2)}" />
+        <origin xyz="0 ${y_sign * 0.104/2} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
+        <mass value="0.504" />
+        <inertia ixx="${1/12*0.504*(3*0.04**2+0.104**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.504*(3*0.04**2+0.104**2)}" iyz="0.0"
+                 izz="${1/2*0.504*0.04**2}" />
       </inertial>
     </link>
 
@@ -82,122 +80,122 @@
       <child link="${prefix}_${position}_upper_roll_link" />
       <origin xyz="0.0 ${y_sign * 0.0725} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
-      <limit lower="${upper_roll_limit_lower}" upper="${upper_roll_limit_upper}" effort="${10.6*2}" velocity="11.031179004" />
+      <limit lower="${upper_roll_limit_lower}" upper="${upper_roll_limit_upper}" effort="1060.0" velocity="3.14" />
     </joint>
 
     <link name="${prefix}_${position}_upper_roll_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_upper_roll.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 ${y_sign * 0.13445} 0.0" rpy="0.0 ${y_sign * M_PI/2} ${M_PI/2}" />
         <geometry>
-          <box size="0.1166 0.124 0.043" />
+          <cylinder length="0.129" radius="${0.076/2}" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.1166**2+0.043**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.124**2 +0.043**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.1166**2+0.124**2)}" />
+        <origin xyz="0.0 ${y_sign * 0.13445} 0.0" rpy="0.0 ${y_sign * M_PI/2} ${M_PI/2}" />
+        <mass value="0.595" />
+        <inertia ixx="${1/12*0.595*(3*0.038**2+0.129**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.595*(3*0.038**2+0.129**2)}" iyz="0.0"
+                 izz="${1/2*0.595*0.038**2}" />
       </inertial>
     </link>
   
     <joint name="${prefix}_${position}_upper_flex_joint" type="revolute" >
       <parent link="${prefix}_${position}_upper_roll_link" />
       <child link="${prefix}_${position}_upper_flex_link" />
-      <origin xyz="0.0 0.0 -0.215813" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 0.0 1.0" />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6*2}" velocity="11.031179004" />
+      <origin xyz="0.0 ${y_sign * 0.215813} 0.0" rpy="0.0 0.0 0.0" />
+      <axis xyz="0.0 1.0 0.0" />
+      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="4.1" velocity="4.81" />
     </joint>
 
     <link name="${prefix}_${position}_upper_flex_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${-M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${y_sign * M_PI/2} ${-M_PI/2}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_upper_flex.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 ${y_sign * 0.06943603} 0.0" rpy="0.0 ${y_sign * M_PI/2} ${-M_PI/2}" />
         <geometry>
-          <box size="0.1166 0.124 0.043" />
+          <cylinder length="0.171" radius="${0.076/2}" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.1166**2+0.043**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.124**2 +0.043**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.1166**2+0.124**2)}" />
+        <origin xyz="0.0 ${y_sign * 0.06943603} 0.0" rpy="0.0 ${y_sign * M_PI/2} ${-M_PI/2}" />
+        <mass value="0.778" />
+        <inertia ixx="${1/12*0.778*(3*0.038**2+0.171**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.778*(3*0.038**2+0.171**2)}" iyz="0.0"
+                 izz="${1/2*0.778*0.038**2}" />
       </inertial>
     </link>
 
     <joint name="${prefix}_${position}_elbow_joint" type="revolute" >
       <parent link="${prefix}_${position}_upper_flex_link" />
       <child link="${prefix}_${position}_elbow_link" />
-      <origin xyz="0.0 0.0 -0.18413635" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 -1.0 0.0 " />
-      <limit lower="0" upper="${M_PI/2}" effort="${10.6*2}" velocity="11.031179004" />
+      <origin xyz="0.0 ${y_sign * 0.18413635} 0.0" rpy="0.0 0.0 0.0" />
+      <axis xyz="0.0 0.0 -1.0" />
+      <limit lower="0" upper="${M_PI/2}" effort="10.6" velocity="3.14" />
     </joint>
 
     <link name="${prefix}_${position}_elbow_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_elbow.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 ${y_sign * 0.265} 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
         <geometry>
-          <box size="0.1166 0.124 0.043" />
+          <cylinder length="0.386" radius="${0.088156/2}" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.1166**2+0.043**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.124**2 +0.043**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.1166**2+0.124**2)}" />
+        <origin xyz="0.0 ${y_sign * 0.265} 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
+        <mass value="1.663" /> <!-- mass without FR13-H101K -->
+        <inertia ixx="${1/12*1.663*(3*0.044**2+0.386**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*1.663*(3*0.044**2+0.386**2)}" iyz="0.0"
+                 izz="${1/2*1.663*0.044**2}" />
       </inertial>
     </link>
 
     <joint name="${prefix}_${position}_wrist_joint" type="revolute" >
       <parent link="${prefix}_${position}_elbow_link" />
       <child link="${prefix}_${position}_wrist_link" />
-      <origin xyz="0.0 0.0 -0.5" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 -1.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6*2}" velocity="11.031179004" />
+      <origin xyz="0.0 ${y_sign * 0.5} 0.0" rpy="0.0 0.0 0.0" />
+      <axis xyz="0.0 0.0 -1.0 " />
+      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="4.1" velocity="4.81" />
     </joint>
 
     <link name="${prefix}_${position}_wrist_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_wrist.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 ${y_sign * 0.0462} 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
         <geometry>
-          <box size="0.1166 0.124 0.043" />
+          <cylinder length="0.0453" radius="${0.08/2}" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
-        <mass value="0.08" />
-        <inertia ixx="${1/12*0.08*(0.1166**2+0.043**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.08*(0.124**2 +0.043**2)}" iyz="0.0"
-                 izz="${1/12*0.08*(0.1166**2+0.124**2)}" />
+        <origin xyz="0.0 ${y_sign * 0.0462} 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
+        <mass value="0.341" />
+        <inertia ixx="${1/12*0.341*(3*0.04**2+0.0453**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.341*(3*0.04**2+0.0453**2)}" iyz="0.0"
+                 izz="${1/2*0.341*0.04**2}" />
       </inertial>
     </link>
 
