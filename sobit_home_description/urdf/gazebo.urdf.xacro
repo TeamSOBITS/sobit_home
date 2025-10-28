@@ -146,45 +146,6 @@
       </gazebo>
     </xacro:if>
 
-    <!-- Sensor - LiDAR -->
-    <xacro:macro name="gz_lidar" params="frame topic enable_gz_lidar update_rate sample_rate min_angle max_angle min_range max_range">
-      <xacro:if value="${enable_gz_lidar}">
-        <gazebo reference="${frame}">
-          <sensor name='${frame}_sensor' type='gpu_lidar'>
-            <pose>0 0 0 0 0 0</pose>
-            <gz_frame_id>${robot_name}/${frame}</gz_frame_id>
-            <topic>${robot_name}/${topic}</topic>
-            <update_rate>${update_rate}</update_rate>
-            <ray>
-              <scan>
-                <horizontal>
-                  <samples>${sample_rate}</samples>
-                  <resolution>1</resolution>
-                  <min_angle>${min_angle}</min_angle>
-                  <max_angle>${max_angle}</max_angle>
-                </horizontal>
-                <vertical>
-                  <samples>1</samples>
-                  <resolution>0.01</resolution>
-                  <min_angle>0</min_angle>
-                  <max_angle>0</max_angle>
-                </vertical>
-                </scan>
-              <range>
-                <min>${min_range}</min>
-                <max>${max_range}</max>
-                <resolution>0.01</resolution>
-              </range>
-            </ray>
-            <always_on>1</always_on>
-            <visualize>true</visualize>
-          </sensor>
-        </gazebo>
-      </xacro:if>
-    </xacro:macro>
-    <xacro:gz_lidar frame="lidar_front_laser" topic="lidar_front/scan" enable_gz_lidar="${enable_gz_lidar_front}" update_rate="50" sample_rate="720" min_angle="-2.35619" max_angle="2.35619" min_range="0.1" max_range="60.0" />
-    <xacro:gz_lidar frame="lidar_back_laser"  topic="lidar_back/scan"  enable_gz_lidar="${enable_gz_lidar_back}"  update_rate="50" sample_rate="720" min_angle="-2.35619" max_angle="2.35619" min_range="0.1" max_range="60.0" />
-
     <gazebo reference="base_link">
       <self_collide>0</self_collide>
       <collision>
