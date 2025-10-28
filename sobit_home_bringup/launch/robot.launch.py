@@ -378,38 +378,38 @@ def launch_gz(context, *args, **kwargs):
         output='screen',
     )
 
-    if enable_gz == 'False':
-        return [
-            delayed_controller_manager,
-            delayed_wheel_steer_position_controller,
-            delayed_wheel_drive_velocity_controller,
-            delayed_arm_left_position_controller,
-            delayed_arm_right_position_controller,
-            delayed_hand_left_position_controller,
-            delayed_hand_right_position_controller,
-            delayed_head_position_controller,
-            delayed_body_position_controller,
-            delayed_joint_state_broadcaster,
-            robot_state_publisher_node,
-            rviz_node,
-        ]
+    nodes = []
+    if enable_gz == 'True':
+        nodes.append(gz_spawn_entity_node)
+        nodes.append(gz_bridge_node)
+        # nodes.append(gz_tf_head_cam_node)
+        # nodes.append(gz_tf_hand_cam_node)
+
+    nodes.append(delayed_controller_manager)
+
+    if enable_mobile_base == 'True':
+        nodes.append(delayed_wheel_steer_position_controller)
+        nodes.append(delayed_wheel_drive_velocity_controller)
     
-    else:
-        return [
-            gz_spawn_entity_node,
-            gz_bridge_node,
-            # gz_tf_head_cam_node,
-            # gz_tf_hand_cam_node,
-            delayed_controller_manager,
-            delayed_wheel_steer_position_controller,
-            delayed_wheel_drive_velocity_controller,
-            delayed_arm_left_position_controller,
-            delayed_arm_right_position_controller,
-            delayed_hand_left_position_controller,
-            delayed_hand_right_position_controller,
-            delayed_head_position_controller,
-            delayed_body_position_controller,
-            delayed_joint_state_broadcaster,
-            robot_state_publisher_node,
-            rviz_node,
-        ]
+    if enable_arm_left == 'True':
+        nodes.append(delayed_arm_left_position_controller)
+    if enable_arm_right == 'True':
+        nodes.append(delayed_arm_right_position_controller)
+
+    if enable_hand_left == 'True':
+        nodes.append(delayed_hand_left_position_controller)
+    if enable_hand_right == 'True':
+        nodes.append(delayed_hand_right_position_controller)
+
+    if enable_head == 'True':
+        nodes.append(delayed_head_position_controller)
+
+    if enable_body == 'True':
+        nodes.append(delayed_body_position_controller)
+
+    nodes.append(delayed_joint_state_broadcaster)
+    nodes.append(robot_state_publisher_node)
+    nodes.append(action_server_launch)
+    nodes.append(rviz_node)
+
+    return nodes
