@@ -57,21 +57,35 @@
     <xacro:wheel prefix="wheel" parent="plate_middle_link" />
     <xacro:lidar prefix="lidar" parent="plate_middle_link" robot_name="$(arg robot_name)" />
   </xacro:if>
+
   <xacro:if value="${ $(arg enable_body) }">
     <xacro:body  prefix="body"  parent="plate_top_link" />
   </xacro:if>
+  <xacro:unless value="${ $(arg enable_body) }">
+    <joint name="body_joint" type="fixed" >
+      <origin xyz="0.11275 0.0 0.565" rpy="0.0 0.0 0.0" />
+      <parent link="plate_top_link" />
+      <child link="body_lift_link" />
+    </joint>
+    <link name="body_lift_link" />
+  </xacro:unless>
+
   <xacro:if value="${ $(arg enable_arm_left) }">
     <xacro:arm   prefix="arm"   position="left"  parent="body_lift_link" />
   </xacro:if>
+
   <xacro:if value="${ $(arg enable_arm_right) }">
     <xacro:arm   prefix="arm"   position="right" parent="body_lift_link" />
   </xacro:if>
+
   <xacro:if value="${ $(arg enable_hand_left) }">
     <xacro:hand  prefix_hand="hand" position="left" prefix_finger="finger" parent="arm_left_wrist_roll_link" />
   </xacro:if>
+
   <xacro:if value="${ $(arg enable_hand_right) }">
     <xacro:hand  prefix_hand="hand" position="right" prefix_finger="finger" parent="arm_right_wrist_roll_link" />
   </xacro:if>
+
   <xacro:if value="${ $(arg enable_head) }">
     <xacro:head  prefix="head"  parent="body_lift_link" /> 
     <!-- <xacro:mic   prefix="mic"   parent="head_tilt_link" />  -->
