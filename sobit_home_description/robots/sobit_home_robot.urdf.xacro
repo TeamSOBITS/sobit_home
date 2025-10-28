@@ -67,10 +67,10 @@
     <xacro:arm   prefix="arm"   position="right" parent="body_lift_link" />
   </xacro:if>
   <xacro:if value="${ $(arg enable_hand_left) }">
-    <xacro:hand  prefix_hand="hand" position="left"  prefix_finger="finger" parent="arm_wrist_tilt_link" />
+    <xacro:hand  prefix_hand="hand" position="left" prefix_finger="finger" parent="arm_left_wrist_roll_link" />
   </xacro:if>
   <xacro:if value="${ $(arg enable_hand_right) }">
-    <xacro:hand  prefix_hand="hand" position="right" prefix_finger="finger" parent="arm_wrist_tilt_link" />
+    <xacro:hand  prefix_hand="hand" position="right" prefix_finger="finger" parent="arm_right_wrist_roll_link" />
   </xacro:if>
   <xacro:if value="${ $(arg enable_head) }">
     <xacro:head  prefix="head"  parent="body_lift_link" /> 

@@ -27,8 +27,8 @@ def generate_launch_description():
         'enable_body': 'True',
         'enable_arm_left': 'True',
         'enable_arm_right': 'True',
-        'enable_hand_left': 'False',
-        'enable_hand_right': 'False',
+        'enable_hand_left': 'True',
+        'enable_hand_right': 'True',
         'enable_head': 'True',
         'robot_namespace': robot_namespace
     }

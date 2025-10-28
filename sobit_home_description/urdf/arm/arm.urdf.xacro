@@ -168,15 +168,15 @@
       </inertial>
     </link>
 
-    <joint name="${prefix}_${position}_wrist_joint" type="revolute" >
+    <joint name="${prefix}_${position}_wrist_tilt_joint" type="revolute" >
       <parent link="${prefix}_${position}_elbow_link" />
-      <child link="${prefix}_${position}_wrist_link" />
-      <origin xyz="0.0 ${y_sign * 0.5} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 0.0 -1.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="4.1" velocity="4.81" />
+      <child link="${prefix}_${position}_wrist_tilt_link" />
+      <origin xyz="0.0 0.0 -0.5" rpy="0.0 0.0 0.0" />
+      <axis xyz="0.0 -1.0 0.0 " />
+      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6*2}" velocity="11.031179004" />
     </joint>
 
-    <link name="${prefix}_${position}_wrist_link" >
+    <link name="${prefix}_${position}_wrist_tilt_link" >
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
         <geometry>
@@ -196,6 +196,38 @@
         <inertia ixx="${1/12*0.341*(3*0.04**2+0.0453**2)}" ixy="0.0" ixz="0.0"
                  iyy="${1/12*0.341*(3*0.04**2+0.0453**2)}" iyz="0.0"
                  izz="${1/2*0.341*0.04**2}" />
+      </inertial>
+    </link>
+
+    <joint name="${prefix}_${position}_wrist_roll_joint" type="revolute" >
+      <parent link="${prefix}_${position}_wrist_tilt_link" />
+      <child link="${prefix}_${position}_wrist_roll_link" />
+      <origin xyz="0.0 0.0 -0.06648176" rpy="0.0 0.0 0.0" />
+      <axis xyz="0.0 0.0 1.0 " />
+      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6*2}" velocity="11.031179004" />
+    </joint>
+
+    <link name="${prefix}_${position}_wrist_roll_link" >
+      <visual>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${M_PI} 0.0" />
+        <geometry>
+          <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_wrist_roll.stl" scale="0.001 0.001 0.001" />
+        </geometry>
+        <material name="grey" />
+      </visual>
+      <!-- 後でコメントアウト -->
+      <collision>
+        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <geometry>
+          <box size="0.1166 0.124 0.043" />
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="${0.1166/2+0.0224} 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
+        <mass value="0.08" />
+        <inertia ixx="${1/12*0.08*(0.1166**2+0.043**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.08*(0.124**2 +0.043**2)}" iyz="0.0"
+                 izz="${1/12*0.08*(0.1166**2+0.124**2)}" />
       </inertial>
     </link>
 
