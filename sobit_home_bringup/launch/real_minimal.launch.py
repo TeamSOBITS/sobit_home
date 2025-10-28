@@ -25,11 +25,11 @@ def generate_launch_description():
                 'enable_gz'  : 'False',
                 'enable_mobile_base': 'True',
                 'enable_arm_left': 'True',
-                'enable_arm_right': 'True',
-                'enable_hand_left': 'True',
-                'enable_hand_right': 'True',
+                'enable_arm_right': 'False',
+                'enable_hand_left': 'False',
+                'enable_hand_right': 'False',
                 'enable_head': 'True',
-                'enable_body': 'True',
+                'enable_body': 'False',
                 'enable_real_head_cam' : 'True', # TODO: toggle head camera
                 'enable_real_hand_cam' : 'False', # TODO: toggle hand camera
             }.items()
