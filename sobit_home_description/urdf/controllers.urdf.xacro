@@ -231,7 +231,7 @@
     <joint name="head_pan_joint">
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">21</param>
-        <param name="control_mode">61</param>
+        <param name="control_mode">0</param>
         <param name="interface">rs</param>
       </xacro:unless>
       <command_interface name="position">
@@ -249,7 +249,7 @@
     <joint name="head_tilt_joint">
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">21</param>
-        <param name="control_mode">62</param>
+        <param name="control_mode">0</param>
         <param name="interface">rs</param>
       </xacro:unless>
       <command_interface name="position">
