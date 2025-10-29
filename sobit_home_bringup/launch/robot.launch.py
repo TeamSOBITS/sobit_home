@@ -4,7 +4,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction, IncludeLaunchDescription, RegisterEventHandler, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.event_handlers import OnProcessExit, OnProcessStart
+from launch.event_handlers import OnProcessExit, OnProcessStart, OnExecutionComplete
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch.conditions import LaunchConfigurationEquals
 from launch_ros.substitutions import FindPackageShare
@@ -131,166 +131,6 @@ def launch_gz(context, *args, **kwargs):
         output='screen',
     )
 
-    controller_config = os.path.join(get_package_share_directory(
-        'sobit_home_control'),
-        'config',
-        'real_controllers.yaml'
-    )
-    controller_manager = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        namespace=robot_name,
-        parameters=[controller_config],
-        remappings=[
-            ("controller_manager/robot_description", "robot_description"),
-        ],
-        output="screen",
-    )
-    delayed_controller_manager = TimerAction(period=3.0, actions=[controller_manager])
-
-
-    joint_state_broadcaster = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'active',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'joint_state_broadcaster'
-        ],
-        output='screen'
-    )
-    delayed_joint_state_broadcaster = RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=controller_manager,
-            on_start=[joint_state_broadcaster],
-        )
-    )
-
-    wheel_steer_position_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'active',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'wheel_steer_position_controller'
-        ],
-        output='screen'
-    )
-    delayed_wheel_steer_position_controller = RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=controller_manager,
-            on_start=[wheel_steer_position_controller],
-        )
-    )
-
-    wheel_drive_velocity_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'active',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'wheel_drive_velocity_controller'
-        ],
-        output='screen'
-    )
-    delayed_wheel_drive_velocity_controller = RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=controller_manager,
-            on_start=[wheel_drive_velocity_controller],
-        )
-    )
-
-    arm_left_position_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'active',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'arm_left_position_controller'
-        ],
-        output='screen'
-    )
-    delayed_arm_left_position_controller = RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=controller_manager,
-            on_start=[arm_left_position_controller],
-        )
-    )
-
-    arm_right_position_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'active',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'arm_right_position_controller'
-        ],
-        output='screen'
-    )
-    delayed_arm_right_position_controller = RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=controller_manager,
-            on_start=[arm_right_position_controller],
-        )
-    )
-    hand_left_position_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'active',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'hand_left_position_controller'
-        ],
-        output='screen'
-    )
-    delayed_hand_left_position_controller = RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=controller_manager,
-            on_start=[hand_left_position_controller],
-        )
-    )
-    hand_right_position_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'active',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'hand_right_position_controller'
-        ],
-        output='screen'
-    )
-    delayed_hand_right_position_controller = RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=controller_manager,
-            on_start=[hand_right_position_controller],
-        )
-    )
-
-    head_position_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'active',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'head_position_controller'
-        ],
-        output='screen'
-    )
-    delayed_head_position_controller = RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=controller_manager,
-            on_start=[head_position_controller],
-        )
-    )
-
-    body_position_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller',
-            '--set-state', 'active',
-            '--controller-manager', robot_name+'/controller_manager',
-            # '--use-sim-time',
-            'body_position_controller'
-        ],
-        output='screen'
-    )
-    delayed_body_position_controller = RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=controller_manager,
-            on_start=[body_position_controller],
-        )
-    )
-
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -304,6 +144,155 @@ def launch_gz(context, *args, **kwargs):
         output="screen",
     )
 
+    controller_config = os.path.join(get_package_share_directory(
+        'sobit_home_control'),
+        'config',
+        'controllers.yaml'
+    )
+
+    controllers = []
+
+    if enable_mobile_base == 'True':
+        diff_drive_base_controller_spawner = Node(
+            package='controller_manager',
+            executable='spawner',
+            namespace=robot_name,
+            arguments=[
+                'wheel_steer_position_controller',
+                '--param-file', controller_config,
+                '-c', 'controller_manager'
+                ],
+        )
+        wheel_drive_velocity_controller = Node(
+            package='controller_manager',
+            executable='spawner',
+            namespace=robot_name,
+            arguments=[
+                'wheel_drive_velocity_controller',
+                '--param-file', controller_config,
+                '-c', 'controller_manager'
+                ],
+        )
+        controllers.append(diff_drive_base_controller_spawner)
+        controllers.append(wheel_drive_velocity_controller)
+
+    if enable_arm_left == 'True':
+        arm_left_position_controller = Node(
+            package='controller_manager',
+            executable='spawner',
+            namespace=robot_name,
+            arguments=[
+                'arm_left_position_controller',
+                '--param-file', controller_config,
+                '-c', 'controller_manager'
+                ],
+        )
+        controllers.append(arm_left_position_controller)
+
+    if enable_arm_right == 'True':
+        arm_right_position_controller = Node(
+            package='controller_manager',
+            executable='spawner',
+            namespace=robot_name,
+            arguments=[
+                'arm_right_position_controller',
+                '--param-file', controller_config,
+                '-c', 'controller_manager'
+                ],
+        )
+        controllers.append(arm_right_position_controller)
+
+    if enable_hand_left == 'True':
+        hand_left_position_controller = Node(
+            package='controller_manager',
+            executable='spawner',
+            namespace=robot_name,
+            arguments=[
+                'hand_left_position_controller',
+                '--param-file', controller_config,
+                '-c', 'controller_manager'
+                ],
+        )
+        controllers.append(hand_left_position_controller)
+
+    if enable_hand_right == 'True':
+        hand_right_position_controller = Node(
+            package='controller_manager',
+            executable='spawner',
+            namespace=robot_name,
+            arguments=[
+                'hand_right_position_controller',
+                '--param-file', controller_config,
+                '-c', 'controller_manager'
+                ],
+        )
+        controllers.append(hand_right_position_controller)
+
+    if enable_head == 'True':
+        head_position_controller = Node(
+            package='controller_manager',
+            executable='spawner',
+            namespace=robot_name,
+            arguments=[
+                'head_position_controller',
+                '--param-file', controller_config,
+                '-c', 'controller_manager'
+                ],
+        )
+        controllers.append(head_position_controller)
+
+    if enable_body == 'True':
+        body_position_controller = Node(
+            package='controller_manager',
+            executable='spawner',
+            namespace=robot_name,
+            arguments=[
+                'body_position_controller',
+                '--param-file', controller_config,
+                '-c', 'controller_manager'
+                ],
+        )
+        controllers.append(body_position_controller)
+
+    gz_spawn_entity_node = Node(
+        package='ros_gz_sim',
+        executable='create',
+        namespace=robot_name,
+        arguments=[
+            '-topic', 'robot_description',
+            '-name', robot_name,
+            '-x', robot_coords_x,
+            '-y', robot_coords_y,
+            '-z', robot_coords_z,
+            '-Y', robot_coords_Y,
+        ],
+        output='screen',
+    )
+
+    joint_state_broadcaster = Node(
+        package='controller_manager',
+        executable='spawner',
+        namespace=robot_name,
+        arguments=[
+            'joint_state_broadcaster',
+            '-c', 'controller_manager'
+            ],
+    )
+    delayed_joint_state_broadcaster = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=gz_spawn_entity_node,
+            on_exit=joint_state_broadcaster,
+        )
+    )
+
+    delayed_controllers = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=joint_state_broadcaster,
+            on_exit=controllers,
+        )
+    )
+
+
     action_server_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
             PathJoinSubstitution([
@@ -316,21 +305,6 @@ def launch_gz(context, *args, **kwargs):
             'robot_name': robot_name,
             'enable_gz': enable_gz,
         }.items(),
-    )
-
-    gz_spawn_entity_node = Node(
-        package='ros_gz_sim',
-        executable='create',
-        namespace=robot_name,
-        arguments=[
-            '-topic', '/' + robot_name + '/robot_description',
-            '-name', robot_name,
-            '-x', robot_coords_x,
-            '-y', robot_coords_y,
-            '-z', robot_coords_z,
-            '-Y', robot_coords_Y,
-        ],
-        output='screen',
     )
 
     gz_bridge_node = Node(
@@ -380,35 +354,14 @@ def launch_gz(context, *args, **kwargs):
 
     nodes = []
     if enable_gz == 'True':
-        nodes.append(gz_spawn_entity_node)
         nodes.append(gz_bridge_node)
+        nodes.append(gz_spawn_entity_node)
         # nodes.append(gz_tf_head_cam_node)
         # nodes.append(gz_tf_hand_cam_node)
 
-    nodes.append(delayed_controller_manager)
-
-    if enable_mobile_base == 'True':
-        nodes.append(delayed_wheel_steer_position_controller)
-        nodes.append(delayed_wheel_drive_velocity_controller)
-    
-    if enable_arm_left == 'True':
-        nodes.append(delayed_arm_left_position_controller)
-    if enable_arm_right == 'True':
-        nodes.append(delayed_arm_right_position_controller)
-
-    if enable_hand_left == 'True':
-        nodes.append(delayed_hand_left_position_controller)
-    if enable_hand_right == 'True':
-        nodes.append(delayed_hand_right_position_controller)
-
-    if enable_head == 'True':
-        nodes.append(delayed_head_position_controller)
-
-    if enable_body == 'True':
-        nodes.append(delayed_body_position_controller)
-
-    nodes.append(delayed_joint_state_broadcaster)
     nodes.append(robot_state_publisher_node)
+    nodes.append(delayed_joint_state_broadcaster)
+    nodes.append(delayed_controllers)
     nodes.append(action_server_launch)
     nodes.append(rviz_node)
 
