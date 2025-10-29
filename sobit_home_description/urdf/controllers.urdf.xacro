@@ -79,9 +79,9 @@
       <gazebo>
         <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
           <ros>
-            <namespace>${robot_name}</namespace>
+            <namespace>$(arg robot_name)</namespace>
           </ros>
-          <parameters>$(find sobit_home_control)/config/gz_controllers.yaml</parameters>
+          <parameters>$(find sobit_home_control)/config/controllers.yaml</parameters>
         </plugin>
       </gazebo>
     </xacro:if>
