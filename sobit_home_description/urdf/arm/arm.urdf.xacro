@@ -11,8 +11,8 @@
     </xacro:if>
     <xacro:if value="${position == 'right'}">
       <xacro:property name="y_sign" value="-1.0" />
-        <xacro:property name="upper_roll_limit_lower" value="${M_PI/2}" />
-        <xacro:property name="upper_roll_limit_upper" value="${-M_PI/2}" />
+        <xacro:property name="upper_roll_limit_lower" value="${-M_PI/2}" />
+        <xacro:property name="upper_roll_limit_upper" value="${M_PI/2}" />
     </xacro:if>
 
     <joint name="${prefix}_${position}_base_joint" type="fixed" >
