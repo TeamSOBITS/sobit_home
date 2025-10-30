@@ -204,8 +204,6 @@ To change the environment, modify the `world_model` parameter in [gz_minimal.lau
 'enable_gz_hand_left_cam_depth' : 'True',
 'enable_gz_hand_right_cam_color': 'True',
 'enable_gz_hand_right_cam_depth': 'True',
-'enable_gz_lidar_front'         : 'True',
-'enable_gz_lidar_back'          : 'True',
 ```
 
 Additionally, multiple SOBIT HOMEs can be spawned in the same simulation environment. To do so, configure [gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py) to execute `gz_robot.launch.py` according to the number of robots.

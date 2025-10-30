@@ -95,8 +95,6 @@ def generate_launch_description():
                 'enable_gz_hand_left_cam_depth' : 'False',
                 'enable_gz_hand_right_cam_color': 'False',
                 'enable_gz_hand_right_cam_depth': 'False',
-                'enable_gz_lidar_front'         : 'True',
-                'enable_gz_lidar_back'          : 'True',
             }.items()
         ),
         # Launch Robot No. 2
@@ -120,8 +118,6 @@ def generate_launch_description():
         #         'enable_gz_hand_left_cam_depth' : 'True',
         #         'enable_gz_hand_right_cam_color' : 'True',
         #         'enable_gz_hand_right_cam_depth' : 'True',
-        #         'enable_gz_lidar_front' : 'True',
-        #         'enable_gz_lidar_back' : 'True',
         #     }.items()
         # ),
     ])
