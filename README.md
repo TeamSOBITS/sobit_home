@@ -199,8 +199,6 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py
 'enable_gz_hand_left_cam_depth' : 'True',
 'enable_gz_hand_right_cam_color': 'True',
 'enable_gz_hand_right_cam_depth': 'True',
-'enable_gz_lidar_front'         : 'True',
-'enable_gz_lidar_back'          : 'True',
 ```
 
 また，複数のSOBIT HOMEを同じシミュレーション環境でも出現できます．

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- SOBIT HOME (Gazebo) -->
 <robot name="sobit_home_gazebo" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:macro name="gazebo_sensors" params="robot_name enable_gz_head_cam_color:=True enable_gz_head_cam_depth:=True enable_gz_hand_left_cam_color:=True enable_gz_hand_left_cam_depth:=True enable_gz_hand_right_cam_color:=True enable_gz_hand_right_cam_depth:=True enable_gz_lidar_front:=True enable_gz_lidar_back:=True">
+  <xacro:macro name="gazebo_sensors" params="robot_name enable_gz_head_cam_color:=True enable_gz_head_cam_depth:=True enable_gz_hand_left_cam_color:=True enable_gz_hand_left_cam_depth:=True enable_gz_hand_right_cam_color:=True enable_gz_hand_right_cam_depth:=True">
 
     <!-- Sensor - Head Camera (Color) -->
     <xacro:if value="${enable_gz_head_cam_color}">
@@ -47,7 +47,7 @@
           <pose>0 0 0 ${M_PI/2} -${M_PI/2} 0 </pose>
           
           <!-- <ignition_frame_id>${robot_name}/head_camera_depth_optical_frame</ignition_frame_id> -->
-          <gz_frame_id>${robot_name}/head_camera_depth_optical_frame</gz_frame_id>
+          <gz_frame_id>${robot_name}/head_camera_depth_frame</gz_frame_id>
           <topic>${robot_name}/head_camera/depth</topic>
 
           <always_on>1</always_on>
@@ -59,7 +59,6 @@
             <image>
               <width>640</width>
               <height>480</height>
-              <format>R_FLOAT32</format>
             </image>
             <clip>
               <near>0.1</near>

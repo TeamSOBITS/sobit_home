@@ -32,8 +32,6 @@
   <xacro:arg name="robot_name" default="sobit_home" />
 
   <xacro:arg name="enable_gz"                       default="True" />
-  <xacro:arg name="enable_gz_lidar_front"           default="True" />
-  <xacro:arg name="enable_gz_lidar_back"            default="True" />
   <xacro:arg name="enable_gz_head_cam_color"        default="True" />
   <xacro:arg name="enable_gz_head_cam_depth"        default="True" />
   <xacro:arg name="enable_gz_hand_left_cam_color"   default="False" />
@@ -105,8 +103,6 @@
       enable_gz_hand_left_cam_depth="$(arg enable_gz_hand_left_cam_depth)"
       enable_gz_hand_right_cam_color="$(arg enable_gz_hand_right_cam_color)"
       enable_gz_hand_right_cam_depth="$(arg enable_gz_hand_right_cam_depth)"
-      enable_gz_lidar_front="$(arg enable_gz_lidar_front)"
-      enable_gz_lidar_back="$(arg enable_gz_lidar_back)"
     />
   </xacro:if>
 

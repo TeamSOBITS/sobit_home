@@ -33,8 +33,6 @@ def generate_launch_description():
     arg_enable_gz_hand_left_cam_depth   = DeclareLaunchArgument('enable_gz_hand_left_cam_depth', default_value='True')
     arg_enable_gz_hand_right_cam_color  = DeclareLaunchArgument('enable_gz_hand_right_cam_color', default_value='True')
     arg_enable_gz_hand_right_cam_depth  = DeclareLaunchArgument('enable_gz_hand_right_cam_depth', default_value='True')
-    arg_enable_gz_lidar_front           = DeclareLaunchArgument('enable_gz_lidar_front', default_value='True')
-    arg_enable_gz_lidar_back            = DeclareLaunchArgument('enable_gz_lidar_back', default_value='True')
 
     return LaunchDescription([
         arg_robot_name,
@@ -55,8 +53,6 @@ def generate_launch_description():
         arg_enable_gz_hand_left_cam_depth,
         arg_enable_gz_hand_right_cam_color,
         arg_enable_gz_hand_right_cam_depth,
-        arg_enable_gz_lidar_front,
-        arg_enable_gz_lidar_back,
         OpaqueFunction(function = launch_gz),
     ])
 
@@ -83,8 +79,6 @@ def launch_gz(context, *args, **kwargs):
     enable_gz_hand_left_cam_depth   = LaunchConfiguration('enable_gz_hand_left_cam_depth').perform(context)
     enable_gz_hand_right_cam_color  = LaunchConfiguration('enable_gz_hand_right_cam_color').perform(context)
     enable_gz_hand_right_cam_depth  = LaunchConfiguration('enable_gz_hand_right_cam_depth').perform(context)
-    enable_gz_lidar_front           = LaunchConfiguration('enable_gz_lidar_front').perform(context)
-    enable_gz_right_lidar           = LaunchConfiguration('enable_gz_lidar_back').perform(context)
 
     robot_description = os.path.join(get_package_share_directory(
         'sobit_home_description'), 
@@ -109,8 +103,6 @@ def launch_gz(context, *args, **kwargs):
             'enable_gz_hand_left_cam_depth' : enable_gz_hand_left_cam_depth,
             'enable_gz_hand_right_cam_color' : enable_gz_hand_right_cam_color,
             'enable_gz_hand_right_cam_depth' : enable_gz_hand_right_cam_depth,
-            'enable_gz_lidar_front' : enable_gz_lidar_front,
-            'enable_gz_right_lidar' : enable_gz_right_lidar,
         })
     
     if enable_gz == 'False':
@@ -332,25 +324,25 @@ def launch_gz(context, *args, **kwargs):
         output='screen'
     )
 
-    gz_tf_head_cam_node = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        arguments=['--frame-id', robot_name + '/head_camera_depth_optical_frame',
-                '--child-frame-id', robot_name + '/head_pitch_link/head_camera_depth',
-                '--pitch', '-1.57',
-                '--roll', '1.57'],
-        output='screen',
-    )
+    # gz_tf_head_cam_node = Node(
+    #     package='tf2_ros',
+    #     executable='static_transform_publisher',
+    #     arguments=['--frame-id', robot_name + '/head_camera_depth_optical_frame',
+    #             '--child-frame-id', robot_name + '/head_tilt_link/head_camera_depth',
+    #             '--pitch', '-1.57',
+    #             '--roll', '1.57'],
+    #     output='screen',
+    # )
 
-    gz_tf_hand_cam_node = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        arguments=['--frame-id', robot_name + '/hand_camera_depth_optical_frame',
-                '--child-frame-id', robot_name + '/arm_wrist_roll_link/hand_camera_depth',
-                '--pitch', '-1.57',
-                '--roll', '1.57'],
-        output='screen',
-    )
+    # gz_tf_hand_cam_node = Node(
+    #     package='tf2_ros',
+    #     executable='static_transform_publisher',
+    #     arguments=['--frame-id', robot_name + '/hand_camera_depth_optical_frame',
+    #             '--child-frame-id', robot_name + '/arm_wrist_roll_link/hand_camera_depth',
+    #             '--pitch', '-1.57',
+    #             '--roll', '1.57'],
+    #     output='screen',
+    # )
 
     nodes = []
     if enable_gz == 'True':
