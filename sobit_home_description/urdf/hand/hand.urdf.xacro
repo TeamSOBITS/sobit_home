@@ -6,13 +6,11 @@
   <xacro:macro name="hand" params="prefix_hand position prefix_finger parent" >
     <xacro:if value="${position == 'left'}">
       <xacro:property name="y_sign" value="1.0" />
-      <xacro:property name="yaw_rot" value="0.0" />
         <xacro:property name="upper_roll_limit_lower" value="0" />
         <xacro:property name="upper_roll_limit_upper" value="${M_PI}" />
     </xacro:if>
     <xacro:if value="${position == 'right'}">
       <xacro:property name="y_sign" value="-1.0" />
-      <xacro:property name="yaw_rot" value="${M_PI}" />
         <xacro:property name="upper_roll_limit_lower" value="${-M_PI}" />
         <xacro:property name="upper_roll_limit_upper" value="0" />
     </xacro:if>
@@ -21,25 +19,25 @@
     <joint name="${prefix_hand}_${position}_cmc_joint" type="fixed" >
       <parent link="${parent}" />
       <child link="${prefix_hand}_${position}_cmc_link" />
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 ${y_sign * 0.025375} 0.0" rpy="0.0 0.0 0.0" />
     </joint>
 
     <link name="${prefix_hand}_${position}_cmc_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="${M_PI} 0.0 ${-M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/hand/hand_base.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.00852612 ${y_sign * 0.008875} 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <geometry>
-          <box size="0.140 0.156 0.043" />
+          <box size="0.108064 0.08255 0.06450" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <mass value="0.08" />
         <inertia ixx="${1/12*0.08*(0.140**2+0.043**2)}" ixy="0.0" ixz="0.0"
                  iyy="${1/12*0.08*(0.156**2+0.043**2)}" iyz="0.0"
@@ -51,27 +49,27 @@
     <joint name="${prefix_hand}_${position}_${prefix_finger}_l_mcp_joint" type="revolute" >
       <parent link="${prefix_hand}_${position}_cmc_link" />
       <child link="${prefix_hand}_${position}_${prefix_finger}_l_mcp_link" />
-      <origin xyz="-0.003249 0.024532 -0.046" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 0.0 1.0 " />
+      <origin xyz="-0.002855 ${y_sign * 0.018025} ${y_sign * 0.024532}" rpy="0.0 0.0 0.0" />
+      <axis xyz="0.0 1.0 0.0 " />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="0.52" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_l_mcp_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="${M_PI} 0.0 ${-(2*M_PI/15+M_PI/2)}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * (2*M_PI/15 + M_PI/2)} 0.0" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/hand/switching_gear.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * (2*M_PI/15 + M_PI/2)} 0.0" />
         <geometry>
-          <box size="0.140 0.156 0.043" />
+          <box size="0.0 0.0 0.0" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * (2*M_PI/15 + M_PI/2)} 0.0" />
         <mass value="0.08" />
         <inertia ixx="${1/12*0.08*(0.140**2+0.043**2)}" ixy="0.0" ixz="0.0"
                  iyy="${1/12*0.08*(0.156**2+0.043**2)}" iyz="0.0"
@@ -82,27 +80,27 @@
     <joint name="${prefix_hand}_${position}_${prefix_finger}_l_pip_joint" type="revolute" >
       <parent link="${prefix_hand}_${position}_${prefix_finger}_l_mcp_link" />
       <child link="${prefix_hand}_${position}_${prefix_finger}_l_pip_link" />
-      <origin xyz="-0.02125 0.040125 -0.018575" rpy="0.0 0.0 0.0" />
+      <origin xyz="-0.02125 ${y_sign * 0.019006} ${y_sign * 0.040125}" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
       <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="0.52" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_l_pip_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${M_PI} ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/hand/middle_pharanx.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.01445 ${y_sign * 0.027375} 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <geometry>
-          <box size="0.140 0.156 0.043" />
+          <box size="0.022 0.031 0.030" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <mass value="0.08" />
         <inertia ixx="${1/12*0.08*(0.140**2+0.043**2)}" ixy="0.0" ixz="0.0"
                  iyy="${1/12*0.08*(0.156**2+0.043**2)}" iyz="0.0"
@@ -114,27 +112,27 @@
     <joint name="${prefix_hand}_${position}_${prefix_finger}_l_dip_joint" type="revolute" >
       <parent link="${prefix_hand}_${position}_${prefix_finger}_l_pip_link" />
       <child link="${prefix_hand}_${position}_${prefix_finger}_l_dip_link" />
-      <origin xyz="0.0 0.0 -0.050" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 ${y_sign * 0.050} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
       <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="0.52" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_l_dip_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${M_PI} ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/hand/distal_pharanx.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="blue" />
+        <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.01445 ${y_sign * 0.032375} ${-y_sign * 0.001}" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <geometry>
-          <box size="0.140 0.156 0.043" />
+          <box size="0.022 0.031 0.035" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <mass value="0.08" />
         <inertia ixx="${1/12*0.08*(0.140**2+0.043**2)}" ixy="0.0" ixz="0.0"
                  iyy="${1/12*0.08*(0.156**2+0.043**2)}" iyz="0.0"
@@ -147,28 +145,28 @@
     <joint name="${prefix_hand}_${position}_${prefix_finger}_r_mcp_joint" type="revolute" >
       <parent link="${prefix_hand}_${position}_cmc_link" />
       <child link="${prefix_hand}_${position}_${prefix_finger}_r_mcp_link" />
-      <origin xyz="-0.003249 -0.024532 -0.046" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 0.0 1.0 " />
+      <origin xyz="-0.002855 ${y_sign * 0.020025} ${-y_sign * 0.024532}" rpy="0.0 0.0 0.0" />
+      <axis xyz="0.0 1.0 0.0 " />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="0.52" velocity="11.031179004" />
       <mimic joint="${prefix_hand}_${position}_${prefix_finger}_l_mcp_joint" multiplier="-1.0" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_r_mcp_link" >
       <visual>
-        <origin xyz="0.0 0.0 -0.002006" rpy="${M_PI} 0.0 ${-M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/hand/switching_gear-m.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 0.0 -0.002006" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <geometry>
-          <box size="0.140 0.156 0.043" />
+          <box size="0.0 0.0 0.0" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 -0.002006" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <mass value="0.08" />
         <inertia ixx="${1/12*0.08*(0.140**2+0.043**2)}" ixy="0.0" ixz="0.0"
                  iyy="${1/12*0.08*(0.156**2+0.043**2)}" iyz="0.0"
@@ -179,27 +177,27 @@
     <joint name="${prefix_hand}_${position}_${prefix_finger}_r_pip_joint" type="revolute" >
       <parent link="${prefix_hand}_${position}_${prefix_finger}_r_mcp_link" />
       <child link="${prefix_hand}_${position}_${prefix_finger}_r_pip_link" />
-      <origin xyz="-0.02125 -0.040125 -0.018575" rpy="0.0 0.0 0.0" />
+      <origin xyz="-0.02125 ${y_sign * 0.016750} ${-y_sign * 0.040125}" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
       <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="0.52" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_r_pip_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${M_PI} ${-M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${-y_sign * M_PI/2} 0.0" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/hand/middle_pharanx-m.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.01445 ${y_sign * 0.027375} 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <geometry>
-          <box size="0.140 0.156 0.043" />
+          <box size="0.022 0.031 0.030" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${-y_sign * M_PI/2} 0.0" />
         <mass value="0.08" />
         <inertia ixx="${1/12*0.08*(0.140**2+0.043**2)}" ixy="0.0" ixz="0.0"
                  iyy="${1/12*0.08*(0.156**2+0.043**2)}" iyz="0.0"
@@ -210,27 +208,27 @@
     <joint name="${prefix_hand}_${position}_${prefix_finger}_r_dip_joint" type="revolute" >
       <parent link="${prefix_hand}_${position}_${prefix_finger}_r_pip_link" />
       <child link="${prefix_hand}_${position}_${prefix_finger}_r_dip_link" />
-      <origin xyz="0.0 0.0 -0.050" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 ${y_sign * 0.050} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
       <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="0.52" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_r_dip_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${M_PI} ${-M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${-y_sign * M_PI/2} 0.0" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/hand/distal_pharanx-m.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="green" />
+        <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.01445 ${y_sign * 0.032375} ${y_sign * 0.001}" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <geometry>
-          <box size="0.140 0.156 0.043" />
+          <box size="0.022 0.031 0.035" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${-y_sign * M_PI/2} 0.0" />
         <mass value="0.08" />
         <inertia ixx="${1/12*0.08*(0.140**2+0.043**2)}" ixy="0.0" ixz="0.0"
                  iyy="${1/12*0.08*(0.156**2+0.043**2)}" iyz="0.0"
@@ -242,27 +240,27 @@
     <joint name="${prefix_hand}_${position}_${prefix_finger}_c_mcp_joint" type="revolute" >
       <parent link="${prefix_hand}_${position}_cmc_link" />
       <child link="${prefix_hand}_${position}_${prefix_finger}_c_mcp_link" />
-      <origin xyz="0.036751 0.01435 -0.062" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 1.0 0.0 " />
+      <origin xyz="0.036751 ${y_sign * 0.036625} ${y_sign * 0.014550} " rpy="0.0 0.0 0.0" />
+      <axis xyz="0.0 0.0 1.0 " />
       <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="0.52" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_c_mcp_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${M_PI} ${M_PI}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} 0.0 0.0" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/hand/thumb_middle_pharanx.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="-0.001 ${y_sign * 0.027375} ${-y_sign * 0.01445}" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.140 0.156 0.043" />
+          <box size="0.022 0.0334 0.030" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} 0.0 0.0" />
         <mass value="0.08" />
         <inertia ixx="${1/12*0.08*(0.140**2+0.043**2)}" ixy="0.0" ixz="0.0"
                  iyy="${1/12*0.08*(0.156**2+0.043**2)}" iyz="0.0"
@@ -273,27 +271,27 @@
     <joint name="${prefix_hand}_${position}_${prefix_finger}_c_ip_joint" type="revolute" >
       <parent link="${prefix_hand}_${position}_${prefix_finger}_c_mcp_link" />
       <child link="${prefix_hand}_${position}_${prefix_finger}_c_ip_link" />
-      <origin xyz="0.0 0.0 -0.050" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 ${y_sign * 0.050} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 1.0 0.0 " />
       <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="0.52" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_c_ip_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${M_PI} ${M_PI}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} 0.0 0.0" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/hand/thumb_distal_pharanx.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="red" />
+        <material name="green" />
       </visual>
       <collision>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 0.0" />
+        <origin xyz="-0.001 ${y_sign * 0.034375} ${-y_sign * 0.01445}" rrpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <geometry>
-          <box size="0.140 0.156 0.043" />
+          <box size="0.022 0.031 0.035" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="${0.140/2} 0.0 ${0.043/2}" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} 0.0 0.0" />
         <mass value="0.08" />
         <inertia ixx="${1/12*0.08*(0.140**2+0.043**2)}" ixy="0.0" ixz="0.0"
                  iyy="${1/12*0.08*(0.156**2+0.043**2)}" iyz="0.0"
