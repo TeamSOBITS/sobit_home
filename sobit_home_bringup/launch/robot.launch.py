@@ -144,8 +144,20 @@ def launch_gz(context, *args, **kwargs):
 
     controllers = []
 
+
+    control_node = Node(
+        package="controller_manager",
+        executable="ros2_control_node",
+        # namespace=robot_name,
+        parameters=[controller_config],
+        remappings=[
+            ("robot_description", "/" + robot_name + "/robot_description"),
+        ],
+        output="both",
+    )
+
     if enable_mobile_base == 'True':
-        diff_drive_base_controller_spawner = Node(
+        wheel_steer_position_controller = Node(
             package='controller_manager',
             executable='spawner',
             namespace=robot_name,
@@ -165,7 +177,7 @@ def launch_gz(context, *args, **kwargs):
                 '-c', 'controller_manager'
                 ],
         )
-        controllers.append(diff_drive_base_controller_spawner)
+        controllers.append(wheel_steer_position_controller)
         controllers.append(wheel_drive_velocity_controller)
 
     if enable_arm_left == 'True':
@@ -348,13 +360,16 @@ def launch_gz(context, *args, **kwargs):
     if enable_gz == 'True':
         nodes.append(gz_bridge_node)
         nodes.append(gz_spawn_entity_node)
+        nodes.append(delayed_joint_state_broadcaster)
+        nodes.append(delayed_controllers)
         # nodes.append(gz_tf_head_cam_node)
         # nodes.append(gz_tf_hand_cam_node)
-
+    else:
+        nodes.append(joint_state_broadcaster)
+        nodes.append(control_node)
+        nodes.extend(controllers)
     nodes.append(robot_state_publisher_node)
-    nodes.append(delayed_joint_state_broadcaster)
-    nodes.append(delayed_controllers)
-    nodes.append(action_server_launch)
+    # nodes.append(action_server_launch)
     nodes.append(rviz_node)
 
     return nodes
