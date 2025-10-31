@@ -32,6 +32,7 @@ find_package(sobit_home_control REQUIRED)
 
 install(DIRECTORY
   launch
+  config
   rviz
   DESTINATION share/${PROJECT_NAME}
 )
