@@ -117,7 +117,16 @@
     $ bash install.sh
     ```
 
-5. パッケージをコンパイルします．
+5. コンパイルする前に，`rm_motors_ros`のため，RUSTをセットアップしてください．
+    ```sh
+    source $HOME/.bashrc
+
+    cd ~/colcon_ws/src/rm_motors_ros/rm_motors_hw/rm_motors_can
+    cargo install cargo-expand
+    cargo build --release
+    ```
+
+6. パッケージをコンパイルします．
     ```sh
     $ cd ~/colcon_ws/
     $ colcon build --symlink-install

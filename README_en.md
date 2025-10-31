@@ -117,7 +117,16 @@ First, please set up the following environment before proceeding to the next ins
     $ bash install.sh
     ```
 
-5. Compile the package.
+5. Setup Rust for `rm_motors_ros` before compiliing.
+    ```sh
+    source $HOME/.bashrc
+
+    cd ~/colcon_ws/src/rm_motors_ros/rm_motors_hw/rm_motors_can
+    cargo install cargo-expand
+    cargo build --release
+    ```
+
+6. Compile the package.
     ```sh
     $ cd ~/colcon_ws/
     $ colcon build --symlink-install
