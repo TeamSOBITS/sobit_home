@@ -91,25 +91,25 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
     this->declare_parameter(pose_name + ".arm_right_upper_flex", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_right_elbow", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_right_wrist", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter(pose_name + ".hand_right_finger_mcp", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter(pose_name + ".hand_right_finger_l_cmc", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".hand_right_finger_l_mcp", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter(pose_name + ".hand_right_finger_c_cmc", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(pose_name + ".hand_right_finger_l_dip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(pose_name + ".hand_right_finger_l_pip", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".hand_right_finger_c_mcp", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter(pose_name + ".hand_right_finger_r_cmc", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter(pose_name + ".hand_right_finger_r_mcp", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(pose_name + ".hand_right_finger_c_ip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(pose_name + ".hand_right_finger_r_dip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(pose_name + ".hand_right_finger_r_pip", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_shoulder_tilt", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_upper_roll", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_upper_flex", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_elbow", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_wrist", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter(pose_name + ".hand_left_finger_mcp", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter(pose_name + ".hand_left_finger_l_cmc", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".hand_left_finger_l_mcp", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter(pose_name + ".hand_left_finger_c_cmc", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(pose_name + ".hand_left_finger_l_dip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(pose_name + ".hand_left_finger_l_pip", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".hand_left_finger_c_mcp", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter(pose_name + ".hand_left_finger_r_cmc", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter(pose_name + ".hand_left_finger_r_mcp", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(pose_name + ".hand_left_finger_c_ip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(pose_name + ".hand_left_finger_r_dip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(pose_name + ".hand_left_finger_r_pip", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".body_lift", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".head_pan", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".head_tilt", rclcpp::PARAMETER_DOUBLE);
@@ -117,33 +117,33 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
     // Read parameters for each pose
     PoseParams params;
     params.pose_name           = pose_name;
-    params.arm_right_shoulder_tilt = this->get_parameter(pose_name + ".arm_right_shoulder_tilt").as_double();
-    params.arm_right_upper_roll  = this->get_parameter(pose_name + ".arm_right_upper_roll").as_double();
-    params.arm_right_upper_flex    = this->get_parameter(pose_name + ".arm_right_upper_flex").as_double();
-    params.arm_right_elbow    = this->get_parameter(pose_name + ".arm_right_elbow").as_double();
-    params.arm_right_wrist    = this->get_parameter(pose_name + ".arm_right_wrist").as_double();
-    params.hand_right_finger_mcp    = this->get_parameter(pose_name + ".hand_right_finger_mcp").as_double();
-    params.hand_right_finger_l_cmc    = this->get_parameter(pose_name + ".hand_right_finger_l_cmc").as_double();
-    params.hand_right_finger_l_mcp    = this->get_parameter(pose_name + ".hand_right_finger_l_mcp").as_double();
-    params.hand_right_finger_c_cmc    = this->get_parameter(pose_name + ".hand_right_finger_c_cmc").as_double();
-    params.hand_right_finger_c_mcp    = this->get_parameter(pose_name + ".hand_right_finger_c_mcp").as_double();
-    params.hand_right_finger_r_cmc    = this->get_parameter(pose_name + ".hand_right_finger_r_cmc").as_double();
-    params.hand_right_finger_r_mcp    = this->get_parameter(pose_name + ".hand_right_finger_r_mcp").as_double();
-    params.arm_left_shoulder_tilt = this->get_parameter(pose_name + ".arm_left_shoulder_tilt").as_double();
-    params.arm_left_upper_roll  = this->get_parameter(pose_name + ".arm_left_upper_roll").as_double();
-    params.arm_left_upper_flex    = this->get_parameter(pose_name + ".arm_left_upper_flex").as_double();
-    params.arm_left_elbow    = this->get_parameter(pose_name + ".arm_left_elbow").as_double();
-    params.arm_left_wrist    = this->get_parameter(pose_name + ".arm_left_wrist").as_double();
-    params.hand_left_finger_mcp    = this->get_parameter(pose_name + ".hand_left_finger_mcp").as_double();
-    params.hand_left_finger_l_cmc    = this->get_parameter(pose_name + ".hand_left_finger_l_cmc").as_double();
-    params.hand_left_finger_l_mcp    = this->get_parameter(pose_name + ".hand_left_finger_l_mcp").as_double();
-    params.hand_left_finger_c_cmc    = this->get_parameter(pose_name + ".hand_left_finger_c_cmc").as_double();
-    params.hand_left_finger_c_mcp    = this->get_parameter(pose_name + ".hand_left_finger_c_mcp").as_double();
-    params.hand_left_finger_r_cmc    = this->get_parameter(pose_name + ".hand_left_finger_r_cmc").as_double();
-    params.hand_left_finger_r_mcp    = this->get_parameter(pose_name + ".hand_left_finger_r_mcp").as_double();
-    params.body_lift           = this->get_parameter(pose_name + ".body_lift").as_double();
-    params.head_pan     = this->get_parameter(pose_name + ".head_pan").as_double();
-    params.head_tilt    = this->get_parameter(pose_name + ".head_tilt").as_double();
+    params.arm_right_shoulder_tilt  = this->get_parameter(pose_name + ".arm_right_shoulder_tilt").as_double();
+    params.arm_right_upper_roll     = this->get_parameter(pose_name + ".arm_right_upper_roll").as_double();
+    params.arm_right_upper_flex     = this->get_parameter(pose_name + ".arm_right_upper_flex").as_double();
+    params.arm_right_elbow          = this->get_parameter(pose_name + ".arm_right_elbow").as_double();
+    params.arm_right_wrist          = this->get_parameter(pose_name + ".arm_right_wrist").as_double();
+    params.hand_right_finger_l_mcp  = this->get_parameter(pose_name + ".hand_right_finger_l_mcp").as_double();
+    params.hand_right_finger_l_dip  = this->get_parameter(pose_name + ".hand_right_finger_l_dip").as_double();
+    params.hand_right_finger_l_pip  = this->get_parameter(pose_name + ".hand_right_finger_l_pip").as_double();
+    params.hand_right_finger_c_mcp  = this->get_parameter(pose_name + ".hand_right_finger_c_mcp").as_double();
+    params.hand_right_finger_c_ip   = this->get_parameter(pose_name + ".hand_right_finger_c_ip").as_double();
+    params.hand_right_finger_r_dip  = this->get_parameter(pose_name + ".hand_right_finger_r_dip").as_double();
+    params.hand_right_finger_r_pip  = this->get_parameter(pose_name + ".hand_right_finger_r_pip").as_double();
+    params.arm_left_shoulder_tilt   = this->get_parameter(pose_name + ".arm_left_shoulder_tilt").as_double();
+    params.arm_left_upper_roll      = this->get_parameter(pose_name + ".arm_left_upper_roll").as_double();
+    params.arm_left_upper_flex      = this->get_parameter(pose_name + ".arm_left_upper_flex").as_double();
+    params.arm_left_elbow           = this->get_parameter(pose_name + ".arm_left_elbow").as_double();
+    params.arm_left_wrist           = this->get_parameter(pose_name + ".arm_left_wrist").as_double();
+    params.hand_left_finger_l_mcp   = this->get_parameter(pose_name + ".hand_left_finger_l_mcp").as_double();
+    params.hand_left_finger_l_dip   = this->get_parameter(pose_name + ".hand_left_finger_l_dip").as_double();
+    params.hand_left_finger_l_pip   = this->get_parameter(pose_name + ".hand_left_finger_l_pip").as_double();
+    params.hand_left_finger_c_mcp   = this->get_parameter(pose_name + ".hand_left_finger_c_mcp").as_double();
+    params.hand_left_finger_c_ip    = this->get_parameter(pose_name + ".hand_left_finger_c_ip").as_double();
+    params.hand_left_finger_r_dip   = this->get_parameter(pose_name + ".hand_left_finger_r_dip").as_double();
+    params.hand_left_finger_r_pip   = this->get_parameter(pose_name + ".hand_left_finger_r_pip").as_double();
+    params.body_lift                = this->get_parameter(pose_name + ".body_lift").as_double();
+    params.head_pan                 = this->get_parameter(pose_name + ".head_pan").as_double();
+    params.head_tilt                = this->get_parameter(pose_name + ".head_tilt").as_double();
 
     poses_.push_back(params);
   }
@@ -361,25 +361,25 @@ void JointActionServer::exe_move_to_pose(
       target_joint_rad.push_back(pose.arm_right_upper_flex);
       target_joint_rad.push_back(pose.arm_right_elbow);
       target_joint_rad.push_back(pose.arm_right_wrist);
-      target_joint_rad.push_back(pose.hand_right_finger_mcp);
-      target_joint_rad.push_back(pose.hand_right_finger_l_cmc);
       target_joint_rad.push_back(pose.hand_right_finger_l_mcp);
-      target_joint_rad.push_back(pose.hand_right_finger_c_cmc);
+      target_joint_rad.push_back(pose.hand_right_finger_l_dip);
+      target_joint_rad.push_back(pose.hand_right_finger_l_pip);
       target_joint_rad.push_back(pose.hand_right_finger_c_mcp);
-      target_joint_rad.push_back(pose.hand_right_finger_r_cmc);
-      target_joint_rad.push_back(pose.hand_right_finger_r_mcp);
+      target_joint_rad.push_back(pose.hand_right_finger_c_ip);
+      target_joint_rad.push_back(pose.hand_right_finger_r_dip);
+      target_joint_rad.push_back(pose.hand_right_finger_r_pip);
       target_joint_rad.push_back(pose.arm_left_shoulder_tilt);
       target_joint_rad.push_back(pose.arm_left_upper_roll);
       target_joint_rad.push_back(pose.arm_left_upper_flex);
       target_joint_rad.push_back(pose.arm_left_elbow);
       target_joint_rad.push_back(pose.arm_left_wrist);
-      target_joint_rad.push_back(pose.hand_left_finger_mcp);
-      target_joint_rad.push_back(pose.hand_left_finger_l_cmc);
       target_joint_rad.push_back(pose.hand_left_finger_l_mcp);
-      target_joint_rad.push_back(pose.hand_left_finger_c_cmc);
+      target_joint_rad.push_back(pose.hand_left_finger_l_dip);
+      target_joint_rad.push_back(pose.hand_left_finger_l_pip);
       target_joint_rad.push_back(pose.hand_left_finger_c_mcp);
-      target_joint_rad.push_back(pose.hand_left_finger_r_cmc);
-      target_joint_rad.push_back(pose.hand_left_finger_r_mcp);
+      target_joint_rad.push_back(pose.hand_left_finger_c_ip);
+      target_joint_rad.push_back(pose.hand_left_finger_r_dip);
+      target_joint_rad.push_back(pose.hand_left_finger_r_pip);
       target_joint_rad.push_back(pose.body_lift);
       target_joint_rad.push_back(pose.head_pan);
       target_joint_rad.push_back(pose.head_tilt);
@@ -780,7 +780,7 @@ geometry_msgs::msg::TransformStamped JointActionServer::forward_kinematics(
 
   shoulder_pt.x = BaseToShoulderDX;
   shoulder_pt.y = (is_right) ? (-BaseToShoulderDY) : (BaseToShoulderDY);
-  shoulder_pt.z = BaseToShoulderDZ ; 
+  shoulder_pt.z = BaseToShoulderDZ + target_joint_rad[0]; 
   shoulder_dummy_pt.x = shoulder_pt.x + std::cos(set_joint_rad[1]);
   shoulder_dummy_pt.y = shoulder_pt.y;
   shoulder_dummy_pt.z = shoulder_pt.z + std::sin(set_joint_rad[1]);
@@ -850,6 +850,10 @@ std::vector<double> JointActionServer::inverse_kinematics(
   const double target_yaw)
 {
 
+  // "body_lift","_arm_shoulder_roll_joint", "_arm_shoulder_pan_joint", "_arm_elbow_tilt_joint", "_arm_wrist_tilt_joint"
+  // return msg
+  std::vector<double> target_joint_rad = {-0.109, 0.0, -M_PI/2., 0.0, 0.0};
+
   // do 'Hand-Calculate' to a coordinate system valid for this robot's inverse kinematics
   // In case SOBIT HOME, the coordinates are based on the shoulder to be grasped.
 
@@ -864,12 +868,7 @@ std::vector<double> JointActionServer::inverse_kinematics(
   // 肩の座標系に変換（SOBIT HOMEはそのようにして逆運動学をする）
   goal_coord_rotate.transform.translation.x -=  BaseToShoulderDX;
   goal_coord_rotate.transform.translation.y -= (is_right ? -BaseToShoulderDY : BaseToShoulderDY);
-  goal_coord_rotate.transform.translation.z -=  BaseToShoulderDZ;
-
-
-  // "body_lift","_arm_shoulder_roll_joint", "_arm_shoulder_pan_joint", "_arm_elbow_tilt_joint", "_arm_wrist_tilt_joint"
-  // return msg
-  std::vector<double> target_joint_rad = {0.0, 0.0, -M_PI/2., 0.0, 0.0};
+  goal_coord_rotate.transform.translation.z -=  BaseToShoulderDZ + target_joint_rad[0];
 
   if (is_one_rink) { // one link graspable mode...
     if ((LengthShoulderElbow + LengthElbowWrist + LengthHand/2.) < std::fabs(goal_coord_rotate.transform.translation.z)) {

@@ -37,25 +37,25 @@ struct PoseParams
   double arm_right_upper_flex;
   double arm_right_elbow;
   double arm_right_wrist;
-  double hand_right_finger_mcp;
-  double hand_right_finger_l_cmc;
   double hand_right_finger_l_mcp;
-  double hand_right_finger_c_cmc;
+  double hand_right_finger_l_dip;
+  double hand_right_finger_l_pip;
   double hand_right_finger_c_mcp;
-  double hand_right_finger_r_cmc;
-  double hand_right_finger_r_mcp;
+  double hand_right_finger_c_ip;
+  double hand_right_finger_r_dip;
+  double hand_right_finger_r_pip;
   double arm_left_shoulder_tilt;
   double arm_left_upper_roll;
   double arm_left_upper_flex;
   double arm_left_elbow;
   double arm_left_wrist;
-  double hand_left_finger_mcp;
-  double hand_left_finger_l_cmc;
   double hand_left_finger_l_mcp;
-  double hand_left_finger_c_cmc;
+  double hand_left_finger_l_dip;
+  double hand_left_finger_l_pip;
   double hand_left_finger_c_mcp;
-  double hand_left_finger_r_cmc;
-  double hand_left_finger_r_mcp;
+  double hand_left_finger_c_ip;
+  double hand_left_finger_r_dip;
+  double hand_left_finger_r_pip;
   double body_lift;
   double head_pan;
   double head_tilt;
@@ -63,30 +63,30 @@ struct PoseParams
 
 enum JointIds
 {
-  Arm_R_ShoulderTiltJoint = 0,
-  Arm_R_UpperRollJoint,
-  Arm_R_UpperFlexJoint,
-  Arm_R_ElbowJoint,
-  Arm_R_WristJoint,
-  Hand_R_FingerMcpJoint,
-  Hand_R_Finger_L_CmcJoint,
-  Hand_R_Finger_L_mcpJoint,
-  Hand_R_Finger_C_cmcJoint,
-  Hand_R_Finger_C_mcpJoint,
-  Hand_R_Finger_R_cmcJoint,
-  Hand_R_Finger_R_mcpJoint,
-  Arm_L_ShoulderTiltJoint,
-  Arm_L_UpperRollJoint,
-  Arm_L_UpperFlexJoint,
-  Arm_L_ElbowJoint,
-  Arm_L_WristJoint,
-  Hand_L_FingerMcpJoint,
-  Hand_L_Finger_L_CmcJoint,
-  And_L_Finger_L_McpJoint,
-  Hand_L_Finger_C_CmcJoint,
-  Hand_L_Finger_C_McpJoint,
-  Hand_L_Finger_R_CmcJoint,
-  Hand_L_Finger_R_McpJoint,
+  Arm_R_Shoulder_Tilt_Joint = 0,
+  Arm_R_Upper_Roll_Joint,
+  Arm_R_Upper_Flex_Joint,
+  Arm_R_Elbow_Joint,
+  Arm_R_Wrist_Joint,
+  Hand_R_Finger_L_Mcp_Joint,
+  Hand_R_Finger_L_Dip_Joint,
+  Hand_R_Finger_L_Pip_Joint,
+  Hand_R_Finger_C_Mcp_Joint,
+  Hand_R_Finger_C_Ip_Joint,
+  Hand_Right_Finger_R_Dip_Joint,
+  Hand_right_finger_r_pip_joint,
+  Arm_L_Shoulder_Tilt_Joint,
+  Arm_L_Upper_Roll_Joint,
+  Arm_L_Upper_Flex_Joint,
+  Arm_L_Elbow_Joint,
+  Arm_L_Wrist_Joint,
+  Hand_L_Finger_L_Mcp_Joint,
+  Hand_L_Finger_L_Dip_Joint,
+  Hand_L_Finger_L_Pip_Joint,
+  Hand_L_Finger_C_Mcp_Joint,
+  Hand_L_Finger_C_Ip_Joint,
+  Hand_L_Finger_R_Dip_Joint,
+  Hand_L_Finger_R_Pip_Joint,
   Body_Lift_Joint,
   Head_Pan_Joint,
   Head_Tilt_Joint,
@@ -136,36 +136,37 @@ private:
     "arm_right_upper_flex_joint",
     "arm_right_elbow_joint",
     "arm_right_wrist_joint",
-    "hand_right_finger_mcp_joint",
-    "hand_right_finger_l_cmc_joint",
     "hand_right_finger_l_mcp_joint",
-    "hand_right_finger_c_cmc_joint",
+    "hand_right_finger_l_dip_joint",
+    "hand_right_finger_l_pip_joint",
     "hand_right_finger_c_mcp_joint",
-    "hand_right_finger_r_cmc_joint",
-    "hand_right_finger_r_mcp_joint",
+    "hand_right_finger_c_ip_joint",
+    "hand_right_finger_r_dip_joint",
+    "hand_right_finger_r_pip_joint",
     "arm_left_shoulder_tilt_joint",
     "arm_left_upper_roll_joint",
     "arm_left_upper_flex_joint",
     "arm_left_elbow_joint",
     "arm_left_wrist_joint",
-    "hand_left_finger_mcp_joint",
-    "hand_left_finger_l_cmc_joint",
     "hand_left_finger_l_mcp_joint",
-    "hand_left_finger_c_cmc_joint",
+    "hand_left_finger_l_dip_joint",
+    "hand_left_finger_l_pip_joint",
     "hand_left_finger_c_mcp_joint",
-    "hand_left_finger_r_cmc_joint",
-    "hand_left_finger_r_mcp_joint",
+    "hand_left_finger_c_ip_joint",
+    "hand_left_finger_r_dip_joint",
+    "hand_left_finger_r_pip_joint",
     "body_lift_joint",
     "head_pan_joint",
     "head_tilt_joint"
   };
 
-  static constexpr double BaseToShoulderDX    = 0.0;
-  static constexpr double BaseToShoulderDY    = 0.27775;  
-  static constexpr double BaseToShoulderDZ    = 0.39 + 0.41; //足回り＋レール　後ほど修正
-  static constexpr double LengthShoulderElbow = 0.4;
-  static constexpr double LengthElbowWrist    = 0.5;
-  static constexpr double LengthHand          = 0.06886125+0.162;   //後ほど修正
+  static constexpr double BaseToShoulderDX    = 0.11275;
+  static constexpr double BaseToShoulderDY    = 0.2775;  
+  static constexpr double BaseToShoulderDZ    = 0.936058; 
+  static constexpr double LengthShoulderElbow = 0.399949;
+  static constexpr double LengthElbowWrist    = 0.5000003;
+  static constexpr double LengthHand          = 0.1811;   
+  /*box高さ 0.291m*/
 
   std::vector<PoseParams> poses_;
   std::map<std::string, double> init_joint_state_;
