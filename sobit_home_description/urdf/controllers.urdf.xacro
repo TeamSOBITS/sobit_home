@@ -250,7 +250,7 @@
 
     <joint name="head_tilt_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">21</param>
+        <param name="id">22</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
       </xacro:unless>
