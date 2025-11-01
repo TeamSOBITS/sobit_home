@@ -95,7 +95,7 @@
       <collision>
         <origin xyz="0.0 0.0 0.0" rpy="${M_PI/2.0} 0.0 ${M_PI}" />
         <geometry>
-          <cylinder length="0.017" radius="0.075"/>
+          <cylinder length="0.035" radius="0.075"/>
         </geometry>
       </collision>
       <inertial>
