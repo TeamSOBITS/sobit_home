@@ -100,7 +100,7 @@
           <ros>
             <namespace>$(arg robot_name)</namespace>
           </ros>
-          <parameters>$(find sobit_home_control)/config/gz_controllers.yaml</parameters>
+          <parameters>$(find sobit_home_control)/config/controllers.yaml</parameters>
         </plugin>
       </gazebo>
     </xacro:if>
@@ -529,16 +529,8 @@
     </joint>
     <xacro:if value="${$(arg enable_gz)}">
       <joint name="${prefix}_finger_r_mcp_joint">
-        <xacro:unless value="${$(arg enable_gz)}">
-          <param name="id">50</param>
-          <param name="control_mode">6</param>
-          <param name="interface">ttl</param>
-        </xacro:unless>
-        <command_interface name="position">
-          <param name="min">-${M_PI/2}</param>
-          <param name="max">${M_PI/2}</param>
-        </command_interface>
-        <!-- <command_interface name="velocity"/> -->
+        <param name="mimic">${prefix}_finger_l_mcp_joint</param>
+        <param name="multiplier">1</param>
         <state_interface name="position">
           <param name="initial_value">0.0</param>
         </state_interface>
@@ -671,16 +663,8 @@
     </joint>
     <xacro:if value="${$(arg enable_gz)}">
       <joint name="${prefix}_finger_r_mcp_joint">
-        <xacro:unless value="${$(arg enable_gz)}">
-          <param name="id">60</param>
-          <param name="control_mode">6</param>
-          <param name="interface">ttl</param>
-        </xacro:unless>
-        <command_interface name="position">
-          <param name="min">-${M_PI/2}</param>
-          <param name="max">${M_PI/2}</param>
-        </command_interface>
-        <!-- <command_interface name="velocity"/> -->
+        <param name="mimic">${prefix}_finger_l_mcp_joint</param>
+        <param name="multiplier">1</param>
         <state_interface name="position">
           <param name="initial_value">0.0</param>
         </state_interface>
