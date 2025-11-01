@@ -162,10 +162,11 @@ def launch_gz(context, *args, **kwargs):
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        # namespace=robot_name,
+        name="controller_manager",
+        namespace=robot_name,
         parameters=[controller_config],
         remappings=[
-            ("robot_description", "/" + robot_name + "/robot_description"),
+            ("controller_manager/robot_description", "robot_description"),
         ],
         output="both",
     )
@@ -194,21 +195,21 @@ def launch_gz(context, *args, **kwargs):
         wheel_steer_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='wheel_steer_position_controller',
             namespace=robot_name,
             arguments=[
                 'wheel_steer_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         wheel_drive_velocity_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='wheel_drive_velocity_controller',
             namespace=robot_name,
             arguments=[
                 'wheel_drive_velocity_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(wheel_steer_position_controller)
@@ -218,11 +219,11 @@ def launch_gz(context, *args, **kwargs):
         arm_left_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='arm_left_position_controller',
             namespace=robot_name,
             arguments=[
                 'arm_left_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(arm_left_position_controller)
@@ -231,11 +232,11 @@ def launch_gz(context, *args, **kwargs):
         arm_right_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='arm_right_position_controller',
             namespace=robot_name,
             arguments=[
                 'arm_right_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(arm_right_position_controller)
@@ -244,11 +245,11 @@ def launch_gz(context, *args, **kwargs):
         hand_left_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='hand_left_position_controller',
             namespace=robot_name,
             arguments=[
                 'hand_left_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(hand_left_position_controller)
@@ -257,11 +258,11 @@ def launch_gz(context, *args, **kwargs):
         hand_right_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='hand_right_position_controller',
             namespace=robot_name,
             arguments=[
                 'hand_right_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(hand_right_position_controller)
@@ -270,11 +271,11 @@ def launch_gz(context, *args, **kwargs):
         head_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='head_position_controller',
             namespace=robot_name,
             arguments=[
                 'head_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(head_position_controller)
@@ -283,11 +284,11 @@ def launch_gz(context, *args, **kwargs):
         body_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='body_position_controller',
             namespace=robot_name,
             arguments=[
                 'body_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(body_position_controller)
@@ -295,6 +296,7 @@ def launch_gz(context, *args, **kwargs):
     gz_spawn_entity_node = Node(
         package='ros_gz_sim',
         executable='create',
+        name='spawn_entity',
         namespace=robot_name,
         arguments=[
             '-topic', 'robot_description',
@@ -310,10 +312,11 @@ def launch_gz(context, *args, **kwargs):
     joint_state_broadcaster = Node(
         package='controller_manager',
         executable='spawner',
+        name='joint_state_broadcaster',
         namespace=robot_name,
         arguments=[
             'joint_state_broadcaster',
-            '-c', 'controller_manager'
+            '-c', 'controller_manager',
             ],
     )
     delayed_joint_state_broadcaster = RegisterEventHandler(
@@ -348,6 +351,7 @@ def launch_gz(context, *args, **kwargs):
     gz_bridge_node = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
+        name='parameter_bridge',
         namespace=robot_name,
         arguments=[
                     "clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
