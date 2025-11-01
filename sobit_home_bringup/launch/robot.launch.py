@@ -121,8 +121,11 @@ def launch_gz(context, *args, **kwargs):
     
     if enable_gz == 'False':
         rviz_file = 'real.rviz'
+        controller_file = 'real_controllers.yaml'
     else:
         rviz_file = 'gazebo.rviz'
+        controller_file = 'gz_controllers.yaml'
+
 
     rviz_config = PathJoinSubstitution([
         FindPackageShare('sobit_home_bringup'),
@@ -153,7 +156,7 @@ def launch_gz(context, *args, **kwargs):
     controller_config = os.path.join(get_package_share_directory(
         'sobit_home_control'),
         'config',
-        'controllers.yaml'
+        controller_file
     )
 
     controllers = []
