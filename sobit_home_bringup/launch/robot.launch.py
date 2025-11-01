@@ -29,6 +29,7 @@ def generate_launch_description():
     arg_enable_hand_left                = DeclareLaunchArgument('enable_hand_left', default_value='True')
     arg_enable_hand_right               = DeclareLaunchArgument('enable_hand_right', default_value='True')
     arg_enable_head                     = DeclareLaunchArgument('enable_head', default_value='True')
+    arg_enable_body                     = DeclareLaunchArgument('enable_body', default_value='True')
     arg_enable_gz_head_cam_color        = DeclareLaunchArgument('enable_gz_head_cam_color', default_value='True')
     arg_enable_gz_head_cam_depth        = DeclareLaunchArgument('enable_gz_head_cam_depth', default_value='True')
     arg_enable_gz_hand_left_cam_color   = DeclareLaunchArgument('enable_gz_hand_left_cam_color', default_value='True')
@@ -50,6 +51,7 @@ def generate_launch_description():
         arg_enable_hand_left,
         arg_enable_hand_right,
         arg_enable_head,
+        arg_enable_body,
         arg_enable_gz_head_cam_color,
         arg_enable_gz_head_cam_depth,
         arg_enable_gz_hand_left_cam_color,
@@ -78,6 +80,7 @@ def launch_gz(context, *args, **kwargs):
     enable_hand_left                = LaunchConfiguration('enable_hand_left').perform(context)
     enable_hand_right               = LaunchConfiguration('enable_hand_right').perform(context)
     enable_head                     = LaunchConfiguration('enable_head').perform(context)
+    enable_body                     = LaunchConfiguration('enable_body').perform(context)
     enable_gz_head_cam_color        = LaunchConfiguration('enable_gz_head_cam_color').perform(context)
     enable_gz_head_cam_depth        = LaunchConfiguration('enable_gz_head_cam_depth').perform(context)
     enable_gz_hand_left_cam_color   = LaunchConfiguration('enable_gz_hand_left_cam_color').perform(context)
