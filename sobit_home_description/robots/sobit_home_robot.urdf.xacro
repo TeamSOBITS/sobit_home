@@ -55,6 +55,15 @@
     <xacro:wheel prefix="wheel" parent="plate_middle_link" />
     <xacro:lidar prefix="lidar" parent="plate_middle_link" robot_name="$(arg robot_name)" />
   </xacro:if>
+  <xacro:unless value="${ $(arg enable_mobile_base) }">
+    <xacro:base/>
+    <joint name="plate_top_joint" type="fixed" >
+      <origin xyz="0.0 0.0 0.371058" rpy="0.0 0.0 0.0" />
+      <parent link="base_link" />
+      <child link="plate_top_link" />
+    </joint>
+    <link name="plate_top_link" />
+  </xacro:unless>
 
   <xacro:if value="${ $(arg enable_body) }">
     <xacro:body  prefix="body"  parent="plate_top_link" />
