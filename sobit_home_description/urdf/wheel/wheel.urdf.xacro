@@ -81,7 +81,7 @@
       <parent link="${parent}" />
       <child link="wheel_drive_${id}_link" />
       <axis xyz="0.0 1.0 0.0 " />
-      <limit effort="10.0" velocity="10.0" />
+      <limit effort="10.0" velocity="30.0" />
     </joint>
 
     <link name="wheel_drive_${id}_link">
