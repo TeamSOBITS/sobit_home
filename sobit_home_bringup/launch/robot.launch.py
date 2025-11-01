@@ -15,6 +15,8 @@ import xacro
 def generate_launch_description():
     arg_robot_name = DeclareLaunchArgument('robot_name', default_value='sobit_home')
 
+    arg_enable_lidar = DeclareLaunchArgument('enable_lidar', default_value='True')
+
     arg_robot_coords_x = DeclareLaunchArgument('robot_coords_x', default_value='0')
     arg_robot_coords_y = DeclareLaunchArgument('robot_coords_y', default_value='0')
     arg_robot_coords_z = DeclareLaunchArgument('robot_coords_z', default_value='0')
@@ -36,6 +38,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         arg_robot_name,
+        arg_enable_lidar,
         arg_robot_coords_x,
         arg_robot_coords_y,
         arg_robot_coords_z,
@@ -59,6 +62,8 @@ def generate_launch_description():
 
 def launch_gz(context, *args, **kwargs):
     robot_name = LaunchConfiguration('robot_name').perform(context)
+
+    enable_lidar = LaunchConfiguration('enable_lidar').perform(context)
 
     robot_coords_x = LaunchConfiguration('robot_coords_x').perform(context)
     robot_coords_y = LaunchConfiguration('robot_coords_y').perform(context)
@@ -85,6 +90,12 @@ def launch_gz(context, *args, **kwargs):
         'robots',
         'sobit_home_robot.urdf.xacro'
     )
+
+    urg_configs = [
+        os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "front_urg_node_param.yaml"),
+        os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "back_urg_node_param.yaml"),
+    ]
+
     robot_description_config = xacro.process_file(
         robot_description,
         mappings={
@@ -155,6 +166,26 @@ def launch_gz(context, *args, **kwargs):
         ],
         output="both",
     )
+
+    if (enable_gz == 'False' and enable_lidar == 'True'):
+        urg_node = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                PathJoinSubstitution([
+                    FindPackageShare('urg_node'),
+                    'launch',
+                    'multi_urg.launch.py'
+                ])
+            ]),
+            launch_arguments={
+                'namespace' : robot_name,
+                'lidar_num' : '2',
+                'config_file1': urg_configs[0],
+                'topic_namespace1': 'lidar_front',
+                'config_file2': urg_configs[1],
+                'topic_namespace2': 'lidar_back',
+            }.items()
+        )
+        controllers.append(urg_node)
 
     if enable_mobile_base == 'True':
         wheel_steer_position_controller = Node(
