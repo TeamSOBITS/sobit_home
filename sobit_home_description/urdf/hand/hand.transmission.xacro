@@ -4,6 +4,7 @@
   <xacro:macro name="hand_transmission" params="prefix_hand position prefix_finger">
 
     <xacro:SimpleTransmissionPosition joint="${prefix_hand}_${position}_${prefix_finger}_l_mcp_joint"  reduction="1" />
+    <xacro:SimpleTransmissionPosition joint="${prefix_hand}_${position}_${prefix_finger}_r_mcp_joint"  reduction="1" />
     <xacro:SimpleTransmissionPosition joint="${prefix_hand}_${position}_${prefix_finger}_l_pip_joint"  reduction="1" />
     <xacro:SimpleTransmissionPosition joint="${prefix_hand}_${position}_${prefix_finger}_l_dip_joint"  reduction="1" />
     <xacro:SimpleTransmissionPosition joint="${prefix_hand}_${position}_${prefix_finger}_c_mcp_joint"  reduction="1" />

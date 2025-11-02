@@ -29,6 +29,7 @@ def generate_launch_description():
     arg_enable_hand_left                = DeclareLaunchArgument('enable_hand_left', default_value='True')
     arg_enable_hand_right               = DeclareLaunchArgument('enable_hand_right', default_value='True')
     arg_enable_head                     = DeclareLaunchArgument('enable_head', default_value='True')
+    arg_enable_body                     = DeclareLaunchArgument('enable_body', default_value='True')
     arg_enable_gz_head_cam_color        = DeclareLaunchArgument('enable_gz_head_cam_color', default_value='True')
     arg_enable_gz_head_cam_depth        = DeclareLaunchArgument('enable_gz_head_cam_depth', default_value='True')
     arg_enable_gz_hand_left_cam_color   = DeclareLaunchArgument('enable_gz_hand_left_cam_color', default_value='True')
@@ -50,6 +51,7 @@ def generate_launch_description():
         arg_enable_hand_left,
         arg_enable_hand_right,
         arg_enable_head,
+        arg_enable_body,
         arg_enable_gz_head_cam_color,
         arg_enable_gz_head_cam_depth,
         arg_enable_gz_hand_left_cam_color,
@@ -78,6 +80,7 @@ def launch_gz(context, *args, **kwargs):
     enable_hand_left                = LaunchConfiguration('enable_hand_left').perform(context)
     enable_hand_right               = LaunchConfiguration('enable_hand_right').perform(context)
     enable_head                     = LaunchConfiguration('enable_head').perform(context)
+    enable_body                     = LaunchConfiguration('enable_body').perform(context)
     enable_gz_head_cam_color        = LaunchConfiguration('enable_gz_head_cam_color').perform(context)
     enable_gz_head_cam_depth        = LaunchConfiguration('enable_gz_head_cam_depth').perform(context)
     enable_gz_hand_left_cam_color   = LaunchConfiguration('enable_gz_hand_left_cam_color').perform(context)
@@ -159,10 +162,11 @@ def launch_gz(context, *args, **kwargs):
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        # namespace=robot_name,
+        name="controller_manager",
+        namespace=robot_name,
         parameters=[controller_config],
         remappings=[
-            ("robot_description", "/" + robot_name + "/robot_description"),
+            ("controller_manager/robot_description", "robot_description"),
         ],
         output="both",
     )
@@ -191,21 +195,21 @@ def launch_gz(context, *args, **kwargs):
         wheel_steer_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='wheel_steer_position_controller',
             namespace=robot_name,
             arguments=[
                 'wheel_steer_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         wheel_drive_velocity_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='wheel_drive_velocity_controller',
             namespace=robot_name,
             arguments=[
                 'wheel_drive_velocity_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(wheel_steer_position_controller)
@@ -215,11 +219,11 @@ def launch_gz(context, *args, **kwargs):
         arm_left_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='arm_left_position_controller',
             namespace=robot_name,
             arguments=[
                 'arm_left_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(arm_left_position_controller)
@@ -228,11 +232,11 @@ def launch_gz(context, *args, **kwargs):
         arm_right_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='arm_right_position_controller',
             namespace=robot_name,
             arguments=[
                 'arm_right_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(arm_right_position_controller)
@@ -241,11 +245,11 @@ def launch_gz(context, *args, **kwargs):
         hand_left_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='hand_left_position_controller',
             namespace=robot_name,
             arguments=[
                 'hand_left_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(hand_left_position_controller)
@@ -254,11 +258,11 @@ def launch_gz(context, *args, **kwargs):
         hand_right_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='hand_right_position_controller',
             namespace=robot_name,
             arguments=[
                 'hand_right_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(hand_right_position_controller)
@@ -267,11 +271,11 @@ def launch_gz(context, *args, **kwargs):
         head_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='head_position_controller',
             namespace=robot_name,
             arguments=[
                 'head_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(head_position_controller)
@@ -280,11 +284,11 @@ def launch_gz(context, *args, **kwargs):
         body_position_controller = Node(
             package='controller_manager',
             executable='spawner',
+            name='body_position_controller',
             namespace=robot_name,
             arguments=[
                 'body_position_controller',
-                '--param-file', controller_config,
-                '-c', 'controller_manager'
+                '-c', 'controller_manager', '--activate'
                 ],
         )
         controllers.append(body_position_controller)
@@ -292,6 +296,7 @@ def launch_gz(context, *args, **kwargs):
     gz_spawn_entity_node = Node(
         package='ros_gz_sim',
         executable='create',
+        name='spawn_entity',
         namespace=robot_name,
         arguments=[
             '-topic', 'robot_description',
@@ -307,10 +312,11 @@ def launch_gz(context, *args, **kwargs):
     joint_state_broadcaster = Node(
         package='controller_manager',
         executable='spawner',
+        name='joint_state_broadcaster',
         namespace=robot_name,
         arguments=[
             'joint_state_broadcaster',
-            '-c', 'controller_manager'
+            '-c', 'controller_manager',
             ],
     )
     delayed_joint_state_broadcaster = RegisterEventHandler(
@@ -345,6 +351,7 @@ def launch_gz(context, *args, **kwargs):
     gz_bridge_node = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
+        name='parameter_bridge',
         namespace=robot_name,
         arguments=[
                     "clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",

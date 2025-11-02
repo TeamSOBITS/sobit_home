@@ -4,38 +4,55 @@
 
   <xacro:macro name="controllers" params="enable_gz:=False robot_name:=sobit_home">
 
-    <ros2_control name="dynamixel_control" type="system">
-      <hardware>
-        <xacro:if value="${$(arg enable_gz)}">
-          <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    <xacro:if value="${$(arg enable_mobile_base)}">
+      <ros2_control name="dynamixel_control_lower" type="system">
+        <hardware>
+          <xacro:if value="${$(arg enable_gz)}">
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+          </xacro:if>
+          <xacro:unless value="${$(arg enable_gz)}">
+            <plugin>dynamixel_hardware/DynamixelHardware</plugin>
+            <param name="port_name">/dev/ttyUSB1</param>
+            <param name="baud_rate">1000000</param>
+          </xacro:unless>
+        </hardware>
+
+          <xacro:dx_wheel_steer_controllers prefix="wheel"      enable_gz="${$(arg enable_gz)}"/>
+
+      </ros2_control>
+    </xacro:if>
+  
+    <xacro:if value="${$(arg enable_head) + $(arg enable_arm_left) + $(arg enable_arm_right) + $(arg enable_hand_left) + $(arg enable_hand_right)}">
+      <ros2_control name="dynamixel_upper" type="system">
+        <hardware>
+          <xacro:if value="${$(arg enable_gz)}">
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+          </xacro:if>
+          <xacro:unless value="${$(arg enable_gz)}">
+            <plugin>dynamixel_hardware/DynamixelHardware</plugin>
+            <param name="port_name">/dev/ttyUSB0</param>
+            <param name="baud_rate">1000000</param>
+          </xacro:unless>
+        </hardware>
+
+        <xacro:if value="${$(arg enable_head)}">
+          <xacro:dx_head_controllers        prefix="head"       enable_gz="${$(arg enable_gz)}"/>
         </xacro:if>
-        <xacro:unless value="${$(arg enable_gz)}">
-          <plugin>dynamixel_hardware/DynamixelHardware</plugin>
-          <param name="port_name">/dev/ttyUSB0</param>
-          <param name="baud_rate">1000000</param>
-        </xacro:unless>
-      </hardware>
+        <xacro:if value="${$(arg enable_arm_left)}">
+          <xacro:dx_arm_left_controllers    prefix="arm_left"   enable_gz="${$(arg enable_gz)}"/>
+        </xacro:if>
+        <xacro:if value="${$(arg enable_arm_right)}">
+          <xacro:dx_arm_right_controllers   prefix="arm_right"  enable_gz="${$(arg enable_gz)}"/>
+        </xacro:if>
+        <xacro:if value="${$(arg enable_hand_left)}">
+          <xacro:dx_hand_left_controllers   prefix="hand_left"  enable_gz="${$(arg enable_gz)}"/>
+        </xacro:if>
+        <xacro:if value="${$(arg enable_hand_right)}">
+          <xacro:dx_hand_right_controllers  prefix="hand_right" enable_gz="${$(arg enable_gz)}"/>
+        </xacro:if>
 
-      <xacro:if value="${$(arg enable_head)}">
-        <xacro:dx_head_controllers        prefix="head"       enable_gz="${$(arg enable_gz)}"/>
-      </xacro:if>
-      <xacro:if value="${$(arg enable_arm_left)}">
-        <xacro:dx_arm_left_controllers    prefix="arm_left"   enable_gz="${$(arg enable_gz)}"/>
-      </xacro:if>
-      <xacro:if value="${$(arg enable_arm_right)}">
-        <xacro:dx_arm_right_controllers   prefix="arm_right"  enable_gz="${$(arg enable_gz)}"/>
-      </xacro:if>
-      <xacro:if value="${$(arg enable_hand_left)}">
-        <xacro:dx_hand_left_controllers   prefix="hand_left"  enable_gz="${$(arg enable_gz)}"/>
-      </xacro:if>
-      <xacro:if value="${$(arg enable_hand_right)}">
-        <xacro:dx_hand_right_controllers  prefix="hand_right" enable_gz="${$(arg enable_gz)}"/>
-      </xacro:if>
-      <xacro:if value="${$(arg enable_mobile_base)}">
-        <xacro:dx_wheel_steer_controllers prefix="wheel"      enable_gz="${$(arg enable_gz)}"/>
-      </xacro:if>
-
-    </ros2_control>
+      </ros2_control>
+    </xacro:if>
 
     <xacro:if value="${$(arg enable_mobile_base)}">
       <ros2_control name="robomaster_control" type="system">
@@ -95,8 +112,8 @@
     <joint name="${prefix}_drive_f_l_joint">
       <param name="motor_id">1</param>
       <param name="motor_type">m3508</param>
-      <param name="velocity_kp">1.0</param>
-      <param name="velocity_ki">0.01</param>
+      <param name="velocity_kp">0.75</param>
+      <param name="velocity_ki">1.0</param>
       <param name="velocity_kd">0.001</param>
       <command_interface name="velocity">
         <param name="min">-10</param>
@@ -110,8 +127,8 @@
     <joint name="${prefix}_drive_f_r_joint">
       <param name="motor_id">2</param>
       <param name="motor_type">m3508</param>
-      <param name="velocity_kp">1.0</param>
-      <param name="velocity_ki">0.01</param>
+      <param name="velocity_kp">0.75</param>
+      <param name="velocity_ki">1.0</param>
       <param name="velocity_kd">0.001</param>
       <command_interface name="velocity">
         <param name="min">-10</param>
@@ -125,8 +142,8 @@
     <joint name="${prefix}_drive_b_l_joint">
       <param name="motor_id">3</param>
       <param name="motor_type">m3508</param>
-      <param name="velocity_kp">1.0</param>
-      <param name="velocity_ki">0.01</param>
+      <param name="velocity_kp">0.75</param>
+      <param name="velocity_ki">1.0</param>
       <param name="velocity_kd">0.001</param>
       <command_interface name="velocity">
         <param name="min">-10</param>
@@ -140,8 +157,8 @@
     <joint name="${prefix}_drive_b_r_joint">
       <param name="motor_id">4</param>
       <param name="motor_type">m3508</param>
-      <param name="velocity_kp">1.0</param>
-      <param name="velocity_ki">0.01</param>
+      <param name="velocity_kp">0.75</param>
+      <param name="velocity_ki">1.0</param>
       <param name="velocity_kd">0.001</param>
       <command_interface name="velocity">
         <param name="min">-10</param>
@@ -250,7 +267,7 @@
 
     <joint name="head_tilt_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">21</param>
+        <param name="id">22</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
       </xacro:unless>
@@ -510,6 +527,17 @@
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
     </joint>
+    <xacro:if value="${$(arg enable_gz)}">
+      <joint name="${prefix}_finger_r_mcp_joint">
+        <param name="mimic">${prefix}_finger_l_mcp_joint</param>
+        <param name="multiplier">1</param>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+    </xacro:if>
     <joint name="${prefix}_finger_l_dip_joint">
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">51</param>
@@ -633,6 +661,17 @@
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
     </joint>
+    <xacro:if value="${$(arg enable_gz)}">
+      <joint name="${prefix}_finger_r_mcp_joint">
+        <param name="mimic">${prefix}_finger_l_mcp_joint</param>
+        <param name="multiplier">1</param>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+    </xacro:if>
     <joint name="${prefix}_finger_l_dip_joint">
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">61</param>

@@ -62,7 +62,8 @@ def generate_launch_description():
                 ])
             ]),
             launch_arguments={
-                'gz_args' : ' -r -v 4 ' + world_file + ' --physics-engine gz-physics-bullet-featherstone-plugin',
+                'gz_args' : ' -r -v 4 ' + world_file + ' --physics-engine gz-physics-dartsim-plugin', # no mimic
+                # 'gz_args' : ' -r -v 4 ' + world_file + ' --physics-engine gz-physics-bullet-featherstone-plugin', # no mobile base motion
             }.items()
         ),
         gz_bridge_node,

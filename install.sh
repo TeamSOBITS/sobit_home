@@ -14,6 +14,10 @@ ros_packages=(
     "orbbecsdk_ros2"
     "dynamixel_hardware"
     "rm_motors_ros"
+    "swerve_steering_controller"
+    "tmc_wrs_gz"
+    "aws_small_house_world"
+    "sobits_gazebo_worlds"
     # "iai_hardware"
 )
 

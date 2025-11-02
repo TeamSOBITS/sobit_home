@@ -44,7 +44,7 @@
       <parent link="${parent}" />
       <child link="wheel_steer_${id}_link" />
       <axis xyz="0.0 0.0 1.0 " />
-      <limit effort="10.0" velocity="1.0" lower="${-M_PI*2}" upper="${M_PI*2}" />
+      <limit effort="10.0" velocity="1.0" lower="${-M_PI}" upper="${M_PI}" />
       <!-- <dynamics damping="0.2" friction="0" /> -->
     </joint>
 
@@ -81,7 +81,7 @@
       <parent link="${parent}" />
       <child link="wheel_drive_${id}_link" />
       <axis xyz="0.0 1.0 0.0 " />
-      <limit effort="10.0" velocity="10.0" />
+      <limit effort="10.0" velocity="30.0" />
     </joint>
 
     <link name="wheel_drive_${id}_link">
@@ -95,7 +95,7 @@
       <collision>
         <origin xyz="0.0 0.0 0.0" rpy="${M_PI/2.0} 0.0 ${M_PI}" />
         <geometry>
-          <cylinder length="0.017" radius="0.075"/>
+          <cylinder length="0.035" radius="0.075"/>
         </geometry>
       </collision>
       <inertial>
