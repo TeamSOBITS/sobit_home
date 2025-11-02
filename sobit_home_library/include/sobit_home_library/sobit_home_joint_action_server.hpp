@@ -36,7 +36,8 @@ struct PoseParams
   double arm_right_upper_roll;
   double arm_right_upper_flex;
   double arm_right_elbow;
-  double arm_right_wrist;
+  double arm_right_wrist_tilt;
+  double arm_right_wrist_roll;
   double hand_right_finger_l_mcp;
   double hand_right_finger_l_dip;
   double hand_right_finger_l_pip;
@@ -48,7 +49,8 @@ struct PoseParams
   double arm_left_upper_roll;
   double arm_left_upper_flex;
   double arm_left_elbow;
-  double arm_left_wrist;
+  double arm_left_wrist_tilt;
+  double arm_left_wrist_roll;
   double hand_left_finger_l_mcp;
   double hand_left_finger_l_dip;
   double hand_left_finger_l_pip;
@@ -67,7 +69,8 @@ enum JointIds
   Arm_R_Upper_Roll_Joint,
   Arm_R_Upper_Flex_Joint,
   Arm_R_Elbow_Joint,
-  Arm_R_Wrist_Joint,
+  Arm_R_Wrist_Tilt_Joint,
+  Arm_R_Wrist_Roll_Joint,
   Hand_R_Finger_L_Mcp_Joint,
   Hand_R_Finger_L_Dip_Joint,
   Hand_R_Finger_L_Pip_Joint,
@@ -79,7 +82,8 @@ enum JointIds
   Arm_L_Upper_Roll_Joint,
   Arm_L_Upper_Flex_Joint,
   Arm_L_Elbow_Joint,
-  Arm_L_Wrist_Joint,
+  Arm_L_Wrist_Tilt_Joint,
+  Arm_L_Wrist_Roll_Joint,
   Hand_L_Finger_L_Mcp_Joint,
   Hand_L_Finger_L_Dip_Joint,
   Hand_L_Finger_L_Pip_Joint,
@@ -124,7 +128,7 @@ public:
     const geometry_msgs::msg::TransformStamped &goal_coord,
     const bool is_right, bool is_one_rink,
     const double target_yaw);  // target_yaw should be eliminated in the future.
-  trajectory_msgs::msg::JointTrajectory set_joints(
+  std::vector<trajectory_msgs::msg::JointTrajectory> set_joints(
     const std::vector<std::string> &target_joint_names,
     const std::vector<double> &target_joint_rad,
     const builtin_interfaces::msg::Duration &time_allowance);
@@ -135,7 +139,8 @@ private:
     "arm_right_upper_roll_joint",
     "arm_right_upper_flex_joint",
     "arm_right_elbow_joint",
-    "arm_right_wrist_joint",
+    "arm_right_wrist_tilt_joint",
+    "arm_right_wrist_roll_joint",
     "hand_right_finger_l_mcp_joint",
     "hand_right_finger_l_dip_joint",
     "hand_right_finger_l_pip_joint",
@@ -147,7 +152,8 @@ private:
     "arm_left_upper_roll_joint",
     "arm_left_upper_flex_joint",
     "arm_left_elbow_joint",
-    "arm_left_wrist_joint",
+    "arm_left_wrist_tilt_joint",
+    "arm_left_wrist_roll_joint",
     "hand_left_finger_l_mcp_joint",
     "hand_left_finger_l_dip_joint",
     "hand_left_finger_l_pip_joint",
@@ -158,6 +164,53 @@ private:
     "body_lift_joint",
     "head_pan_joint",
     "head_tilt_joint"
+  };
+
+  const std::vector<std::string> JointNamesArmRight = {
+    "arm_right_shoulder_tilt_joint",
+    "arm_right_upper_roll_joint",
+    "arm_right_upper_flex_joint",
+    "arm_right_elbow_joint",
+    "arm_right_wrist_tilt_joint",
+    "arm_right_wrist_roll_joint"
+  };
+  
+  const std::vector<std::string> JointNamesHandRight = {
+    "hand_right_finger_l_mcp_joint",
+    "hand_right_finger_l_dip_joint",
+    "hand_right_finger_l_pip_joint",
+    "hand_right_finger_c_mcp_joint",
+    "hand_right_finger_c_ip_joint",
+    "hand_right_finger_r_dip_joint",
+    "hand_right_finger_r_pip_joint"
+  };
+
+  const std::vector<std::string> JointNamesArmLeft = {
+    "arm_left_shoulder_tilt_joint",
+    "arm_left_upper_roll_joint",
+    "arm_left_upper_flex_joint",
+    "arm_left_elbow_joint",
+    "arm_left_wrist_tilt_joint",
+    "arm_left_wrist_roll_joint"
+  };
+
+  const std::vector<std::string> JointNamesHandLeft = {
+    "hand_left_finger_l_mcp_joint",
+    "hand_left_finger_l_dip_joint",
+    "hand_left_finger_l_pip_joint",
+    "hand_left_finger_c_mcp_joint",
+    "hand_left_finger_c_ip_joint",
+    "hand_left_finger_r_dip_joint",
+    "hand_left_finger_r_pip_joint"
+  };
+
+  const std::vector<std::string> JointNamesHead = {
+    "head_pan_joint",
+    "head_tilt_joint"
+  };
+
+  const std::vector<std::string> JointNamesBody = {
+    "body_lift_joint"
   };
 
   static constexpr double BaseToShoulderDX    = 0.11275;
@@ -197,7 +250,13 @@ private:
   void serve_move_hand_to_coord(const std::shared_ptr<MoveHandToTargetCoord::Request> request, std::shared_ptr<MoveHandToTargetCoord::Response> response, bool is_right, bool is_one_rink);
   void serve_move_hand_to_tf(const std::shared_ptr<MoveHandToTargetTF::Request> request, std::shared_ptr<MoveHandToTargetTF::Response> response, bool is_right, bool is_one_rink);
 
-  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_joint_control_;
+  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_left_arm_joint_control_;
+  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_right_arm_joint_control_;
+  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_left_hand_joint_control_;
+  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_right_hand_joint_control_;
+  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_body_joint_control_;
+  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_head_joint_control_;
+
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr sub_joint_state_;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
