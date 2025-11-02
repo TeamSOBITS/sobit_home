@@ -15,6 +15,7 @@ ros_packages=(
     "dynamixel_hardware"
     "rm_motors_ros"
     "swerve_steering_controller"
+    "ros2_laser_scan_merger"
     "tmc_wrs_gz"
     "aws_small_house_world"
     "sobits_gazebo_worlds"

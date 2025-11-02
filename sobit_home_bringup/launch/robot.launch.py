@@ -98,6 +98,7 @@ def launch_gz(context, *args, **kwargs):
         os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "front_urg_node_param.yaml"),
         os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "back_urg_node_param.yaml"),
     ]
+    merge_scan_config = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "laser_scan_merger.yaml")
 
     robot_description_config = xacro.process_file(
         robot_description,
@@ -190,6 +191,23 @@ def launch_gz(context, *args, **kwargs):
             }.items()
         )
         controllers.append(urg_node)
+
+    if (enable_lidar == 'True'):
+        merge_lidar_node = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                PathJoinSubstitution([
+                    FindPackageShare('ros2_laser_scan_merger'),
+                    'launch',
+                    'merge_2_scan.launch.py'
+                ])
+            ]),
+            launch_arguments={
+                'config_file' : merge_scan_config,
+                'pointcloud_remapping' : '/' + robot_name + '/lidar_scan/points',
+                'scan_remapping': '/' + robot_name + '/lidar_scan',
+            }.items()
+        )
+        controllers.append(merge_lidar_node)
 
     if enable_mobile_base == 'True':
         wheel_steer_position_controller = Node(
