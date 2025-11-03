@@ -13,7 +13,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     robot_name = 'sobit_home'
     robot_id = 0
-    world_model = 'empty' # empty, wrs, small_house, rcjo2025_arena
+    world_model = 'rcjo2025_arena' # empty, wrs, small_house, rcjo2025_arena
 
     gz_bridge_node = Node(
         package='ros_gz_bridge',
@@ -78,8 +78,8 @@ def generate_launch_description():
             ]),
             launch_arguments={
                 'robot_name': robot_name if robot_id == 0 else robot_name + '_' + str(robot_id),
-                'robot_coords_x': '0.0', # x 
-                'robot_coords_y': '0.0', # y
+                'robot_coords_x': '-3.5', # x 
+                'robot_coords_y': '1.5', # y
                 'robot_coords_z': '0.0', # z
                 'robot_coords_Y': '0', # yaw
                 'enable_gz' : 'True',

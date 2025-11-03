@@ -99,6 +99,7 @@ def launch_gz(context, *args, **kwargs):
         os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "back_urg_node_param.yaml"),
     ]
     merge_scan_config = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "laser_scan_merger.yaml")
+    swerve_config = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "swerve_config.yaml")
 
     robot_description_config = xacro.process_file(
         robot_description,
@@ -230,8 +231,23 @@ def launch_gz(context, *args, **kwargs):
                 '-c', 'controller_manager', '--activate'
                 ],
         )
+        swerve_controller = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                PathJoinSubstitution([
+                    FindPackageShare('swerve_steering_controller'),
+                    'launch',
+                    'swerve_controller.launch.py'
+                ])
+            ]),
+            launch_arguments={
+                'robot_name' : robot_name,
+                'enable_gz' : enable_gz,
+                'config' : swerve_config,
+            }.items()
+        )
         controllers.append(wheel_steer_position_controller)
         controllers.append(wheel_drive_velocity_controller)
+        controllers.append(swerve_controller)
 
     if enable_arm_left == 'True':
         arm_left_position_controller = Node(
