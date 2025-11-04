@@ -112,6 +112,7 @@
     <joint name="${prefix}_drive_f_l_joint">
       <param name="motor_id">1</param>
       <param name="motor_type">m3508</param>
+      <param name="invert_rotation">true</param>
       <param name="velocity_kp">0.75</param>
       <param name="velocity_ki">1.0</param>
       <param name="velocity_kd">0.001</param>
@@ -127,6 +128,7 @@
     <joint name="${prefix}_drive_f_r_joint">
       <param name="motor_id">2</param>
       <param name="motor_type">m3508</param>
+      <param name="invert_rotation">false</param>
       <param name="velocity_kp">0.75</param>
       <param name="velocity_ki">1.0</param>
       <param name="velocity_kd">0.001</param>
@@ -142,6 +144,7 @@
     <joint name="${prefix}_drive_b_l_joint">
       <param name="motor_id">3</param>
       <param name="motor_type">m3508</param>
+      <param name="invert_rotation">true</param>
       <param name="velocity_kp">0.75</param>
       <param name="velocity_ki">1.0</param>
       <param name="velocity_kd">0.001</param>
@@ -157,6 +160,7 @@
     <joint name="${prefix}_drive_b_r_joint">
       <param name="motor_id">4</param>
       <param name="motor_type">m3508</param>
+      <param name="invert_rotation">false</param>
       <param name="velocity_kp">0.75</param>
       <param name="velocity_ki">1.0</param>
       <param name="velocity_kd">0.001</param>
