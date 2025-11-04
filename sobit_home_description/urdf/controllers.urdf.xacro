@@ -185,8 +185,8 @@
         <param name="interface">rs</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${2*M_PI}</param>
-        <param name="max">${2*M_PI}</param>
+        <param name="min">-${M_PI}</param>
+        <param name="max">${M_PI}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -202,8 +202,8 @@
         <param name="interface">rs</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${2*M_PI}</param>
-        <param name="max">${2*M_PI}</param>
+        <param name="min">-${M_PI}</param>
+        <param name="max">${M_PI}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -219,8 +219,8 @@
         <param name="interface">rs</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${2*M_PI}</param>
-        <param name="max">${2*M_PI}</param>
+        <param name="min">-${M_PI}</param>
+        <param name="max">${M_PI}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -236,8 +236,8 @@
         <param name="interface">rs</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${2*M_PI}</param>
-        <param name="max">${2*M_PI}</param>
+        <param name="min">-${M_PI}</param>
+        <param name="max">${M_PI}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
