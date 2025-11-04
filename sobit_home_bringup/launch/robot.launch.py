@@ -247,7 +247,6 @@ def launch_gz(context, *args, **kwargs):
         )
         controllers.append(wheel_steer_position_controller)
         controllers.append(wheel_drive_velocity_controller)
-        controllers.append(swerve_controller)
 
     if enable_arm_left == 'True':
         arm_left_position_controller = Node(
@@ -367,6 +366,12 @@ def launch_gz(context, *args, **kwargs):
         )
     )
 
+    delayed_swerve_controller = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=controllers[-1],
+            on_exit=swerve_controller,
+        )
+    )
 
     action_server_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
@@ -440,6 +445,8 @@ def launch_gz(context, *args, **kwargs):
         nodes.append(joint_state_broadcaster)
         nodes.append(control_node)
         nodes.extend(controllers)
+    if enable_mobile_base == 'True':
+        nodes.append(delayed_swerve_controller)
     nodes.append(robot_state_publisher_node)
     # nodes.append(action_server_launch)
     nodes.append(rviz_node)
