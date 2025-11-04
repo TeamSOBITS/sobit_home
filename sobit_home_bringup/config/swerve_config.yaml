@@ -1,12 +1,12 @@
 /**/swerve_controller:
   ros__parameters:
 
-    robot_base_frame: sobit_home/base_footprint
+    robot_base_frame: base_footprint
 
-    twist_topic: /sobit_home/cmd_vel
+    twist_topic: cmd_vel
 
-    position_controller_name: "sobit_home/wheel_steer_position_controller"
-    velocity_controller_name: "sobit_home/wheel_drive_velocity_controller"
+    position_controller_name: wheel_steer_position_controller
+    velocity_controller_name: wheel_drive_velocity_controller
 
     cycle_fequency: 50
 
@@ -21,3 +21,15 @@
       - wheel_drive_f_r_joint
       - wheel_drive_b_l_joint
       - wheel_drive_b_r_joint
+
+    mobile_base:
+      wheel_radius: 0.075  # [m]
+      wheel_width: 0.035  # [m]
+      wheel_x_distance: 0.35355339  # [m]
+      wheel_y_distance: 0.35355339  # [m]
+      steer_max_vel: 10.0  # [rad/s] not used
+      steer_min_acc: 0.5  # [rad/s^2] not used
+      steer_max_acc: 1.0  # [rad/s^2] not used
+      drive_max_vel: 10.0  # [rad/s]
+      drive_min_acc: 0.5  # [rad/s^2] not used
+      drive_max_acc: 1.0  # [rad/s^2] not used
