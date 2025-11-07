@@ -80,10 +80,26 @@
   <xacro:if value="${ $(arg enable_arm_left) }">
     <xacro:arm   prefix="arm"   position="left"  parent="body_lift_link" />
   </xacro:if>
+  <xacro:unless value="${ $(arg enable_arm_left) }">
+    <joint name="arm_left_wrist_roll_joint" type="fixed" >
+      <origin xyz="0.0 1.17790032 0.0" rpy="0.0 0.0 0.0" />
+      <parent link="body_lift_link" />
+      <child link="arm_left_wrist_roll_link" />
+    </joint>
+    <link name="arm_left_wrist_roll_link" />
+  </xacro:unless>
 
   <xacro:if value="${ $(arg enable_arm_right) }">
     <xacro:arm   prefix="arm"   position="right" parent="body_lift_link" />
   </xacro:if>
+  <xacro:unless value="${ $(arg enable_arm_right) }">
+    <joint name="arm_right_wrist_roll_joint" type="fixed" >
+      <origin xyz="0.0 -1.17790032 0.0" rpy="0.0 0.0 0.0" />
+      <parent link="body_lift_link" />
+      <child link="arm_right_wrist_roll_link" />
+    </joint>
+    <link name="arm_right_wrist_roll_link" />
+  </xacro:unless>
 
   <xacro:if value="${ $(arg enable_hand_left) }">
     <xacro:hand  prefix_hand="hand" position="left" prefix_finger="finger" parent="arm_left_wrist_roll_link" />
