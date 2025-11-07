@@ -12,7 +12,7 @@
           </xacro:if>
           <xacro:unless value="${$(arg enable_gz)}">
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
-            <param name="port_name">/dev/ttyUSB1</param>
+            <param name="port_name">/dev/ttyUSB-DXL-sobit_home-lower</param>
             <param name="baud_rate">1000000</param>
           </xacro:unless>
         </hardware>
@@ -30,7 +30,7 @@
           </xacro:if>
           <xacro:unless value="${$(arg enable_gz)}">
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
-            <param name="port_name">/dev/ttyUSB0</param>
+            <param name="port_name">/dev/ttyUSB-DXL-sobit_home-upper</param>
             <param name="baud_rate">1000000</param>
           </xacro:unless>
         </hardware>
