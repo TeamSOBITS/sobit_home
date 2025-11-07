@@ -99,19 +99,19 @@ sudo apt-get update
 sudo apt-get install -y \
     gz-harmonic
 
-# Setup rules for USB devices
-# Remove old rules if they exist
-sudo rm /etc/udev/rules.d/99-dynamixel-*.rules
+# Create new rules (check if they already exist)
+if [ ! -f /etc/udev/rules.d/99-dxl-sobit_home-lower.rules ] && [ ! -f /etc/udev/rules.d/99-dxl-sobit_home-upper.rules ]; then
+    echo "Creating udev rules for SOBIT HOME Dynamixels..."
+    # (1) Lower Dynamixel USB2DYNAMIXEL (mobile base)
+    sudo bash -c 'echo "SUBSYSTEM==\"tty\", ATTRS{idVendor}==\"0403\", ATTRS{idProduct}==\"6014\", ATTRS{serial}==\"FT7W9E57\", SYMLINK+=\"ttyUSB-DXL-sobit_home-lower\", MODE=\"0666\"" > /etc/udev/rules.d/99-dxl-sobit_home-lower.rules'
+    # (2) Upper Dynamixel USB2DYNAMIXEL (head, arm, hand)
+    sudo bash -c 'echo "SUBSYSTEM==\"tty\", ATTRS{idVendor}==\"0403\", ATTRS{idProduct}==\"6014\", ATTRS{serial}==\"FT7W9E4N\", SYMLINK+=\"ttyUSB-DXL-sobit_home-upper\", MODE=\"0666\"" > /etc/udev/rules.d/99-dxl-sobit_home-upper.rules'
 
-# Create new rules
-# (1) Upper Dynamixel USB2DYNAMIXEL (head, arm, hand)
-sudo bash -c 'echo "SUBSYSTEM==\"tty\", ATTRS{idVendor}==\"0403\", ATTRS{idProduct}==\"6014\", ATTRS{serial}==\"FT7W9E4N\", SYMLINK+=\"ttyUSB-DXL-sobit_home-lower\", MODE=\"0666\"" > /etc/udev/rules.d/99-dxl-sobit_home-lower.rules'
-# (2) Lower Dynamixel USB2DYNAMIXEL (mobile base)
-sudo bash -c 'echo "SUBSYSTEM==\"tty\", ATTRS{idVendor}==\"0403\", ATTRS{idProduct}==\"6014\", ATTRS{serial}==\"FT7W9E57\", SYMLINK+=\"ttyUSB-DXL-sobit_home-upper\", MODE=\"0666\"" > /etc/udev/rules.d/99-dxl-sobit_home-upper.rules'
+    # Apply udev rules
+    sudo udevadm control --reload-rules
+    sudo udevadm trigger
+fi
 
-# Apply udev rules
-sudo udevadm control --reload-rules
-sudo udevadm trigger
 
 # Reboot notice
 echo "============================================================"
