@@ -518,6 +518,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">50</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -546,6 +547,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">51</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -563,6 +565,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">52</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -580,6 +583,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">53</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -597,6 +601,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">54</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -614,6 +619,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">55</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -631,6 +637,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">56</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -652,6 +659,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">60</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -680,6 +688,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">61</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -697,6 +706,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">62</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -714,6 +724,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">63</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -731,6 +742,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">64</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -748,6 +760,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">65</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
@@ -765,6 +778,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">66</param>
         <param name="control_mode">6</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
       </xacro:unless>
       <command_interface name="position">
