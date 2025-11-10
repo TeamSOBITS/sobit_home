@@ -97,6 +97,17 @@ def launch_gz(context, *args, **kwargs):
         print('Dynamixel Lower Body Port : ' + str(lower_body_port))
         print('Dynamixel Upper Body Port : ' + str(upper_body_port))
 
+        # Open CAN0 port
+        fail_flag = False
+        fail_flag = os.system('sudo ip link set can0 down')
+        fail_flag = os.system('sudo ip link set can0 type can bitrate 1000000')
+        fail_flag = os.system('sudo ip link set can0 up')
+        if fail_flag != 0:
+            print('Failed to set up CAN0 interface. Please check CAN adapter connection.')
+            exit(1)
+        else:
+            print('CAN0 interface is set up.')
+
     robot_description = os.path.join(get_package_share_directory(
         'sobit_home_description'), 
         'robots',
