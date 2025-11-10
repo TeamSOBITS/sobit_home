@@ -88,6 +88,15 @@ def launch_gz(context, *args, **kwargs):
     enable_gz_hand_right_cam_color  = LaunchConfiguration('enable_gz_hand_right_cam_color').perform(context)
     enable_gz_hand_right_cam_depth  = LaunchConfiguration('enable_gz_hand_right_cam_depth').perform(context)
 
+    # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
+    lower_body_port = ''
+    upper_body_port = ''
+    if enable_gz == 'False':
+        lower_body_port = os.environ.get('DXL_LOWER_PORT')
+        upper_body_port = os.environ.get('DXL_UPPER_PORT')
+        print('Dynamixel Lower Body Port : ' + str(lower_body_port))
+        print('Dynamixel Upper Body Port : ' + str(upper_body_port))
+
     robot_description = os.path.join(get_package_share_directory(
         'sobit_home_description'), 
         'robots',
@@ -119,8 +128,10 @@ def launch_gz(context, *args, **kwargs):
             'enable_gz_hand_left_cam_depth' : enable_gz_hand_left_cam_depth,
             'enable_gz_hand_right_cam_color' : enable_gz_hand_right_cam_color,
             'enable_gz_hand_right_cam_depth' : enable_gz_hand_right_cam_depth,
+            'dxl_lower_body_port': lower_body_port,
+            'dxl_upper_body_port': upper_body_port,
         })
-    
+
     if enable_gz == 'False':
         rviz_file = 'real.rviz'
     else:
@@ -152,15 +163,14 @@ def launch_gz(context, *args, **kwargs):
         output="screen",
     )
 
+    controllers = []
+    nodes = []
+
     controller_config = os.path.join(get_package_share_directory(
         'sobit_home_control'),
         'config',
         'controllers.yaml'
     )
-
-    controllers = []
-    nodes = []
-
 
     control_node = Node(
         package="controller_manager",
