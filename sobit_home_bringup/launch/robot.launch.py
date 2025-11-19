@@ -92,10 +92,10 @@ def launch_gz(context, *args, **kwargs):
     lower_body_port = ''
     upper_body_port = ''
     if enable_gz == 'False':
-        lower_body_port = os.environ.get('DXL_LOWER_PORT')
-        upper_body_port = os.environ.get('DXL_UPPER_PORT')
-        print('Dynamixel Lower Body Port : ' + str(lower_body_port))
-        print('Dynamixel Upper Body Port : ' + str(upper_body_port))
+        lower_body_port = str(os.environ.get('DXL_LOWER_PORT'))
+        upper_body_port = str(os.environ.get('DXL_UPPER_PORT'))
+        print('Dynamixel Lower Body Port : ' + lower_body_port)
+        print('Dynamixel Upper Body Port : ' + upper_body_port)
 
         # Open CAN0 port
         fail_flag = False

@@ -11,8 +11,9 @@
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
           </xacro:if>
           <xacro:unless value="${$(arg enable_gz)}">
+            <xacro:property name="dxl_lower_body_port" value="$(arg dxl_lower_body_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
-            <param name="port_name">"${arg dxl_lower_body_port}"</param>
+            <param name="port_name">${dxl_lower_body_port}</param>
             <param name="baud_rate">1000000</param>
           </xacro:unless>
         </hardware>
@@ -29,8 +30,9 @@
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
           </xacro:if>
           <xacro:unless value="${$(arg enable_gz)}">
+            <xacro:property name="dxl_upper_body_port" value="$(arg dxl_upper_body_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
-            <param name="port_name">"${arg dxl_upper_body_port}"</param>
+            <param name="port_name">${dxl_upper_body_port}</param>
             <param name="baud_rate">1000000</param>
           </xacro:unless>
         </hardware>
