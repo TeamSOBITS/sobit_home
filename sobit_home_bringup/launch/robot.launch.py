@@ -89,13 +89,16 @@ def launch_gz(context, *args, **kwargs):
     enable_gz_hand_right_cam_depth  = LaunchConfiguration('enable_gz_hand_right_cam_depth').perform(context)
 
     # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
-    lower_body_port = ''
-    upper_body_port = ''
+    dxl_x_lower_body_port = ''
+    dxl_x_upper_body_port = ''
+    dxl_p_upper_body_port = ''
     if enable_gz == 'False':
-        lower_body_port = str(os.environ.get('DXL_LOWER_PORT'))
-        upper_body_port = str(os.environ.get('DXL_UPPER_PORT'))
-        print('Dynamixel Lower Body Port : ' + lower_body_port)
-        print('Dynamixel Upper Body Port : ' + upper_body_port)
+        dxl_x_lower_body_port = str(os.environ.get('DXL_X_LOWER_PORT'))
+        dxl_x_upper_body_port = str(os.environ.get('DXL_X_UPPER_PORT'))
+        dxl_p_upper_body_port = str(os.environ.get('DXL_P_UPPER_PORT'))
+        print('Dynamixel Lower Body Port : ' + dxl_x_lower_body_port)
+        print('Dynamixel Upper Body Port : ' + dxl_x_upper_body_port)
+        print('Dynamixel Upper Body Port : ' + dxl_p_upper_body_port)
 
         # Open CAN0 port
         fail_flag = False
@@ -139,8 +142,9 @@ def launch_gz(context, *args, **kwargs):
             'enable_gz_hand_left_cam_depth' : enable_gz_hand_left_cam_depth,
             'enable_gz_hand_right_cam_color' : enable_gz_hand_right_cam_color,
             'enable_gz_hand_right_cam_depth' : enable_gz_hand_right_cam_depth,
-            'dxl_lower_body_port': lower_body_port,
-            'dxl_upper_body_port': upper_body_port,
+            'dxl_x_lower_body_port': dxl_x_lower_body_port,
+            'dxl_x_upper_body_port': dxl_x_upper_body_port,
+            'dxl_p_upper_body_port': dxl_p_upper_body_port,
         })
 
     if enable_gz == 'False':
