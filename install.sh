@@ -102,9 +102,9 @@ sudo apt-get install -y \
 # Set up environment variables
 echo "" >> /home/$USERNAME/.bashrc
 echo "# SOBIT HOME environment variables" >> /home/$USERNAME/.bashrc
-echo "export DXL_X_LOWER_PORT=/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W9E4N-if00-port0" >> /home/$USERNAME/.bashrc
-echo "export DXL_X_UPPER_PORT=/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W9E57-if00-port0" >> /home/$USERNAME/.bashrc
-echo "export DXL_P_UPPER_PORT=/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4TCRFG-if00-port0" >> /home/$USERNAME/.bashrc
+echo "export DXL_X_LOWER_PORT=`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W9E4N-if00-port0`" >> /home/$USERNAME/.bashrc
+echo "export DXL_X_UPPER_PORT=`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W9E57-if00-port0`" >> /home/$USERNAME/.bashrc
+echo "export DXL_P_UPPER_PORT=`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4TCRFG-if00-port0`" >> /home/$USERNAME/.bashrc
 echo "" >> /home/$USERNAME/.bashrc
 source /home/$USERNAME/.bashrc
 
