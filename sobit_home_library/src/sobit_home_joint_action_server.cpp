@@ -29,47 +29,47 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
 
 
   // default grasp mode
-  this->service_server_move_hand_to_coord_left_ = this->create_service<MoveHandToTargetCoord>(
-      "move_hand_to_coord/left",
-      [this](const std::shared_ptr<MoveHandToTargetCoord::Request> request, std::shared_ptr<MoveHandToTargetCoord::Response> response) {
-        serve_move_hand_to_coord(request, response, false, false);  // when target hand is left, 3rd arg is 'false'
+  this->service_get_hand_to_coord_left_ = this->create_service<GetHandToTargetCoord>(
+      "get_hand_to_coord/left",
+      [this](const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response) {
+        get_pos_to_coord(request, response, false, false);  // when target hand is left, 3rd arg is 'false'
       });
-  this->service_server_move_hand_to_tf_left_ = this->create_service<MoveHandToTargetTF>(
-      "move_hand_to_tf/left",
-      [this](const std::shared_ptr<MoveHandToTargetTF::Request> request, std::shared_ptr<MoveHandToTargetTF::Response> response) {
-        serve_move_hand_to_tf(request, response, false, false);  // when target hand is left, 3rd arg is 'false'
+  this->service_get_hand_to_tf_left_ = this->create_service<GetHandToTargetTF>(
+      "get_hand_to_tf/left",
+      [this](const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response) {
+        get_pos_to_tf(request, response, false, false);  // when target hand is left, 3rd arg is 'false'
       });
-  this->service_server_move_hand_to_coord_right_ = this->create_service<MoveHandToTargetCoord>(
-      "move_hand_to_coord/right",
-      [this](const std::shared_ptr<MoveHandToTargetCoord::Request> request, std::shared_ptr<MoveHandToTargetCoord::Response> response) {
-        serve_move_hand_to_coord(request, response, true, false);  // when target hand is right, 3rd arg is 'true'
+  this->service_get_hand_to_coord_right_ = this->create_service<GetHandToTargetCoord>(
+      "get_hand_to_coord/right",
+      [this](const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response) {
+        get_pos_to_coord(request, response, true, false);  // when target hand is right, 3rd arg is 'true'
       });
-  this->service_server_move_hand_to_tf_right_ = this->create_service<MoveHandToTargetTF>(
-      "move_hand_to_tf/right",
-      [this](const std::shared_ptr<MoveHandToTargetTF::Request> request, std::shared_ptr<MoveHandToTargetTF::Response> response) {
-        serve_move_hand_to_tf(request, response, true, false);  // when target hand is right, 3rd arg is 'true'
+  this->service_get_hand_to_tf_right_ = this->create_service<GetHandToTargetTF>(
+      "get_hand_to_tf/right",
+      [this](const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response) {
+        get_pos_to_tf(request, response, true, false);  // when target hand is right, 3rd arg is 'true'
       });
 
   // one link grasp mode
-  this->service_server_move_hand_to_coord_one_left_ = this->create_service<MoveHandToTargetCoord>(
-      "move_hand_to_coord/one_link/left",
-      [this](const std::shared_ptr<MoveHandToTargetCoord::Request> request, std::shared_ptr<MoveHandToTargetCoord::Response> response) {
-        serve_move_hand_to_coord(request, response, false, true);  // when target hand is left, 3rd arg is 'false'
+  this->service_get_hand_to_coord_one_left_ = this->create_service<GetHandToTargetCoord>(
+      "get_hand_to_coord/one_link/left",
+      [this](const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response) {
+        get_pos_to_coord(request, response, false, true);  // when target hand is left, 3rd arg is 'false'
       });
-  this->service_server_move_hand_to_tf_one_left_ = this->create_service<MoveHandToTargetTF>(
-      "move_hand_to_tf/one_link/left",
-      [this](const std::shared_ptr<MoveHandToTargetTF::Request> request, std::shared_ptr<MoveHandToTargetTF::Response> response) {
-        serve_move_hand_to_tf(request, response, false, true);  // when target hand is left, 3rd arg is 'false'
+  this->service_get_hand_to_tf_one_left_ = this->create_service<GetHandToTargetTF>(
+      "get_hand_to_tf/one_link/left",
+      [this](const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response) {
+        get_pos_to_tf(request, response, false, true);  // when target hand is left, 3rd arg is 'false'
       });
-  this->service_server_move_hand_to_coord_one_right_ = this->create_service<MoveHandToTargetCoord>(
-      "move_hand_to_coord/one_link/right",
-      [this](const std::shared_ptr<MoveHandToTargetCoord::Request> request, std::shared_ptr<MoveHandToTargetCoord::Response> response) {
-        serve_move_hand_to_coord(request, response, true, true);  // when target hand is right, 3rd arg is 'true'
+  this->service_get_hand_to_coord_one_right_ = this->create_service<GetHandToTargetCoord>(
+      "get_hand_to_coord/one_link/right",
+      [this](const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response) {
+        get_pos_to_coord(request, response, true, true);  // when target hand is right, 3rd arg is 'true'
       });
-  this->service_server_move_hand_to_tf_one_right_ = this->create_service<MoveHandToTargetTF>(
-      "move_hand_to_tf/one_link/right",
-      [this](const std::shared_ptr<MoveHandToTargetTF::Request> request, std::shared_ptr<MoveHandToTargetTF::Response> response) {
-        serve_move_hand_to_tf(request, response, true, true);  // when target hand is right, 3rd arg is 'true'
+  this->service_get_hand_to_tf_one_right_ = this->create_service<GetHandToTargetTF>(
+      "get_hand_to_tf/one_link/right",
+      [this](const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response) {
+        get_pos_to_tf(request, response, true, true);  // when target hand is right, 3rd arg is 'true'
       });
 
 
@@ -519,9 +519,9 @@ void JointActionServer::exe_move_to_pose(
   goal_handle->succeed(result);
 }
 
-void JointActionServer::serve_move_hand_to_coord(
-  const std::shared_ptr<MoveHandToTargetCoord::Request> request,
-  std::shared_ptr<MoveHandToTargetCoord::Response> response,
+void JointActionServer::get_pos_to_coord(
+  const std::shared_ptr<GetHandToTargetCoord::Request> request,
+  std::shared_ptr<GetHandToTargetCoord::Response> response,
   bool is_right, bool is_one_rink)
 {
 
@@ -619,9 +619,9 @@ void JointActionServer::serve_move_hand_to_coord(
   return;
 }
 
-void JointActionServer::serve_move_hand_to_tf(
-  const std::shared_ptr<MoveHandToTargetTF::Request> request,
-  std::shared_ptr<MoveHandToTargetTF::Response> response,
+void JointActionServer::get_pos_to_tf(
+  const std::shared_ptr<GetHandToTargetTF::Request> request,
+  std::shared_ptr<GetHandToTargetTF::Response> response,
   bool is_right, bool is_one_rink)
 {
 
