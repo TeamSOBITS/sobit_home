@@ -59,7 +59,7 @@ ament_target_dependencies(${PROJECT_NAME}
 #############
 
 install(DIRECTORY
-  # config
+  config
   launch DESTINATION share/${PROJECT_NAME}
 )
 
