@@ -3,5 +3,6 @@
        xmlns:xacro="http://www.ros.org/wiki.xacro">
 
   <xacro:property name="M_PI" value="3.14159265359" />
+  <xacro:property name="effort_ratio" value="100.0" />
 
 </robot>
