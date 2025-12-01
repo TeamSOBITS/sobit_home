@@ -36,26 +36,26 @@ struct PoseParams
   double arm_right_elbow;
   double arm_right_wrist_tilt;
   double arm_right_wrist_roll;
-  double hand_right_finger_l_mcp;
-  double hand_right_finger_l_dip;
-  double hand_right_finger_l_pip;
-  double hand_right_finger_c_mcp;
-  double hand_right_finger_c_ip;
-  double hand_right_finger_r_dip;
-  double hand_right_finger_r_pip;
+  // double hand_right_finger_l_mcp;
+  // double hand_right_finger_l_dip;
+  // double hand_right_finger_l_pip;
+  // double hand_right_finger_c_mcp;
+  // double hand_right_finger_c_ip;
+  // double hand_right_finger_r_dip;
+  // double hand_right_finger_r_pip;
   double arm_left_shoulder_tilt;
   double arm_left_upper_roll;
   double arm_left_upper_flex;
   double arm_left_elbow;
   double arm_left_wrist_tilt;
   double arm_left_wrist_roll;
-  double hand_left_finger_l_mcp;
-  double hand_left_finger_l_dip;
-  double hand_left_finger_l_pip;
-  double hand_left_finger_c_mcp;
-  double hand_left_finger_c_ip;
-  double hand_left_finger_r_dip;
-  double hand_left_finger_r_pip;
+  // double hand_left_finger_l_mcp;
+  // double hand_left_finger_l_dip;
+  // double hand_left_finger_l_pip;
+  // double hand_left_finger_c_mcp;
+  // double hand_left_finger_c_ip;
+  // double hand_left_finger_r_dip;
+  // double hand_left_finger_r_pip;
   double body_lift;
   double head_pan;
   double head_tilt;
@@ -69,26 +69,26 @@ enum JointIds
   Arm_R_Elbow_Joint,
   Arm_R_Wrist_Tilt_Joint,
   Arm_R_Wrist_Roll_Joint,
-  Hand_R_Finger_L_Mcp_Joint,
-  Hand_R_Finger_L_Dip_Joint,
-  Hand_R_Finger_L_Pip_Joint,
-  Hand_R_Finger_C_Mcp_Joint,
-  Hand_R_Finger_C_Ip_Joint,
-  Hand_Right_Finger_R_Dip_Joint,
-  Hand_right_finger_r_pip_joint,
+  // Hand_R_Finger_L_Mcp_Joint,
+  // Hand_R_Finger_L_Dip_Joint,
+  // Hand_R_Finger_L_Pip_Joint,
+  // Hand_R_Finger_C_Mcp_Joint,
+  // Hand_R_Finger_C_Ip_Joint,
+  // Hand_Right_Finger_R_Dip_Joint,
+  // Hand_right_finger_r_pip_joint,
   Arm_L_Shoulder_Tilt_Joint,
   Arm_L_Upper_Roll_Joint,
   Arm_L_Upper_Flex_Joint,
   Arm_L_Elbow_Joint,
   Arm_L_Wrist_Tilt_Joint,
   Arm_L_Wrist_Roll_Joint,
-  Hand_L_Finger_L_Mcp_Joint,
-  Hand_L_Finger_L_Dip_Joint,
-  Hand_L_Finger_L_Pip_Joint,
-  Hand_L_Finger_C_Mcp_Joint,
-  Hand_L_Finger_C_Ip_Joint,
-  Hand_L_Finger_R_Dip_Joint,
-  Hand_L_Finger_R_Pip_Joint,
+  // Hand_L_Finger_L_Mcp_Joint,
+  // Hand_L_Finger_L_Dip_Joint,
+  // Hand_L_Finger_L_Pip_Joint,
+  // Hand_L_Finger_C_Mcp_Joint,
+  // Hand_L_Finger_C_Ip_Joint,
+  // Hand_L_Finger_R_Dip_Joint,
+  // Hand_L_Finger_R_Pip_Joint,
   Body_Lift_Joint,
   Head_Pan_Joint,
   Head_Tilt_Joint,
