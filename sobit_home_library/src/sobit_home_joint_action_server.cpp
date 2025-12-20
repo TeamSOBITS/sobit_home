@@ -427,9 +427,18 @@ void JointActionServer::exe_move_to_pose(
     goal_handle->abort(result);
   }
 
+  // Create joint list excluding hands
+  std::vector<std::string> joints_without_hands;
+  for (const auto &joint_name : JointNames) {
+    if (std::find(JointNamesHandLeft.begin(), JointNamesHandLeft.end(), joint_name) == JointNamesHandLeft.end() &&
+        std::find(JointNamesHandRight.begin(), JointNamesHandRight.end(), joint_name) == JointNamesHandRight.end()) {
+      joints_without_hands.push_back(joint_name);
+    }
+  }
+  
   // Publish the joint trajectory
   std::vector<trajectory_msgs::msg::JointTrajectory> joint_trajectory;
-  joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance);
+  joint_trajectory = set_joints(joints_without_hands, target_joint_rad, goal->time_allowance);
 
   try {
     this->pub_left_arm_joint_control_->publish(joint_trajectory[0]);
