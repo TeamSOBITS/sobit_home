@@ -3,6 +3,9 @@
     poses:
       - initial_pose
       - ninja_pose
+      - detecting_pose
+      - detecting_high_pose
+      - pre_manipulation_pose
 
     initial_pose:
       body_lift : 0.0
@@ -23,6 +26,22 @@
     ninja_pose:
       body_lift : 0.0
       head_pan : 0.0
+      head_tilt : 0.0
+      arm_left_shoulder_tilt : -0.3
+      arm_left_upper_roll : -1.571
+      arm_left_upper_flex : 1.571
+      arm_left_elbow : -1.571
+      arm_left_wrist_tilt : 0.0
+      arm_left_wrist_roll : 0.0
+      arm_right_shoulder_tilt : -0.6
+      arm_right_upper_roll : 1.571
+      arm_right_upper_flex : -1.571
+      arm_right_elbow : 1.571
+      arm_right_wrist_tilt : 0.0
+      arm_right_wrist_roll : 0.0
+    detecting_pose:
+      body_lift : 0.0
+      head_pan : 0.0
       head_tilt : -0.41
       arm_left_shoulder_tilt : -0.3
       arm_left_upper_roll : -1.571
@@ -33,6 +52,38 @@
       arm_right_shoulder_tilt : -0.6
       arm_right_upper_roll : 1.571
       arm_right_upper_flex : -1.571
+      arm_right_elbow : 1.571
+      arm_right_wrist_tilt : 0.0
+      arm_right_wrist_roll : 0.0
+    detecting_high_pose:
+      body_lift : 0.4
+      head_pan : 0.0
+      head_tilt : -0.41
+      arm_left_shoulder_tilt : -0.3
+      arm_left_upper_roll : -1.571
+      arm_left_upper_flex : 1.571
+      arm_left_elbow : -1.571
+      arm_left_wrist_tilt : 0.0
+      arm_left_wrist_roll : 0.0
+      arm_right_shoulder_tilt : -0.6
+      arm_right_upper_roll : 1.571
+      arm_right_upper_flex : -1.571
+      arm_right_elbow : 1.571
+      arm_right_wrist_tilt : 0.0
+      arm_right_wrist_roll : 0.0
+    pre_manipulation_pose:
+      body_lift : 0.0
+      head_pan : 0.0
+      head_tilt : 0.0
+      arm_left_shoulder_tilt : 0.0
+      arm_left_upper_roll : -1.571
+      arm_left_upper_flex : 0.0
+      arm_left_elbow : -1.571
+      arm_left_wrist_tilt : 0.0
+      arm_left_wrist_roll : 0.0
+      arm_right_shoulder_tilt : 0.0
+      arm_right_upper_roll : 1.571
+      arm_right_upper_flex : 0.0
       arm_right_elbow : 1.571
       arm_right_wrist_tilt : 0.0
       arm_right_wrist_roll : 0.0
