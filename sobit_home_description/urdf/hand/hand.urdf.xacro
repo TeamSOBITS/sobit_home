@@ -147,7 +147,7 @@
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
         <geometry>
-          <mesh filename="file://$(find sobit_home_description)/meshes/hand/switching_gear-m.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find sobit_home_description)/meshes/hand/switching_gear_m.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
@@ -173,7 +173,7 @@
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${-y_sign * M_PI/2} 0.0" />
         <geometry>
-          <mesh filename="file://$(find sobit_home_description)/meshes/hand/middle_pharanx-m.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find sobit_home_description)/meshes/hand/middle_pharanx_m.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
@@ -205,7 +205,7 @@
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${-y_sign * M_PI/2} 0.0" />
         <geometry>
-          <mesh filename="file://$(find sobit_home_description)/meshes/hand/distal_pharanx-m.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find sobit_home_description)/meshes/hand/distal_pharanx_m.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
