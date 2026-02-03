@@ -72,6 +72,18 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
         get_pos_to_tf(request, response, true, true);  // when target hand is right, 3rd arg is 'true'
       });
 
+  // head movement
+  this->service_get_head_to_coord_ = this->create_service<GetHandToTargetCoord>(
+      "get_head_to_coord",
+      [this](const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response) {
+        get_head_to_coord(request, response);
+      });
+  this->service_get_head_to_tf_ = this->create_service<GetHandToTargetTF>(
+      "get_head_to_tf",
+      [this](const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response) {
+        get_head_to_tf(request, response);
+      });
+
 
   this->sub_joint_state_ = this->create_subscription<sensor_msgs::msg::JointState>(
       "joint_states", qos_profile, std::bind(&JointActionServer::joint_state_callback, this, std::placeholders::_1));
@@ -568,27 +580,27 @@ void JointActionServer::get_pos_to_coord(
     return;
   }
 
-  // target_yawにロボットの回転角度を代入
-  // calculate the target_yaw to move base of grasping object 
-  double target_linear, target_yaw;
+  // t_yawにロボットの回転角度を代入
+  // calculate the t_yaw to move base of grasping object 
+  double target_linear, t_yaw;
   double shoulder_rotate_x, shoulder_rotate_y;
   if (is_right) {
     shoulder_rotate_x = (std::pow(r, 2)*goal_coord.transform.translation.x + r*goal_coord.transform.translation.y*std::sqrt(std::pow(goal_coord.transform.translation.x,2)+std::pow(goal_coord.transform.translation.y,2)-std::pow(r,2))) / (std::pow(goal_coord.transform.translation.x,2) + std::pow(goal_coord.transform.translation.y,2));
     shoulder_rotate_y = (std::pow(r, 2)*goal_coord.transform.translation.y - r*goal_coord.transform.translation.x*std::sqrt(std::pow(goal_coord.transform.translation.x,2)+std::pow(goal_coord.transform.translation.y,2)-std::pow(r,2))) / (std::pow(goal_coord.transform.translation.x,2) + std::pow(goal_coord.transform.translation.y,2));
-    target_yaw =  M_PI / 2. + std::atan2(shoulder_rotate_y, shoulder_rotate_x);
+    t_yaw =  M_PI / 2. + std::atan2(shoulder_rotate_y, shoulder_rotate_x);
   } else {
     shoulder_rotate_x = (std::pow(r, 2)*goal_coord.transform.translation.x - r*goal_coord.transform.translation.y*std::sqrt(std::pow(goal_coord.transform.translation.x,2)+std::pow(goal_coord.transform.translation.y,2)-std::pow(r,2))) / (std::pow(goal_coord.transform.translation.x,2) + std::pow(goal_coord.transform.translation.y,2));
     shoulder_rotate_y = (std::pow(r, 2)*goal_coord.transform.translation.y + r*goal_coord.transform.translation.x*std::sqrt(std::pow(goal_coord.transform.translation.x,2)+std::pow(goal_coord.transform.translation.y,2)-std::pow(r,2))) / (std::pow(goal_coord.transform.translation.x,2) + std::pow(goal_coord.transform.translation.y,2));
-    target_yaw = -M_PI / 2. + std::atan2(shoulder_rotate_y, shoulder_rotate_x);
+    t_yaw = -M_PI / 2. + std::atan2(shoulder_rotate_y, shoulder_rotate_x);
   }
-  // 3次元の逆運動学が完成したらtarget_yawはある一定の条件で0(=回転する必要なし)になる
+  // 3次元の逆運動学が完成したらt_yawはある一定の条件で0(=回転する必要なし)になる
 
 
   // Inverse kinematics to get the target joint rad
   // 座標を元に逆運動学でbody_lift_joint, shoulder_tilt_joint, upper_flex_joint, elbow_joint, wrist_tilt_jointの5つのなすべき角度をvectorで算出
   std::vector<std::string> target_joint_names = {"body_lift_joint","_shoulder_tilt_joint", "_upper_flex_joint", "_elbow_joint", "_wrist_tilt_joint"};
   for (size_t i=1; i<target_joint_names.size(); i++) target_joint_names[i] = (is_right) ? ("arm_right" + target_joint_names[i]) : ("arm_left" + target_joint_names[i]);
-  std::vector<double> target_joint_rad = inverse_kinematics(goal_coord, is_right, is_one_rink, target_yaw);
+  std::vector<double> target_joint_rad = inverse_kinematics(goal_coord, is_right, is_one_rink, t_yaw);
 
   // If inverse kinematics is outside the range of possible
   // もし逆運動学可能範囲外ならば・・・
@@ -602,7 +614,7 @@ void JointActionServer::get_pos_to_coord(
     return;
   }
 
-  geometry_msgs::msg::TransformStamped hand_pose = forward_kinematics(target_joint_rad, is_right, target_yaw);
+  geometry_msgs::msg::TransformStamped hand_pose = forward_kinematics(target_joint_rad, is_right, t_yaw);
 
   if (std::sqrt(std::pow(hand_pose.transform.translation.x,2)+std::pow(hand_pose.transform.translation.y,2)) < std::sqrt(std::pow(goal_coord.transform.translation.x,2)+std::pow(goal_coord.transform.translation.y,2))) {
     target_linear =  std::sqrt(std::pow(hand_pose.transform.translation.x - goal_coord.transform.translation.x,2) + std::pow(hand_pose.transform.translation.y - goal_coord.transform.translation.y,2));
@@ -617,7 +629,7 @@ void JointActionServer::get_pos_to_coord(
   geometry_msgs::msg::Vector3 euler;
   euler.x = 0.0;
   euler.y = 0.0;
-  euler.z = target_yaw;
+  euler.z = t_yaw;
   response->move_pose.orientation = get_quat_from_euler(euler);
 
   response->success = true;
@@ -699,27 +711,27 @@ void JointActionServer::get_pos_to_tf(
     return;
   }
 
-  // target_yawにロボットの回転角度を代入
-  // calculate the target_yaw to move base of grasping object 
-  double target_linear, target_yaw;
+  // t_yawにロボットの回転角度を代入
+  // calculate the t_yaw to move base of grasping object 
+  double target_linear, t_yaw;
   double shoulder_rotate_x, shoulder_rotate_y;
   if (is_right) {
     shoulder_rotate_x = (std::pow(r, 2)*goal_coord.transform.translation.x + r*goal_coord.transform.translation.y*std::sqrt(std::pow(goal_coord.transform.translation.x,2)+std::pow(goal_coord.transform.translation.y,2)-std::pow(r,2))) / (std::pow(goal_coord.transform.translation.x,2) + std::pow(goal_coord.transform.translation.y,2));
     shoulder_rotate_y = (std::pow(r, 2)*goal_coord.transform.translation.y - r*goal_coord.transform.translation.x*std::sqrt(std::pow(goal_coord.transform.translation.x,2)+std::pow(goal_coord.transform.translation.y,2)-std::pow(r,2))) / (std::pow(goal_coord.transform.translation.x,2) + std::pow(goal_coord.transform.translation.y,2));
-    target_yaw =  M_PI / 2. + std::atan2(shoulder_rotate_y, shoulder_rotate_x);
+    t_yaw =  M_PI / 2. + std::atan2(shoulder_rotate_y, shoulder_rotate_x);
   } else {
     shoulder_rotate_x = (std::pow(r, 2)*goal_coord.transform.translation.x - r*goal_coord.transform.translation.y*std::sqrt(std::pow(goal_coord.transform.translation.x,2)+std::pow(goal_coord.transform.translation.y,2)-std::pow(r,2))) / (std::pow(goal_coord.transform.translation.x,2) + std::pow(goal_coord.transform.translation.y,2));
     shoulder_rotate_y = (std::pow(r, 2)*goal_coord.transform.translation.y + r*goal_coord.transform.translation.x*std::sqrt(std::pow(goal_coord.transform.translation.x,2)+std::pow(goal_coord.transform.translation.y,2)-std::pow(r,2))) / (std::pow(goal_coord.transform.translation.x,2) + std::pow(goal_coord.transform.translation.y,2));
-    target_yaw = -M_PI / 2. + std::atan2(shoulder_rotate_y, shoulder_rotate_x);
+    t_yaw = -M_PI / 2. + std::atan2(shoulder_rotate_y, shoulder_rotate_x);
   }
-  // 3次元の逆運動学が完成したらtarget_yawはある一定の条件で0(=回転する必要なし)になる
+  // 3次元の逆運動学が完成したらt_yawはある一定の条件で0(=回転する必要なし)になる
 
 
   // Inverse kinematics to get the target joint rad
   // 座標を元に逆運動学でbody_lift_joint, shoulder_tilt_joint, upper_flex_joint, elbow_joint, wrist_tilt_jointの5つのなすべき角度をvectorで算出
   std::vector<std::string> target_joint_names = {"body_lift_joint","_shoulder_tilt_joint", "_upper_flex_joint", "_elbow_joint", "_wrist_tilt_joint"};
   for (size_t i=1; i<target_joint_names.size(); i++) target_joint_names[i] = (is_right) ? ("arm_right" + target_joint_names[i]) : ("arm_left" + target_joint_names[i]);
-  std::vector<double> target_joint_rad = inverse_kinematics(goal_coord, is_right, is_one_rink, target_yaw);
+  std::vector<double> target_joint_rad = inverse_kinematics(goal_coord, is_right, is_one_rink, t_yaw);
 
   // If inverse kinematics is outside the range of possible
   // もし逆運動学可能範囲外ならば・・・
@@ -733,7 +745,7 @@ void JointActionServer::get_pos_to_tf(
     return;
   }
 
-  geometry_msgs::msg::TransformStamped hand_pose = forward_kinematics(target_joint_rad, is_right, target_yaw);
+  geometry_msgs::msg::TransformStamped hand_pose = forward_kinematics(target_joint_rad, is_right, t_yaw);
 
   if (std::sqrt(std::pow(hand_pose.transform.translation.x,2)+std::pow(hand_pose.transform.translation.y,2)) < std::sqrt(std::pow(goal_coord.transform.translation.x,2)+std::pow(goal_coord.transform.translation.y,2))) {
     target_linear =  std::sqrt(std::pow(hand_pose.transform.translation.x - goal_coord.transform.translation.x,2) + std::pow(hand_pose.transform.translation.y - goal_coord.transform.translation.y,2));
@@ -748,13 +760,201 @@ void JointActionServer::get_pos_to_tf(
   geometry_msgs::msg::Vector3 euler;
   euler.x = 0.0;
   euler.y = 0.0;
-  euler.z = target_yaw;
+  euler.z = t_yaw;
   response->move_pose.orientation = get_quat_from_euler(euler);
 
   response->success = true;
   response->message = "[SUCCESS] The coord is grasp able.";
   response->target_joint_names = target_joint_names;
   response->target_joint_rad = target_joint_rad;
+
+  return;
+}
+
+void JointActionServer::get_head_to_coord(
+  const std::shared_ptr<GetHandToTargetCoord::Request> request,
+  std::shared_ptr<GetHandToTargetCoord::Response> response)
+{
+
+  // Get namespace
+  geometry_msgs::msg::TransformStamped goal_coord;
+  goal_coord.header = request->target_coord.header;
+  goal_coord.header.frame_id = std::string(this->get_namespace()).substr(1) + "/head_base_link";
+
+
+  // Transform to head base link from 'sobit_home/head_base_link'
+  try{
+    goal_coord = tf_buffer_->transform(
+      request->target_coord, goal_coord.header.frame_id,
+      tf2::durationFromSec(1.0));
+  } catch (const tf2::TransformException &ex) {
+    RCLCPP_ERROR(this->get_logger(), "Failed to get transform: %s", ex.what());
+
+    response->success = false;
+    response->message = "[FAIL] Could not transform coords to " + goal_coord.header.frame_id;
+    response->target_joint_names.clear();
+    response->target_joint_rad.clear();
+
+    return;
+  }
+
+  double pan_rad, tilt_rad, t_yaw;
+
+  if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) > 50.0 * M_PI / 180.0) { // 50 degrees
+    pan_rad = (50.0 * M_PI / 180.0);
+    t_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) - (50.0 * M_PI / 180.0);
+  }
+  else if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) < -(50.0 * M_PI / 180.0)) {
+    pan_rad = -(50.0 * M_PI / 180.0);
+    t_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) + (50.0 * M_PI / 180.0);
+  }
+  else {
+    pan_rad = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x);
+    t_yaw = 0.0;
+  }
+
+  if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > (30.0 * M_PI / 180.0)) { // 30 degrees
+    tilt_rad = (30.0 * M_PI / 180.0);
+  }
+  else if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < -(45.0 * M_PI / 180.0)) { // 45 degrees
+    tilt_rad = -(45.0 * M_PI / 180.0);
+  }
+  else {
+    tilt_rad = std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2)));
+  }
+
+  if (std::abs(atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x)) < (50.0 * M_PI / 180.0) && // 50 degrees
+      std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > -(45.0 * M_PI / 180.0) && // 45 degrees
+      std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < (30.0 * M_PI / 180.0)){   // 30 degrees
+    response->success = true;
+    response->message = "[SUCCESS] The coord is visible.";
+  }
+  else {
+    response->success = false;
+    response->message = "[FAIL] The coord is out of the head rotation limit";
+  }
+
+  response->move_pose.position.x = 0.0;
+  response->move_pose.position.y = 0.0;
+  response->move_pose.position.z = 0.0;
+
+  geometry_msgs::msg::Vector3 euler;
+  euler.x = 0.0;
+  euler.y = 0.0;
+  euler.z = t_yaw;
+  response->move_pose.orientation = get_quat_from_euler(euler);
+
+  response->target_joint_names = {"head_pan_joint", "head_tilt_joint"};
+  response->target_joint_rad = {pan_rad, tilt_rad};
+
+  return;
+}
+
+void JointActionServer::get_head_to_tf(
+  const std::shared_ptr<GetHandToTargetTF::Request> request,
+  std::shared_ptr<GetHandToTargetTF::Response> response)
+{
+
+  // Get namespace
+  geometry_msgs::msg::TransformStamped goal_coord;
+  goal_coord.header = request->tf_differential.header;
+  goal_coord.header.frame_id = std::string(this->get_namespace()).substr(1) + "/head_base_link";
+
+  geometry_msgs::msg::TransformStamped goal_coord_shift;
+
+
+  // Transform the target frame based on the differential tf
+  try {
+    goal_coord_shift = tf_buffer_->lookupTransform(
+      request->tf_differential.header.frame_id, request->target_frame,
+      tf2::TimePointZero);
+
+    geometry_msgs::msg::Vector3 euler_target, euler_shift;
+    euler_target = get_euler_from_quat(goal_coord_shift.transform.rotation);
+    euler_shift = get_euler_from_quat(request->tf_differential.transform.rotation);
+    euler_target.x += euler_shift.x;
+    euler_target.y += euler_shift.y;
+    euler_target.z += euler_shift.z;
+
+    goal_coord_shift.transform.translation.x += request->tf_differential.transform.translation.x;
+    goal_coord_shift.transform.translation.y += request->tf_differential.transform.translation.y;
+    goal_coord_shift.transform.translation.z += request->tf_differential.transform.translation.z;
+    goal_coord_shift.transform.rotation = get_quat_from_euler(euler_target);
+  } catch (const tf2::TransformException &ex) {
+    RCLCPP_ERROR(this->get_logger(), "Could not transform: %s to %s: %s", request->target_frame.c_str(), request->tf_differential.header.frame_id.c_str(),ex.what());
+
+    response->success = false;
+    response->message = "[FAIL] Could not transform: " + request->target_frame + " to: " + request->tf_differential.header.frame_id;
+    response->target_joint_names.clear();
+    response->target_joint_rad.clear();
+
+    return;
+  }
+
+  // Transform to robot base from 'sobit_home/base_footprint'
+  try{
+    goal_coord = tf_buffer_->transform(
+      goal_coord_shift, goal_coord.header.frame_id,
+      tf2::durationFromSec(1.0));
+  } catch (const tf2::TransformException &ex) {
+    RCLCPP_ERROR(this->get_logger(), "Could not transform coords to %s: %s", goal_coord.header.frame_id.c_str(), ex.what());
+
+    response->success = false;
+    response->message = "[FAIL] Could not transform coords to " + goal_coord.header.frame_id;
+    response->target_joint_names.clear();
+    response->target_joint_rad.clear();
+
+    return;
+  }
+
+  double pan_rad, tilt_rad, t_yaw;
+
+  if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) > 50.0 * M_PI / 180.0) { // 50 degrees
+    pan_rad = (50.0 * M_PI / 180.0);
+    t_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) - (50.0 * M_PI / 180.0);
+  }
+  else if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) < -(50.0 * M_PI / 180.0)) {
+    pan_rad = -(50.0 * M_PI / 180.0);
+    t_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) + (50.0 * M_PI / 180.0);
+  }
+  else {
+    pan_rad = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x);
+    t_yaw = 0.0;
+  }
+
+  if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > (30.0 * M_PI / 180.0)) { // 30 degrees
+    tilt_rad = (30.0 * M_PI / 180.0);
+  }
+  else if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < -(45.0 * M_PI / 180.0)) { // 45 degrees
+    tilt_rad = -(45.0 * M_PI / 180.0);
+  }
+  else {
+    tilt_rad = std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2)));
+  }
+
+  if (std::abs(atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x)) < (50.0 * M_PI / 180.0) && // 50 degrees
+      std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > -(45.0 * M_PI / 180.0) && // 45 degrees
+      std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < (30.0 * M_PI / 180.0)){   // 30 degrees
+    response->success = true;
+    response->message = "[SUCCESS] The coord is visible.";
+  }
+  else {
+    response->success = false;
+    response->message = "[FAIL] The coord is out of the head rotation limit";
+  }
+
+  response->move_pose.position.x = 0.0;
+  response->move_pose.position.y = 0.0;
+  response->move_pose.position.z = 0.0;
+
+  geometry_msgs::msg::Vector3 euler;
+  euler.x = 0.0;
+  euler.y = 0.0;
+  euler.z = t_yaw;
+  response->move_pose.orientation = get_quat_from_euler(euler);
+
+  response->target_joint_names = {"head_pan_joint", "head_tilt_joint"};
+  response->target_joint_rad = {pan_rad, tilt_rad};
 
   return;
 }
@@ -872,7 +1072,7 @@ std::vector<trajectory_msgs::msg::JointTrajectory> JointActionServer::set_joints
 geometry_msgs::msg::TransformStamped JointActionServer::forward_kinematics(
   const std::vector<double> &target_joint_rad,
   const bool is_right,
-  const double target_yaw)
+  const double t_yaw)
 {
   geometry_msgs::msg::TransformStamped final_coord;
 
@@ -945,12 +1145,12 @@ geometry_msgs::msg::TransformStamped JointActionServer::forward_kinematics(
   final_coord.transform.rotation.y = 0.;
   final_coord.transform.rotation.z = 0.;
 
-  // 最後にtarget_yawの回転分を考慮
+  // 最後にt_yawの回転分を考慮
   double temp_x, temp_y;
   temp_x = final_coord.transform.translation.x;
   temp_y = final_coord.transform.translation.y;
-  final_coord.transform.translation.x = temp_x*std::cos(target_yaw) - temp_y*std::sin(target_yaw);
-  final_coord.transform.translation.y = temp_y*std::cos(target_yaw) + temp_x*std::sin(target_yaw);
+  final_coord.transform.translation.x = temp_x*std::cos(t_yaw) - temp_y*std::sin(t_yaw);
+  final_coord.transform.translation.y = temp_y*std::cos(t_yaw) + temp_x*std::sin(t_yaw);
 
   return final_coord;
 }
@@ -958,7 +1158,7 @@ geometry_msgs::msg::TransformStamped JointActionServer::forward_kinematics(
 std::vector<double> JointActionServer::inverse_kinematics(
   const geometry_msgs::msg::TransformStamped &goal_coord,  // 'goal_coord' is the coordinates of robot base.
   const bool is_right, bool is_one_rink,
-  const double target_yaw)
+  const double t_yaw)
 {
 
   // "body_lift","_arm_shoulder_roll_joint", "_arm_shoulder_pan_joint", "_arm_elbow_tilt_joint", "_arm_wrist_tilt_joint"
@@ -968,11 +1168,11 @@ std::vector<double> JointActionServer::inverse_kinematics(
   // do 'Hand-Calculate' to a coordinate system valid for this robot's inverse kinematics
   // In case SOBIT HOME, the coordinates are based on the shoulder to be grasped.
 
-  // target_yaw分，回転したあとの座標をgoal_coord_rotateに代入
+  // t_yaw分，回転したあとの座標をgoal_coord_rotateに代入
   geometry_msgs::msg::TransformStamped goal_coord_rotate;
   // ロボット回転後の座標へ変換
-  goal_coord_rotate.transform.translation.x = goal_coord.transform.translation.x*std::cos(-target_yaw) - goal_coord.transform.translation.y*std::sin(-target_yaw);
-  goal_coord_rotate.transform.translation.y = goal_coord.transform.translation.y*std::cos(-target_yaw) + goal_coord.transform.translation.x*std::sin(-target_yaw);
+  goal_coord_rotate.transform.translation.x = goal_coord.transform.translation.x*std::cos(-t_yaw) - goal_coord.transform.translation.y*std::sin(-t_yaw);
+  goal_coord_rotate.transform.translation.y = goal_coord.transform.translation.y*std::cos(-t_yaw) + goal_coord.transform.translation.x*std::sin(-t_yaw);
   goal_coord_rotate.transform.translation.z = goal_coord.transform.translation.z;
   goal_coord_rotate.transform.rotation = goal_coord.transform.rotation;
 

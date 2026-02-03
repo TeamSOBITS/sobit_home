@@ -1,4 +1,5 @@
 #include <map>
+#include <cmath>
 
 #include "sobits_interfaces/action/move_joint.hpp"
 #include "sobits_interfaces/action/move_to_pose.hpp"
@@ -213,6 +214,7 @@ private:
   static constexpr double LengthShoulderElbow = 0.399949;
   static constexpr double LengthElbowWrist    = 0.5000003;
   static constexpr double LengthHand          = 0.1811;   
+  static constexpr double BodylinkToHeadtiltDZ    = 0.216;
   /*box高さ 0.291m*/
 
   std::vector<PoseParams> poses_;
@@ -229,6 +231,8 @@ private:
   rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_hand_to_tf_one_left_;
   rclcpp::Service<GetHandToTargetCoord>::SharedPtr service_get_hand_to_coord_one_right_;
   rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_hand_to_tf_one_right_;
+  rclcpp::Service<GetHandToTargetCoord>::SharedPtr service_get_head_to_coord_;
+  rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_head_to_tf_;
   rclcpp_action::GoalResponse handle_move_joints_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const MoveJoint::Goal> goal);
   rclcpp_action::GoalResponse handle_move_to_pose_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const MoveToPose::Goal> goal);
 
@@ -242,6 +246,9 @@ private:
   void exe_move_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
   void get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right, bool is_one_rink);
   void get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right, bool is_one_rink);
+  void get_head_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response);
+  void get_head_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response);
+  
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_left_arm_joint_control_;
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_right_arm_joint_control_;
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_left_hand_joint_control_;
