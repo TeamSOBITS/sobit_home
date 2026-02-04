@@ -473,7 +473,7 @@ def launch_gz(context, *args, **kwargs):
         nodes.append(control_node)
         nodes.extend(controllers)
     nodes.append(robot_state_publisher_node)
-    # nodes.append(action_server_launch)
+    nodes.append(action_server_launch)
     nodes.append(rviz_node)
 
     return nodes

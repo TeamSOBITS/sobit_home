@@ -5,6 +5,8 @@
 #include "sobits_interfaces/action/move_to_pose.hpp"
 #include "sobits_interfaces/srv/get_hand_to_target_coord.hpp"
 #include "sobits_interfaces/srv/get_hand_to_target_tf.hpp"
+// #include "sobits_interfaces/srv/get_finger_angle.hpp"
+
 
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
@@ -70,26 +72,30 @@ enum JointIds
   Arm_R_Elbow_Joint,
   Arm_R_Wrist_Tilt_Joint,
   Arm_R_Wrist_Roll_Joint,
+
   // Hand_R_Finger_L_Mcp_Joint,
   // Hand_R_Finger_L_Dip_Joint,
   // Hand_R_Finger_L_Pip_Joint,
   // Hand_R_Finger_C_Mcp_Joint,
   // Hand_R_Finger_C_Ip_Joint,
-  // Hand_Right_Finger_R_Dip_Joint,
-  // Hand_right_finger_r_pip_joint,
+  // Hand_Right_Finger_R_Pip_Joint,
+  // Hand_right_finger_R_Dip_joint,
+
   Arm_L_Shoulder_Tilt_Joint,
   Arm_L_Upper_Roll_Joint,
   Arm_L_Upper_Flex_Joint,
   Arm_L_Elbow_Joint,
   Arm_L_Wrist_Tilt_Joint,
   Arm_L_Wrist_Roll_Joint,
+
   // Hand_L_Finger_L_Mcp_Joint,
   // Hand_L_Finger_L_Dip_Joint,
   // Hand_L_Finger_L_Pip_Joint,
   // Hand_L_Finger_C_Mcp_Joint,
   // Hand_L_Finger_C_Ip_Joint,
-  // Hand_L_Finger_R_Dip_Joint,
   // Hand_L_Finger_R_Pip_Joint,
+  // Hand_L_Finger_R_Dip_Joint,
+
   Body_Lift_Joint,
   Head_Pan_Joint,
   Head_Tilt_Joint,
@@ -101,8 +107,10 @@ class JointActionServer : public rclcpp::Node
 public:
   using MoveJoint = sobits_interfaces::action::MoveJoint;
   using MoveToPose = sobits_interfaces::action::MoveToPose;
+
   using GetHandToTargetCoord = sobits_interfaces::srv::GetHandToTargetCoord;
   using GetHandToTargetTF = sobits_interfaces::srv::GetHandToTargetTF;
+  // using GetFingerAngle = sobits_interfaces::srv::GetFingerAngle;
 
   using GoalHandleMoveJoints = rclcpp_action::ServerGoalHandle<sobits_interfaces::action::MoveJoint>;
   using GoalHandleMoveToPose = rclcpp_action::ServerGoalHandle<sobits_interfaces::action::MoveToPose>;
@@ -137,12 +145,12 @@ private:
     "arm_right_wrist_tilt_joint",
     "arm_right_wrist_roll_joint",
     "hand_right_finger_l_mcp_joint",
-    "hand_right_finger_l_dip_joint",
     "hand_right_finger_l_pip_joint",
+    "hand_right_finger_l_dip_joint",
     "hand_right_finger_c_mcp_joint",
     "hand_right_finger_c_ip_joint",
-    "hand_right_finger_r_dip_joint",
     "hand_right_finger_r_pip_joint",
+    "hand_right_finger_r_dip_joint",
     "arm_left_shoulder_tilt_joint",
     "arm_left_upper_roll_joint",
     "arm_left_upper_flex_joint",
@@ -150,12 +158,12 @@ private:
     "arm_left_wrist_tilt_joint",
     "arm_left_wrist_roll_joint",
     "hand_left_finger_l_mcp_joint",
-    "hand_left_finger_l_dip_joint",
     "hand_left_finger_l_pip_joint",
+    "hand_left_finger_l_dip_joint",
     "hand_left_finger_c_mcp_joint",
     "hand_left_finger_c_ip_joint",
-    "hand_left_finger_r_dip_joint",
     "hand_left_finger_r_pip_joint",
+    "hand_left_finger_r_dip_joint",
     "body_lift_joint",
     "head_pan_joint",
     "head_tilt_joint"
@@ -172,12 +180,12 @@ private:
   
   const std::vector<std::string> JointNamesHandRight = {
     "hand_right_finger_l_mcp_joint",
-    "hand_right_finger_l_dip_joint",
     "hand_right_finger_l_pip_joint",
+    "hand_right_finger_l_dip_joint",
     "hand_right_finger_c_mcp_joint",
     "hand_right_finger_c_ip_joint",
-    "hand_right_finger_r_dip_joint",
-    "hand_right_finger_r_pip_joint"
+    "hand_right_finger_r_pip_joint",
+    "hand_right_finger_r_dip_joint"
   };
 
   const std::vector<std::string> JointNamesArmLeft = {
@@ -191,12 +199,12 @@ private:
 
   const std::vector<std::string> JointNamesHandLeft = {
     "hand_left_finger_l_mcp_joint",
-    "hand_left_finger_l_dip_joint",
     "hand_left_finger_l_pip_joint",
+    "hand_left_finger_l_dip_joint",
     "hand_left_finger_c_mcp_joint",
     "hand_left_finger_c_ip_joint",
-    "hand_left_finger_r_dip_joint",
-    "hand_left_finger_r_pip_joint"
+    "hand_left_finger_r_pip_joint",
+    "hand_left_finger_r_dip_joint"
   };
 
   const std::vector<std::string> JointNamesHead = {
@@ -223,6 +231,7 @@ private:
 
   rclcpp_action::Server<MoveJoint>::SharedPtr action_server_move_joints_;
   rclcpp_action::Server<MoveToPose>::SharedPtr action_server_move_to_pose_;
+
   rclcpp::Service<GetHandToTargetCoord>::SharedPtr service_get_hand_to_coord_left_;
   rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_hand_to_tf_left_;
   rclcpp::Service<GetHandToTargetCoord>::SharedPtr service_get_hand_to_coord_right_;
@@ -233,6 +242,8 @@ private:
   rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_hand_to_tf_one_right_;
   rclcpp::Service<GetHandToTargetCoord>::SharedPtr service_get_head_to_coord_;
   rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_head_to_tf_;
+//   rclcpp::Service<GetFingerAngle>::SharedPtr service_server_get_finger_angle_;
+
   rclcpp_action::GoalResponse handle_move_joints_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const MoveJoint::Goal> goal);
   rclcpp_action::GoalResponse handle_move_to_pose_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const MoveToPose::Goal> goal);
 
@@ -244,11 +255,13 @@ private:
 
   void exe_move_joints(const std::shared_ptr<GoalHandleMoveJoints> goal_handle);
   void exe_move_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
+
   void get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right, bool is_one_rink);
   void get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right, bool is_one_rink);
   void get_head_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response);
   void get_head_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response);
-  
+//   void serve_get_finger_angle(const std::shared_ptr<GetFingerAngle::Request> request, std::shared_ptr<GetFingerAngle::Response> response);
+
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_left_arm_joint_control_;
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_right_arm_joint_control_;
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_left_hand_joint_control_;

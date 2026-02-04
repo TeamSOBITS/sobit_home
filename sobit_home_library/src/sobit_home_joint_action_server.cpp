@@ -83,7 +83,14 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
       [this](const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response) {
         get_head_to_tf(request, response);
       });
-
+  
+  // Set end-effector finger angle
+    this->service_server_get_finger_angle_ = this->create_service<GetFingerAngle>(
+      "get_finger_angle",
+      [this](const std::shared_ptr<GetFingerAngle::Request> request, std::shared_ptr<GetFingerAngle::Response> response) {
+        serve_get_finger_angle(request, response);  // when opeing end-effector, 3rd arg is 'true'
+      });
+  
 
   this->sub_joint_state_ = this->create_subscription<sensor_msgs::msg::JointState>(
       "joint_states", qos_profile, std::bind(&JointActionServer::joint_state_callback, this, std::placeholders::_1));
@@ -113,26 +120,30 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
     this->declare_parameter(pose_name + ".arm_right_elbow", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_right_wrist_tilt", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_right_wrist_roll", rclcpp::PARAMETER_DOUBLE);
+
     // this->declare_parameter(pose_name + ".hand_right_finger_l_mcp", rclcpp::PARAMETER_DOUBLE);
     // this->declare_parameter(pose_name + ".hand_right_finger_l_dip", rclcpp::PARAMETER_DOUBLE);
     // this->declare_parameter(pose_name + ".hand_right_finger_l_pip", rclcpp::PARAMETER_DOUBLE);
     // this->declare_parameter(pose_name + ".hand_right_finger_c_mcp", rclcpp::PARAMETER_DOUBLE);
     // this->declare_parameter(pose_name + ".hand_right_finger_c_ip", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_right_finger_r_dip", rclcpp::PARAMETER_DOUBLE);
     // this->declare_parameter(pose_name + ".hand_right_finger_r_pip", rclcpp::PARAMETER_DOUBLE);
+    // this->declare_parameter(pose_name + ".hand_right_finger_r_dip", rclcpp::PARAMETER_DOUBLE);
+
     this->declare_parameter(pose_name + ".arm_left_shoulder_tilt", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_upper_roll", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_upper_flex", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_elbow", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_wrist_tilt", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_wrist_roll", rclcpp::PARAMETER_DOUBLE);
+
     // this->declare_parameter(pose_name + ".hand_left_finger_l_mcp", rclcpp::PARAMETER_DOUBLE);
     // this->declare_parameter(pose_name + ".hand_left_finger_l_dip", rclcpp::PARAMETER_DOUBLE);
     // this->declare_parameter(pose_name + ".hand_left_finger_l_pip", rclcpp::PARAMETER_DOUBLE);
     // this->declare_parameter(pose_name + ".hand_left_finger_c_mcp", rclcpp::PARAMETER_DOUBLE);
     // this->declare_parameter(pose_name + ".hand_left_finger_c_ip", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_left_finger_r_dip", rclcpp::PARAMETER_DOUBLE);
     // this->declare_parameter(pose_name + ".hand_left_finger_r_pip", rclcpp::PARAMETER_DOUBLE);
+    // this->declare_parameter(pose_name + ".hand_left_finger_r_dip", rclcpp::PARAMETER_DOUBLE);
+
     this->declare_parameter(pose_name + ".body_lift", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".head_pan", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".head_tilt", rclcpp::PARAMETER_DOUBLE);
@@ -146,26 +157,30 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
     params.arm_right_elbow          = this->get_parameter(pose_name + ".arm_right_elbow").as_double();
     params.arm_right_wrist_tilt     = this->get_parameter(pose_name + ".arm_right_wrist_tilt").as_double();
     params.arm_right_wrist_roll     = this->get_parameter(pose_name + ".arm_right_wrist_roll").as_double();
+
     // params.hand_right_finger_l_mcp  = this->get_parameter(pose_name + ".hand_right_finger_l_mcp").as_double();
     // params.hand_right_finger_l_dip  = this->get_parameter(pose_name + ".hand_right_finger_l_dip").as_double();
     // params.hand_right_finger_l_pip  = this->get_parameter(pose_name + ".hand_right_finger_l_pip").as_double();
     // params.hand_right_finger_c_mcp  = this->get_parameter(pose_name + ".hand_right_finger_c_mcp").as_double();
     // params.hand_right_finger_c_ip   = this->get_parameter(pose_name + ".hand_right_finger_c_ip").as_double();
-    // params.hand_right_finger_r_dip  = this->get_parameter(pose_name + ".hand_right_finger_r_dip").as_double();
-    // params.hand_right_finger_r_pip  = this->get_parameter(pose_name + ".hand_right_finger_r_pip").as_double();
+    // params.hand_right_finger_r_dip  = this->get_parameter(pose_name + ".hand_right_finger_r_pip").as_double();
+    // params.hand_right_finger_r_pip  = this->get_parameter(pose_name + ".hand_right_finger_r_dip").as_double();
+
     params.arm_left_shoulder_tilt   = this->get_parameter(pose_name + ".arm_left_shoulder_tilt").as_double();
     params.arm_left_upper_roll      = this->get_parameter(pose_name + ".arm_left_upper_roll").as_double();
     params.arm_left_upper_flex      = this->get_parameter(pose_name + ".arm_left_upper_flex").as_double();
     params.arm_left_elbow           = this->get_parameter(pose_name + ".arm_left_elbow").as_double();
     params.arm_left_wrist_tilt      = this->get_parameter(pose_name + ".arm_left_wrist_tilt").as_double();
     params.arm_left_wrist_roll      = this->get_parameter(pose_name + ".arm_left_wrist_roll").as_double();
+
     // params.hand_left_finger_l_mcp   = this->get_parameter(pose_name + ".hand_left_finger_l_mcp").as_double();
     // params.hand_left_finger_l_dip   = this->get_parameter(pose_name + ".hand_left_finger_l_dip").as_double();
     // params.hand_left_finger_l_pip   = this->get_parameter(pose_name + ".hand_left_finger_l_pip").as_double();
     // params.hand_left_finger_c_mcp   = this->get_parameter(pose_name + ".hand_left_finger_c_mcp").as_double();
     // params.hand_left_finger_c_ip    = this->get_parameter(pose_name + ".hand_left_finger_c_ip").as_double();
-    // params.hand_left_finger_r_dip   = this->get_parameter(pose_name + ".hand_left_finger_r_dip").as_double();
-    // params.hand_left_finger_r_pip   = this->get_parameter(pose_name + ".hand_left_finger_r_pip").as_double();
+    // params.hand_left_finger_r_dip   = this->get_parameter(pose_name + ".hand_left_finger_r_pip").as_double();
+    // params.hand_left_finger_r_pip   = this->get_parameter(pose_name + ".hand_left_finger_r_dip").as_double();
+
     params.body_lift                = this->get_parameter(pose_name + ".body_lift").as_double();
     params.head_pan                 = this->get_parameter(pose_name + ".head_pan").as_double();
     params.head_tilt                = this->get_parameter(pose_name + ".head_tilt").as_double();
@@ -402,26 +417,30 @@ void JointActionServer::exe_move_to_pose(
       target_joint_rad.push_back(pose.arm_right_elbow);
       target_joint_rad.push_back(pose.arm_right_wrist_tilt);
       target_joint_rad.push_back(pose.arm_right_wrist_roll);
+
       // target_joint_rad.push_back(pose.hand_right_finger_l_mcp);
       // target_joint_rad.push_back(pose.hand_right_finger_l_dip);
       // target_joint_rad.push_back(pose.hand_right_finger_l_pip);
       // target_joint_rad.push_back(pose.hand_right_finger_c_mcp);
       // target_joint_rad.push_back(pose.hand_right_finger_c_ip);
-      // target_joint_rad.push_back(pose.hand_right_finger_r_dip);
       // target_joint_rad.push_back(pose.hand_right_finger_r_pip);
+      // target_joint_rad.push_back(pose.hand_right_finger_r_dip);
+
       target_joint_rad.push_back(pose.arm_left_shoulder_tilt);
       target_joint_rad.push_back(pose.arm_left_upper_roll);
       target_joint_rad.push_back(pose.arm_left_upper_flex);
       target_joint_rad.push_back(pose.arm_left_elbow);
       target_joint_rad.push_back(pose.arm_left_wrist_tilt);
       target_joint_rad.push_back(pose.arm_left_wrist_roll);
+
       // target_joint_rad.push_back(pose.hand_left_finger_l_mcp);
       // target_joint_rad.push_back(pose.hand_left_finger_l_dip);
       // target_joint_rad.push_back(pose.hand_left_finger_l_pip);
       // target_joint_rad.push_back(pose.hand_left_finger_c_mcp);
       // target_joint_rad.push_back(pose.hand_left_finger_c_ip);
-      // target_joint_rad.push_back(pose.hand_left_finger_r_dip);
       // target_joint_rad.push_back(pose.hand_left_finger_r_pip);
+      // target_joint_rad.push_back(pose.hand_left_finger_r_dip);
+
       target_joint_rad.push_back(pose.body_lift);
       target_joint_rad.push_back(pose.head_pan);
       target_joint_rad.push_back(pose.head_tilt);
@@ -771,6 +790,74 @@ void JointActionServer::get_pos_to_tf(
   return;
 }
 
+
+void JointActionServer::serve_get_finger_angle(
+  const std::shared_ptr<GetFingerAngle::Request> request,
+  std::shared_ptr<GetFingerAngle::Response> response)
+{
+  std::vector<std::string> target_joint_names;
+  std::vector<double> opened_target_joint_rad;
+  std::vector<double> closed_target_joint_rad;
+  std::vector<bool> invert_target_joint;
+  
+  double sign_multiplier = 1.0;
+
+  invert_target_joint = {true, false, false, true, true, false, false};
+
+  if (request->is_right) {
+    target_joint_names = {"hand_right_finger_l_mcp_joint","hand_right_finger_l_pip_joint", "hand_right_finger_l_dip_joint", 
+                          "hand_right_finger_c_mcp_joint", "hand_right_finger_c_ip_joint", "hand_right_finger_r_pip_joint", 
+                          "hand_right_finger_r_dip_joint"};
+    sign_multiplier = -1.0;
+  } else {
+    target_joint_names = {"hand_left_finger_l_mcp_joint","hand_left_finger_l_pip_joint", "hand_left_finger_l_dip_joint", 
+                          "hand_left_finger_c_mcp_joint", "hand_left_finger_c_ip_joint", "hand_left_finger_r_pip_joint", 
+                          "hand_left_finger_r_dip_joint"};
+  }
+
+  if (request->grasp_form == 0) {
+    opened_target_joint_rad = {-1.65, 1.571, -1.0, -1.571, 1.0, -1.571, 1.0};
+    if (request->grasp_mode == "pick") {
+      closed_target_joint_rad = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    } else if (request->grasp_mode == "grasp") {
+      closed_target_joint_rad = {-1.65, -0.1, -0.8, -0.1, 1.0, 0.1, 0.8};     
+    }
+  } else if (request->grasp_form == 1) {
+    opened_target_joint_rad = {-0.7, 1.571, -1.0, -1.571, 1.0, -1.571, 1.0};
+    if (request->grasp_mode == "pick") {
+      closed_target_joint_rad = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    } else if (request->grasp_mode == "grasp") {
+      closed_target_joint_rad = {-0.7, -0.1, -1.2, -0.3, 1.571, 0.1, 1.2};
+    }
+  }
+
+  if (sign_multiplier == -1.0) {
+    std::transform(
+        opened_target_joint_rad.begin(),
+        opened_target_joint_rad.end(),
+        invert_target_joint.begin(),
+        opened_target_joint_rad.begin(),
+        [sign_multiplier](double rad, bool invert) {
+            return invert ? rad * sign_multiplier : rad;
+        }
+    );    
+    std::transform(
+        closed_target_joint_rad.begin(),
+        closed_target_joint_rad.end(),
+        invert_target_joint.begin(),
+        closed_target_joint_rad.begin(),
+        [sign_multiplier](double rad, bool invert) {
+            return invert ? rad * sign_multiplier : rad;
+        }
+    );
+  }
+
+  response->success = true;
+  response->message = "[SUCCESS] Finger angle calculated.";
+  response->target_joint_names = target_joint_names;
+  response->opened_target_joint_rad = opened_target_joint_rad;
+  response->closed_target_joint_rad = closed_target_joint_rad;
+=======
 void JointActionServer::get_head_to_coord(
   const std::shared_ptr<GetHandToTargetCoord::Request> request,
   std::shared_ptr<GetHandToTargetCoord::Response> response)
