@@ -5,7 +5,7 @@
 #include "sobits_interfaces/action/move_to_pose.hpp"
 #include "sobits_interfaces/srv/get_hand_to_target_coord.hpp"
 #include "sobits_interfaces/srv/get_hand_to_target_tf.hpp"
-// #include "sobits_interfaces/srv/get_finger_angle.hpp"
+#include "sobits_interfaces/srv/get_finger_angle.hpp"
 
 
 #include <tf2_ros/buffer.h>
@@ -110,7 +110,7 @@ public:
 
   using GetHandToTargetCoord = sobits_interfaces::srv::GetHandToTargetCoord;
   using GetHandToTargetTF = sobits_interfaces::srv::GetHandToTargetTF;
-  // using GetFingerAngle = sobits_interfaces::srv::GetFingerAngle;
+  using GetFingerAngle = sobits_interfaces::srv::GetFingerAngle;
 
   using GoalHandleMoveJoints = rclcpp_action::ServerGoalHandle<sobits_interfaces::action::MoveJoint>;
   using GoalHandleMoveToPose = rclcpp_action::ServerGoalHandle<sobits_interfaces::action::MoveToPose>;
@@ -242,7 +242,7 @@ private:
   rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_hand_to_tf_one_right_;
   rclcpp::Service<GetHandToTargetCoord>::SharedPtr service_get_head_to_coord_;
   rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_head_to_tf_;
-//   rclcpp::Service<GetFingerAngle>::SharedPtr service_server_get_finger_angle_;
+  rclcpp::Service<GetFingerAngle>::SharedPtr service_server_get_finger_angle_;
 
   rclcpp_action::GoalResponse handle_move_joints_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const MoveJoint::Goal> goal);
   rclcpp_action::GoalResponse handle_move_to_pose_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const MoveToPose::Goal> goal);
@@ -260,7 +260,7 @@ private:
   void get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right, bool is_one_rink);
   void get_head_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response);
   void get_head_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response);
-//   void serve_get_finger_angle(const std::shared_ptr<GetFingerAngle::Request> request, std::shared_ptr<GetFingerAngle::Response> response);
+  void serve_get_finger_angle(const std::shared_ptr<GetFingerAngle::Request> request, std::shared_ptr<GetFingerAngle::Response> response);
 
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_left_arm_joint_control_;
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_right_arm_joint_control_;
