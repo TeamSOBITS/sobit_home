@@ -6,24 +6,20 @@
   <xacro:macro name="arm" params="prefix position parent" >
     <xacro:if value="${position == 'left'}">
       <xacro:property name="y_sign" value="1.0" />
-        <xacro:property name="upper_roll_limit_lower" value="${-M_PI/2}" />
-        <xacro:property name="upper_roll_limit_upper" value="${M_PI/2}" />
     </xacro:if>
     <xacro:if value="${position == 'right'}">
       <xacro:property name="y_sign" value="-1.0" />
-        <xacro:property name="upper_roll_limit_lower" value="${-M_PI/2}" />
-        <xacro:property name="upper_roll_limit_upper" value="${M_PI/2}" />
     </xacro:if>
 
     <joint name="${prefix}_${position}_base_joint" type="fixed" >
       <parent link="${parent}" />
       <child link="${prefix}_${position}_base_link" />
-      <origin xyz="0.0 ${y_sign * 0.079} 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.178 ${y_sign * 0.079} 0.0" rpy="0.0 0.0 0.0" />
     </joint>
 
     <link name="${prefix}_${position}_base_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="${M_PI/2} 0.0 ${y_sign * M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${(y_sign+1) * M_PI/2} ${-M_PI/2}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_scapula.stl" scale="0.001 0.001 0.001" />
         </geometry>
@@ -48,13 +44,13 @@
       <parent link="${prefix}_${position}_base_link" />
       <child link="${prefix}_${position}_shoulder_tilt_link" />
       <origin xyz="0.0 ${y_sign * 0.126} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 1.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="44.7" velocity="3.0" />
+      <axis xyz="0.0 ${y_sign} 0.0" />
+      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${44.7 * effort_ratio}" velocity="3.0" />
     </joint>
 
     <link name="${prefix}_${position}_shoulder_tilt_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${y_sign * M_PI/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${(y_sign+1) * M_PI/2} ${-M_PI/2}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_shoulder.stl" scale="0.001 0.001 0.001" />
         </geometry>
@@ -79,8 +75,8 @@
       <parent link="${prefix}_${position}_shoulder_tilt_link" />
       <child link="${prefix}_${position}_upper_roll_link" />
       <origin xyz="0.0 ${y_sign * 0.0725} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="1.0 0.0 0.0 " />
-      <limit lower="${upper_roll_limit_lower}" upper="${upper_roll_limit_upper}" effort="1060.0" velocity="3.14" />
+      <axis xyz="1.0 0.0 0.0" />
+      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
     <link name="${prefix}_${position}_upper_roll_link" >
@@ -109,14 +105,14 @@
     <joint name="${prefix}_${position}_upper_flex_joint" type="revolute" >
       <parent link="${prefix}_${position}_upper_roll_link" />
       <child link="${prefix}_${position}_upper_flex_link" />
-      <origin xyz="0.0 ${y_sign * 0.215813} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 1.0 0.0" />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="4.1" velocity="4.81" />
+      <origin xyz="0.0 ${y_sign * 0.2} 0.0" rpy="0.0 0.0 0.0" />
+      <axis xyz="0.0 ${y_sign} 0.0" />
+      <limit lower="${-y_sign * M_PI/2}" upper="${y_sign * M_PI/2}" effort="${4.1 * effort_ratio}" velocity="4.81" />
     </joint>
 
     <link name="${prefix}_${position}_upper_flex_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${y_sign * M_PI/2} ${-M_PI/2}" />
+        <origin xyz="0.0 ${y_sign * 0.2001} 0.0" rpy="${y_sign * M_PI/2} ${-y_sign * M_PI/2} 0.0" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_upper_flex.stl" scale="0.001 0.001 0.001" />
         </geometry>
@@ -140,9 +136,17 @@
     <joint name="${prefix}_${position}_elbow_joint" type="revolute" >
       <parent link="${prefix}_${position}_upper_flex_link" />
       <child link="${prefix}_${position}_elbow_link" />
-      <origin xyz="0.0 ${y_sign * 0.18413635} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 0.0 -1.0" />
-      <limit lower="0" upper="${M_PI/2}" effort="10.6" velocity="3.14" />
+      <origin xyz="0.0 ${y_sign * 0.19765} 0.0" rpy="0.0 0.0 0.0" />
+      <axis xyz="0.0 0.0 1.0" />
+        <xacro:if value="${y_sign == -1.0}">
+          <xacro:property name="elbow_lower_limit" value="0.0" />
+          <xacro:property name="elbow_upper_limit" value="${140*M_PI/180}" />
+        </xacro:if>
+        <xacro:if value="${y_sign == 1.0}">
+          <xacro:property name="elbow_lower_limit" value="${-140*M_PI/180}" />
+          <xacro:property name="elbow_upper_limit" value="0.0" />
+        </xacro:if>
+        <limit lower="${elbow_lower_limit}" upper="${elbow_upper_limit}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
     <link name="${prefix}_${position}_elbow_link" >
@@ -172,8 +176,8 @@
       <parent link="${prefix}_${position}_elbow_link" />
       <child link="${prefix}_${position}_wrist_tilt_link" />
       <origin xyz="0.0 ${y_sign * 0.5} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 0.0 -1.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="4.1" velocity="4.81" />
+      <axis xyz="0.0 0.0 1.0" />
+      <limit lower="${-y_sign * M_PI/2}" upper="${y_sign * M_PI/2}" effort="${4.1 * effort_ratio}" velocity="4.81" />
     </joint>
 
     <link name="${prefix}_${position}_wrist_tilt_link" >
@@ -203,8 +207,8 @@
       <parent link="${prefix}_${position}_wrist_tilt_link" />
       <child link="${prefix}_${position}_wrist_roll_link" />
       <origin xyz="0.0 ${y_sign * 0.06648202} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 1.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6*2}" velocity="11.031179004" />
+      <axis xyz="0.0 ${y_sign} 0.0" />
+      <limit lower="${-y_sign * M_PI/2}" upper="${y_sign * M_PI/2}" effort="${10.6 * effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix}_${position}_wrist_roll_link" >
