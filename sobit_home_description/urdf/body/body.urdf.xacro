@@ -5,14 +5,14 @@
   <xacro:macro name="body" params="prefix parent" >
   
     <joint name="${prefix}_joint" type="fixed" >
-      <origin xyz="0.0 0.0 0.565" rpy="0.0 0.0 0.0" />
+      <origin xyz="-0.1702 0.0 0.54303" rpy="0.0 0.0 0.0" />
       <parent link="${parent}" />
       <child link="${prefix}_link" />
     </joint>
 
     <link name="${prefix}_link" >
       <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${M_PI/2}" />
+        <origin xyz="0.0152 0.0 -0.53303" rpy="0.0 0.0 ${M_PI/2}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/body/body.stl" scale="0.001 0.001 0.001" />
         </geometry>
@@ -21,7 +21,7 @@
       <collision>
         <origin xyz="0.0 0.00425 -0.018" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.0675 0.085 1.07"/>
+          <box size="0.13 0.13 1.05"/>
         </geometry>
       </collision>
       <inertial>
@@ -34,11 +34,11 @@
     </link>
 
     <joint name="${prefix}_lift_joint" type="prismatic" >
-      <origin xyz="0.11275 0.0 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 0.0 -0.22613" rpy="0.0 0.0 0.0" />
       <parent link="${prefix}_link" />
       <child link="${prefix}_lift_link" />
       <axis xyz="0.0 0.0 1.0" />
-      <limit lower="-0.4" upper="0.4" effort="150000.0" velocity="0.85" />
+      <limit lower="0" upper="0.69" effort="${150.0 * effort_ratio}" velocity="0.85" />
     </joint>
 
     <link name="${prefix}_lift_link" >
@@ -50,7 +50,7 @@
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.178 0.0 0.0" rpy="0.0 0.0 0.0" />
         <geometry>
           <box size="0.15 0.35 0.15"/>
         </geometry>
