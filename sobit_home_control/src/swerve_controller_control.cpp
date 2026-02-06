@@ -112,7 +112,7 @@ void SobitHomeControl::twist_callback(const geometry_msgs::msg::Twist::SharedPtr
   for (int i=0; i<4; i++) {
     // Steering movable in [-π, π]
     if ((fabsf(goal_steer_pos[i] - M_PI*goal_steer_pos[i]/fabsf(goal_steer_pos[i]) - current_steer_pos[i]) < fabsf(goal_steer_pos[i] - current_steer_pos[i])) && 
-        (fabsf(goal_steer_pos[i] - M_PI*goal_steer_pos[i]/fabsf(goal_steer_pos[i]) - current_steer_pos[i]) < 2.*M_PI)) {
+        (fabsf(goal_steer_pos[i] - M_PI*goal_steer_pos[i]/fabsf(goal_steer_pos[i]) - current_steer_pos[i]) < M_PI)) {
       goal_steer_pos[i] -= M_PI*goal_steer_pos[i]/fabsf(goal_steer_pos[i]);
       goal_drive_vel[i] *= -1;
     }
