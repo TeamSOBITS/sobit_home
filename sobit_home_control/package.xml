@@ -9,6 +9,16 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>trajectory_msgs</depend>
+  <depend>rclcpp_action</depend>
   <depend>controller_manager</depend>
   <depend>ros2_control</depend>
   <depend>ros2_controllers</depend>
@@ -17,7 +27,6 @@
   <depend>joint_trajectory_controller</depend>
   <depend>velocity_controllers</depend>
   <depend>position_controllers</depend>
-  <depend>diff_drive_controller</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
