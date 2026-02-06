@@ -260,15 +260,15 @@ def launch_gz(context, *args, **kwargs):
         swerve_controller = IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 PathJoinSubstitution([
-                    FindPackageShare('swerve_steering_controller'),
+                    FindPackageShare('sobit_home_control'),
                     'launch',
                     'swerve_controller.launch.py'
                 ])
             ]),
             launch_arguments={
-                'robot_name' : robot_name,
-                'enable_gz' : enable_gz,
-                'config' : swerve_config,
+                'namespace' : robot_name,
+                'use_sim_time' : enable_gz,
+                'config_file' : swerve_config,
             }.items()
         )
         controllers.append(wheel_steer_position_controller)
