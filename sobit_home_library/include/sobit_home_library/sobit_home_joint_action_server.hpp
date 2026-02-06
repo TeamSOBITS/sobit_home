@@ -73,13 +73,13 @@ enum JointIds
   Arm_R_Wrist_Tilt_Joint,
   Arm_R_Wrist_Roll_Joint,
 
-  // Hand_R_Finger_L_Mcp_Joint,
-  // Hand_R_Finger_L_Dip_Joint,
-  // Hand_R_Finger_L_Pip_Joint,
-  // Hand_R_Finger_C_Mcp_Joint,
-  // Hand_R_Finger_C_Ip_Joint,
-  // Hand_Right_Finger_R_Pip_Joint,
-  // Hand_right_finger_R_Dip_joint,
+  Hand_R_Finger_L_Mcp_Joint,
+  Hand_R_Finger_L_Dip_Joint,
+  Hand_R_Finger_L_Pip_Joint,
+  Hand_R_Finger_C_Mcp_Joint,
+  Hand_R_Finger_C_Ip_Joint,
+  Hand_Right_Finger_R_Pip_Joint,
+  Hand_right_finger_R_Dip_joint,
 
   Arm_L_Shoulder_Tilt_Joint,
   Arm_L_Upper_Roll_Joint,
@@ -88,13 +88,13 @@ enum JointIds
   Arm_L_Wrist_Tilt_Joint,
   Arm_L_Wrist_Roll_Joint,
 
-  // Hand_L_Finger_L_Mcp_Joint,
-  // Hand_L_Finger_L_Dip_Joint,
-  // Hand_L_Finger_L_Pip_Joint,
-  // Hand_L_Finger_C_Mcp_Joint,
-  // Hand_L_Finger_C_Ip_Joint,
-  // Hand_L_Finger_R_Pip_Joint,
-  // Hand_L_Finger_R_Dip_Joint,
+  Hand_L_Finger_L_Mcp_Joint,
+  Hand_L_Finger_L_Dip_Joint,
+  Hand_L_Finger_L_Pip_Joint,
+  Hand_L_Finger_C_Mcp_Joint,
+  Hand_L_Finger_C_Ip_Joint,
+  Hand_L_Finger_R_Pip_Joint,
+  Hand_L_Finger_R_Dip_Joint,
 
   Body_Lift_Joint,
   Head_Pan_Joint,
@@ -131,10 +131,11 @@ public:
     const geometry_msgs::msg::TransformStamped &goal_coord,
     const bool is_right, bool is_one_rink,
     const double target_yaw);  // target_yaw should be eliminated in the future.
-  std::vector<trajectory_msgs::msg::JointTrajectory> set_joints(
+  trajectory_msgs::msg::JointTrajectory set_joints(
     const std::vector<std::string> &target_joint_names,
     const std::vector<double> &target_joint_rad,
-    const builtin_interfaces::msg::Duration &time_allowance);
+    const builtin_interfaces::msg::Duration &time_allowance,
+    const std::string &group_name);
 
 private:
   const std::vector<std::string> JointNames = {

@@ -296,16 +296,32 @@ void JointActionServer::exe_move_joints(
   // TODO: Check if the joint rad are within the joint limits
 
   // Publish the joint trajectory
-  std::vector<trajectory_msgs::msg::JointTrajectory> joint_trajectory;
-  joint_trajectory = set_joints(goal->target_joint_names, goal->target_joint_rad, goal->time_allowance);
+  trajectory_msgs::msg::JointTrajectory arm_left_joint_trajectory;
+  trajectory_msgs::msg::JointTrajectory hand_left_joint_trajectory;
+  trajectory_msgs::msg::JointTrajectory arm_right_joint_trajectory;
+  trajectory_msgs::msg::JointTrajectory hand_right_joint_trajectory;
+  trajectory_msgs::msg::JointTrajectory body_joint_trajectory;
+  trajectory_msgs::msg::JointTrajectory head_joint_trajectory;
 
+  arm_left_joint_trajectory = set_joints(goal->target_joint_names, goal->target_joint_rad, goal->time_allowance, "arm_left");
+  arm_right_joint_trajectory = set_joints(goal->target_joint_names, goal->target_joint_rad, goal->time_allowance, "arm_right");
+  hand_left_joint_trajectory = set_joints(goal->target_joint_names, goal->target_joint_rad, goal->time_allowance, "hand_left");
+  hand_right_joint_trajectory = set_joints(goal->target_joint_names, goal->target_joint_rad, goal->time_allowance, "hand_right");
+  body_joint_trajectory = set_joints(goal->target_joint_names, goal->target_joint_rad, goal->time_allowance, "body");
+  head_joint_trajectory = set_joints(goal->target_joint_names, goal->target_joint_rad, goal->time_allowance, "head");
   try {
-    this->pub_left_arm_joint_control_->publish(joint_trajectory[0]);
-    this->pub_left_hand_joint_control_->publish(joint_trajectory[1]);
-    this->pub_right_arm_joint_control_->publish(joint_trajectory[2]);
-    this->pub_right_hand_joint_control_->publish(joint_trajectory[3]);
-    this->pub_body_joint_control_->publish(joint_trajectory[4]);
-    this->pub_head_joint_control_->publish(joint_trajectory[5]);
+    if (!arm_left_joint_trajectory.joint_names.empty())
+      this->pub_left_arm_joint_control_->publish(arm_left_joint_trajectory);
+    if (!arm_right_joint_trajectory.joint_names.empty())
+      this->pub_right_arm_joint_control_->publish(arm_right_joint_trajectory);
+    if (!hand_left_joint_trajectory.joint_names.empty())
+      this->pub_left_hand_joint_control_->publish(hand_left_joint_trajectory);
+    if (!hand_right_joint_trajectory.joint_names.empty())
+      this->pub_right_hand_joint_control_->publish(hand_right_joint_trajectory);
+    if (!body_joint_trajectory.joint_names.empty())
+      this->pub_body_joint_control_->publish(body_joint_trajectory);
+    if (!head_joint_trajectory.joint_names.empty())
+      this->pub_head_joint_control_->publish(head_joint_trajectory);
   } catch (const std::exception &ex) {
     RCLCPP_ERROR(this->get_logger(), "Failed to publish the joint trajectory: %s", ex.what());
 
@@ -331,17 +347,17 @@ void JointActionServer::exe_move_joints(
       result->total_elapsed_time.sec = (this->now() - start_time).seconds();
       result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
       goal_handle->canceled(result);
-
+      
       builtin_interfaces::msg::Duration dt;
       dt.sec = 0;
       dt.nanosec = static_cast<uint32_t>(0.1 * 10E9);
-      std::vector<trajectory_msgs::msg::JointTrajectory> stop_joints = set_joints({}, {}, dt);
-      this->pub_left_arm_joint_control_->publish(stop_joints[0]);
-      this->pub_left_hand_joint_control_->publish(stop_joints[1]);
-      this->pub_right_arm_joint_control_->publish(stop_joints[2]);
-      this->pub_right_hand_joint_control_->publish(stop_joints[3]);
-      this->pub_body_joint_control_->publish(stop_joints[4]);
-      this->pub_head_joint_control_->publish(stop_joints[5]);
+      trajectory_msgs::msg::JointTrajectory stop_joints = set_joints({}, {}, dt, "");
+      this->pub_left_arm_joint_control_->publish(stop_joints);
+      this->pub_left_hand_joint_control_->publish(stop_joints);
+      this->pub_right_arm_joint_control_->publish(stop_joints);
+      this->pub_right_hand_joint_control_->publish(stop_joints);
+      this->pub_body_joint_control_->publish(stop_joints);
+      this->pub_head_joint_control_->publish(stop_joints);
       return;
     }
 
@@ -408,42 +424,42 @@ void JointActionServer::exe_move_to_pose(
   }
 
   // Get the target joint rad from the pose name
-  std::vector<double> target_joint_rad;
+  std::vector<double> target_joint_rad(JointIds::JointNum);
   for (const auto &pose : poses_) {
     if (pose.pose_name == goal->pose_name) {
-      target_joint_rad.push_back(pose.arm_right_shoulder_tilt);
-      target_joint_rad.push_back(pose.arm_right_upper_roll);
-      target_joint_rad.push_back(pose.arm_right_upper_flex);
-      target_joint_rad.push_back(pose.arm_right_elbow);
-      target_joint_rad.push_back(pose.arm_right_wrist_tilt);
-      target_joint_rad.push_back(pose.arm_right_wrist_roll);
+      target_joint_rad[JointIds::Arm_R_Shoulder_Tilt_Joint] = pose.arm_right_shoulder_tilt;
+      target_joint_rad[JointIds::Arm_R_Upper_Roll_Joint] = pose.arm_right_upper_roll;
+      target_joint_rad[JointIds::Arm_R_Upper_Flex_Joint] = pose.arm_right_upper_flex;
+      target_joint_rad[JointIds::Arm_R_Elbow_Joint] = pose.arm_right_elbow;
+      target_joint_rad[JointIds::Arm_R_Wrist_Tilt_Joint] = pose.arm_right_wrist_tilt;
+      target_joint_rad[JointIds::Arm_R_Wrist_Roll_Joint] = pose.arm_right_wrist_roll;
 
-      // target_joint_rad.push_back(pose.hand_right_finger_l_mcp);
-      // target_joint_rad.push_back(pose.hand_right_finger_l_dip);
-      // target_joint_rad.push_back(pose.hand_right_finger_l_pip);
-      // target_joint_rad.push_back(pose.hand_right_finger_c_mcp);
-      // target_joint_rad.push_back(pose.hand_right_finger_c_ip);
-      // target_joint_rad.push_back(pose.hand_right_finger_r_pip);
-      // target_joint_rad.push_back(pose.hand_right_finger_r_dip);
+      // target_joint_rad[JointIds::Hand_R_Finger_L_MCP] = pose.hand_right_finger_l_mcp;
+      // target_joint_rad[JointIds::Hand_R_Finger_L_DIP] = pose.hand_right_finger_l_dip;
+      // target_joint_rad[JointIds::Hand_R_Finger_L_PIP] = pose.hand_right_finger_l_pip;
+      // target_joint_rad[JointIds::Hand_R_Finger_C_MCP] = pose.hand_right_finger_c_mcp;
+      // target_joint_rad[JointIds::Hand_R_Finger_C_IP] = pose.hand_right_finger_c_ip;
+      // target_joint_rad[JointIds::Hand_R_Finger_R_PIP] = pose.hand_right_finger_r_pip;
+      // target_joint_rad[JointIds::Hand_R_Finger_R_DIP] = pose.hand_right_finger_r_dip;
 
-      target_joint_rad.push_back(pose.arm_left_shoulder_tilt);
-      target_joint_rad.push_back(pose.arm_left_upper_roll);
-      target_joint_rad.push_back(pose.arm_left_upper_flex);
-      target_joint_rad.push_back(pose.arm_left_elbow);
-      target_joint_rad.push_back(pose.arm_left_wrist_tilt);
-      target_joint_rad.push_back(pose.arm_left_wrist_roll);
+      target_joint_rad[JointIds::Arm_L_Shoulder_Tilt_Joint] = pose.arm_left_shoulder_tilt;
+      target_joint_rad[JointIds::Arm_L_Upper_Roll_Joint] = pose.arm_left_upper_roll;
+      target_joint_rad[JointIds::Arm_L_Upper_Flex_Joint] = pose.arm_left_upper_flex;
+      target_joint_rad[JointIds::Arm_L_Elbow_Joint] = pose.arm_left_elbow;
+      target_joint_rad[JointIds::Arm_L_Wrist_Tilt_Joint] = pose.arm_left_wrist_tilt;
+      target_joint_rad[JointIds::Arm_L_Wrist_Roll_Joint] = pose.arm_left_wrist_roll;
 
-      // target_joint_rad.push_back(pose.hand_left_finger_l_mcp);
-      // target_joint_rad.push_back(pose.hand_left_finger_l_dip);
-      // target_joint_rad.push_back(pose.hand_left_finger_l_pip);
-      // target_joint_rad.push_back(pose.hand_left_finger_c_mcp);
-      // target_joint_rad.push_back(pose.hand_left_finger_c_ip);
-      // target_joint_rad.push_back(pose.hand_left_finger_r_pip);
-      // target_joint_rad.push_back(pose.hand_left_finger_r_dip);
+      // target_joint_rad[JointIds::Hand_L_Finger_L_MCP] = pose.hand_left_finger_l_mcp;
+      // target_joint_rad[JointIds::Hand_L_Finger_L_DIP] = pose.hand_left_finger_l_dip;
+      // target_joint_rad[JointIds::Hand_L_Finger_L_PIP] = pose.hand_left_finger_l_pip;
+      // target_joint_rad[JointIds::Hand_L_Finger_C_MCP] = pose.hand_left_finger_c_mcp;
+      // target_joint_rad[Jooints::Hand_L_Finger_C_IP] = pose.hand_left_finger_c_ip;
+      // target_joint_rad[JointIds::Hand_L_Finger_R_DIP] = pose.hand_left_finger_r_pip;
+      // target_joint_rad[JointIds::Hand_L_Finger_R_PIP] = pose.hand_left_finger_r_dip;
 
-      target_joint_rad.push_back(pose.body_lift);
-      target_joint_rad.push_back(pose.head_pan);
-      target_joint_rad.push_back(pose.head_tilt);
+      target_joint_rad[JointIds::Body_Lift_Joint] = pose.body_lift;
+      target_joint_rad[JointIds::Head_Pan_Joint] = pose.head_pan;
+      target_joint_rad[JointIds::Head_Tilt_Joint] = pose.head_tilt;
       break;
     }
   }
@@ -467,17 +483,33 @@ void JointActionServer::exe_move_to_pose(
     }
   }
   
-  // Publish the joint trajectory
-  std::vector<trajectory_msgs::msg::JointTrajectory> joint_trajectory;
-  joint_trajectory = set_joints(joints_without_hands, target_joint_rad, goal->time_allowance);
 
+  // Publish the joint trajectory
+  trajectory_msgs::msg::JointTrajectory arm_left_joint_trajectory;
+  // trajectory_msgs::msg::JointTrajectory hand_left_joint_trajectory;
+  trajectory_msgs::msg::JointTrajectory arm_right_joint_trajectory;
+  // trajectory_msgs::msg::JointTrajectory hand_right_joint_trajectory;
+  trajectory_msgs::msg::JointTrajectory body_joint_trajectory;
+  trajectory_msgs::msg::JointTrajectory head_joint_trajectory;
+  arm_left_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "arm_left");
+  arm_right_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "arm_right");
+  // hand_left_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "hand_left");
+  // hand_right_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "hand_right");
+  body_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "body");
+  head_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "head");
   try {
-    this->pub_left_arm_joint_control_->publish(joint_trajectory[0]);
-    this->pub_left_hand_joint_control_->publish(joint_trajectory[1]);
-    this->pub_right_arm_joint_control_->publish(joint_trajectory[2]);
-    this->pub_right_hand_joint_control_->publish(joint_trajectory[3]);
-    this->pub_body_joint_control_->publish(joint_trajectory[4]);
-    this->pub_head_joint_control_->publish(joint_trajectory[5]);
+    if (!arm_left_joint_trajectory.joint_names.empty())
+      this->pub_left_arm_joint_control_->publish(arm_left_joint_trajectory);
+    if (!arm_right_joint_trajectory.joint_names.empty())
+      this->pub_right_arm_joint_control_->publish(arm_right_joint_trajectory);
+    // if (!hand_left_joint_trajectory.joint_names.empty())
+    //   this->pub_left_hand_joint_control_->publish(hand_left_joint_trajectory);
+    // if (!hand_right_joint_trajectory.joint_names.empty())
+    //   this->pub_right_hand_joint_control_->publish(hand_right_joint_trajectory);
+    if (!body_joint_trajectory.joint_names.empty())
+      this->pub_body_joint_control_->publish(body_joint_trajectory);
+    if (!head_joint_trajectory.joint_names.empty())
+      this->pub_head_joint_control_->publish(head_joint_trajectory);
     } catch (const std::exception &ex) {
     RCLCPP_ERROR(this->get_logger(), "Failed to publish the joint trajectory: %s", ex.what());
 
@@ -507,13 +539,13 @@ void JointActionServer::exe_move_to_pose(
       builtin_interfaces::msg::Duration dt;
       dt.sec = 0;
       dt.nanosec = static_cast<uint32_t>(0.1 * 10E9);
-      std::vector<trajectory_msgs::msg::JointTrajectory> stop_joints = set_joints({}, {}, dt);
-      this->pub_left_arm_joint_control_->publish(stop_joints[0]);
-      this->pub_left_hand_joint_control_->publish(stop_joints[1]);
-      this->pub_right_arm_joint_control_->publish(stop_joints[2]);
-      this->pub_right_hand_joint_control_->publish(stop_joints[3]);
-      this->pub_body_joint_control_->publish(stop_joints[4]);
-      this->pub_head_joint_control_->publish(stop_joints[5]);
+      trajectory_msgs::msg::JointTrajectory stop_joints = set_joints({}, {}, dt, "");
+      this->pub_left_arm_joint_control_->publish(stop_joints);
+      this->pub_left_hand_joint_control_->publish(stop_joints);
+      this->pub_right_arm_joint_control_->publish(stop_joints);
+      this->pub_right_hand_joint_control_->publish(stop_joints);
+      this->pub_body_joint_control_->publish(stop_joints);
+      this->pub_head_joint_control_->publish(stop_joints);
       return;
     }
 
@@ -1060,10 +1092,62 @@ void JointActionServer::joint_state_callback(
   }
 }
 
-std::vector<trajectory_msgs::msg::JointTrajectory> JointActionServer::set_joints(
-  const std::vector<std::string> &target_joint_names,
-  const std::vector<double> &target_joint_rad,
-  const builtin_interfaces::msg::Duration &time_allowance)
+trajectory_msgs::msg::JointTrajectory JointActionServer::set_joints(
+  const std::vector<std::string> &target_joint_names,//JointName
+  const std::vector<double> &target_joint_rad,       //target_joint_rad
+  const builtin_interfaces::msg::Duration &time_allowance,
+  const std::string &group_name)
+{
+  trajectory_msgs::msg::JointTrajectory joint_trajectory;
+  trajectory_msgs::msg::JointTrajectoryPoint point;
+
+  for (size_t i = 0; i < target_joint_names.size(); i++) {
+    // Check if the joint belongs to the specified group
+    if (group_name == "arm_right" &&
+        std::find(JointNamesArmRight.begin(), JointNamesArmRight.end(), target_joint_names[i]) == JointNamesArmRight.end()) {
+      continue;
+    }
+    else if (group_name == "arm_left" &&
+        std::find(JointNamesArmLeft.begin(), JointNamesArmLeft.end(), target_joint_names[i]) == JointNamesArmLeft.end()) {
+      continue; 
+    }
+    else if (group_name == "hand_right" &&
+        std::find(JointNamesHandRight.begin(), JointNamesHandRight.end(), target_joint_names[i]) == JointNamesHandRight.end()) {
+      continue;
+    }
+    else if (group_name == "hand_left" &&
+        std::find(JointNamesHandLeft.begin(), JointNamesHandLeft.end(), target_joint_names[i]) == JointNamesHandLeft.end()) {
+      continue;
+    }
+    else if (group_name == "head" &&
+        std::find(JointNamesHead.begin(), JointNamesHead.end(), target_joint_names[i]) == JointNamesHead.end()) {
+      continue;
+    }
+    else if (group_name == "body" &&
+        std::find(JointNamesBody.begin(), JointNamesBody.end(), target_joint_names[i]) == JointNamesBody.end()) {
+      continue;
+    }
+    else{
+
+    }
+
+    joint_trajectory.joint_names.push_back(target_joint_names[i]);
+    point.positions.push_back(target_joint_rad[i]);
+
+    // Subjoint to turn opposite direction
+    // if (target_joint_names[i] == "arm_shoulder_pitch_joint") {
+    //   joint_trajectory.joint_names.push_back("arm_shoulder_pitch_sub_joint");
+    //   point.positions.push_back(-target_joint_rad[i]);
+    //   continue;
+    // } 
+  }
+
+  joint_trajectory.points.push_back(point);
+  joint_trajectory.points[0].time_from_start = time_allowance;
+
+  return joint_trajectory;
+}
+/*
 {
   // Get current joint state from kCurrentJointState
   std::vector<double> full_target_joint_rad;
@@ -1156,6 +1240,7 @@ std::vector<trajectory_msgs::msg::JointTrajectory> JointActionServer::set_joints
 
   return {joint_trajectory_arm_left, joint_trajectory_hand_left, joint_trajectory_arm_right, joint_trajectory_hand_right, joint_trajectory_body, joint_trajectory_head};
 }
+*/
 
 // ここは，もしも今後逆運動学が3次元に発展したときに，それに対応させるために3次元での順運動学を算出
 geometry_msgs::msg::TransformStamped JointActionServer::forward_kinematics(
