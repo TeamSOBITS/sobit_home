@@ -348,16 +348,6 @@ void JointActionServer::exe_move_joints(
       result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
       goal_handle->canceled(result);
       
-      builtin_interfaces::msg::Duration dt;
-      dt.sec = 0;
-      dt.nanosec = static_cast<uint32_t>(0.1 * 10E9);
-      trajectory_msgs::msg::JointTrajectory stop_joints = set_joints({}, {}, dt, "");
-      this->pub_left_arm_joint_control_->publish(stop_joints);
-      this->pub_left_hand_joint_control_->publish(stop_joints);
-      this->pub_right_arm_joint_control_->publish(stop_joints);
-      this->pub_right_hand_joint_control_->publish(stop_joints);
-      this->pub_body_joint_control_->publish(stop_joints);
-      this->pub_head_joint_control_->publish(stop_joints);
       return;
     }
 
@@ -536,16 +526,6 @@ void JointActionServer::exe_move_to_pose(
       result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
       goal_handle->canceled(result);
 
-      builtin_interfaces::msg::Duration dt;
-      dt.sec = 0;
-      dt.nanosec = static_cast<uint32_t>(0.1 * 10E9);
-      trajectory_msgs::msg::JointTrajectory stop_joints = set_joints({}, {}, dt, "");
-      this->pub_left_arm_joint_control_->publish(stop_joints);
-      this->pub_left_hand_joint_control_->publish(stop_joints);
-      this->pub_right_arm_joint_control_->publish(stop_joints);
-      this->pub_right_hand_joint_control_->publish(stop_joints);
-      this->pub_body_joint_control_->publish(stop_joints);
-      this->pub_head_joint_control_->publish(stop_joints);
       return;
     }
 
@@ -1126,9 +1106,6 @@ trajectory_msgs::msg::JointTrajectory JointActionServer::set_joints(
     else if (group_name == "body" &&
         std::find(JointNamesBody.begin(), JointNamesBody.end(), target_joint_names[i]) == JointNamesBody.end()) {
       continue;
-    }
-    else{
-
     }
 
     joint_trajectory.joint_names.push_back(target_joint_names[i]);
