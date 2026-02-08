@@ -1,5 +1,7 @@
 #include <map>
 #include <cmath>
+#include <future>
+#include <urdf/model.h>
 
 #include "sobits_interfaces/action/move_joint.hpp"
 #include "sobits_interfaces/action/move_to_pose.hpp"
@@ -144,26 +146,26 @@ private:
     "arm_right_elbow_joint",
     "arm_right_wrist_tilt_joint",
     "arm_right_wrist_roll_joint",
-    "hand_right_finger_l_mcp_joint",
-    "hand_right_finger_l_pip_joint",
-    "hand_right_finger_l_dip_joint",
-    "hand_right_finger_c_mcp_joint",
-    "hand_right_finger_c_ip_joint",
-    "hand_right_finger_r_pip_joint",
-    "hand_right_finger_r_dip_joint",
+    // "hand_right_finger_l_mcp_joint",
+    // "hand_right_finger_l_pip_joint",
+    // "hand_right_finger_l_dip_joint",
+    // "hand_right_finger_c_mcp_joint",
+    // "hand_right_finger_c_ip_joint",
+    // "hand_right_finger_r_pip_joint",
+    // "hand_right_finger_r_dip_joint",
     "arm_left_shoulder_tilt_joint",
     "arm_left_upper_roll_joint",
     "arm_left_upper_flex_joint",
     "arm_left_elbow_joint",
     "arm_left_wrist_tilt_joint",
     "arm_left_wrist_roll_joint",
-    "hand_left_finger_l_mcp_joint",
-    "hand_left_finger_l_pip_joint",
-    "hand_left_finger_l_dip_joint",
-    "hand_left_finger_c_mcp_joint",
-    "hand_left_finger_c_ip_joint",
-    "hand_left_finger_r_pip_joint",
-    "hand_left_finger_r_dip_joint",
+    // "hand_left_finger_l_mcp_joint",
+    // "hand_left_finger_l_pip_joint",
+    // "hand_left_finger_l_dip_joint",
+    // "hand_left_finger_c_mcp_joint",
+    // "hand_left_finger_c_ip_joint",
+    // "hand_left_finger_r_pip_joint",
+    // "hand_left_finger_r_dip_joint",
     "body_lift_joint",
     "head_pan_joint",
     "head_tilt_joint"
@@ -215,7 +217,7 @@ private:
   const std::vector<std::string> JointNamesBody = {
     "body_lift_joint"
   };
-
+  
   static constexpr double BaseToShoulderDX    = 0.11275;
   static constexpr double BaseToShoulderDY    = 0.2775;  
   static constexpr double BaseToShoulderDZ    = 0.936058; 
@@ -273,6 +275,19 @@ private:
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+
+  std::string robot_description_source_node_;
+  std::shared_ptr<rclcpp::AsyncParametersClient> async_param_client_;
+  std::shared_future<std::vector<rclcpp::Parameter>> robot_desc_future_;
+  rclcpp::TimerBase::SharedPtr urdf_timer_;
+  bool urdf_loaded_{false};
+  bool robot_desc_requested_{false};
+  bool parse_urdf_limits(const std::string & urdf_xml);
+
+  struct Limit { double lower, upper, velocity, effort; bool has; };
+  std::unordered_map<std::string, Limit> joint_limits_;
+
+  void load_joint_limits();
 
   void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg);
 }; // class JointActionServer
