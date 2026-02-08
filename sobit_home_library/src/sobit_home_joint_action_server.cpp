@@ -314,7 +314,6 @@ bool JointActionServer::parse_urdf_limits(const std::string & urdf_xml)
     lim.has = false;
 
     if (joint->limits) {
-
       lim.lower = joint->limits->lower;
       lim.upper = joint->limits->upper;
       lim.velocity = joint->limits->velocity;
@@ -322,10 +321,6 @@ bool JointActionServer::parse_urdf_limits(const std::string & urdf_xml)
       lim.has = true;
 
       joint_limits_[joint->name] = lim;
-
-      RCLCPP_INFO(this->get_logger(),
-        "Joint %s limit: [%.3f, %.3f]",
-        joint->name.c_str(), joint_limits_[joint->name].lower, joint_limits_[joint->name].upper);
     }
   }
 
