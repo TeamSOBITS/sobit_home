@@ -107,7 +107,7 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
   this->pub_head_joint_control_ = this->create_publisher<trajectory_msgs::msg::JointTrajectory>(
       "head_position_controller/joint_trajectory", qos_profile);
 
-  this->async_param_client_ = std::make_shared<rclcpp::AsyncParametersClient>(this, "/sobit_home/robot_state_publisher");
+  this->async_param_client_ = std::make_shared<rclcpp::AsyncParametersClient>(this, "robot_state_publisher");
   
   this->urdf_timer_ = this->create_wall_timer(
     std::chrono::milliseconds(200),
