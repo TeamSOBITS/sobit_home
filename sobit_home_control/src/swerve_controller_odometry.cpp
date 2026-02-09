@@ -2,9 +2,9 @@
 #include "sobit_home_control/swerve_controller_odometry.hpp"
 
 // Calculate Odometry
-void SobitHomeOdometry::update_odom(nav_msgs::msg::Odometry &odom)
+void SobitHomeOdometry::update_odom()
 {
-  nav_msgs::msg::Odometry result_odom = odom;
+  nav_msgs::msg::Odometry result_odom = odom_;
 
   // get the movement of each wheel[m]
   std::vector<double> distance_m(4);
@@ -117,26 +117,29 @@ void SobitHomeOdometry::update_odom(nav_msgs::msg::Odometry &odom)
   result_odom.twist.twist.linear.y  = diff_y   * CYCLE_FEQUENCY;
   result_odom.twist.twist.angular.z = diff_yaw * CYCLE_FEQUENCY;
 
-  odom = result_odom;
+  result_odom.header.stamp = node_->get_clock()->now();
+
+  odom_ = result_odom;
 }
 
 // Distance calculation
 double SobitHomeOdometry::distance_calculation(double wheel_delta_pos) {
+  if (M_PI < fabsf(wheel_delta_pos)) wheel_delta_pos -= 2 * M_PI * wheel_delta_pos / fabsf(wheel_delta_pos);
   return WHEEL_RADIUS * wheel_delta_pos;
 }
 
 // Pose broadcaster (Generate a pose from Odometry)
-void SobitHomeOdometry::pose_broadcaster(const nav_msgs::msg::Odometry &tf_odom) {
+void SobitHomeOdometry::pose_broadcaster() {
   geometry_msgs::msg::TransformStamped transformStamped;
 
-  transformStamped.header          = tf_odom.header;
-  transformStamped.child_frame_id  = tf_odom.child_frame_id;
+  transformStamped.header          = odom_.header;
+  transformStamped.child_frame_id  = odom_.child_frame_id;
 
-  transformStamped.transform.translation.x = tf_odom.pose.pose.position.x;
-  transformStamped.transform.translation.y = tf_odom.pose.pose.position.y;
-  transformStamped.transform.translation.z = tf_odom.pose.pose.position.z;
+  transformStamped.transform.translation.x = odom_.pose.pose.position.x;
+  transformStamped.transform.translation.y = odom_.pose.pose.position.y;
+  transformStamped.transform.translation.z = odom_.pose.pose.position.z;
 
-  transformStamped.transform.rotation      = tf_odom.pose.pose.orientation;
+  transformStamped.transform.rotation      = odom_.pose.pose.orientation;
 
   tf_broadcaster_->sendTransform(transformStamped);
 }

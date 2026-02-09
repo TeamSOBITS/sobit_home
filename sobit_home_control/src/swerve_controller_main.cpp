@@ -63,7 +63,7 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options = rclcpp:
   while (joints_pos.empty()) rclcpp::spin_some(this->get_node_base_interface());
 
   for (size_t i=0; i < drive_joints_names.size(); i++) {
-    sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = sobit_home_control_->goal_steer_pos[i] = 0.0;
+    sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = sobit_home_control_->goal_steer_pos[i] = joints_pos[steering_joints_names[i]];
     sobit_home_control_->goal_drive_vel[i] = 0.0;
     sobit_home_odometry_->prev_drive_pos[i] = sobit_home_odometry_->current_drive_pos[i] = joints_pos[drive_joints_names[i]];
   }
@@ -74,16 +74,16 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options = rclcpp:
       std::bind(&SwerveController::control_callback, this));
 
   // Get the robot namespace
-  robot_name = (std::strcmp(this->get_namespace(), "/") != 0)
-              ? std::string(this->get_namespace()).substr(1) + "/"
-              : "";
+  std::string robot_name = (std::strcmp(this->get_namespace(), "/") != 0)
+                          ? std::string(this->get_namespace()).substr(1) + "/"
+                          : "";
 
-  base_frame_name_ = this->get_parameter("robot_base_frame").as_string();
+  std::string base_frame_name_ = this->get_parameter("robot_base_frame").as_string();
   
   // Initilize Odometry
-  odom_.header.stamp    = this->get_clock()->now();
-  odom_.header.frame_id = robot_name + "odom";
-  odom_.child_frame_id  = robot_name + base_frame_name_;
+  sobit_home_odometry_->odom_.header.stamp    = this->get_clock()->now();
+  sobit_home_odometry_->odom_.header.frame_id = robot_name + "odom";
+  sobit_home_odometry_->odom_.child_frame_id  = robot_name + this->get_parameter("robot_base_frame").as_string();
 
   // Start up sound
   play_sound(true);
@@ -156,12 +156,11 @@ void SwerveController::control_callback()
   }
 
   // Calculate Odometry
-  sobit_home_odometry_->update_odom(odom_);
+  sobit_home_odometry_->update_odom();
 
   // Publish Odometry
-  odom_.header.stamp = this->get_clock()->now();
-  sobit_home_odometry_->pose_broadcaster(odom_);
-  pub_odometry_->publish(odom_);
+  sobit_home_odometry_->pose_broadcaster();
+  pub_odometry_->publish(sobit_home_odometry_->odom_);
 
   // Update Previous data
   for (int i=0; i<4; i++)

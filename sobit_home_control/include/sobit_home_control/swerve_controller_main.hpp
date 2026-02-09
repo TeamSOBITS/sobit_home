@@ -43,8 +43,6 @@ private:
 
   std::map<std::string, double> joints_pos;
 
-  nav_msgs::msg::Odometry odom_;
-
   std::unique_ptr<SobitHomeControl>  sobit_home_control_;
   std::unique_ptr<SobitHomeOdometry> sobit_home_odometry_;
 
@@ -53,8 +51,6 @@ private:
   std::vector<std::string> steering_joints_names;
   std::vector<std::string> drive_joints_names;
 
-  std::string robot_name; // topic and frame's name space
-  std::string base_frame_name_;
   int CYCLE_FEQUENCY;
   double STEER_MAX_VEL;
   double DRIVING_STATUS_THRESHOLD; // Driving status threshold [rad]

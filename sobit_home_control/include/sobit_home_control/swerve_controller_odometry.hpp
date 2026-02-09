@@ -29,6 +29,8 @@ public:
   double current_drive_pos[4] = {0, };
   double prev_drive_pos[4] = {0, };
 
+  nav_msgs::msg::Odometry odom_;
+
   // Constructor
   SobitHomeOdometry(rclcpp::Node* node) : node_(node) {
     CYCLE_FEQUENCY = node_->get_parameter("cycle_fequency").as_int();
@@ -42,10 +44,10 @@ public:
     RCLCPP_INFO(node_->get_logger(), "SOBIT HOME Odometry destroyed.");
   }
 
-  void update_odom(nav_msgs::msg::Odometry &odom);
+  void update_odom();
 
   double distance_calculation(double wheel_delta_pos);
-  void pose_broadcaster(const nav_msgs::msg::Odometry &tf_odom);
+  void pose_broadcaster();
 };
 
 #endif // SWERVE_CONTROLLER_ODOMETRY_HPP_
