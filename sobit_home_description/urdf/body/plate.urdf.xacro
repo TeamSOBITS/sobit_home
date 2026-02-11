@@ -64,7 +64,7 @@
     
 
     <joint name="${prefix}_top_joint" type="fixed">
-      <origin xyz="0.0 0.0 0.0997" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 0.0 0.1097" rpy="0.0 0.0 0.0" />
       <parent link="${prefix}_middle_link" />
       <child link="${prefix}_top_link" />
     </joint>
