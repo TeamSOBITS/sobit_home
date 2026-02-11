@@ -21,6 +21,7 @@ find_package(trajectory_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(urdf REQUIRED)
 
 # Find libraries
 include_directories(include)
@@ -51,7 +52,9 @@ ament_target_dependencies(${PROJECT_NAME}
   "trajectory_msgs"
   "tf2_geometry_msgs"
   "tf2_ros"
-  "tf2")
+  "tf2"
+  "urdf"
+  )
 
 
 #############
@@ -59,7 +62,7 @@ ament_target_dependencies(${PROJECT_NAME}
 #############
 
 install(DIRECTORY
-  # config
+  config
   launch DESTINATION share/${PROJECT_NAME}
 )
 
