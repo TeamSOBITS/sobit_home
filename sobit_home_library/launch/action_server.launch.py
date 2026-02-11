@@ -40,11 +40,11 @@ def launch_gz(context, *args, **kwargs):
     rotate_ki = float(LaunchConfiguration('rotate_ki').perform(context))
 
 
-    # pose_config = os.path.join(
-    #     get_package_share_directory("sobit_home_library"),
-    #     "config",
-    #     "pose_list.yaml",
-    # )
+    pose_config = os.path.join(
+        get_package_share_directory("sobit_home_library"),
+        "config",
+        "pose_list.yaml",
+    )
 
     joint_action_server_node = Node(
         package="sobit_home_library",
@@ -52,7 +52,7 @@ def launch_gz(context, *args, **kwargs):
         name="joint_action_server",
         namespace=robot_name,
         parameters=[
-            # pose_config,
+            pose_config,
             {"use_sim_time": True if enable_gz == 'True' else False},
         ],
         output="screen",
