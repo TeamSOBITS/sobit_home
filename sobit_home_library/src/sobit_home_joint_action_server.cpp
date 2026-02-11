@@ -107,6 +107,12 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
   this->pub_head_joint_control_ = this->create_publisher<trajectory_msgs::msg::JointTrajectory>(
       "head_position_controller/joint_trajectory", qos_profile);
 
+  this->async_param_client_ = std::make_shared<rclcpp::AsyncParametersClient>(this, "robot_state_publisher");
+  
+  this->urdf_timer_ = this->create_wall_timer(
+    std::chrono::milliseconds(200),
+    std::bind(&JointActionServer::load_joint_limits, this));
+
   //Declare the pose parameters
   this->declare_parameter("poses", std::vector<std::string>());
   auto pose_names = this->get_parameter("poses").as_string_array();
@@ -243,6 +249,83 @@ rclcpp_action::CancelResponse JointActionServer::handle_move_to_pose_cancel(
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
+void JointActionServer::load_joint_limits()
+{
+  if (urdf_loaded_) return;
+
+  if (!async_param_client_->service_is_ready()) {
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 3000,
+      "Parameter service not ready for %s", robot_description_source_node_.c_str());
+    return;
+  }
+
+  if (!robot_desc_requested_) {
+    robot_desc_future_ = async_param_client_->get_parameters({"robot_description"});
+    robot_desc_requested_ = true;
+    return;
+  }
+
+  if (robot_desc_future_.wait_for(std::chrono::milliseconds(1)) != std::future_status::ready) {
+    return;
+  }
+
+  std::vector<rclcpp::Parameter> params;
+  try {
+    params = robot_desc_future_.get();
+  } catch (...) {
+    robot_desc_requested_ = false;
+    return;
+  }
+  robot_desc_requested_ = false;
+
+  if (params.empty() || params[0].get_type() != rclcpp::ParameterType::PARAMETER_STRING) return;
+
+  const std::string urdf_xml = params[0].as_string();
+  if (urdf_xml.empty()) return;
+
+  if (!parse_urdf_limits(urdf_xml)) {
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 3000, "Failed to parse URDF limits");
+    return;
+  }
+
+  urdf_loaded_ = true;
+  urdf_timer_.reset();
+  RCLCPP_INFO(get_logger(), "Joint limits loaded (%zu joints)", joint_limits_.size());
+}
+
+bool JointActionServer::parse_urdf_limits(const std::string & urdf_xml)
+{
+  urdf::Model model;
+
+  if (!model.initString(urdf_xml)) {
+    RCLCPP_ERROR(this->get_logger(), "Failed to parse URDF");
+    return false;
+  }
+
+  joint_limits_.clear();
+
+  for (const auto & joint_pair : model.joints_) {
+
+    const auto & joint = joint_pair.second;
+
+    if (!joint) continue;
+
+    Limit lim;
+    lim.has = false;
+
+    if (joint->limits) {
+      lim.lower = joint->limits->lower;
+      lim.upper = joint->limits->upper;
+      lim.velocity = joint->limits->velocity;
+      lim.effort = joint->limits->effort;
+      lim.has = true;
+
+      joint_limits_[joint->name] = lim;
+    }
+  }
+
+  return true;
+}
 
 void JointActionServer::handle_move_joints_accepted(
   const std::shared_ptr<GoalHandleMoveJoints> goal_handle)
@@ -901,32 +984,32 @@ void JointActionServer::get_head_to_coord(
 
   double pan_rad, tilt_rad, target_yaw;
 
-  if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) > 50.0 * M_PI / 180.0) { // 50 degrees
-    pan_rad = (50.0 * M_PI / 180.0);
-    target_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) - (50.0 * M_PI / 180.0);
+  if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) > joint_limits_["head_pan_joint"].upper) { // 45 degrees
+    pan_rad = joint_limits_["head_pan_joint"].upper;
+    target_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) - joint_limits_["head_pan_joint"].upper;
   }
-  else if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) < -(50.0 * M_PI / 180.0)) {
-    pan_rad = -(50.0 * M_PI / 180.0);
-    target_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) + (50.0 * M_PI / 180.0);
+  else if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) < joint_limits_["head_pan_joint"].lower) {
+    pan_rad = joint_limits_["head_pan_joint"].lower;
+    target_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) - joint_limits_["head_pan_joint"].lower;
   }
   else {
     pan_rad = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x);
     target_yaw = 0.0;
   }
 
-  if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > (30.0 * M_PI / 180.0)) { // 30 degrees
-    tilt_rad = (30.0 * M_PI / 180.0);
+  if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > joint_limits_["head_tilt_joint"].upper) { // 30 degrees
+    tilt_rad = joint_limits_["head_tilt_joint"].upper;
   }
-  else if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < -(45.0 * M_PI / 180.0)) { // 45 degrees
-    tilt_rad = -(45.0 * M_PI / 180.0);
+  else if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < joint_limits_["head_tilt_joint"].lower) { // 45 degrees
+    tilt_rad = joint_limits_["head_tilt_joint"].lower;
   }
   else {
     tilt_rad = std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2)));
   }
 
-  if (std::abs(atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x)) < (50.0 * M_PI / 180.0) && // 50 degrees
-      std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > -(45.0 * M_PI / 180.0) && // 45 degrees
-      std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < (30.0 * M_PI / 180.0)){   // 30 degrees
+  if (std::abs(atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x)) < joint_limits_["head_pan_joint"].upper && // 45 degrees
+      std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > joint_limits_["head_tilt_joint"].lower && // 45 degrees
+      std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < joint_limits_["head_tilt_joint"].upper){   // 30 degrees
     response->success = true;
     response->message = "[SUCCESS] The coord is visible.";
   }
@@ -1010,32 +1093,32 @@ void JointActionServer::get_head_to_tf(
 
   double pan_rad, tilt_rad, target_yaw;
 
-  if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) > 50.0 * M_PI / 180.0) { // 50 degrees
-    pan_rad = (50.0 * M_PI / 180.0);
-    target_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) - (50.0 * M_PI / 180.0);
+  if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) > joint_limits_["head_pan_joint"].upper) { // 45 degrees
+    pan_rad = joint_limits_["head_pan_joint"].upper;
+    target_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) - joint_limits_["head_pan_joint"].upper;
   }
-  else if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) < -(50.0 * M_PI / 180.0)) {
-    pan_rad = -(50.0 * M_PI / 180.0);
-    target_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) + (50.0 * M_PI / 180.0);
+  else if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) < joint_limits_["head_pan_joint"].lower) {
+    pan_rad = joint_limits_["head_pan_joint"].lower;
+    target_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) - joint_limits_["head_pan_joint"].lower;
   }
   else {
     pan_rad = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x);
     target_yaw = 0.0;
   }
 
-  if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > (30.0 * M_PI / 180.0)) { // 30 degrees
-    tilt_rad = (30.0 * M_PI / 180.0);
+  if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > joint_limits_["head_tilt_joint"].upper) { // 30 degrees
+    tilt_rad = joint_limits_["head_tilt_joint"].upper;
   }
-  else if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < -(45.0 * M_PI / 180.0)) { // 45 degrees
-    tilt_rad = -(45.0 * M_PI / 180.0);
+  else if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < joint_limits_["head_tilt_joint"].lower) { // 45 degrees
+    tilt_rad = joint_limits_["head_tilt_joint"].lower;
   }
   else {
     tilt_rad = std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2)));
   }
 
-  if (std::abs(atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x)) < (50.0 * M_PI / 180.0) && // 50 degrees
-      std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > -(45.0 * M_PI / 180.0) && // 45 degrees
-      std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < (30.0 * M_PI / 180.0)){   // 30 degrees
+  if (std::abs(atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x)) < joint_limits_["head_pan_joint"].upper && // 45 degrees
+      std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > joint_limits_["head_tilt_joint"].lower && // 45 degrees
+      std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < joint_limits_["head_tilt_joint"].upper){   // 30 degrees
     response->success = true;
     response->message = "[SUCCESS] The coord is visible.";
   }
