@@ -14,7 +14,7 @@ void SobitHomeOdometry::update_odom()
   // Transform to Roll, Pitch and Yaw from previous odom
   tf2::Quaternion quat_tf;
   double prev_roll, prev_pitch, prev_yaw;
-  tf2::fromMsg(odom.pose.pose.orientation, quat_tf);
+  tf2::fromMsg(odom_.pose.pose.orientation, quat_tf);
   tf2::Matrix3x3(quat_tf).getRPY(prev_roll, prev_pitch, prev_yaw);
 
   // each wheel point from robot base
@@ -103,9 +103,9 @@ void SobitHomeOdometry::update_odom()
   }
 
   // Update the Odometry
-  result_odom.pose.pose.position.x = odom.pose.pose.position.x + 
+  result_odom.pose.pose.position.x = odom_.pose.pose.position.x + 
       diff_x * cos(prev_yaw) - diff_y * sin(prev_yaw);
-  result_odom.pose.pose.position.y = odom.pose.pose.position.y + 
+  result_odom.pose.pose.position.y = odom_.pose.pose.position.y + 
       diff_x * sin(prev_yaw) + diff_y * cos(prev_yaw);
 
   // Change quaternion
