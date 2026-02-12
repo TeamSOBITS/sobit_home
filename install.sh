@@ -14,7 +14,7 @@ ros_packages=(
     "orbbecsdk_ros2"
     "dynamixel_hardware"
     "rm_motors_ros"
-    "swerve_steering_controller"
+    # "swerve_steering_controller"
     "ros2_laser_scan_merger"
     "tmc_wrs_gz"
     "aws_small_house_world"
@@ -91,6 +91,7 @@ sudo usermod -aG dialout $USERNAME
 sudo apt-get update
 sudo apt-get install -y \
     curl \
+    mpg321 \
     lsb-release gnupg
 
 sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
