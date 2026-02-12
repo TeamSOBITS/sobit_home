@@ -290,6 +290,32 @@
       </inertial>
     </link>
 
+    <!-- Joint: End Effector -->
+    <joint name="${prefix_hand}_${position}_end_effector_joint" type="fixed">
+      <origin xyz="0.0 ${y_sign*0.13} 0.0" rpy="0 0 0"/>
+      <parent link="${parent}"/>
+      <child link="${prefix_hand}_${position}_end_effector_link"/>
+    </joint>
+
+    <!-- Link: End Effector -->
+    <link name="${prefix_hand}_${position}_end_effector_link">
+      <visual>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.01 0.01 0.01" />
+        </geometry>
+        <material name="red"/>
+      </visual>
+
+      <inertial>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+        <mass value="0.0001" />
+        <inertia  ixx="${1/12*0.0001*(0.01**2+0.01**2)}" ixy="0.0" ixz="0.0"
+                  iyy="${1/12*0.0001*(0.01**2+0.01**2)}" iyz="0.0"
+                  izz="${1/12*0.0001*(0.01**2+0.01**2)}" />
+      </inertial>
+    </link>
+
   <xacro:hand_transmission prefix_hand="${prefix_hand}" position="${position}" prefix_finger="${prefix_finger}"/>
 
   </xacro:macro>
