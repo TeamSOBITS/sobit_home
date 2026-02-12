@@ -74,7 +74,7 @@
   </xacro:if>
   <xacro:unless value="${ $(arg enable_body) }">
     <joint name="body_joint" type="fixed" >
-      <origin xyz="0.11275 0.0 0.565" rpy="0.0 0.0 0.0" />
+      <origin xyz="-0.1702 0.0 0.3169" rpy="0.0 0.0 0.0" />
       <parent link="plate_top_link" />
       <child link="body_lift_link" />
     </joint>
