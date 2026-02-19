@@ -4,27 +4,75 @@
 
     head_position_controller:
       type: joint_trajectory_controller/JointTrajectoryController
+      update_rate: 20  # Hz
+      is_async: true
+      # async_parameters:
+      #   cpu_affinity: [2, 4]
+      #   thread_priority: 50
+      #   wait_until_initial_trigger: false
 
     arm_left_position_controller:
       type: joint_trajectory_controller/JointTrajectoryController
+      update_rate: 20  # Hz
+      is_async: true
+      # async_parameters:
+      #   cpu_affinity: [2, 4]
+      #   thread_priority: 50
+      #   wait_until_initial_trigger: false
 
     arm_right_position_controller:
       type: joint_trajectory_controller/JointTrajectoryController
+      update_rate: 20  # Hz
+      is_async: true
+      # async_parameters:
+      #   cpu_affinity: [2, 4]
+      #   thread_priority: 50
+      #   wait_until_initial_trigger: false
 
     hand_left_position_controller:
       type: joint_trajectory_controller/JointTrajectoryController
+      update_rate: 20  # Hz
+      is_async: true
+      # async_parameters:
+      #   cpu_affinity: [2, 4]
+      #   thread_priority: 50
+      #   wait_until_initial_trigger: false
 
     hand_right_position_controller:
       type: joint_trajectory_controller/JointTrajectoryController
+      update_rate: 20  # Hz
+      is_async: true
+      # async_parameters:
+      #   cpu_affinity: [2, 4]
+      #   thread_priority: 50
+      #   wait_until_initial_trigger: false
 
     body_position_controller:
       type: joint_trajectory_controller/JointTrajectoryController
+      update_rate: 20  # Hz
+      is_async: true
+      # async_parameters:
+      #   cpu_affinity: [2, 4]
+      #   thread_priority: 50
+      #   wait_until_initial_trigger: false
 
     wheel_steer_position_controller:
       type: position_controllers/JointGroupPositionController
+      update_rate: 20  # Hz
+      is_async: true
+      # async_parameters:
+      #   cpu_affinity: [2, 4]
+      #   thread_priority: 50
+      #   wait_until_initial_trigger: false
 
     wheel_drive_velocity_controller:
       type: velocity_controllers/JointGroupVelocityController
+      update_rate: 20  # Hz
+      is_async: true
+      # async_parameters:
+      #   cpu_affinity: [2, 4]
+      #   thread_priority: 50
+      #   wait_until_initial_trigger: false
 
 
     joint_state_broadcaster:
