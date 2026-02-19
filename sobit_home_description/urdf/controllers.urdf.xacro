@@ -568,8 +568,6 @@
 
     <xacro:if value="${$(arg enable_gz)}">
       <joint name="${prefix}_finger_r_mcp_joint">
-        <param name="mimic">${prefix}_finger_l_mcp_joint</param>
-        <param name="multiplier">1</param>
         <state_interface name="position">
           <param name="initial_value">0.0</param>
         </state_interface>
@@ -716,8 +714,6 @@
   
     <xacro:if value="${$(arg enable_gz)}">
       <joint name="${prefix}_finger_r_mcp_joint">
-        <param name="mimic">${prefix}_finger_l_mcp_joint</param>
-        <param name="multiplier">1</param>
         <state_interface name="position">
           <param name="initial_value">0.0</param>
         </state_interface>
