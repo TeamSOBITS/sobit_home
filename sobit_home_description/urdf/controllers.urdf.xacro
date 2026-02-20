@@ -210,6 +210,7 @@
         <param name="id">11</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI}</param>
@@ -228,6 +229,7 @@
         <param name="id">12</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI}</param>
@@ -246,6 +248,7 @@
         <param name="id">13</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI}</param>
@@ -264,6 +267,7 @@
         <param name="id">14</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI}</param>
@@ -285,6 +289,7 @@
         <param name="id">21</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/4}</param>
@@ -303,6 +308,7 @@
         <param name="id">22</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/4}</param>
@@ -324,6 +330,7 @@
         <param name="id">31</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -345,6 +352,7 @@
         <param name="id">41</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -366,6 +374,7 @@
         <param name="id">32</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -384,6 +393,7 @@
         <param name="id">33</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -402,6 +412,7 @@
         <param name="id">34</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -420,6 +431,7 @@
         <param name="id">35</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -438,6 +450,7 @@
         <param name="id">36</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -459,6 +472,7 @@
         <param name="id">42</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -477,6 +491,7 @@
         <param name="id">43</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -495,6 +510,7 @@
         <param name="id">44</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">0</param>
@@ -513,6 +529,7 @@
         <param name="id">45</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -531,6 +548,7 @@
         <param name="id">46</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-1.570796327</param>
@@ -553,6 +571,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">300</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -582,6 +601,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">150</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -601,6 +621,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">100</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -620,6 +641,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">225</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -639,6 +661,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">150</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -658,6 +681,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">150</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -677,6 +701,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">100</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -699,6 +724,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">300</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-1.7</param>
@@ -728,6 +754,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">200</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-0.5</param>
@@ -747,6 +774,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-2.0</param>
@@ -766,6 +794,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-0.9</param>
@@ -785,6 +814,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-2.0</param>
@@ -804,6 +834,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -823,6 +854,7 @@
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
+        <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-0.5</param>
