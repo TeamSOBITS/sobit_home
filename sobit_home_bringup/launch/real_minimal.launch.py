@@ -22,17 +22,18 @@ def generate_launch_description():
             ]),
             launch_arguments={
                 'robot_name' : robot_name if robot_id == 0 else robot_name + '_' + str(robot_id),
-                'enable_lidar'  : 'False',
-                'enable_gz'  : 'False',
-                'enable_mobile_base': 'False',
-                'enable_arm_left': 'True',
-                'enable_arm_right': 'False',
-                'enable_hand_left': 'True',
-                'enable_hand_right': 'False',
-                'enable_head': 'False',
-                'enable_body': 'False',
+                'enable_lidar'         : 'True',
+                'enable_mobile_base'   : 'True',
+                'enable_arm_left'      : 'True',
+                'enable_arm_right'     : 'True',
+                'enable_hand_left'     : 'False',
+                'enable_hand_right'    : 'True',
+                'enable_head'          : 'True',
+                'enable_body'          : 'False',
                 'enable_real_head_cam' : 'False', # TODO: toggle head camera
                 'enable_real_hand_cam' : 'False', # TODO: toggle hand camera
+                'enable_gz'            : 'False',
             }.items()
         ),
     ])
+False
