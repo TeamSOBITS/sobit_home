@@ -36,4 +36,3 @@ def generate_launch_description():
             }.items()
         ),
     ])
-False

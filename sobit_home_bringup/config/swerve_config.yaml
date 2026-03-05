@@ -8,7 +8,7 @@
     position_controller_name: wheel_steer_position_controller
     velocity_controller_name: wheel_drive_velocity_controller
 
-    cycle_fequency: 50
+    cycle_fequency: 10
 
     steering_joints:
       - wheel_steer_f_l_joint
