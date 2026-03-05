@@ -22,13 +22,13 @@ WheelActionServer::WheelActionServer(const rclcpp::NodeOptions & options = rclcp
   this->declare_parameter("wheel_rotate_kd", rclcpp::PARAMETER_DOUBLE);
 
   // Retrieve parameters (PID values)
-  double wheel_linear_kp_ = this->get_parameter("wheel_linear_kp").as_double();
-  double wheel_linear_ki_ = this->get_parameter("wheel_linear_ki").as_double();
-  double wheel_linear_kd_ = this->get_parameter("wheel_linear_kd").as_double();
+  wheel_linear_kp_ = this->get_parameter("wheel_linear_kp").as_double();
+  wheel_linear_ki_ = this->get_parameter("wheel_linear_ki").as_double();
+  wheel_linear_kd_ = this->get_parameter("wheel_linear_kd").as_double();
 
-  double wheel_rotate_kp_ = this->get_parameter("wheel_rotate_kp").as_double();
-  double wheel_rotate_ki_ = this->get_parameter("wheel_rotate_ki").as_double();
-  double wheel_rotate_kd_ = this->get_parameter("wheel_rotate_kd").as_double();
+  wheel_rotate_kp_ = this->get_parameter("wheel_rotate_kp").as_double();
+  wheel_rotate_ki_ = this->get_parameter("wheel_rotate_ki").as_double();
+  wheel_rotate_kd_ = this->get_parameter("wheel_rotate_kd").as_double();
 
   // Log the parameters
   RCLCPP_INFO(this->get_logger(), "Wheel Linear PID parameters:");
