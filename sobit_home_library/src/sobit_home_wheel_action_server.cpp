@@ -144,7 +144,7 @@ void WheelActionServer::exe_move_wheel_linear(
   // }
 
   // Check if the target point is valid (only x is considered)
-  if (goal->target_point.y != 0.0 || goal->target_point.z != 0.0) {
+  if (goal->target_point.z != 0.0) {
     RCLCPP_ERROR(this->get_logger(), "Invalid target point: (%f, %f, %f)",
         goal->target_point.x, goal->target_point.y, goal->target_point.z);
     result->success = false;
@@ -155,7 +155,7 @@ void WheelActionServer::exe_move_wheel_linear(
 
   // Initialize values
   geometry_msgs::msg::Twist init_vel, out_vel;
-  double goal_dist = std::abs(goal->target_point.x);
+  double goal_dist = std::sqrt(std::pow(goal->target_point.x, 2) + std::pow(goal->target_point.y, 2));
   double curt_dist=0.0;
 
   double vel_diff = wheel_linear_kp_ * goal_dist;
