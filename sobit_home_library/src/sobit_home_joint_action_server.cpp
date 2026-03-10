@@ -787,76 +787,80 @@ namespace sobit_home
     response->success = true;
   }
 
-  // void JointActionServer::joint_state_callback(
-  //     const sensor_msgs::msg::JointState::SharedPtr msg)
-  // {
-  //   // RCLCPP_INFO(this->get_logger(), "Received joint state");
-
-  //   for (size_t i = 0; i < msg->name.size(); i++)
-  //   {
-  //     // if (msg->name[i] == "SUB JOINT") continue;  // Skip sub joints
-
-  //     this->curt_joint_state_[msg->name[i]] = msg->position[i];
-  //   }
-  // }
-
-  trajectory_msgs::msg::JointTrajectory JointActionServer::set_joints(
-      const std::vector<std::string> &target_joint_names, // JointName
-      const std::vector<double> &target_joint_rad,        // target_joint_rad
-      const builtin_interfaces::msg::Duration &time_allowance,
-      const std::string &group_name)
+  trajectory_msgs::msg::JointTrajectory JointActionServer::set_joints(const std::vector<std::string> &names, const std::vector<double> &rads, const builtin_interfaces::msg::Duration &dur, const std::string &grp)
   {
-    trajectory_msgs::msg::JointTrajectory joint_trajectory;
-    trajectory_msgs::msg::JointTrajectoryPoint point;
+    trajectory_msgs::msg::JointTrajectory traj;
+    trajectory_msgs::msg::JointTrajectoryPoint p;
+    auto is_in = [&](const std::vector<std::string> &v, const std::string &n)
+    { return std::find(v.begin(), v.end(), n) != v.end(); };
+    const std::vector<std::string> *target_v = nullptr;
 
-    for (size_t i = 0; i < target_joint_names.size(); i++)
+    if (grp == "arm_left")
+      target_v = &JointNamesArmLeft;
+    else if (grp == "arm_right")
+      target_v = &JointNamesArmRight;
+    else if (grp == "hand_left")
+      target_v = &JointNamesHandLeft;
+    else if (grp == "hand_right")
+      target_v = &JointNamesHandRight;
+    else if (grp == "head")
+      target_v = &JointNamesHead;
+    else if (grp == "body")
+      target_v = &JointNamesBody;
+
+    if (target_v)
     {
-      // Check if the joint belongs to the specified group
-      if (group_name == "arm_right" &&
-          std::find(JointNamesArmRight.begin(), JointNamesArmRight.end(), target_joint_names[i]) == JointNamesArmRight.end())
+      for (size_t i = 0; i < names.size(); i++)
       {
-        continue;
+        if (is_in(*target_v, names[i]))
+        {
+          traj.joint_names.push_back(names[i]);
+          p.positions.push_back(rads[i]);
+        }
       }
-      else if (group_name == "arm_left" &&
-               std::find(JointNamesArmLeft.begin(), JointNamesArmLeft.end(), target_joint_names[i]) == JointNamesArmLeft.end())
-      {
-        continue;
-      }
-      else if (group_name == "hand_right" &&
-               std::find(JointNamesHandRight.begin(), JointNamesHandRight.end(), target_joint_names[i]) == JointNamesHandRight.end())
-      {
-        continue;
-      }
-      else if (group_name == "hand_left" &&
-               std::find(JointNamesHandLeft.begin(), JointNamesHandLeft.end(), target_joint_names[i]) == JointNamesHandLeft.end())
-      {
-        continue;
-      }
-      else if (group_name == "head" &&
-               std::find(JointNamesHead.begin(), JointNamesHead.end(), target_joint_names[i]) == JointNamesHead.end())
-      {
-        continue;
-      }
-      else if (group_name == "body" &&
-               std::find(JointNamesBody.begin(), JointNamesBody.end(), target_joint_names[i]) == JointNamesBody.end())
-      {
-        continue;
-      }
-
-      joint_trajectory.joint_names.push_back(target_joint_names[i]);
-      point.positions.push_back(target_joint_rad[i]);
-
-      // Subjoint to turn opposite direction
-      // if (target_joint_names[i] == "arm_shoulder_pitch_joint") {
-      //   joint_trajectory.joint_names.push_back("arm_shoulder_pitch_sub_joint");
-      //   point.positions.push_back(-target_joint_rad[i]);
-      //   continue;
-      // }
     }
-
-    joint_trajectory.points.push_back(point);
-    joint_trajectory.points[0].time_from_start = time_allowance;
-
-    return joint_trajectory;
+    if (!traj.joint_names.empty())
+    {
+      p.time_from_start = dur;
+      traj.points.push_back(p);
+    }
+    return traj;
   }
+
+  void JointActionServer::load_joint_limits()
+  {
+    if (urdf_loaded_)
+      return;
+    auto param = this->get_parameter("robot_description");
+    std::string xml = param.as_string();
+    if (xml.empty())
+      return;
+    if (!parse_urdf_limits(xml))
+      return;
+    urdf_loaded_ = true;
+    if (urdf_timer_)
+      urdf_timer_->cancel();
+  }
+
+  bool JointActionServer::parse_urdf_limits(const std::string &xml)
+  {
+    urdf::Model model;
+    if (!model.initString(xml))
+      return false;
+    for (auto const &[name, joint] : model.joints_)
+    {
+      if (joint->limits)
+      {
+        Limit l;
+        l.lower = joint->limits->lower;
+        l.upper = joint->limits->upper;
+        l.velocity = joint->limits->velocity;
+        l.effort = joint->limits->effort;
+        l.has = true;
+        joint_limits_[name] = l;
+      }
+    }
+    return true;
+  }
+
 } // namespace sobit_home
