@@ -51,6 +51,18 @@ def generate_launch_description():
             'rcjo2025_arena.world.xacro'
         )
 
+    rviz_config = PathJoinSubstitution([
+            FindPackageShare('sobit_home_bringup'),
+            'rviz',
+            'gazebo.rviz'
+    ])
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config],
+    )
+
     return LaunchDescription([
         # Launch gazebo environment
         IncludeLaunchDescription(
@@ -62,7 +74,8 @@ def generate_launch_description():
                 ])
             ]),
             launch_arguments={
-                'gz_args' : ' -r -v 4 ' + world_file + ' --physics-engine gz-physics-dartsim-plugin', # no mimic
+                'gz_args' : ' -r -v 4 ' + world_file, # no mimic
+                # 'gz_args' : ' -r -v 4 ' + world_file + ' --physics-engine gz-physics-dartsim-plugin', # no mimic
                 # 'gz_args' : ' -r -v 4 ' + world_file + ' --physics-engine gz-physics-bullet-featherstone-plugin', # no mobile base motion
             }.items()
         ),
@@ -121,4 +134,5 @@ def generate_launch_description():
         #         'enable_gz_hand_right_cam_depth' : 'True',
         #     }.items()
         # ),
+        rviz_node,
     ])

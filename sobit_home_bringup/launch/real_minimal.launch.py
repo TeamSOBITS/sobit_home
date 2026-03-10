@@ -10,6 +10,19 @@ def generate_launch_description():
     robot_name = 'sobit_home'
     robot_id = 0
 
+    rviz_config = PathJoinSubstitution([
+            FindPackageShare('sobit_home_bringup'),
+            'rviz',
+            'real.rviz'
+    ])
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        arguments=['-d', rviz_config],
+        output='screen',
+    )
+
     return LaunchDescription([
         # Launch Robot No. 1
         IncludeLaunchDescription(
@@ -35,4 +48,5 @@ def generate_launch_description():
                 'enable_gz'            : 'False',
             }.items()
         ),
+        rviz_node,
     ])
