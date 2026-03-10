@@ -168,40 +168,10 @@ namespace sobit_home
 
   JointActionServer::~JointActionServer() {}
 
-  rclcpp_action::GoalResponse JointActionServer::handle_move_joints_goal(
-      const rclcpp_action::GoalUUID &uuid,
-      std::shared_ptr<const MoveJoint::Goal> goal)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received goal request");
-    (void)uuid;
-    (void)goal;
-    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-  }
-
-  rclcpp_action::GoalResponse JointActionServer::handle_move_to_pose_goal(
-      const rclcpp_action::GoalUUID &uuid,
-      std::shared_ptr<const MoveToPose::Goal> goal)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received goal request");
-    (void)uuid;
-    (void)goal;
-    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-  }
-
-  rclcpp_action::CancelResponse JointActionServer::handle_move_joints_cancel(
-      const std::shared_ptr<GoalHandleMoveJoints> goal_handle)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received cancel request");
-    (void)goal_handle;
-    return rclcpp_action::CancelResponse::ACCEPT;
-  }
-  rclcpp_action::CancelResponse JointActionServer::handle_move_to_pose_cancel(
-      const std::shared_ptr<GoalHandleMoveToPose> goal_handle)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received cancel request");
-    (void)goal_handle;
-    return rclcpp_action::CancelResponse::ACCEPT;
-  }
+  rclcpp_action::GoalResponse JointActionServer::handle_move_joints_goal(const rclcpp_action::GoalUUID &, std::shared_ptr<const MoveJoint::Goal>) { return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE; }
+  rclcpp_action::GoalResponse JointActionServer::handle_move_to_pose_goal(const rclcpp_action::GoalUUID &, std::shared_ptr<const MoveToPose::Goal>) { return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE; }
+  rclcpp_action::CancelResponse JointActionServer::handle_move_joints_cancel(const std::shared_ptr<GoalHandleMoveJoints>) { return rclcpp_action::CancelResponse::ACCEPT; }
+  rclcpp_action::CancelResponse JointActionServer::handle_move_to_pose_cancel(const std::shared_ptr<GoalHandleMoveToPose>) { return rclcpp_action::CancelResponse::ACCEPT; }
 
   void JointActionServer::load_joint_limits()
   {
