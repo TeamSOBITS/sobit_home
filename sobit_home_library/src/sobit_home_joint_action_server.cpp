@@ -232,7 +232,63 @@ namespace sobit_home
     goal_handle->succeed(result);
   }
 
-  void JointActionServer::get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right, bool is_one_rink)
+  void JointActionServer::exe_move_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle)
+  {
+    const auto goal = goal_handle->get_goal();
+    auto result = std::make_shared<MoveToPose::Result>();
+
+    auto it = std::find_if(poses_.begin(), poses_.end(), [&](const PoseParams &p)
+                           { return p.pose_name == goal->pose_name; });
+    if (it == poses_.end())
+    {
+      goal_handle->abort(result);
+      return;
+    }
+
+    std::vector<std::string> names;
+    std::vector<double> rads;
+    auto add = [&](const std::vector<std::string> &n, const std::vector<double> &r)
+    {
+      names.insert(names.end(), n.begin(), n.end());
+      rads.insert(rads.end(), r.begin(), r.end());
+    };
+
+    add(JointNamesArmRight, {it->arm_right_shoulder_tilt, it->arm_right_upper_roll, it->arm_right_upper_flex, it->arm_right_elbow, it->arm_right_wrist_tilt, it->arm_right_wrist_roll});
+    add(JointNamesHandRight, {it->hand_right_finger_l_mcp, it->hand_right_finger_l_pip, it->hand_right_finger_l_dip, it->hand_right_finger_c_mcp, it->hand_right_finger_c_ip, it->hand_right_finger_r_pip, it->hand_right_finger_r_dip});
+    add(JointNamesArmLeft, {it->arm_left_shoulder_tilt, it->arm_left_upper_roll, it->arm_left_upper_flex, it->arm_left_elbow, it->arm_left_wrist_tilt, it->arm_left_wrist_roll});
+    add(JointNamesHandLeft, {it->hand_left_finger_l_mcp, it->hand_left_finger_l_pip, it->hand_left_finger_l_dip, it->hand_left_finger_c_mcp, it->hand_left_finger_c_ip, it->hand_left_finger_r_pip, it->hand_left_finger_r_dip});
+    add(JointNamesBody, {it->body_lift});
+    add(JointNamesHead, {it->head_pan, it->head_tilt});
+
+    auto publish_group = [&](auto &pub, const std::string &grp)
+    {
+      auto traj = set_joints(names, rads, goal->time_allowance, grp);
+      if (!traj.joint_names.empty())
+        pub->publish(traj);
+    };
+
+    publish_group(pub_left_arm_joint_control_, "arm_left");
+    publish_group(pub_right_arm_joint_control_, "arm_right");
+    publish_group(pub_left_hand_joint_control_, "hand_left");
+    publish_group(pub_right_hand_joint_control_, "hand_right");
+    publish_group(pub_body_joint_control_, "body");
+    publish_group(pub_head_joint_control_, "head");
+
+    auto start_time = this->now();
+    while (this->now() - start_time < goal->time_allowance)
+    {
+      if (goal_handle->is_canceling())
+      {
+        goal_handle->canceled(result);
+        return;
+      }
+      rclcpp::sleep_for(std::chrono::milliseconds(100));
+    }
+    result->success = true;
+    goal_handle->succeed(result);
+  }
+
+  void JointActionServer::get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right, bool is_one_link)
   {
     geometry_msgs::msg::TransformStamped goal_coord;
     goal_coord.header.frame_id = std::string(this->get_namespace()).substr(1) + "/base_footprint";
@@ -248,7 +304,7 @@ namespace sobit_home
     }
 
     double target_yaw = (is_right ? 1.0 : -1.0) * M_PI / 2.0 + std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x);
-    auto rads = kinematics_->inverse_kinematics(goal_coord, is_right, is_one_rink, target_yaw);
+    auto rads = kinematics_->inverse_kinematics(goal_coord, is_right, is_one_link, target_yaw);
 
     if (rads.empty())
     {
@@ -270,7 +326,7 @@ namespace sobit_home
     response->success = true;
   }
 
-  void JointActionServer::get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right, bool is_one_rink)
+  void JointActionServer::get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right, bool is_one_link)
   {
     geometry_msgs::msg::TransformStamped goal_tf;
     try
@@ -289,7 +345,7 @@ namespace sobit_home
     goal_tf.transform.translation.z += request->tf_differential.transform.translation.z;
 
     double target_yaw = (is_right ? 1.0 : -1.0) * M_PI / 2.0 + std::atan2(goal_tf.transform.translation.y, goal_tf.transform.translation.x);
-    auto rads = kinematics_->inverse_kinematics(goal_tf, is_right, is_one_rink, target_yaw);
+    auto rads = kinematics_->inverse_kinematics(goal_tf, is_right, is_one_link, target_yaw);
 
     if (rads.empty())
     {
