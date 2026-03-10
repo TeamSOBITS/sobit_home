@@ -185,98 +185,6 @@ namespace sobit_home
     std::thread{std::bind(&JointActionServer::exe_move_to_pose, this, std::placeholders::_1), goal_handle}.detach();
   }
 
-  // void JointActionServer::load_joint_limits()
-  // {
-  //   if (urdf_loaded_)
-  //     return;
-
-  //   if (!async_param_client_->service_is_ready())
-  //   {
-  //     RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 3000,
-  //                          "Parameter service not ready for %s", robot_description_source_node_.c_str());
-  //     return;
-  //   }
-
-  //   if (!robot_desc_requested_)
-  //   {
-  //     robot_desc_future_ = async_param_client_->get_parameters({"robot_description"});
-  //     robot_desc_requested_ = true;
-  //     return;
-  //   }
-
-  //   if (robot_desc_future_.wait_for(std::chrono::milliseconds(1)) != std::future_status::ready)
-  //   {
-  //     return;
-  //   }
-
-  //   std::vector<rclcpp::Parameter> params;
-  //   try
-  //   {
-  //     params = robot_desc_future_.get();
-  //   }
-  //   catch (...)
-  //   {
-  //     robot_desc_requested_ = false;
-  //     return;
-  //   }
-  //   robot_desc_requested_ = false;
-
-  //   if (params.empty() || params[0].get_type() != rclcpp::ParameterType::PARAMETER_STRING)
-  //     return;
-
-  //   const std::string urdf_xml = params[0].as_string();
-  //   if (urdf_xml.empty())
-  //     return;
-
-  //   if (!parse_urdf_limits(urdf_xml))
-  //   {
-  //     RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 3000, "Failed to parse URDF limits");
-  //     return;
-  //   }
-
-  //   urdf_loaded_ = true;
-  //   urdf_timer_.reset();
-  //   RCLCPP_INFO(get_logger(), "Joint limits loaded (%zu joints)", joint_limits_.size());
-  // }
-
-  // bool JointActionServer::parse_urdf_limits(const std::string &urdf_xml)
-  // {
-  //   urdf::Model model;
-
-  //   if (!model.initString(urdf_xml))
-  //   {
-  //     RCLCPP_ERROR(this->get_logger(), "Failed to parse URDF");
-  //     return false;
-  //   }
-
-  //   joint_limits_.clear();
-
-  //   for (const auto &joint_pair : model.joints_)
-  //   {
-
-  //     const auto &joint = joint_pair.second;
-
-  //     if (!joint)
-  //       continue;
-
-  //     Limit lim;
-  //     lim.has = false;
-
-  //     if (joint->limits)
-  //     {
-  //       lim.lower = joint->limits->lower;
-  //       lim.upper = joint->limits->upper;
-  //       lim.velocity = joint->limits->velocity;
-  //       lim.effort = joint->limits->effort;
-  //       lim.has = true;
-
-  //       joint_limits_[joint->name] = lim;
-  //     }
-  //   }
-
-  //   return true;
-  // }
-
   void JointActionServer::exe_move_joints(const std::shared_ptr<GoalHandleMoveJoints> goal_handle)
   {
     const auto goal = goal_handle->get_goal();
@@ -322,267 +230,20 @@ namespace sobit_home
         goal_handle->canceled(result);
         return;
       }
+
+      auto feedback = std::make_shared<MoveJoint::Feedback>();
+      feedback->current_joint_names = goal->target_joint_names;
+      for (const auto &name : goal->target_joint_names)
+      {
+        feedback->current_joint_rad.push_back(curt_joint_state_[name]);
+      }
+      goal_handle->publish_feedback(feedback);
       rclcpp::sleep_for(std::chrono::milliseconds(100));
     }
 
     result->success = true;
     goal_handle->succeed(result);
   }
-
-  // Publish feedback
-  // auto start_time = this->now();
-  // rclcpp::Rate loop_rate(10);
-
-  //   while (this->now() - start_time < goal->time_allowance)
-  //   {
-  //     if (goal_handle->is_canceling())
-  //     {
-  //       RCLCPP_INFO(this->get_logger(), "Goal has been canceled");
-
-  //       result->success = false;
-  //       result->message = "[CANCEL] Goal has been canceled";
-  //       result->total_elapsed_time.sec = (this->now() - start_time).seconds();
-  //       result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
-  //       goal_handle->canceled(result);
-
-  //       return;
-  //     }
-
-  //     auto feedback = std::make_shared<MoveJoint::Feedback>();
-  //     feedback->current_joint_names = goal->target_joint_names;
-  //     for (const auto &joint_name : goal->target_joint_names)
-  //     {
-  //       feedback->current_joint_rad.push_back(this->curt_joint_state_[joint_name]);
-  //     }
-  //     feedback->move_time.sec = (this->now() - start_time).seconds();
-  //     feedback->move_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
-
-  //     goal_handle->publish_feedback(feedback);
-
-  //     // rclcpp::spin_some(this->get_node_base_interface());
-  //     // loop_rate.sleep();
-  //   }
-
-  //   // Check if goal was reached
-  //   for (size_t i = 0; i < goal->target_joint_names.size(); i++)
-  //   {
-  //     // TODO: set tolerance with parameter or msg
-  //     if (std::abs(this->curt_joint_state_[goal->target_joint_names[i]] - goal->target_joint_rad[i]) > 0.1)
-  //     {
-  //       RCLCPP_ERROR(this->get_logger(), "Failed to reach the goal");
-
-  //       result->success = false;
-  //       result->message = "[FAIL] Failed to reach the goal";
-  //       result->total_elapsed_time.sec = (this->now() - start_time).seconds();
-  //       result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
-  //       goal_handle->abort(result);
-
-  //       return;
-  //     }
-  //   }
-
-  //   // Clear the current joint state
-  //   curt_joint_state_.clear();
-
-  //   // Publish the result
-  //   result->success = true;
-  //   result->message = "Goal has been succeeded";
-  //   result->total_elapsed_time.sec = (this->now() - start_time).seconds();
-  //   result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
-
-  //   goal_handle->succeed(result);
-  // }
-
-  // void JointActionServer::exe_move_to_pose(
-  //     const std::shared_ptr<GoalHandleMoveToPose> goal_handle)
-  // {
-  //   RCLCPP_INFO(this->get_logger(), "Executing goal");
-
-  //   const auto goal = goal_handle->get_goal();
-  //   auto result = std::make_shared<MoveToPose::Result>();
-
-  //   // Check if the pose name is valid
-  //   if (std::find_if(poses_.begin(), poses_.end(), [&](const PoseParams &pose)
-  //                    { return pose.pose_name == goal->pose_name; }) == poses_.end())
-  //   {
-  //     RCLCPP_ERROR(this->get_logger(), "Invalid pose name: %s", goal->pose_name.c_str());
-  //     result->success = false;
-  //     result->message = "Invalid pose name: " + goal->pose_name;
-  //     result->total_elapsed_time.sec = 0;
-  //     result->total_elapsed_time.nanosec = 0;
-  //     goal_handle->abort(result);
-  //     return;
-  //   }
-
-  //   // Get the target joint rad from the pose name
-  //   std::vector<double> target_joint_rad(JointIds::JointNum);
-  //   for (const auto &pose : poses_)
-  //   {
-  //     if (pose.pose_name == goal->pose_name)
-  //     {
-  //       target_joint_rad[JointIds::Arm_R_Shoulder_Tilt_Joint] = pose.arm_right_shoulder_tilt;
-  //       target_joint_rad[JointIds::Arm_R_Upper_Roll_Joint] = pose.arm_right_upper_roll;
-  //       target_joint_rad[JointIds::Arm_R_Upper_Flex_Joint] = pose.arm_right_upper_flex;
-  //       target_joint_rad[JointIds::Arm_R_Elbow_Joint] = pose.arm_right_elbow;
-  //       target_joint_rad[JointIds::Arm_R_Wrist_Tilt_Joint] = pose.arm_right_wrist_tilt;
-  //       target_joint_rad[JointIds::Arm_R_Wrist_Roll_Joint] = pose.arm_right_wrist_roll;
-
-  //       // target_joint_rad[JointIds::Hand_R_Finger_L_MCP] = pose.hand_right_finger_l_mcp;
-  //       // target_joint_rad[JointIds::Hand_R_Finger_L_DIP] = pose.hand_right_finger_l_dip;
-  //       // target_joint_rad[JointIds::Hand_R_Finger_L_PIP] = pose.hand_right_finger_l_pip;
-  //       // target_joint_rad[JointIds::Hand_R_Finger_C_MCP] = pose.hand_right_finger_c_mcp;
-  //       // target_joint_rad[JointIds::Hand_R_Finger_C_IP] = pose.hand_right_finger_c_ip;
-  //       // target_joint_rad[JointIds::Hand_R_Finger_R_PIP] = pose.hand_right_finger_r_pip;
-  //       // target_joint_rad[JointIds::Hand_R_Finger_R_DIP] = pose.hand_right_finger_r_dip;
-
-  //       target_joint_rad[JointIds::Arm_L_Shoulder_Tilt_Joint] = pose.arm_left_shoulder_tilt;
-  //       target_joint_rad[JointIds::Arm_L_Upper_Roll_Joint] = pose.arm_left_upper_roll;
-  //       target_joint_rad[JointIds::Arm_L_Upper_Flex_Joint] = pose.arm_left_upper_flex;
-  //       target_joint_rad[JointIds::Arm_L_Elbow_Joint] = pose.arm_left_elbow;
-  //       target_joint_rad[JointIds::Arm_L_Wrist_Tilt_Joint] = pose.arm_left_wrist_tilt;
-  //       target_joint_rad[JointIds::Arm_L_Wrist_Roll_Joint] = pose.arm_left_wrist_roll;
-
-  //       // target_joint_rad[JointIds::Hand_L_Finger_L_MCP] = pose.hand_left_finger_l_mcp;
-  //       // target_joint_rad[JointIds::Hand_L_Finger_L_DIP] = pose.hand_left_finger_l_dip;
-  //       // target_joint_rad[JointIds::Hand_L_Finger_L_PIP] = pose.hand_left_finger_l_pip;
-  //       // target_joint_rad[JointIds::Hand_L_Finger_C_MCP] = pose.hand_left_finger_c_mcp;
-  //       // target_joint_rad[Jooints::Hand_L_Finger_C_IP] = pose.hand_left_finger_c_ip;
-  //       // target_joint_rad[JointIds::Hand_L_Finger_R_DIP] = pose.hand_left_finger_r_pip;
-  //       // target_joint_rad[JointIds::Hand_L_Finger_R_PIP] = pose.hand_left_finger_r_dip;
-
-  //       target_joint_rad[JointIds::Body_Lift_Joint] = pose.body_lift;
-  //       target_joint_rad[JointIds::Head_Pan_Joint] = pose.head_pan;
-  //       target_joint_rad[JointIds::Head_Tilt_Joint] = pose.head_tilt;
-  //       break;
-  //     }
-  //   }
-
-  //   if (target_joint_rad.size() == 0)
-  //   {
-  //     RCLCPP_ERROR(this->get_logger(), "Failed to not find the pose name : %s", goal->pose_name.c_str());
-
-  //     result->success = false;
-  //     result->message = "[FAIL] Failed to not find the pose name : " + goal->pose_name;
-  //     result->total_elapsed_time.sec = 0;
-  //     result->total_elapsed_time.nanosec = 0;
-  //     goal_handle->abort(result);
-  //   }
-
-  //   // Create joint list excluding hands
-  //   std::vector<std::string> joints_without_hands;
-  //   for (const auto &joint_name : JointNames)
-  //   {
-  //     if (std::find(JointNamesHandLeft.begin(), JointNamesHandLeft.end(), joint_name) == JointNamesHandLeft.end() &&
-  //         std::find(JointNamesHandRight.begin(), JointNamesHandRight.end(), joint_name) == JointNamesHandRight.end())
-  //     {
-  //       joints_without_hands.push_back(joint_name);
-  //     }
-  //   }
-
-  //   // Publish the joint trajectory
-  //   trajectory_msgs::msg::JointTrajectory arm_left_joint_trajectory;
-  //   // trajectory_msgs::msg::JointTrajectory hand_left_joint_trajectory;
-  //   trajectory_msgs::msg::JointTrajectory arm_right_joint_trajectory;
-  //   // trajectory_msgs::msg::JointTrajectory hand_right_joint_trajectory;
-  //   trajectory_msgs::msg::JointTrajectory body_joint_trajectory;
-  //   trajectory_msgs::msg::JointTrajectory head_joint_trajectory;
-  //   arm_left_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "arm_left");
-  //   arm_right_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "arm_right");
-  //   // hand_left_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "hand_left");
-  //   // hand_right_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "hand_right");
-  //   body_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "body");
-  //   head_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "head");
-  //   try
-  //   {
-  //     if (!arm_left_joint_trajectory.joint_names.empty())
-  //       this->pub_left_arm_joint_control_->publish(arm_left_joint_trajectory);
-  //     if (!arm_right_joint_trajectory.joint_names.empty())
-  //       this->pub_right_arm_joint_control_->publish(arm_right_joint_trajectory);
-  //     // if (!hand_left_joint_trajectory.joint_names.empty())
-  //     //   this->pub_left_hand_joint_control_->publish(hand_left_joint_trajectory);
-  //     // if (!hand_right_joint_trajectory.joint_names.empty())
-  //     //   this->pub_right_hand_joint_control_->publish(hand_right_joint_trajectory);
-  //     if (!body_joint_trajectory.joint_names.empty())
-  //       this->pub_body_joint_control_->publish(body_joint_trajectory);
-  //     if (!head_joint_trajectory.joint_names.empty())
-  //       this->pub_head_joint_control_->publish(head_joint_trajectory);
-  //   }
-  //   catch (const std::exception &ex)
-  //   {
-  //     RCLCPP_ERROR(this->get_logger(), "Failed to publish the joint trajectory: %s", ex.what());
-
-  //     result->success = false;
-  //     result->message = "[FAIL] Failed to publish the joint trajectory";
-  //     result->total_elapsed_time.sec = 0;
-  //     result->total_elapsed_time.nanosec = 0;
-  //     goal_handle->abort(result);
-
-  //     return;
-  //   }
-
-  //   // Publish feedback
-  //   auto start_time = this->now();
-  //   // rclcpp::Rate loop_rate(10);
-
-  //   while (this->now() - start_time < goal->time_allowance)
-  //   {
-  //     if (goal_handle->is_canceling())
-  //     {
-  //       RCLCPP_INFO(this->get_logger(), "Goal has been canceled");
-
-  //       result->success = false;
-  //       result->message = "[CANCEL] Goal has been canceled";
-  //       result->total_elapsed_time.sec = (this->now() - start_time).seconds();
-  //       result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
-  //       goal_handle->canceled(result);
-
-  //       return;
-  //     }
-
-  //     auto feedback = std::make_shared<MoveToPose::Feedback>();
-  //     feedback->current_joint_names = JointNames;
-  //     for (const auto &joint_name : JointNames)
-  //     {
-  //       feedback->current_joint_rad.push_back(this->curt_joint_state_[joint_name]);
-  //     }
-  //     feedback->move_time.sec = (this->now() - start_time).seconds();
-  //     feedback->move_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
-
-  //     goal_handle->publish_feedback(feedback);
-
-  //     // rclcpp::spin_some(this->get_node_base_interface());
-  //     // loop_rate.sleep();
-  //   }
-
-  //   // Check if goal was reached
-  //   for (size_t i = 0; i < JointNames.size(); i++)
-  //   {
-  //     // TODO: set tolerance with parameter or msg
-  //     if (std::abs(this->curt_joint_state_[JointNames[i]] - target_joint_rad[i]) > 0.1)
-  //     {
-  //       RCLCPP_ERROR(this->get_logger(), "Failed to reach the goal");
-
-  //       result->success = false;
-  //       result->message = "[FAIL] Failed to reach the goal";
-  //       result->total_elapsed_time.sec = (this->now() - start_time).seconds();
-  //       result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
-  //       goal_handle->abort(result);
-
-  //       return;
-  //     }
-  //   }
-
-  //   // Clear the current joint state
-  //   curt_joint_state_.clear();
-
-  //   // Publish the result
-  //   result->message = "[SUCCESS] Goal has been succeeded";
-  //   result->success = true;
-  //   result->total_elapsed_time.sec = (this->now() - start_time).seconds();
-  //   result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
-
-  //   goal_handle->succeed(result);
-  // }
 
   void JointActionServer::get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right, bool is_one_rink)
   {
@@ -663,88 +324,6 @@ namespace sobit_home
     response->success = true;
   }
 
-  // void JointActionServer::serve_get_finger_angle(
-  //     const std::shared_ptr<GetFingerAngle::Request> request,
-  //     std::shared_ptr<GetFingerAngle::Response> response)
-  // {
-  //   std::vector<std::string> target_joint_names;
-  //   std::vector<double> opened_target_joint_rad;
-  //   std::vector<double> closed_target_joint_rad;
-  //   std::vector<bool> invert_target_joint;
-
-  //   double sign_multiplier = 1.0;
-
-  //   invert_target_joint = {true, false, false, true, true, false, false};
-
-  //   if (request->is_right)
-  //   {
-  //     target_joint_names = {"hand_right_finger_l_mcp_joint", "hand_right_finger_l_pip_joint", "hand_right_finger_l_dip_joint",
-  //                           "hand_right_finger_c_mcp_joint", "hand_right_finger_c_ip_joint", "hand_right_finger_r_pip_joint",
-  //                           "hand_right_finger_r_dip_joint"};
-  //     sign_multiplier = -1.0;
-  //   }
-  //   else
-  //   {
-  //     target_joint_names = {"hand_left_finger_l_mcp_joint", "hand_left_finger_l_pip_joint", "hand_left_finger_l_dip_joint",
-  //                           "hand_left_finger_c_mcp_joint", "hand_left_finger_c_ip_joint", "hand_left_finger_r_pip_joint",
-  //                           "hand_left_finger_r_dip_joint"};
-  //   }
-
-  //   if (request->grasp_form == 0)
-  //   {
-  //     opened_target_joint_rad = {-1.65, 1.571, -1.0, -1.571, 1.0, -1.571, 1.0};
-  //     if (request->grasp_mode == "pick")
-  //     {
-  //       closed_target_joint_rad = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-  //     }
-  //     else if (request->grasp_mode == "grasp")
-  //     {
-  //       closed_target_joint_rad = {-1.65, -0.1, -0.8, -0.1, 1.0, 0.1, 0.8};
-  //     }
-  //   }
-  //   else if (request->grasp_form == 1)
-  //   {
-  //     opened_target_joint_rad = {-0.7, 1.571, -1.0, -1.571, 1.0, -1.571, 1.0};
-  //     if (request->grasp_mode == "pick")
-  //     {
-  //       closed_target_joint_rad = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-  //     }
-  //     else if (request->grasp_mode == "grasp")
-  //     {
-  //       closed_target_joint_rad = {-0.7, -0.1, -1.2, -0.3, 1.571, 0.1, 1.2};
-  //     }
-  //   }
-
-  //   if (sign_multiplier == -1.0)
-  //   {
-  //     std::transform(
-  //         opened_target_joint_rad.begin(),
-  //         opened_target_joint_rad.end(),
-  //         invert_target_joint.begin(),
-  //         opened_target_joint_rad.begin(),
-  //         [sign_multiplier](double rad, bool invert)
-  //         {
-  //           return invert ? rad * sign_multiplier : rad;
-  //         });
-  //     std::transform(
-  //         closed_target_joint_rad.begin(),
-  //         closed_target_joint_rad.end(),
-  //         invert_target_joint.begin(),
-  //         closed_target_joint_rad.begin(),
-  //         [sign_multiplier](double rad, bool invert)
-  //         {
-  //           return invert ? rad * sign_multiplier : rad;
-  //         });
-  //   }
-
-  //   response->success = true;
-  //   response->message = "[SUCCESS] Finger angle calculated.";
-  //   response->target_joint_names = target_joint_names;
-  //   response->opened_target_joint_rad = opened_target_joint_rad;
-  //   response->closed_target_joint_rad = closed_target_joint_rad;
-  //   return;
-  // }
-
   void JointActionServer::get_head_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response)
   {
     geometry_msgs::msg::TransformStamped goal_head;
@@ -785,6 +364,12 @@ namespace sobit_home
     response->target_joint_names = JointNamesHead;
     response->target_joint_rad = {pan, tilt};
     response->success = true;
+  }
+
+  void JointActionServer::joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg)
+  {
+    for (size_t i = 0; i < msg->name.size(); i++)
+      this->curt_joint_state_[msg->name[i]] = msg->position[i];
   }
 
   trajectory_msgs::msg::JointTrajectory JointActionServer::set_joints(const std::vector<std::string> &names, const std::vector<double> &rads, const builtin_interfaces::msg::Duration &dur, const std::string &grp)
