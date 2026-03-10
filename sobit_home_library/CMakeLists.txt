@@ -28,7 +28,7 @@ include_directories(include)
 add_library(${PROJECT_NAME} SHARED
   src/sobit_home_joint_action_server.cpp
   src/sobit_home_wheel_action_server.cpp
-  src/sobit_home_kinematics.cpp
+  src/kinematics.cpp
 )
 
 # Register Components

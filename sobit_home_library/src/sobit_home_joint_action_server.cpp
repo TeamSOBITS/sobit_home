@@ -6,7 +6,7 @@ namespace sobit_home
       : Node("joint_action_server", options),
         tf_buffer_(std::make_shared<tf2_ros::Buffer>(this->get_clock())),
         tf_listener_(std::make_shared<tf2_ros::TransformListener>(*tf_buffer_)),
-        kinematics_(std::make_unique<SobitHomeKinematics>()),
+        kinematics_(std::make_unique<Kinematics>()),
         urdf_loaded_(false)
   {
     rclcpp::QoS qos_profile(1);
@@ -492,3 +492,5 @@ namespace sobit_home
   }
 
 } // namespace sobit_home
+
+RCLCPP_COMPONENTS_REGISTER_NODE(sobit_home::JointActionServer)

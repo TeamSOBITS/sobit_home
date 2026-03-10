@@ -185,7 +185,7 @@ void WheelActionServer::exe_move_wheel_linear(
 
     // Calculate the elapsed time
     rclcpp::Duration dur_elapsed_time = curt_time - start_time;
-    double elapsed_time = dur_elapsed_time.nanoseconds() / 1e9; 
+    double elapsed_time = dur_elapsed_time.nanoseconds() / 1e9;
 
     double vel_linear = 0.0;
 
@@ -220,7 +220,7 @@ void WheelActionServer::exe_move_wheel_linear(
     feedback->move_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
     goal_handle->publish_feedback(feedback);
 
-    // 
+    //
     loop_rate.sleep();
   }
 
@@ -285,7 +285,7 @@ void WheelActionServer::exe_move_wheel_rotate(
 
     // Calculate the elapsed time
     rclcpp::Duration dur_elapsed_time = curt_time - start_time;
-    double elapsed_time = dur_elapsed_time.nanoseconds() / 1e9; 
+    double elapsed_time = dur_elapsed_time.nanoseconds() / 1e9;
 
     double vel_angular = 0.0;
 
@@ -362,3 +362,5 @@ void WheelActionServer::odom_callback(
 }
 
 } // namespace sobit_home
+
+RCLCPP_COMPONENTS_REGISTER_NODE(sobit_home::WheelActionServer)

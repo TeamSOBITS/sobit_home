@@ -29,7 +29,7 @@
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 
-#include "sobit_home_library/sobit_home_kinematics.hpp"
+#include "sobit_home_library/kinematics.hpp"
 
 namespace sobit_home
 {
@@ -176,7 +176,7 @@ namespace sobit_home
 
     std::vector<PoseParams> poses_;
     std::map<std::string, double> curt_joint_state_;
-    std::unique_ptr<SobitHomeKinematics> kinematics_;
+    std::unique_ptr<Kinematics> kinematics_;
 
     rclcpp_action::Server<MoveJoint>::SharedPtr action_server_move_joints_;
     rclcpp_action::Server<MoveToPose>::SharedPtr action_server_move_to_pose_;
@@ -240,4 +240,4 @@ namespace sobit_home
 
 } // namespace sobit_home
 
-#endif
+#endif // SOBIT_HOME_JOINT_ACTION_SERVER_HPP
