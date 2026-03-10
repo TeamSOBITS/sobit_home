@@ -338,7 +338,7 @@
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
-        <param name="initial_value">0.0</param>
+        <param name="initial_value">0.55</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
@@ -360,7 +360,7 @@
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
-        <param name="initial_value">0.0</param>
+        <param name="initial_value">-0.55</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
@@ -382,7 +382,7 @@
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
-        <param name="initial_value">0.0</param>
+        <param name="initial_value">-1.5</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
@@ -420,7 +420,7 @@
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
-        <param name="initial_value">0.0</param>
+        <param name="initial_value">-1.33</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
@@ -480,7 +480,7 @@
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
-        <param name="initial_value">0.0</param>
+        <param name="initial_value">1.5</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
@@ -518,7 +518,7 @@
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
-        <param name="initial_value">0.0</param>
+        <param name="initial_value">1.33</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
@@ -885,7 +885,7 @@
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
-        <param name="initial_value">0.4</param>
+        <param name="initial_value">0.50</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
