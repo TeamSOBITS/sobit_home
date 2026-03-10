@@ -12,24 +12,24 @@
 
 namespace sobit_home
 {
-class Kinematics
-{
-public:
-  Kinematics();
-  geometry_msgs::msg::TransformStamped forward_kinematics(
-      const std::vector<double> &target_joint_rad,
-      const bool is_right,
-      const double target_yaw);
+  class Kinematics
+  {
+  public:
+    Kinematics();
+    geometry_msgs::msg::TransformStamped forward_kinematics(
+        const std::vector<double> &target_joint_rad,
+        const bool is_right,
+        const double target_yaw);
 
-  std::vector<double> inverse_kinematics(
-      const geometry_msgs::msg::TransformStamped &goal_coord,
-      const bool is_right,
-      bool is_one_link,
-      const double target_yaw);
+    std::vector<double> inverse_kinematics(
+        const geometry_msgs::msg::TransformStamped &goal_coord,
+        const bool is_right,
+        bool is_one_link,
+        const double target_yaw);
 
-  geometry_msgs::msg::Vector3 get_euler_from_quat(const geometry_msgs::msg::Quaternion &quat);
-  geometry_msgs::msg::Quaternion get_quat_from_euler(const geometry_msgs::msg::Vector3 &rpy);
-};
-}
+    geometry_msgs::msg::Vector3 get_euler_from_quat(const geometry_msgs::msg::Quaternion &quat);
+    geometry_msgs::msg::Quaternion get_quat_from_euler(const geometry_msgs::msg::Vector3 &rpy);
+  };
+} // namespace sobit_home
 
-#endif
+#endif // SOBIT_HOME_LIBRARY_KINEMATICS_HPP
