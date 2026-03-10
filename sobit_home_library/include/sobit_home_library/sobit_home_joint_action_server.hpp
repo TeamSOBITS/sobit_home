@@ -29,77 +29,81 @@
 
 namespace sobit_home
 {
+  enum JointIds
+  {
+    ARM_R_SHOULDER_TILT,
+    ARM_R_UPPER_ROLL,
+    ARM_R_UPPER_FLEX,
+    ARM_R_ELBOW,
+    ARM_R_WRIST_TILT,
+    ARM_R_WRIST_ROLL,
+
+    HAND_R_FINGER_L_MCP,
+    HAND_R_FINGER_L_PIP,
+    HAND_R_FINGER_L_DIP,
+    HAND_R_FINGER_C_MCP,
+    HAND_R_FINGER_C_IP,
+    HAND_R_FINGER_R_PIP,
+    HAND_R_FINGER_R_DIP,
+
+    ARM_L_SHOULDER_TILT,
+    ARM_L_UPPER_ROLL,
+    ARM_L_UPPER_FLEX,
+    ARM_L_ELBOW,
+    ARM_L_WRIST_TILT,
+    ARM_L_WRIST_ROLL,
+
+    HAND_L_FINGER_L_MCP,
+    HAND_L_FINGER_L_PIP,
+    HAND_L_FINGER_L_DIP,
+    HAND_L_FINGER_C_MCP,
+    HAND_L_FINGER_C_IP,
+    HAND_L_FINGER_R_PIP,
+    HAND_L_FINGER_R_DIP,
+
+    BODY_LIFT,
+    HEAD_PAN,
+    HEAD_TILT,
+    JOINT_NUM
+  };
 
   struct PoseParams
   {
     std::string pose_name;
+
     double arm_right_shoulder_tilt;
     double arm_right_upper_roll;
     double arm_right_upper_flex;
     double arm_right_elbow;
     double arm_right_wrist_tilt;
     double arm_right_wrist_roll;
-    // double hand_right_finger_l_mcp;
-    // double hand_right_finger_l_dip;
-    // double hand_right_finger_l_pip;
-    // double hand_right_finger_c_mcp;
-    // double hand_right_finger_c_ip;
-    // double hand_right_finger_r_dip;
-    // double hand_right_finger_r_pip;
+
+    double hand_right_finger_l_mcp;
+    double hand_right_finger_l_pip;
+    double hand_right_finger_l_dip;
+    double hand_right_finger_c_mcp;
+    double hand_right_finger_c_ip;
+    double hand_right_finger_r_pip;
+    double hand_right_finger_r_dip;
+
     double arm_left_shoulder_tilt;
     double arm_left_upper_roll;
     double arm_left_upper_flex;
     double arm_left_elbow;
     double arm_left_wrist_tilt;
     double arm_left_wrist_roll;
-    // double hand_left_finger_l_mcp;
-    // double hand_left_finger_l_dip;
-    // double hand_left_finger_l_pip;
-    // double hand_left_finger_c_mcp;
-    // double hand_left_finger_c_ip;
-    // double hand_left_finger_r_dip;
-    // double hand_left_finger_r_pip;
+
+    double hand_left_finger_l_mcp;
+    double hand_left_finger_l_pip;
+    double hand_left_finger_l_dip;
+    double hand_left_finger_c_mcp;
+    double hand_left_finger_c_ip;
+    double hand_left_finger_r_pip;
+    double hand_left_finger_r_dip;
+
     double body_lift;
     double head_pan;
     double head_tilt;
-  };
-
-  enum JointIds
-  {
-    Arm_R_Shoulder_Tilt_Joint = 0,
-    Arm_R_Upper_Roll_Joint,
-    Arm_R_Upper_Flex_Joint,
-    Arm_R_Elbow_Joint,
-    Arm_R_Wrist_Tilt_Joint,
-    Arm_R_Wrist_Roll_Joint,
-
-    Hand_R_Finger_L_Mcp_Joint,
-    Hand_R_Finger_L_Dip_Joint,
-    Hand_R_Finger_L_Pip_Joint,
-    Hand_R_Finger_C_Mcp_Joint,
-    Hand_R_Finger_C_Ip_Joint,
-    Hand_Right_Finger_R_Pip_Joint,
-    Hand_right_finger_R_Dip_joint,
-
-    Arm_L_Shoulder_Tilt_Joint,
-    Arm_L_Upper_Roll_Joint,
-    Arm_L_Upper_Flex_Joint,
-    Arm_L_Elbow_Joint,
-    Arm_L_Wrist_Tilt_Joint,
-    Arm_L_Wrist_Roll_Joint,
-
-    Hand_L_Finger_L_Mcp_Joint,
-    Hand_L_Finger_L_Dip_Joint,
-    Hand_L_Finger_L_Pip_Joint,
-    Hand_L_Finger_C_Mcp_Joint,
-    Hand_L_Finger_C_Ip_Joint,
-    Hand_L_Finger_R_Pip_Joint,
-    Hand_L_Finger_R_Dip_Joint,
-
-    Body_Lift_Joint,
-    Head_Pan_Joint,
-    Head_Tilt_Joint,
-    JointNum
   };
 
   class JointActionServer : public rclcpp::Node
@@ -118,18 +122,6 @@ namespace sobit_home
     explicit JointActionServer(const rclcpp::NodeOptions &options);
     ~JointActionServer();
 
-    geometry_msgs::msg::Vector3 get_euler_from_quat(
-        const geometry_msgs::msg::Quaternion &quat);
-    geometry_msgs::msg::Quaternion get_quat_from_euler(
-        const geometry_msgs::msg::Vector3 &rpy);
-    geometry_msgs::msg::TransformStamped forward_kinematics(
-        const std::vector<double> &target_joint_rad,
-        const bool is_right,
-        const double target_yaw); // target_yaw should be eliminated in the future.
-    std::vector<double> inverse_kinematics(
-        const geometry_msgs::msg::TransformStamped &goal_coord,
-        const bool is_right, bool is_one_rink,
-        const double target_yaw); // target_yaw should be eliminated in the future.
     trajectory_msgs::msg::JointTrajectory set_joints(
         const std::vector<std::string> &target_joint_names,
         const std::vector<double> &target_joint_rad,
@@ -137,37 +129,6 @@ namespace sobit_home
         const std::string &group_name);
 
   private:
-    const std::vector<std::string> JointNames = {
-        "arm_right_shoulder_tilt_joint",
-        "arm_right_upper_roll_joint",
-        "arm_right_upper_flex_joint",
-        "arm_right_elbow_joint",
-        "arm_right_wrist_tilt_joint",
-        "arm_right_wrist_roll_joint",
-        // "hand_right_finger_l_mcp_joint",
-        // "hand_right_finger_l_pip_joint",
-        // "hand_right_finger_l_dip_joint",
-        // "hand_right_finger_c_mcp_joint",
-        // "hand_right_finger_c_ip_joint",
-        // "hand_right_finger_r_pip_joint",
-        // "hand_right_finger_r_dip_joint",
-        "arm_left_shoulder_tilt_joint",
-        "arm_left_upper_roll_joint",
-        "arm_left_upper_flex_joint",
-        "arm_left_elbow_joint",
-        "arm_left_wrist_tilt_joint",
-        "arm_left_wrist_roll_joint",
-        // "hand_left_finger_l_mcp_joint",
-        // "hand_left_finger_l_pip_joint",
-        // "hand_left_finger_l_dip_joint",
-        // "hand_left_finger_c_mcp_joint",
-        // "hand_left_finger_c_ip_joint",
-        // "hand_left_finger_r_pip_joint",
-        // "hand_left_finger_r_dip_joint",
-        "body_lift_joint",
-        "head_pan_joint",
-        "head_tilt_joint"};
-
     const std::vector<std::string> JointNamesArmRight = {
         "arm_right_shoulder_tilt_joint",
         "arm_right_upper_roll_joint",
@@ -209,18 +170,9 @@ namespace sobit_home
     const std::vector<std::string> JointNamesBody = {
         "body_lift_joint"};
 
-    static constexpr double BaseToShoulderDX = 0.11275;
-    static constexpr double BaseToShoulderDY = 0.2775;
-    static constexpr double BaseToShoulderDZ = 0.936058;
-    static constexpr double LengthShoulderElbow = 0.399949;
-    static constexpr double LengthElbowWrist = 0.5000003;
-    static constexpr double LengthHand = 0.1811;
-    static constexpr double BodylinkToHeadtiltDZ = 0.216;
-    /*box高さ 0.291m*/
-
     std::vector<PoseParams> poses_;
-    std::map<std::string, double> init_joint_state_;
     std::map<std::string, double> curt_joint_state_;
+    std::unique_ptr<SobitHomeKinematics> kinematics_;
 
     rclcpp_action::Server<MoveJoint>::SharedPtr action_server_move_joints_;
     rclcpp_action::Server<MoveToPose>::SharedPtr action_server_move_to_pose_;
@@ -267,49 +219,21 @@ namespace sobit_home
     std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
-    std::string robot_description_source_node_;
-    std::shared_ptr<rclcpp::AsyncParametersClient> async_param_client_;
-    std::shared_future<std::vector<rclcpp::Parameter>> robot_desc_future_;
     rclcpp::TimerBase::SharedPtr urdf_timer_;
     bool urdf_loaded_{false};
-    bool robot_desc_requested_{false};
-    bool parse_urdf_limits(const std::string &urdf_xml);
 
     struct Limit
     {
       double lower, upper, velocity, effort;
-      bool has;
+      bool has{false};
     };
     std::unordered_map<std::string, Limit> joint_limits_;
 
     void load_joint_limits();
-
+    bool parse_urdf_limits(const std::string &urdf_xml);
     void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg);
-  }; // class JointActionServer
-
-  inline geometry_msgs::msg::Vector3 JointActionServer::get_euler_from_quat(
-      const geometry_msgs::msg::Quaternion &msg_quat)
-  {
-    tf2::Quaternion tf_quat;
-    geometry_msgs::msg::Vector3 euler;
-
-    tf2::fromMsg(msg_quat, tf_quat);
-    tf_quat.normalize();
-    tf2::Matrix3x3(tf_quat).getRPY(euler.x, euler.y, euler.z);
-
-    return euler;
-  }
-
-  inline geometry_msgs::msg::Quaternion JointActionServer::get_quat_from_euler(
-      const geometry_msgs::msg::Vector3 &euler)
-  {
-    tf2::Quaternion tf_quat;
-
-    tf_quat.setRPY(euler.x, euler.y, euler.z);
-
-    return tf2::toMsg(tf_quat);
-  }
+  };
 
 } // namespace sobit_home
 
-RCLCPP_COMPONENTS_REGISTER_NODE(sobit_home::JointActionServer)
+#endif
