@@ -14,10 +14,10 @@
 namespace sobit_home
 {
 
-  class Kinematics
+  class SobitHomeKinematics
   {
   public:
-    Kinematics();
+    SobitHomeKinematics();
 
     geometry_msgs::msg::TransformStamped forward_kinematics(
         const std::vector<double> &target_joint_rad,
@@ -30,9 +30,6 @@ namespace sobit_home
         bool is_one_link,
         const double target_yaw);
 
-    std::vector<double> look_at(
-        const geometry_msgs::msg::TransformStamped &target_tf);
-
     static geometry_msgs::msg::Vector3 get_euler_from_quat(const geometry_msgs::msg::Quaternion &quat);
     static geometry_msgs::msg::Quaternion get_quat_from_euler(const geometry_msgs::msg::Vector3 &rpy);
 
@@ -43,7 +40,6 @@ namespace sobit_home
     static constexpr double LengthShoulderElbow = 0.399949;
     static constexpr double LengthElbowWrist = 0.5000003;
     static constexpr double LengthHand = 0.1811;
-    static constexpr double BodylinkToHeadtiltDZ = 0.216;
   };
 
 }

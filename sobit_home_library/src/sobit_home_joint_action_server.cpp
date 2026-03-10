@@ -12,19 +12,6 @@ namespace sobit_home
     rclcpp::QoS qos_profile(1);
 
     this->action_server_move_joints_ = rclcpp_action::create_server<MoveJoint>(
-        this,
-        "move_joint",
-        std::bind(&JointActionServer::handle_move_joints_goal, this, std::placeholders::_1, std::placeholders::_2),
-        std::bind(&JointActionServer::handle_move_joints_cancel, this, std::placeholders::_1),
-        std::bind(&JointActionServer::handle_move_joints_accepted, this, std::placeholders::_1));
-    this->action_server_move_to_pose_ = rclcpp_action::create_server<MoveToPose>(
-        this,
-        "move_to_pose",
-        std::bind(&JointActionServer::handle_move_to_pose_goal, this, std::placeholders::_1, std::placeholders::_2),
-        std::bind(&JointActionServer::handle_move_to_pose_cancel, this, std::placeholders::_1),
-        std::bind(&JointActionServer::handle_move_to_pose_accepted, this, std::placeholders::_1));
-
-    this->action_server_move_joints_ = rclcpp_action::create_server<MoveJoint>(
         this, "move_joint",
         std::bind(&JointActionServer::handle_move_joints_goal, this, std::placeholders::_1, std::placeholders::_2),
         std::bind(&JointActionServer::handle_move_joints_cancel, this, std::placeholders::_1),
