@@ -600,229 +600,117 @@ void JointActionServer::exe_move_to_pose(
   goal_handle->succeed(result);
 }
 
-void JointActionServer::get_pos_to_coord(
-    const std::shared_ptr<GetHandToTargetCoord::Request> request,
-    std::shared_ptr<GetHandToTargetCoord::Response> response,
-    bool is_right, bool is_one_rink)
+void JointActionServer::get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right, bool is_one_rink)
 {
-
-  // Get namespace
   geometry_msgs::msg::TransformStamped goal_coord;
-  goal_coord.header = request->target_coord.header;
   goal_coord.header.frame_id = std::string(this->get_namespace()).substr(1) + "/base_footprint";
-
-  // Transform to robot base from 'sobit_home/base_footprint'
   try
   {
-    goal_coord = tf_buffer_->transform(
-        request->target_coord, goal_coord.header.frame_id,
-        tf2::durationFromSec(1.0));
+    goal_coord = tf_buffer_->transform(request->target_coord, goal_coord.header.frame_id, tf2::durationFromSec(1.0));
   }
-  catch (const tf2::TransformException &ex)
+  catch (const std::exception &ex)
   {
-    RCLCPP_ERROR(this->get_logger(), "Failed to get transform: %s", ex.what());
-
+    RCLCPP_ERROR(this->get_logger(), "TF lookup failed: %s", ex.what());
     response->success = false;
-    response->message = "[FAIL] Could not transform coords to " + goal_coord.header.frame_id;
-    response->target_joint_names.clear();
-    response->target_joint_rad.clear();
-
     return;
   }
 
-  // SOBIT HOMEならではの例外．物体が近すぎるので回転じゃどうにもならない場合．
-  double lidar_distance_2 = 0.0302345;
-  double r = std::sqrt(std::pow(lidar_distance_2, 2));
-  if ((std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2) - std::pow(r, 2)) < 0)
+  double target_yaw = (is_right ? 1.0 : -1.0) * M_PI / 2.0 + std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x);
+  auto rads = kinematics_->inverse_kinematics(goal_coord, is_right, is_one_rink, target_yaw);
+
+  if (rads.empty())
   {
-
     response->success = false;
-    response->message = "[FAIL] The coordinates are too close to the robot.";
-    response->target_joint_names.clear();
-    response->target_joint_rad.clear();
-
     return;
   }
 
-  // target_yawにロボットの回転角度を代入
-  // calculate the target_yaw to move base of grasping object
-  double target_linear, target_yaw;
-  double shoulder_rotate_x, shoulder_rotate_y;
-  if (is_right)
-  {
-    shoulder_rotate_x = (std::pow(r, 2) * goal_coord.transform.translation.x + r * goal_coord.transform.translation.y * std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2) - std::pow(r, 2))) / (std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2));
-    shoulder_rotate_y = (std::pow(r, 2) * goal_coord.transform.translation.y - r * goal_coord.transform.translation.x * std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2) - std::pow(r, 2))) / (std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2));
-    target_yaw = M_PI / 2. + std::atan2(shoulder_rotate_y, shoulder_rotate_x);
-  }
-  else
-  {
-    shoulder_rotate_x = (std::pow(r, 2) * goal_coord.transform.translation.x - r * goal_coord.transform.translation.y * std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2) - std::pow(r, 2))) / (std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2));
-    shoulder_rotate_y = (std::pow(r, 2) * goal_coord.transform.translation.y + r * goal_coord.transform.translation.x * std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2) - std::pow(r, 2))) / (std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2));
-    target_yaw = -M_PI / 2. + std::atan2(shoulder_rotate_y, shoulder_rotate_x);
-  }
-  // 3次元の逆運動学が完成したらtarget_yawはある一定の条件で0(=回転する必要なし)になる
+  geometry_msgs::msg::TransformStamped hand_pose = kinematics_->forward_kinematics(rads, is_right, target_yaw);
+  double dist = std::sqrt(std::pow(hand_pose.transform.translation.x - goal_coord.transform.translation.x, 2) + std::pow(hand_pose.transform.translation.y - goal_coord.transform.translation.y, 2));
 
-  // Inverse kinematics to get the target joint rad
-  // 座標を元に逆運動学でbody_lift_joint, shoulder_tilt_joint, upper_flex_joint, elbow_joint, wrist_tilt_jointの5つのなすべき角度をvectorで算出
-  std::vector<std::string> target_joint_names = {"body_lift_joint", "_shoulder_tilt_joint", "_upper_flex_joint", "_elbow_joint", "_wrist_tilt_joint"};
-  for (size_t i = 1; i < target_joint_names.size(); i++)
-    target_joint_names[i] = (is_right) ? ("arm_right" + target_joint_names[i]) : ("arm_left" + target_joint_names[i]);
-  std::vector<double> target_joint_rad = inverse_kinematics(goal_coord, is_right, is_one_rink, target_yaw);
-
-  // If inverse kinematics is outside the range of possible
-  // もし逆運動学可能範囲外ならば・・・
-  if (target_joint_rad.size() == 0)
-  {
-
-    response->success = false;
-    response->message = "[FAIL] The target position is too low or tall (z: " + std::to_string(-(LengthShoulderElbow + LengthElbowWrist)) + " <= Grasp Able <= " + std::to_string(LengthShoulderElbow + LengthElbowWrist) + ")";
-    response->target_joint_names.clear();
-    response->target_joint_rad.clear();
-
-    return;
-  }
-
-  geometry_msgs::msg::TransformStamped hand_pose = forward_kinematics(target_joint_rad, is_right, target_yaw);
-
-  if (std::sqrt(std::pow(hand_pose.transform.translation.x, 2) + std::pow(hand_pose.transform.translation.y, 2)) < std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2)))
-  {
-    target_linear = std::sqrt(std::pow(hand_pose.transform.translation.x - goal_coord.transform.translation.x, 2) + std::pow(hand_pose.transform.translation.y - goal_coord.transform.translation.y, 2));
-  }
-  else
-  {
-    target_linear = -std::sqrt(std::pow(hand_pose.transform.translation.x - goal_coord.transform.translation.x, 2) + std::pow(hand_pose.transform.translation.y - goal_coord.transform.translation.y, 2));
-  }
-
-  response->move_pose.position.x = target_linear;
-  response->move_pose.position.y = 0.0;
-  response->move_pose.position.z = 0.0;
-
+  response->move_pose.position.x = (std::sqrt(std::pow(hand_pose.transform.translation.x, 2) + std::pow(hand_pose.transform.translation.y, 2)) < std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2))) ? dist : -dist;
   geometry_msgs::msg::Vector3 euler;
-  euler.x = 0.0;
-  euler.y = 0.0;
   euler.z = target_yaw;
-  response->move_pose.orientation = get_quat_from_euler(euler);
-
+  response->move_pose.orientation = kinematics_->get_quat_from_euler(euler);
+  response->target_joint_rad = rads;
+  response->target_joint_names = {"body_lift_joint"};
+  std::string side = is_right ? "arm_right" : "arm_left";
+  response->target_joint_names.insert(response->target_joint_names.end(), {side + "_shoulder_tilt_joint", side + "_upper_flex_joint", side + "_elbow_joint", side + "_wrist_tilt_joint"});
   response->success = true;
-  response->message = "[SUCCESS] The coord is grasp able.";
-  response->target_joint_names = target_joint_names;
-  response->target_joint_rad = target_joint_rad;
-
-  return;
 }
 
-void JointActionServer::get_pos_to_tf(
-    const std::shared_ptr<GetHandToTargetTF::Request> request,
-    std::shared_ptr<GetHandToTargetTF::Response> response,
-    bool is_right, bool is_one_rink)
+void JointActionServer::exe_move_joints(const std::shared_ptr<GoalHandleMoveJoints> goal_handle)
 {
+  const auto goal = goal_handle->get_goal();
+  auto result = std::make_shared<MoveJoint::Result>();
 
-  // Get namespace
+  if (goal->target_joint_names.size() != goal->target_joint_rad.size())
+  {
+    RCLCPP_ERROR(this->get_logger(), "Joint names and rad size mismatch.");
+    result->success = false;
+    goal_handle->abort(result);
+    return;
+  }
+
+  auto publish_group = [&](auto &pub, const std::string &grp)
+  {
+    auto traj = set_joints(goal->target_joint_names, goal->target_joint_rad, goal->time_allowance, grp);
+    if (!traj.joint_names.empty())
+    {
+      try
+      {
+        pub->publish(traj);
+      }
+      catch (const std::exception &e)
+      {
+        RCLCPP_ERROR(this->get_logger(), "Publish failed in %s: %s", grp.c_str(), e.what());
+      }
+    }
+  };
+
+  publish_group(pub_left_arm_joint_control_, "arm_left");
+  publish_group(pub_right_arm_joint_control_, "arm_right");
+  publish_group(pub_left_hand_joint_control_, "hand_left");
+  publish_group(pub_right_hand_joint_control_, "hand_right");
+  publish_group(pub_body_joint_control_, "body");
+  publish_group(pub_head_joint_control_, "head");
+
+  auto start_time = this->now();
+  while (this->now() - start_time < goal->time_allowance)
+  {
+    if (goal_handle->is_canceling())
+    {
+      result->success = false;
+      goal_handle->canceled(result);
+      return;
+    }
+    rclcpp::sleep_for(std::chrono::milliseconds(100));
+  }
+
+  result->success = true;
+  goal_handle->succeed(result);
+}
+
+void JointActionServer::get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right, bool is_one_rink)
+{
   geometry_msgs::msg::TransformStamped goal_coord;
-  goal_coord.header = request->tf_differential.header;
   goal_coord.header.frame_id = std::string(this->get_namespace()).substr(1) + "/base_footprint";
-
-  geometry_msgs::msg::TransformStamped goal_coord_shift;
-
-  // Transform the target frame based on the differential tf
   try
   {
-    goal_coord_shift = tf_buffer_->lookupTransform(
-        request->tf_differential.header.frame_id, request->target_frame,
-        tf2::TimePointZero);
-
-    geometry_msgs::msg::Vector3 euler_target, euler_shift;
-    euler_target = get_euler_from_quat(goal_coord_shift.transform.rotation);
-    euler_shift = get_euler_from_quat(request->tf_differential.transform.rotation);
-    euler_target.x += euler_shift.x;
-    euler_target.y += euler_shift.y;
-    euler_target.z += euler_shift.z;
-
-    goal_coord_shift.transform.translation.x += request->tf_differential.transform.translation.x;
-    goal_coord_shift.transform.translation.y += request->tf_differential.transform.translation.y;
-    goal_coord_shift.transform.translation.z += request->tf_differential.transform.translation.z;
-    goal_coord_shift.transform.rotation = get_quat_from_euler(euler_target);
+    goal_coord = tf_buffer_->transform(request->target_coord, goal_coord.header.frame_id, tf2::durationFromSec(1.0));
   }
-  catch (const tf2::TransformException &ex)
+  catch (const std::exception &ex)
   {
-    RCLCPP_ERROR(this->get_logger(), "Could not transform: %s to %s: %s", request->target_frame.c_str(), request->tf_differential.header.frame_id.c_str(), ex.what());
-
+    RCLCPP_ERROR(this->get_logger(), "TF lookup failed: %s", ex.what());
     response->success = false;
-    response->message = "[FAIL] Could not transform: " + request->target_frame + " to: " + request->tf_differential.header.frame_id;
-    response->target_joint_names.clear();
-    response->target_joint_rad.clear();
-
     return;
   }
 
-  // Transform to robot base from 'sobit_home/base_footprint'
-  try
-  {
-    goal_coord = tf_buffer_->transform(
-        goal_coord_shift, goal_coord.header.frame_id,
-        tf2::durationFromSec(1.0));
-  }
-  catch (const tf2::TransformException &ex)
-  {
-    RCLCPP_ERROR(this->get_logger(), "Could not transform coords to %s: %s", goal_coord.header.frame_id.c_str(), ex.what());
+  double target_yaw = (is_right ? 1.0 : -1.0) * M_PI / 2.0 + std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x);
+  auto rads = kinematics_->inverse_kinematics(goal_coord, is_right, is_one_rink, target_yaw);
 
+  if (rads.empty())
+  {
     response->success = false;
-    response->message = "[FAIL] Could not transform coords to " + goal_coord.header.frame_id;
-    response->target_joint_names.clear();
-    response->target_joint_rad.clear();
-
-    return;
-  }
-
-  // SOBIT HOMEならではの例外．物体が近すぎるので回転じゃどうにもならない場合．
-  double lidar_distance_2 = 0.0302345;
-  double r = std::sqrt(std::pow(lidar_distance_2, 2));
-  if ((std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2) - std::pow(r, 2)) < 0)
-  {
-
-    response->success = false;
-    response->message = "[FAIL] The coordinates are too close to the robot.";
-    response->target_joint_names.clear();
-    response->target_joint_rad.clear();
-
-    return;
-  }
-
-  // target_yawにロボットの回転角度を代入
-  // calculate the target_yaw to move base of grasping object
-  double target_linear, target_yaw;
-  double shoulder_rotate_x, shoulder_rotate_y;
-  if (is_right)
-  {
-    shoulder_rotate_x = (std::pow(r, 2) * goal_coord.transform.translation.x + r * goal_coord.transform.translation.y * std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2) - std::pow(r, 2))) / (std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2));
-    shoulder_rotate_y = (std::pow(r, 2) * goal_coord.transform.translation.y - r * goal_coord.transform.translation.x * std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2) - std::pow(r, 2))) / (std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2));
-    target_yaw = M_PI / 2. + std::atan2(shoulder_rotate_y, shoulder_rotate_x);
-  }
-  else
-  {
-    shoulder_rotate_x = (std::pow(r, 2) * goal_coord.transform.translation.x - r * goal_coord.transform.translation.y * std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2) - std::pow(r, 2))) / (std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2));
-    shoulder_rotate_y = (std::pow(r, 2) * goal_coord.transform.translation.y + r * goal_coord.transform.translation.x * std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2) - std::pow(r, 2))) / (std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2));
-    target_yaw = -M_PI / 2. + std::atan2(shoulder_rotate_y, shoulder_rotate_x);
-  }
-  // 3次元の逆運動学が完成したらtarget_yawはある一定の条件で0(=回転する必要なし)になる
-
-  // Inverse kinematics to get the target joint rad
-  // 座標を元に逆運動学でbody_lift_joint, shoulder_tilt_joint, upper_flex_joint, elbow_joint, wrist_tilt_jointの5つのなすべき角度をvectorで算出
-  std::vector<std::string> target_joint_names = {"body_lift_joint", "_shoulder_tilt_joint", "_upper_flex_joint", "_elbow_joint", "_wrist_tilt_joint"};
-  for (size_t i = 1; i < target_joint_names.size(); i++)
-    target_joint_names[i] = (is_right) ? ("arm_right" + target_joint_names[i]) : ("arm_left" + target_joint_names[i]);
-  std::vector<double> target_joint_rad = inverse_kinematics(goal_coord, is_right, is_one_rink, target_yaw);
-
-  // If inverse kinematics is outside the range of possible
-  // もし逆運動学可能範囲外ならば・・・
-  if (target_joint_rad.size() == 0)
-  {
-
-    response->success = false;
-    response->message = "[FAIL] The target position is too low or tall (z: " + std::to_string(-(LengthShoulderElbow + LengthElbowWrist)) + " <= Grasp Able <= " + std::to_string(LengthShoulderElbow + LengthElbowWrist) + ")";
-    response->target_joint_names.clear();
-    response->target_joint_rad.clear();
-
     return;
   }
 
