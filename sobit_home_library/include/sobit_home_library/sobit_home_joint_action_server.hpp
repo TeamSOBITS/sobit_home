@@ -1,7 +1,23 @@
+#ifndef SOBIT_HOME_JOINT_ACTION_SERVER_HPP
+#define SOBIT_HOME_JOINT_ACTION_SERVER_HPP
+
 #include <map>
-#include <cmath>
-#include <future>
+#include <memory>
+#include <vector>
+#include <string>
+#include <unordered_map>
+#include <algorithm>
+#include <thread>
+#include <chrono>
+
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp_action/rclcpp_action.hpp>
+#include <rclcpp_components/register_node_macro.hpp>
 #include <urdf/model.h>
+
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include "sobits_interfaces/action/move_joint.hpp"
 #include "sobits_interfaces/action/move_to_pose.hpp"
@@ -9,23 +25,11 @@
 #include "sobits_interfaces/srv/get_hand_to_target_tf.hpp"
 #include "sobits_interfaces/srv/get_finger_angle.hpp"
 
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/transform_listener.h>
-#include <tf2/exceptions.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2/LinearMath/Matrix3x3.h>
-
 #include "trajectory_msgs/msg/joint_trajectory.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
-#include "geometry_msgs/msg/quaternion.h"
-#include "geometry_msgs/msg/vector3.h"
-#include "geometry_msgs/msg/point.h"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
-#include <rclcpp/rclcpp.hpp>
-#include <rclcpp_action/rclcpp_action.hpp>
-#include <rclcpp_components/register_node_macro.hpp>
+#include "sobit_home_library/sobit_home_kinematics.hpp"
 
 namespace sobit_home
 {
