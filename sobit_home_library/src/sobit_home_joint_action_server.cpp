@@ -745,229 +745,60 @@ namespace sobit_home
   //   return;
   // }
 
-  void JointActionServer::get_head_to_coord(
-      const std::shared_ptr<GetHandToTargetCoord::Request> request,
-      std::shared_ptr<GetHandToTargetCoord::Response> response)
+  void JointActionServer::get_head_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response)
   {
-
-    // Get namespace
-    geometry_msgs::msg::TransformStamped goal_coord;
-    goal_coord.header = request->target_coord.header;
-    goal_coord.header.frame_id = std::string(this->get_namespace()).substr(1) + "/head_base_link";
-
-    // Transform to head base link from 'sobit_home/head_base_link'
+    geometry_msgs::msg::TransformStamped goal_head;
     try
     {
-      goal_coord = tf_buffer_->transform(
-          request->target_coord, goal_coord.header.frame_id,
-          tf2::durationFromSec(1.0));
+      goal_head = tf_buffer_->transform(request->target_coord, std::string(this->get_namespace()).substr(1) + "/head_base_link", tf2::durationFromSec(1.0));
     }
-    catch (const tf2::TransformException &ex)
+    catch (const std::exception &ex)
     {
-      RCLCPP_ERROR(this->get_logger(), "Failed to get transform: %s", ex.what());
-
+      RCLCPP_ERROR(this->get_logger(), "TF lookup failed: %s", ex.what());
       response->success = false;
-      response->message = "[FAIL] Could not transform coords to " + goal_coord.header.frame_id;
-      response->target_joint_names.clear();
-      response->target_joint_rad.clear();
-
       return;
     }
 
-    double pan_rad, tilt_rad, target_yaw;
-
-    if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) > joint_limits_["head_pan_joint"].upper)
-    { // 45 degrees
-      pan_rad = joint_limits_["head_pan_joint"].upper;
-      target_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) - joint_limits_["head_pan_joint"].upper;
-    }
-    else if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) < joint_limits_["head_pan_joint"].lower)
-    {
-      pan_rad = joint_limits_["head_pan_joint"].lower;
-      target_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) - joint_limits_["head_pan_joint"].lower;
-    }
-    else
-    {
-      pan_rad = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x);
-      target_yaw = 0.0;
-    }
-
-    if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > joint_limits_["head_tilt_joint"].upper)
-    { // 30 degrees
-      tilt_rad = joint_limits_["head_tilt_joint"].upper;
-    }
-    else if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < joint_limits_["head_tilt_joint"].lower)
-    { // 45 degrees
-      tilt_rad = joint_limits_["head_tilt_joint"].lower;
-    }
-    else
-    {
-      tilt_rad = std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2)));
-    }
-
-    if (std::abs(atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x)) < joint_limits_["head_pan_joint"].upper &&                                                                                              // 45 degrees
-        std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > joint_limits_["head_tilt_joint"].lower && // 45 degrees
-        std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < joint_limits_["head_tilt_joint"].upper)
-    { // 30 degrees
-      response->success = true;
-      response->message = "[SUCCESS] The coord is visible.";
-    }
-    else
-    {
-      response->success = false;
-      response->message = "[FAIL] The coord is out of the head rotation limit";
-    }
-
-    response->move_pose.position.x = 0.0;
-    response->move_pose.position.y = 0.0;
-    response->move_pose.position.z = 0.0;
-
-    geometry_msgs::msg::Vector3 euler;
-    euler.x = 0.0;
-    euler.y = 0.0;
-    euler.z = target_yaw;
-    response->move_pose.orientation = get_quat_from_euler(euler);
-
-    response->target_joint_names = {"head_pan_joint", "head_tilt_joint"};
-    response->target_joint_rad = {pan_rad, tilt_rad};
-
-    return;
+    double pan = std::atan2(goal_head.transform.translation.y, goal_head.transform.translation.x);
+    double tilt = std::atan2(goal_head.transform.translation.z, std::sqrt(std::pow(goal_head.transform.translation.x, 2) + std::pow(goal_head.transform.translation.y, 2)));
+    response->target_joint_names = JointNamesHead;
+    response->target_joint_rad = {pan, tilt};
+    response->success = true;
   }
 
-  void JointActionServer::get_head_to_tf(
-      const std::shared_ptr<GetHandToTargetTF::Request> request,
-      std::shared_ptr<GetHandToTargetTF::Response> response)
+  void JointActionServer::get_head_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response)
   {
-
-    // Get namespace
-    geometry_msgs::msg::TransformStamped goal_coord;
-    goal_coord.header = request->tf_differential.header;
-    goal_coord.header.frame_id = std::string(this->get_namespace()).substr(1) + "/head_base_link";
-
-    geometry_msgs::msg::TransformStamped goal_coord_shift;
-
-    // Transform the target frame based on the differential tf
+    geometry_msgs::msg::TransformStamped goal_head;
     try
     {
-      goal_coord_shift = tf_buffer_->lookupTransform(
-          request->tf_differential.header.frame_id, request->target_frame,
-          tf2::TimePointZero);
-
-      geometry_msgs::msg::Vector3 euler_target, euler_shift;
-      euler_target = get_euler_from_quat(goal_coord_shift.transform.rotation);
-      euler_shift = get_euler_from_quat(request->tf_differential.transform.rotation);
-      euler_target.x += euler_shift.x;
-      euler_target.y += euler_shift.y;
-      euler_target.z += euler_shift.z;
-
-      goal_coord_shift.transform.translation.x += request->tf_differential.transform.translation.x;
-      goal_coord_shift.transform.translation.y += request->tf_differential.transform.translation.y;
-      goal_coord_shift.transform.translation.z += request->tf_differential.transform.translation.z;
-      goal_coord_shift.transform.rotation = get_quat_from_euler(euler_target);
+      goal_head = tf_buffer_->lookupTransform(std::string(this->get_namespace()).substr(1) + "/head_base_link", request->target_frame, tf2::TimePointZero);
     }
-    catch (const tf2::TransformException &ex)
+    catch (const std::exception &ex)
     {
-      RCLCPP_ERROR(this->get_logger(), "Could not transform: %s to %s: %s", request->target_frame.c_str(), request->tf_differential.header.frame_id.c_str(), ex.what());
-
+      RCLCPP_ERROR(this->get_logger(), "TF lookup failed: %s", ex.what());
       response->success = false;
-      response->message = "[FAIL] Could not transform: " + request->target_frame + " to: " + request->tf_differential.header.frame_id;
-      response->target_joint_names.clear();
-      response->target_joint_rad.clear();
-
       return;
     }
 
-    // Transform to robot base from 'sobit_home/base_footprint'
-    try
-    {
-      goal_coord = tf_buffer_->transform(
-          goal_coord_shift, goal_coord.header.frame_id,
-          tf2::durationFromSec(1.0));
-    }
-    catch (const tf2::TransformException &ex)
-    {
-      RCLCPP_ERROR(this->get_logger(), "Could not transform coords to %s: %s", goal_coord.header.frame_id.c_str(), ex.what());
-
-      response->success = false;
-      response->message = "[FAIL] Could not transform coords to " + goal_coord.header.frame_id;
-      response->target_joint_names.clear();
-      response->target_joint_rad.clear();
-
-      return;
-    }
-
-    double pan_rad, tilt_rad, target_yaw;
-
-    if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) > joint_limits_["head_pan_joint"].upper)
-    { // 45 degrees
-      pan_rad = joint_limits_["head_pan_joint"].upper;
-      target_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) - joint_limits_["head_pan_joint"].upper;
-    }
-    else if (std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) < joint_limits_["head_pan_joint"].lower)
-    {
-      pan_rad = joint_limits_["head_pan_joint"].lower;
-      target_yaw = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x) - joint_limits_["head_pan_joint"].lower;
-    }
-    else
-    {
-      pan_rad = std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x);
-      target_yaw = 0.0;
-    }
-
-    if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > joint_limits_["head_tilt_joint"].upper)
-    { // 30 degrees
-      tilt_rad = joint_limits_["head_tilt_joint"].upper;
-    }
-    else if (std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < joint_limits_["head_tilt_joint"].lower)
-    { // 45 degrees
-      tilt_rad = joint_limits_["head_tilt_joint"].lower;
-    }
-    else
-    {
-      tilt_rad = std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2)));
-    }
-
-    if (std::abs(atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x)) < joint_limits_["head_pan_joint"].upper &&                                                                                              // 45 degrees
-        std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) > joint_limits_["head_tilt_joint"].lower && // 45 degrees
-        std::atan2(goal_coord.transform.translation.z, std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y - BodylinkToHeadtiltDZ, 2))) < joint_limits_["head_tilt_joint"].upper)
-    { // 30 degrees
-      response->success = true;
-      response->message = "[SUCCESS] The coord is visible.";
-    }
-    else
-    {
-      response->success = false;
-      response->message = "[FAIL] The coord is out of the head rotation limit";
-    }
-
-    response->move_pose.position.x = 0.0;
-    response->move_pose.position.y = 0.0;
-    response->move_pose.position.z = 0.0;
-
-    geometry_msgs::msg::Vector3 euler;
-    euler.x = 0.0;
-    euler.y = 0.0;
-    euler.z = target_yaw;
-    response->move_pose.orientation = get_quat_from_euler(euler);
-
-    response->target_joint_names = {"head_pan_joint", "head_tilt_joint"};
-    response->target_joint_rad = {pan_rad, tilt_rad};
-
-    return;
+    double pan = std::atan2(goal_head.transform.translation.y, goal_head.transform.translation.x);
+    double tilt = std::atan2(goal_head.transform.translation.z, std::sqrt(std::pow(goal_head.transform.translation.x, 2) + std::pow(goal_head.transform.translation.y, 2)));
+    response->target_joint_names = JointNamesHead;
+    response->target_joint_rad = {pan, tilt};
+    response->success = true;
   }
 
-  void JointActionServer::joint_state_callback(
-      const sensor_msgs::msg::JointState::SharedPtr msg)
-  {
-    // RCLCPP_INFO(this->get_logger(), "Received joint state");
+  // void JointActionServer::joint_state_callback(
+  //     const sensor_msgs::msg::JointState::SharedPtr msg)
+  // {
+  //   // RCLCPP_INFO(this->get_logger(), "Received joint state");
 
-    for (size_t i = 0; i < msg->name.size(); i++)
-    {
-      // if (msg->name[i] == "SUB JOINT") continue;  // Skip sub joints
+  //   for (size_t i = 0; i < msg->name.size(); i++)
+  //   {
+  //     // if (msg->name[i] == "SUB JOINT") continue;  // Skip sub joints
 
-      this->curt_joint_state_[msg->name[i]] = msg->position[i];
-    }
-  }
+  //     this->curt_joint_state_[msg->name[i]] = msg->position[i];
+  //   }
+  // }
 
   trajectory_msgs::msg::JointTrajectory JointActionServer::set_joints(
       const std::vector<std::string> &target_joint_names, // JointName
