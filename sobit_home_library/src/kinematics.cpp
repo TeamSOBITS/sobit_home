@@ -6,24 +6,20 @@ namespace sobit_home
 
     geometry_msgs::msg::TransformStamped Kinematics::forward_kinematics(
         const std::vector<double> &target_joint_rad,
-        const bool is_right,
-        const double target_yaw)
+        const bool is_right)
     {
         (void)target_joint_rad;
         (void)is_right;
-        (void)target_yaw;
         geometry_msgs::msg::TransformStamped tf;
         return tf;
     }
 
     std::vector<double> Kinematics::inverse_kinematics(
         const geometry_msgs::msg::TransformStamped &goal_coord,
-        const bool is_right,
-        const double target_yaw)
+        const bool is_right)
     {
         (void)goal_coord;
         (void)is_right;
-        (void)target_yaw;
         std::vector<double> joint_angles;
         return joint_angles;
     }
@@ -65,5 +61,4 @@ namespace sobit_home
 
         return tf2::toMsg(q);
     }
-
 }

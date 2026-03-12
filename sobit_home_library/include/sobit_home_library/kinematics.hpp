@@ -22,13 +22,11 @@ public:
 
     geometry_msgs::msg::TransformStamped forward_kinematics(
         const std::vector<double> &target_joint_rad,
-        const bool is_right,
-        const double target_yaw);
+        const bool is_right);
 
     std::vector<double> inverse_kinematics(
         const geometry_msgs::msg::TransformStamped &goal_coord,
-        const bool is_right,
-        const double target_yaw);
+        const bool is_right);
 
     std::vector<double> look_at(
         const geometry_msgs::msg::TransformStamped &target_tf);
@@ -38,7 +36,7 @@ public:
 
 private:
     static constexpr double BaseToShoulderDY = 0.28;
-    static constexpr double LengthShoulderElbow = 0.38;
+    static constexpr double LengthShoulderElbow = 0.40;
     static constexpr double LengthElbowWrist = 0.50;
     static constexpr double LengthHand = 0.18;
 };

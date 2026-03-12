@@ -279,12 +279,12 @@ namespace sobit_home
 
   void JointActionServer::get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right)
   {
-    geometry_msgs::msg::TransformStamped goal_btf;
-    goal_btf.header.frame_id = "sobit_home/body_lift_link";
+    geometry_msgs::msg::TransformStamped goal_tf;
+    goal_tf.header.frame_id = "sobit_home/body_lift_link";
 
     try
     {
-      goal_btf = tf_buffer_->transform(request->target_coord, goal_btf.header.frame_id, tf2::durationFromSec(1.0));
+      goal_tf = tf_buffer_->transform(request->target_coord, goal_tf.header.frame_id, tf2::durationFromSec(1.0));
     }
     catch (const std::exception &ex)
     {
@@ -293,7 +293,7 @@ namespace sobit_home
       return;
     }
 
-    auto rads = kinematics_->inverse_kinematics(virtual_goal, is_right, 0.0);
+    auto rads = kinematics_->inverse_kinematics(goal_tf, is_right);
 
     if (rads.empty())
     {
@@ -328,11 +328,16 @@ namespace sobit_home
       return;
     }
 
-    auto rads = kinematics_->inverse_kinematics(virtual_goal, is_right, 0.0);
+    goal_tf.transform.translation.x += request->tf_differential.transform.translation.x;
+    goal_tf.transform.translation.y += request->tf_differential.transform.translation.y;
+    goal_tf.transform.translation.z += request->tf_differential.transform.translation.z;
+
+    auto rads = kinematics_->inverse_kinematics(goal_tf, is_right);
 
     if (rads.empty())
     {
       response->success = false;
+      response->message = "Target unreachable with offset.";
       return;
     }
 
