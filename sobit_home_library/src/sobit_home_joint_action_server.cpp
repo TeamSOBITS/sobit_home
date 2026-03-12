@@ -304,6 +304,7 @@ namespace sobit_home
 
     response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
     response->target_joint_rad = rads;
+    response->move_pose = kinematics_->forward_kinematics(rads, is_right);
     response->success = true;
   }
 
@@ -338,6 +339,7 @@ namespace sobit_home
 
     response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
     response->target_joint_rad = rads;
+    response->move_pose = kinematics_->forward_kinematics(rads, is_right);
     response->success = true;
   }
 
