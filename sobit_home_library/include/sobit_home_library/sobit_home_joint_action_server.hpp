@@ -185,10 +185,6 @@ namespace sobit_home
     rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_hand_to_tf_left_;
     rclcpp::Service<GetHandToTargetCoord>::SharedPtr service_get_hand_to_coord_right_;
     rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_hand_to_tf_right_;
-    rclcpp::Service<GetHandToTargetCoord>::SharedPtr service_get_hand_to_coord_one_left_;
-    rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_hand_to_tf_one_left_;
-    rclcpp::Service<GetHandToTargetCoord>::SharedPtr service_get_hand_to_coord_one_right_;
-    rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_hand_to_tf_one_right_;
     rclcpp::Service<GetHandToTargetCoord>::SharedPtr service_get_head_to_coord_;
     rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_head_to_tf_;
     rclcpp::Service<GetFingerAngle>::SharedPtr service_server_get_finger_angle_;
@@ -205,8 +201,8 @@ namespace sobit_home
     void exe_move_joints(const std::shared_ptr<GoalHandleMoveJoints> goal_handle);
     void exe_move_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
 
-    void get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right, bool is_one_rink);
-    void get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right, bool is_one_rink);
+    void get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right);
+    void get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right);
     void get_head_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response);
     void get_head_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response);
     void serve_get_finger_angle(const std::shared_ptr<GetFingerAngle::Request> request, std::shared_ptr<GetFingerAngle::Response> response);

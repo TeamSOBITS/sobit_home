@@ -4,9 +4,11 @@ namespace sobit_home
 {
   JointActionServer::JointActionServer(const rclcpp::NodeOptions &options)
       : Node("joint_action_server", options),
+        poses_(),
+        curt_joint_state_(),
+        kinematics_(std::make_unique<Kinematics>()),
         tf_buffer_(std::make_shared<tf2_ros::Buffer>(this->get_clock())),
         tf_listener_(std::make_shared<tf2_ros::TransformListener>(*tf_buffer_)),
-        kinematics_(std::make_unique<Kinematics>()),
         urdf_loaded_(false)
   {
     rclcpp::QoS qos_profile(1);
@@ -25,29 +27,16 @@ namespace sobit_home
 
     this->service_get_hand_to_coord_left_ = this->create_service<GetHandToTargetCoord>(
         "get_hand_to_coord/left", [this](const std::shared_ptr<GetHandToTargetCoord::Request> req, std::shared_ptr<GetHandToTargetCoord::Response> res)
-        { get_pos_to_coord(req, res, false, false); });
+        { get_pos_to_coord(req, res, false); });
     this->service_get_hand_to_tf_left_ = this->create_service<GetHandToTargetTF>(
         "get_hand_to_tf/left", [this](const std::shared_ptr<GetHandToTargetTF::Request> req, std::shared_ptr<GetHandToTargetTF::Response> res)
-        { get_pos_to_tf(req, res, false, false); });
+        { get_pos_to_tf(req, res, false); });
     this->service_get_hand_to_coord_right_ = this->create_service<GetHandToTargetCoord>(
         "get_hand_to_coord/right", [this](const std::shared_ptr<GetHandToTargetCoord::Request> req, std::shared_ptr<GetHandToTargetCoord::Response> res)
-        { get_pos_to_coord(req, res, true, false); });
+        { get_pos_to_coord(req, res, true); });
     this->service_get_hand_to_tf_right_ = this->create_service<GetHandToTargetTF>(
         "get_hand_to_tf/right", [this](const std::shared_ptr<GetHandToTargetTF::Request> req, std::shared_ptr<GetHandToTargetTF::Response> res)
-        { get_pos_to_tf(req, res, true, false); });
-
-    this->service_get_hand_to_coord_one_left_ = this->create_service<GetHandToTargetCoord>(
-        "get_hand_to_coord/one_link/left", [this](const std::shared_ptr<GetHandToTargetCoord::Request> req, std::shared_ptr<GetHandToTargetCoord::Response> res)
-        { get_pos_to_coord(req, res, false, true); });
-    this->service_get_hand_to_tf_one_left_ = this->create_service<GetHandToTargetTF>(
-        "get_hand_to_tf/one_link/left", [this](const std::shared_ptr<GetHandToTargetTF::Request> req, std::shared_ptr<GetHandToTargetTF::Response> res)
-        { get_pos_to_tf(req, res, false, true); });
-    this->service_get_hand_to_coord_one_right_ = this->create_service<GetHandToTargetCoord>(
-        "get_hand_to_coord/one_link/right", [this](const std::shared_ptr<GetHandToTargetCoord::Request> req, std::shared_ptr<GetHandToTargetCoord::Response> res)
-        { get_pos_to_coord(req, res, true, true); });
-    this->service_get_hand_to_tf_one_right_ = this->create_service<GetHandToTargetTF>(
-        "get_hand_to_tf/one_link/right", [this](const std::shared_ptr<GetHandToTargetTF::Request> req, std::shared_ptr<GetHandToTargetTF::Response> res)
-        { get_pos_to_tf(req, res, true, true); });
+        { get_pos_to_tf(req, res, true); });
 
     this->service_get_head_to_coord_ = this->create_service<GetHandToTargetCoord>(
         "get_head_to_coord", [this](const std::shared_ptr<GetHandToTargetCoord::Request> req, std::shared_ptr<GetHandToTargetCoord::Response> res)
@@ -288,50 +277,60 @@ namespace sobit_home
     goal_handle->succeed(result);
   }
 
-  void JointActionServer::get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right, bool is_one_link)
+  void JointActionServer::get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right)
   {
-    geometry_msgs::msg::TransformStamped goal_coord;
-    goal_coord.header.frame_id = std::string(this->get_namespace()).substr(1) + "/base_footprint";
-    try
-    {
-      goal_coord = tf_buffer_->transform(request->target_coord, goal_coord.header.frame_id, tf2::durationFromSec(1.0));
-    }
-    catch (const std::exception &ex)
-    {
-      RCLCPP_ERROR(this->get_logger(), "TF lookup failed: %s", ex.what());
-      response->success = false;
-      return;
+    geometry_msgs::msg::TransformStamped goal_btf;
+    goal_btf.header.frame_id = "sobit_home/body_lift_link";
+
+    try {
+        goal_btf = tf_buffer_->transform(request->target_coord, goal_btf.header.frame_id, tf2::durationFromSec(1.0));
+    } catch (const std::exception &ex) {
+        RCLCPP_ERROR(this->get_logger(), "TF transform failed: %s", ex.what());
+        response->success = false;
+        return;
     }
 
-    double target_yaw = (is_right ? 1.0 : -1.0) * M_PI / 2.0 + std::atan2(goal_coord.transform.translation.y, goal_coord.transform.translation.x);
-    auto rads = kinematics_->inverse_kinematics(goal_coord, is_right, is_one_link, target_yaw);
+    double target_yaw = std::atan2(goal_btf.transform.translation.y, goal_btf.transform.translation.x);
+    geometry_msgs::msg::Vector3 rpy;
+    rpy.z = target_yaw;
+    response->move_pose.orientation = kinematics_->get_quat_from_euler(rpy);
 
-    if (rads.empty())
-    {
-      response->success = false;
-      return;
+    double horizontal_dist = std::sqrt(std::pow(goal_btf.transform.translation.x, 2) + std::pow(goal_btf.transform.translation.y, 2));
+    double best_dist = 0.9;
+    double move_x = horizontal_dist - best_dist;
+    response->move_pose.position.x = (move_x > 0.05) ? move_x : 0.0;
+
+    geometry_msgs::msg::TransformStamped virtual_goal = goal_btf;
+    virtual_goal.transform.translation.x = best_dist;
+    virtual_goal.transform.translation.y = 0.0;
+
+    auto rads = kinematics_->inverse_kinematics(virtual_goal, is_right, 0.0);
+
+    if (rads.empty()) {
+        response->success = false;
+        response->message = "Target unreachable.";
+        return;
     }
 
-    geometry_msgs::msg::TransformStamped hand_pose = kinematics_->forward_kinematics(rads, is_right, target_yaw);
-    double dist = std::sqrt(std::pow(hand_pose.transform.translation.x - goal_coord.transform.translation.x, 2) + std::pow(hand_pose.transform.translation.y - goal_coord.transform.translation.y, 2));
-
-    response->move_pose.position.x = (std::sqrt(std::pow(hand_pose.transform.translation.x, 2) + std::pow(hand_pose.transform.translation.y, 2)) < std::sqrt(std::pow(goal_coord.transform.translation.x, 2) + std::pow(goal_coord.transform.translation.y, 2))) ? dist : -dist;
-    geometry_msgs::msg::Vector3 euler;
-    euler.z = target_yaw;
-    response->move_pose.orientation = kinematics_->get_quat_from_euler(euler);
-    response->target_joint_rad = rads;
-    response->target_joint_names = {"body_lift_joint"};
     std::string side = is_right ? "arm_right" : "arm_left";
-    response->target_joint_names.insert(response->target_joint_names.end(), {side + "_shoulder_tilt_joint", side + "_upper_flex_joint", side + "_elbow_joint", side + "_wrist_tilt_joint"});
+    response->target_joint_names = {
+        side + "_shoulder_tilt_joint",
+        side + "_upper_flex_joint",
+        side + "_elbow_joint",
+        side + "_wrist_tilt_joint"
+    };
+    response->target_joint_rad = rads;
     response->success = true;
   }
 
-  void JointActionServer::get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right, bool is_one_link)
+  void JointActionServer::get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right)
   {
     geometry_msgs::msg::TransformStamped goal_tf;
+    std::string base_frame = "sobit_home/base_footprint";
+
     try
     {
-      goal_tf = tf_buffer_->lookupTransform(std::string(this->get_namespace()).substr(1) + "/base_footprint", request->target_frame, tf2::TimePointZero);
+      goal_tf = tf_buffer_->lookupTransform(base_frame, request->target_frame, tf2::TimePointZero);
     }
     catch (const std::exception &ex)
     {
@@ -344,14 +343,35 @@ namespace sobit_home
     goal_tf.transform.translation.y += request->tf_differential.transform.translation.y;
     goal_tf.transform.translation.z += request->tf_differential.transform.translation.z;
 
-    double target_yaw = (is_right ? 1.0 : -1.0) * M_PI / 2.0 + std::atan2(goal_tf.transform.translation.y, goal_tf.transform.translation.x);
-    auto rads = kinematics_->inverse_kinematics(goal_tf, is_right, is_one_link, target_yaw);
+    double target_yaw = std::atan2(goal_tf.transform.translation.y, goal_tf.transform.translation.x);
+    geometry_msgs::msg::Vector3 rpy;
+    rpy.z = target_yaw;
+    response->move_pose.orientation = kinematics_->get_quat_from_euler(rpy);
+
+    double horizontal_dist = std::sqrt(std::pow(goal_tf.transform.translation.x, 2) + std::pow(goal_tf.transform.translation.y, 2));
+    double best_dist = 0.7;
+    double move_x = horizontal_dist - best_dist;
+    response->move_pose.position.x = (move_x > 0.05) ? move_x : 0.0;
+
+    geometry_msgs::msg::TransformStamped virtual_goal = goal_tf;
+    virtual_goal.transform.translation.x = best_dist;
+    virtual_goal.transform.translation.y = 0.0;
+
+    auto rads = kinematics_->inverse_kinematics(virtual_goal, is_right, 0.0);
 
     if (rads.empty())
     {
       response->success = false;
       return;
     }
+
+    std::string side = is_right ? "arm_right" : "arm_left";
+    response->target_joint_names = {
+        side + "_shoulder_tilt_joint",
+        side + "_upper_flex_joint",
+        side + "_elbow_joint",
+        side + "_wrist_tilt_joint"
+    };
     response->target_joint_rad = rads;
     response->success = true;
   }
@@ -381,10 +401,9 @@ namespace sobit_home
       return;
     }
 
-    double pan = std::atan2(goal_head.transform.translation.y, goal_head.transform.translation.x);
-    double tilt = std::atan2(goal_head.transform.translation.z, std::sqrt(std::pow(goal_head.transform.translation.x, 2) + std::pow(goal_head.transform.translation.y, 2)));
+    auto rads = kinematics_->look_at(goal_head);
     response->target_joint_names = JointNamesHead;
-    response->target_joint_rad = {pan, tilt};
+    response->target_joint_rad = rads;
     response->success = true;
   }
 
@@ -402,10 +421,9 @@ namespace sobit_home
       return;
     }
 
-    double pan = std::atan2(goal_head.transform.translation.y, goal_head.transform.translation.x);
-    double tilt = std::atan2(goal_head.transform.translation.z, std::sqrt(std::pow(goal_head.transform.translation.x, 2) + std::pow(goal_head.transform.translation.y, 2)));
+    auto rads = kinematics_->look_at(goal_head);
     response->target_joint_names = JointNamesHead;
-    response->target_joint_rad = {pan, tilt};
+    response->target_joint_rad = rads;
     response->success = true;
   }
 
@@ -490,7 +508,6 @@ namespace sobit_home
     }
     return true;
   }
-
-} // namespace sobit_home
+}
 
 RCLCPP_COMPONENTS_REGISTER_NODE(sobit_home::JointActionServer)
