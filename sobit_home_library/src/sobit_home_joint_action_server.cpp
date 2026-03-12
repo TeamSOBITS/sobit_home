@@ -279,12 +279,12 @@ namespace sobit_home
 
   void JointActionServer::get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right)
   {
-    geometry_msgs::msg::TransformStamped goal_tf;
-    goal_tf.header.frame_id = "sobit_home/body_lift_link";
+    geometry_msgs::msg::TransformStamped goal_in_base;
+    std::string base_frame = "sobit_home/body_lift_link";
 
     try
     {
-      goal_tf = tf_buffer_->transform(request->target_coord, goal_tf.header.frame_id, tf2::durationFromSec(1.0));
+      goal_in_base = tf_buffer_->transform(request->target_coord, base_frame, tf2::durationFromSec(1.0));
     }
     catch (const std::exception &ex)
     {
@@ -293,7 +293,7 @@ namespace sobit_home
       return;
     }
 
-    auto rads = kinematics_->inverse_kinematics(goal_tf, is_right);
+    auto rads = kinematics_->inverse_kinematics(goal_in_base, is_right);
 
     if (rads.empty())
     {
@@ -302,24 +302,19 @@ namespace sobit_home
       return;
     }
 
-    std::string side = is_right ? "arm_right" : "arm_left";
-    response->target_joint_names = {
-        side + "_shoulder_tilt_joint",
-        side + "_upper_flex_joint",
-        side + "_elbow_joint",
-        side + "_wrist_tilt_joint"};
+    response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
     response->target_joint_rad = rads;
     response->success = true;
   }
 
   void JointActionServer::get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right)
   {
-    geometry_msgs::msg::TransformStamped goal_tf;
+    geometry_msgs::msg::TransformStamped goal_in_base;
     std::string base_frame = "sobit_home/body_lift_link";
 
     try
     {
-      goal_tf = tf_buffer_->lookupTransform(base_frame, request->target_frame, tf2::TimePointZero);
+      goal_in_base = tf_buffer_->lookupTransform(base_frame, request->target_frame, tf2::TimePointZero);
     }
     catch (const std::exception &ex)
     {
@@ -328,11 +323,11 @@ namespace sobit_home
       return;
     }
 
-    goal_tf.transform.translation.x += request->tf_differential.transform.translation.x;
-    goal_tf.transform.translation.y += request->tf_differential.transform.translation.y;
-    goal_tf.transform.translation.z += request->tf_differential.transform.translation.z;
+    goal_in_base.transform.translation.x += request->tf_differential.transform.translation.x;
+    goal_in_base.transform.translation.y += request->tf_differential.transform.translation.y;
+    goal_in_base.transform.translation.z += request->tf_differential.transform.translation.z;
 
-    auto rads = kinematics_->inverse_kinematics(goal_tf, is_right);
+    auto rads = kinematics_->inverse_kinematics(goal_in_base, is_right);
 
     if (rads.empty())
     {
@@ -341,12 +336,7 @@ namespace sobit_home
       return;
     }
 
-    std::string side = is_right ? "arm_right" : "arm_left";
-    response->target_joint_names = {
-        side + "_shoulder_tilt_joint",
-        side + "_upper_flex_joint",
-        side + "_elbow_joint",
-        side + "_wrist_tilt_joint"};
+    response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
     response->target_joint_rad = rads;
     response->success = true;
   }

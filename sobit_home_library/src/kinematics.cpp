@@ -61,4 +61,6 @@ namespace sobit_home
 
         return tf2::toMsg(q);
     }
-}
+} // namespace sobit_home
+
+#endif // SOBIT_HOME_LIBRARY_KINEMATICS_HPP
