@@ -282,34 +282,24 @@ namespace sobit_home
     geometry_msgs::msg::TransformStamped goal_btf;
     goal_btf.header.frame_id = "sobit_home/body_lift_link";
 
-    try {
-        goal_btf = tf_buffer_->transform(request->target_coord, goal_btf.header.frame_id, tf2::durationFromSec(1.0));
-    } catch (const std::exception &ex) {
-        RCLCPP_ERROR(this->get_logger(), "TF transform failed: %s", ex.what());
-        response->success = false;
-        return;
+    try
+    {
+      goal_btf = tf_buffer_->transform(request->target_coord, goal_btf.header.frame_id, tf2::durationFromSec(1.0));
     }
-
-    double target_yaw = std::atan2(goal_btf.transform.translation.y, goal_btf.transform.translation.x);
-    geometry_msgs::msg::Vector3 rpy;
-    rpy.z = target_yaw;
-    response->move_pose.orientation = kinematics_->get_quat_from_euler(rpy);
-
-    double horizontal_dist = std::sqrt(std::pow(goal_btf.transform.translation.x, 2) + std::pow(goal_btf.transform.translation.y, 2));
-    double best_dist = 0.9;
-    double move_x = horizontal_dist - best_dist;
-    response->move_pose.position.x = (move_x > 0.05) ? move_x : 0.0;
-
-    geometry_msgs::msg::TransformStamped virtual_goal = goal_btf;
-    virtual_goal.transform.translation.x = best_dist;
-    virtual_goal.transform.translation.y = 0.0;
+    catch (const std::exception &ex)
+    {
+      RCLCPP_ERROR(this->get_logger(), "TF transform failed: %s", ex.what());
+      response->success = false;
+      return;
+    }
 
     auto rads = kinematics_->inverse_kinematics(virtual_goal, is_right, 0.0);
 
-    if (rads.empty()) {
-        response->success = false;
-        response->message = "Target unreachable.";
-        return;
+    if (rads.empty())
+    {
+      response->success = false;
+      response->message = "Target unreachable.";
+      return;
     }
 
     std::string side = is_right ? "arm_right" : "arm_left";
@@ -317,8 +307,7 @@ namespace sobit_home
         side + "_shoulder_tilt_joint",
         side + "_upper_flex_joint",
         side + "_elbow_joint",
-        side + "_wrist_tilt_joint"
-    };
+        side + "_wrist_tilt_joint"};
     response->target_joint_rad = rads;
     response->success = true;
   }
@@ -326,7 +315,7 @@ namespace sobit_home
   void JointActionServer::get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right)
   {
     geometry_msgs::msg::TransformStamped goal_tf;
-    std::string base_frame = "sobit_home/base_footprint";
+    std::string base_frame = "sobit_home/body_lift_link";
 
     try
     {
@@ -338,24 +327,6 @@ namespace sobit_home
       response->success = false;
       return;
     }
-
-    goal_tf.transform.translation.x += request->tf_differential.transform.translation.x;
-    goal_tf.transform.translation.y += request->tf_differential.transform.translation.y;
-    goal_tf.transform.translation.z += request->tf_differential.transform.translation.z;
-
-    double target_yaw = std::atan2(goal_tf.transform.translation.y, goal_tf.transform.translation.x);
-    geometry_msgs::msg::Vector3 rpy;
-    rpy.z = target_yaw;
-    response->move_pose.orientation = kinematics_->get_quat_from_euler(rpy);
-
-    double horizontal_dist = std::sqrt(std::pow(goal_tf.transform.translation.x, 2) + std::pow(goal_tf.transform.translation.y, 2));
-    double best_dist = 0.7;
-    double move_x = horizontal_dist - best_dist;
-    response->move_pose.position.x = (move_x > 0.05) ? move_x : 0.0;
-
-    geometry_msgs::msg::TransformStamped virtual_goal = goal_tf;
-    virtual_goal.transform.translation.x = best_dist;
-    virtual_goal.transform.translation.y = 0.0;
 
     auto rads = kinematics_->inverse_kinematics(virtual_goal, is_right, 0.0);
 
@@ -370,20 +341,8 @@ namespace sobit_home
         side + "_shoulder_tilt_joint",
         side + "_upper_flex_joint",
         side + "_elbow_joint",
-        side + "_wrist_tilt_joint"
-    };
+        side + "_wrist_tilt_joint"};
     response->target_joint_rad = rads;
-    response->success = true;
-  }
-
-  void JointActionServer::serve_get_finger_angle(const std::shared_ptr<GetFingerAngle::Request> request, std::shared_ptr<GetFingerAngle::Response> response)
-  {
-    response->target_joint_names = request->is_right ? JointNamesHandRight : JointNamesHandLeft;
-    if (request->grasp_form == 0)
-    {
-      response->opened_target_joint_rad = {-1.65, 1.571, -1.0, -1.571, 1.0, -1.571, 1.0};
-      response->closed_target_joint_rad = (request->grasp_mode == "pick") ? std::vector<double>(7, 0.0) : std::vector<double>{-1.65, -0.1, -0.8, -0.1, 1.0, 0.1, 0.8};
-    }
     response->success = true;
   }
 
@@ -424,6 +383,17 @@ namespace sobit_home
     auto rads = kinematics_->look_at(goal_head);
     response->target_joint_names = JointNamesHead;
     response->target_joint_rad = rads;
+    response->success = true;
+  }
+
+  void JointActionServer::serve_get_finger_angle(const std::shared_ptr<GetFingerAngle::Request> request, std::shared_ptr<GetFingerAngle::Response> response)
+  {
+    response->target_joint_names = request->is_right ? JointNamesHandRight : JointNamesHandLeft;
+    if (request->grasp_form == 0)
+    {
+      response->opened_target_joint_rad = {-1.65, 1.571, -1.0, -1.571, 1.0, -1.571, 1.0};
+      response->closed_target_joint_rad = (request->grasp_mode == "pick") ? std::vector<double>(7, 0.0) : std::vector<double>{-1.65, -0.1, -0.8, -0.1, 1.0, 0.1, 0.8};
+    }
     response->success = true;
   }
 

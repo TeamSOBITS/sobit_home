@@ -38,7 +38,7 @@ public:
 
 private:
     static constexpr double BaseToShoulderDY = 0.28;
-    static constexpr double LengthShoulderElbow = 0.40;
+    static constexpr double LengthShoulderElbow = 0.38;
     static constexpr double LengthElbowWrist = 0.50;
     static constexpr double LengthHand = 0.18;
 };

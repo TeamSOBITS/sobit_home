@@ -12,9 +12,7 @@ namespace sobit_home
         (void)target_joint_rad;
         (void)is_right;
         (void)target_yaw;
-
         geometry_msgs::msg::TransformStamped tf;
-
         return tf;
     }
 
@@ -26,20 +24,23 @@ namespace sobit_home
         (void)goal_coord;
         (void)is_right;
         (void)target_yaw;
-
         std::vector<double> joint_angles;
-
         return joint_angles;
     }
 
     std::vector<double> Kinematics::look_at(
         const geometry_msgs::msg::TransformStamped &target_tf)
     {
-        (void)target_tf;
+        double x = target_tf.transform.translation.x;
+        double y = target_tf.transform.translation.y;
+        double z = target_tf.transform.translation.z;
 
-        std::vector<double> head_angles;
+        double d = std::sqrt(x * x + y * y);
 
-        return head_angles;
+        double pan = std::atan2(y, x);
+        double tilt = std::atan2(z, d);
+
+        return {pan, tilt};
     }
 
     geometry_msgs::msg::Vector3 Kinematics::get_euler_from_quat(const geometry_msgs::msg::Quaternion &quat)
@@ -65,4 +66,4 @@ namespace sobit_home
         return tf2::toMsg(q);
     }
 
-} // namespace sobit_home
+}
