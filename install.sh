@@ -13,13 +13,13 @@ ros_packages=(
     "sobits_interfaces"
     "orbbecsdk_ros2"
     "dynamixel_hardware"
+    "uirobot_hardware"
     "rm_motors_ros"
     # "swerve_steering_controller"
     "ros2_laser_scan_merger"
     "tmc_wrs_gz"
     "aws_small_house_world"
     "sobits_gazebo_worlds"
-    # "iai_hardware"
 )
 
 #Clone all packages
@@ -106,6 +106,7 @@ echo "# SOBIT HOME environment variables" >> /home/$USERNAME/.bashrc
 echo "export DXL_X_LOWER_PORT=`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W9E4N-if00-port0`" >> /home/$USERNAME/.bashrc
 echo "export DXL_X_UPPER_PORT=`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W9E57-if00-port0`" >> /home/$USERNAME/.bashrc
 echo "export DXL_P_UPPER_PORT=`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4TCRFG-if00-port0`" >> /home/$USERNAME/.bashrc
+echo "export UM_PORT=`realpath /dev/serial/by-id/---`" >> /home/$USERNAME/.bashrc
 echo "" >> /home/$USERNAME/.bashrc
 source /home/$USERNAME/.bashrc
 
