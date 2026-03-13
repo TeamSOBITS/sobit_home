@@ -27,6 +27,15 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
       std::bind(&JointActionServer::handle_move_to_pose_cancel, this, std::placeholders::_1),
       std::bind(&JointActionServer::handle_move_to_pose_accepted, this, std::placeholders::_1));
 
+// =================================================================================================================
+  this->action_server_move_hand_to_pose_ = rclcpp_action::create_server<MoveToPose>(
+      this,
+      "move_hand_to_pose",
+      std::bind(&JointActionServer::handle_move_hand_to_pose_goal, this, std::placeholders::_1, std::placeholders::_2),
+      std::bind(&JointActionServer::handle_move_hand_to_pose_cancel, this, std::placeholders::_1),
+      std::bind(&JointActionServer::handle_move_hand_to_pose_accepted, this, std::placeholders::_1));
+// =================================================================================================================
+
 
   // default grasp mode
   this->service_get_hand_to_coord_left_ = this->create_service<GetHandToTargetCoord>(
@@ -118,6 +127,13 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
   auto pose_names = this->get_parameter("poses").as_string_array();
 
   poses_.clear();
+
+
+  this->declare_parameter("hand_poses", std::vector<std::string>());
+  auto hand_pose_names = this->get_parameter("hand_poses").as_string_array();
+
+  hand_poses_.clear();
+
   for (auto pose_name : pose_names) {
     // Declare parameters for each pose
     this->declare_parameter(pose_name + ".arm_right_shoulder_tilt", rclcpp::PARAMETER_DOUBLE);
@@ -127,28 +143,12 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
     this->declare_parameter(pose_name + ".arm_right_wrist_tilt", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_right_wrist_roll", rclcpp::PARAMETER_DOUBLE);
 
-    // this->declare_parameter(pose_name + ".hand_right_finger_l_mcp", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_right_finger_l_dip", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_right_finger_l_pip", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_right_finger_c_mcp", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_right_finger_c_ip", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_right_finger_r_pip", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_right_finger_r_dip", rclcpp::PARAMETER_DOUBLE);
-
     this->declare_parameter(pose_name + ".arm_left_shoulder_tilt", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_upper_roll", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_upper_flex", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_elbow", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_wrist_tilt", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".arm_left_wrist_roll", rclcpp::PARAMETER_DOUBLE);
-
-    // this->declare_parameter(pose_name + ".hand_left_finger_l_mcp", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_left_finger_l_dip", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_left_finger_l_pip", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_left_finger_c_mcp", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_left_finger_c_ip", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_left_finger_r_pip", rclcpp::PARAMETER_DOUBLE);
-    // this->declare_parameter(pose_name + ".hand_left_finger_r_dip", rclcpp::PARAMETER_DOUBLE);
 
     this->declare_parameter(pose_name + ".body_lift", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter(pose_name + ".head_pan", rclcpp::PARAMETER_DOUBLE);
@@ -164,28 +164,12 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
     params.arm_right_wrist_tilt     = this->get_parameter(pose_name + ".arm_right_wrist_tilt").as_double();
     params.arm_right_wrist_roll     = this->get_parameter(pose_name + ".arm_right_wrist_roll").as_double();
 
-    // params.hand_right_finger_l_mcp  = this->get_parameter(pose_name + ".hand_right_finger_l_mcp").as_double();
-    // params.hand_right_finger_l_dip  = this->get_parameter(pose_name + ".hand_right_finger_l_dip").as_double();
-    // params.hand_right_finger_l_pip  = this->get_parameter(pose_name + ".hand_right_finger_l_pip").as_double();
-    // params.hand_right_finger_c_mcp  = this->get_parameter(pose_name + ".hand_right_finger_c_mcp").as_double();
-    // params.hand_right_finger_c_ip   = this->get_parameter(pose_name + ".hand_right_finger_c_ip").as_double();
-    // params.hand_right_finger_r_dip  = this->get_parameter(pose_name + ".hand_right_finger_r_pip").as_double();
-    // params.hand_right_finger_r_pip  = this->get_parameter(pose_name + ".hand_right_finger_r_dip").as_double();
-
     params.arm_left_shoulder_tilt   = this->get_parameter(pose_name + ".arm_left_shoulder_tilt").as_double();
     params.arm_left_upper_roll      = this->get_parameter(pose_name + ".arm_left_upper_roll").as_double();
     params.arm_left_upper_flex      = this->get_parameter(pose_name + ".arm_left_upper_flex").as_double();
     params.arm_left_elbow           = this->get_parameter(pose_name + ".arm_left_elbow").as_double();
     params.arm_left_wrist_tilt      = this->get_parameter(pose_name + ".arm_left_wrist_tilt").as_double();
     params.arm_left_wrist_roll      = this->get_parameter(pose_name + ".arm_left_wrist_roll").as_double();
-
-    // params.hand_left_finger_l_mcp   = this->get_parameter(pose_name + ".hand_left_finger_l_mcp").as_double();
-    // params.hand_left_finger_l_dip   = this->get_parameter(pose_name + ".hand_left_finger_l_dip").as_double();
-    // params.hand_left_finger_l_pip   = this->get_parameter(pose_name + ".hand_left_finger_l_pip").as_double();
-    // params.hand_left_finger_c_mcp   = this->get_parameter(pose_name + ".hand_left_finger_c_mcp").as_double();
-    // params.hand_left_finger_c_ip    = this->get_parameter(pose_name + ".hand_left_finger_c_ip").as_double();
-    // params.hand_left_finger_r_dip   = this->get_parameter(pose_name + ".hand_left_finger_r_pip").as_double();
-    // params.hand_left_finger_r_pip   = this->get_parameter(pose_name + ".hand_left_finger_r_dip").as_double();
 
     params.body_lift                = this->get_parameter(pose_name + ".body_lift").as_double();
     params.head_pan                 = this->get_parameter(pose_name + ".head_pan").as_double();
@@ -194,12 +178,51 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options = rclcp
     poses_.push_back(params);
   }
 
+  for(auto hand_pose_name : hand_pose_names) {
+    this->declare_parameter(hand_pose_name + ".hand_right_finger_l_mcp", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(hand_pose_name + ".hand_right_finger_l_pip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(hand_pose_name + ".hand_right_finger_l_dip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(hand_pose_name + ".hand_right_finger_c_mcp", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(hand_pose_name + ".hand_right_finger_c_ip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(hand_pose_name + ".hand_right_finger_r_pip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(hand_pose_name + ".hand_right_finger_r_dip", rclcpp::PARAMETER_DOUBLE);
+
+    this->declare_parameter(hand_pose_name + ".hand_left_finger_l_mcp", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(hand_pose_name + ".hand_left_finger_l_pip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(hand_pose_name + ".hand_left_finger_l_dip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(hand_pose_name + ".hand_left_finger_c_mcp", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(hand_pose_name + ".hand_left_finger_c_ip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(hand_pose_name + ".hand_left_finger_r_pip", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter(hand_pose_name + ".hand_left_finger_r_dip", rclcpp::PARAMETER_DOUBLE);
+
+    PoseParams hand_params;
+    hand_params.pose_name           = hand_pose_name;
+    hand_params.hand_right_finger_l_mcp  = this->get_parameter(hand_pose_name + ".hand_right_finger_l_mcp").as_double();
+    hand_params.hand_right_finger_l_pip  = this->get_parameter(hand_pose_name + ".hand_right_finger_l_pip").as_double();
+    hand_params.hand_right_finger_l_dip  = this->get_parameter(hand_pose_name + ".hand_right_finger_l_dip").as_double();
+    hand_params.hand_right_finger_c_mcp  = this->get_parameter(hand_pose_name + ".hand_right_finger_c_mcp").as_double();
+    hand_params.hand_right_finger_c_ip   = this->get_parameter(hand_pose_name + ".hand_right_finger_c_ip").as_double();
+    hand_params.hand_right_finger_r_pip  = this->get_parameter(hand_pose_name + ".hand_right_finger_r_pip").as_double();
+    hand_params.hand_right_finger_r_dip  = this->get_parameter(hand_pose_name + ".hand_right_finger_r_dip").as_double();
+
+    hand_params.hand_left_finger_l_mcp   = this->get_parameter(hand_pose_name + ".hand_left_finger_l_mcp").as_double();
+    hand_params.hand_left_finger_l_pip   = this->get_parameter(hand_pose_name + ".hand_left_finger_l_pip").as_double();
+    hand_params.hand_left_finger_l_dip   = this->get_parameter(hand_pose_name + ".hand_left_finger_l_dip").as_double();
+    hand_params.hand_left_finger_c_mcp   = this->get_parameter(hand_pose_name + ".hand_left_finger_c_mcp").as_double();
+    hand_params.hand_left_finger_c_ip    = this->get_parameter(hand_pose_name + ".hand_left_finger_c_ip").as_double();
+    hand_params.hand_left_finger_r_pip   = this->get_parameter(hand_pose_name + ".hand_left_finger_r_pip").as_double();
+    hand_params.hand_left_finger_r_dip   = this->get_parameter(hand_pose_name + ".hand_left_finger_r_dip").as_double();
+
+    hand_poses_.push_back(hand_params);
+  }
+
   RCLCPP_INFO(this->get_logger(), "JointActionServer has been initialized.");
 }
 JointActionServer::~JointActionServer()
 {
   this->action_server_move_joints_.reset();
   this->action_server_move_to_pose_.reset();
+  this->action_server_move_hand_to_pose_.reset();
 
   this->sub_joint_state_.reset();
   this->pub_left_arm_joint_control_.reset();
@@ -233,6 +256,16 @@ rclcpp_action::GoalResponse JointActionServer::handle_move_to_pose_goal(
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
+rclcpp_action::GoalResponse JointActionServer::handle_move_hand_to_pose_goal(
+  const rclcpp_action::GoalUUID & uuid,
+  std::shared_ptr<const MoveToPose::Goal> goal)
+{
+  RCLCPP_INFO(this->get_logger(), "Received goal request");
+  (void)uuid;
+  (void)goal;
+  return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+}
+
 
 rclcpp_action::CancelResponse JointActionServer::handle_move_joints_cancel(
   const std::shared_ptr<GoalHandleMoveJoints> goal_handle)
@@ -241,7 +274,16 @@ rclcpp_action::CancelResponse JointActionServer::handle_move_joints_cancel(
   (void)goal_handle;
   return rclcpp_action::CancelResponse::ACCEPT;
 }
+
 rclcpp_action::CancelResponse JointActionServer::handle_move_to_pose_cancel(
+  const std::shared_ptr<GoalHandleMoveToPose> goal_handle)
+{
+  RCLCPP_INFO(this->get_logger(), "Received cancel request");
+  (void)goal_handle;
+  return rclcpp_action::CancelResponse::ACCEPT;
+}
+
+rclcpp_action::CancelResponse JointActionServer::handle_move_hand_to_pose_cancel(
   const std::shared_ptr<GoalHandleMoveToPose> goal_handle)
 {
   RCLCPP_INFO(this->get_logger(), "Received cancel request");
@@ -341,6 +383,14 @@ void JointActionServer::handle_move_to_pose_accepted(
   RCLCPP_INFO(this->get_logger(), "Received goal request");
   (void)goal_handle;
   std::thread{std::bind(&JointActionServer::exe_move_to_pose, this, std::placeholders::_1), goal_handle}.detach();
+}
+
+void JointActionServer::handle_move_hand_to_pose_accepted(
+  const std::shared_ptr<GoalHandleMoveToPose> goal_handle)
+{
+  RCLCPP_INFO(this->get_logger(), "Received goal request");
+  (void)goal_handle;
+  std::thread{std::bind(&JointActionServer::exe_move_hand_to_pose, this, std::placeholders::_1), goal_handle}.detach();
 }
 
 
@@ -526,7 +576,7 @@ void JointActionServer::exe_move_to_pose(
       // target_joint_rad[JointIds::Hand_L_Finger_L_DIP] = pose.hand_left_finger_l_dip;
       // target_joint_rad[JointIds::Hand_L_Finger_L_PIP] = pose.hand_left_finger_l_pip;
       // target_joint_rad[JointIds::Hand_L_Finger_C_MCP] = pose.hand_left_finger_c_mcp;
-      // target_joint_rad[Jooints::Hand_L_Finger_C_IP] = pose.hand_left_finger_c_ip;
+      // target_joint_rad[Joints::Hand_L_Finger_C_IP] = pose.hand_left_finger_c_ip;
       // target_joint_rad[JointIds::Hand_L_Finger_R_DIP] = pose.hand_left_finger_r_pip;
       // target_joint_rad[JointIds::Hand_L_Finger_R_PIP] = pose.hand_left_finger_r_dip;
 
@@ -653,6 +703,157 @@ void JointActionServer::exe_move_to_pose(
 
   goal_handle->succeed(result);
 }
+
+
+// ====================================================================================================
+void JointActionServer::exe_move_hand_to_pose(
+  const std::shared_ptr<GoalHandleMoveToPose> goal_handle)
+{
+  RCLCPP_INFO(this->get_logger(), "Executing goal");
+
+  const auto goal = goal_handle->get_goal();
+  auto result = std::make_shared<MoveToPose::Result>();
+
+  // Check if the pose name is valid
+  if (std::find_if(hand_poses_.begin(), hand_poses_.end(), [&](const PoseParams &hand_pose) { return hand_pose.pose_name == goal->pose_name; }) == hand_poses_.end()) {
+    RCLCPP_ERROR(this->get_logger(), "Invalid pose name: %s", goal->pose_name.c_str());
+    result->success = false;
+    result->message = "Invalid pose name: " + goal->pose_name;
+    result->total_elapsed_time.sec = 0;
+    result->total_elapsed_time.nanosec = 0;
+    goal_handle->abort(result);
+    return;
+  }
+
+  // Get the target joint rad from the pose name
+  std::vector<double> target_joint_rad(JointIds::JointNum);
+  for (const auto &hand_pose : hand_poses_) {
+    if (hand_pose.pose_name == goal->pose_name) {
+
+      target_joint_rad[JointIds::Hand_R_Finger_L_Mcp_Joint] = hand_pose.hand_right_finger_l_mcp;
+      target_joint_rad[JointIds::Hand_R_Finger_L_Pip_Joint] = hand_pose.hand_right_finger_l_pip;
+      target_joint_rad[JointIds::Hand_R_Finger_L_Dip_Joint] = hand_pose.hand_right_finger_l_dip;
+      target_joint_rad[JointIds::Hand_R_Finger_C_Mcp_Joint] = hand_pose.hand_right_finger_c_mcp;
+      target_joint_rad[JointIds::Hand_R_Finger_C_Ip_Joint] = hand_pose.hand_right_finger_c_ip;
+      target_joint_rad[JointIds::Hand_R_Finger_R_Pip_Joint] = hand_pose.hand_right_finger_r_pip;
+      target_joint_rad[JointIds::Hand_R_Finger_R_Dip_Joint] = hand_pose.hand_right_finger_r_dip;
+
+      target_joint_rad[JointIds::Hand_L_Finger_L_Mcp_Joint] = hand_pose.hand_left_finger_l_mcp;
+      target_joint_rad[JointIds::Hand_L_Finger_L_Pip_Joint] = hand_pose.hand_left_finger_l_pip;
+      target_joint_rad[JointIds::Hand_L_Finger_L_Dip_Joint] = hand_pose.hand_left_finger_l_dip;
+      target_joint_rad[JointIds::Hand_L_Finger_C_Mcp_Joint] = hand_pose.hand_left_finger_c_mcp;
+      target_joint_rad[JointIds::Hand_L_Finger_C_Ip_Joint] = hand_pose.hand_left_finger_c_ip;
+      target_joint_rad[JointIds::Hand_L_Finger_R_Pip_Joint] = hand_pose.hand_left_finger_r_pip;
+      target_joint_rad[JointIds::Hand_L_Finger_R_Dip_Joint] = hand_pose.hand_left_finger_r_dip;
+
+      break;
+    }
+  }
+
+  if (target_joint_rad.size() == 0) {
+    RCLCPP_ERROR(this->get_logger(), "Failed to not find the pose name : %s", goal->pose_name.c_str());
+
+    result->success = false;
+    result->message = "[FAIL] Failed to not find the pose name : " +  goal->pose_name;
+    result->total_elapsed_time.sec = 0;
+    result->total_elapsed_time.nanosec = 0;
+    goal_handle->abort(result);
+  }
+
+  // Create joint list excluding hands
+  std::vector<std::string> joints_without_hands;
+  for (const auto &joint_name : JointNames) {
+    if (std::find(JointNamesHandLeft.begin(), JointNamesHandLeft.end(), joint_name) == JointNamesHandLeft.end() &&
+        std::find(JointNamesHandRight.begin(), JointNamesHandRight.end(), joint_name) == JointNamesHandRight.end()) {
+      joints_without_hands.push_back(joint_name);
+    }
+  }
+  
+
+  // Publish the joint trajectory
+  trajectory_msgs::msg::JointTrajectory hand_left_joint_trajectory;
+  trajectory_msgs::msg::JointTrajectory hand_right_joint_trajectory;
+
+  hand_left_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "hand_left");
+  hand_right_joint_trajectory = set_joints(JointNames, target_joint_rad, goal->time_allowance, "hand_right");
+
+  try {
+    if (!hand_left_joint_trajectory.joint_names.empty())
+      this->pub_left_hand_joint_control_->publish(hand_left_joint_trajectory);
+    if (!hand_right_joint_trajectory.joint_names.empty())
+      this->pub_right_hand_joint_control_->publish(hand_right_joint_trajectory);
+    } catch (const std::exception &ex) {
+    RCLCPP_ERROR(this->get_logger(), "Failed to publish the joint trajectory: %s", ex.what());
+
+    result->success = false;
+    result->message = "[FAIL] Failed to publish the joint trajectory";
+    result->total_elapsed_time.sec = 0;
+    result->total_elapsed_time.nanosec = 0;
+    goal_handle->abort(result);
+
+    return;
+  }
+
+  // Publish feedback
+  auto start_time = this->now();
+  // rclcpp::Rate loop_rate(10);
+
+  while (this->now() - start_time < goal->time_allowance) {
+    if (goal_handle->is_canceling()) {
+      RCLCPP_INFO(this->get_logger(), "Goal has been canceled");
+
+      result->success = false;
+      result->message = "[CANCEL] Goal has been canceled";
+      result->total_elapsed_time.sec = (this->now() - start_time).seconds();
+      result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
+      goal_handle->canceled(result);
+
+      return;
+    }
+
+    auto feedback = std::make_shared<MoveToPose::Feedback>();
+    feedback->current_joint_names = JointNames;
+    for (const auto &joint_name : JointNames) {
+      feedback->current_joint_rad.push_back(this->curt_joint_state_[joint_name]);
+    }
+    feedback->move_time.sec = (this->now() - start_time).seconds();
+    feedback->move_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
+
+    goal_handle->publish_feedback(feedback);
+
+    // rclcpp::spin_some(this->get_node_base_interface());
+    // loop_rate.sleep();
+  }
+
+  // Check if goal was reached
+  for (size_t i = 0; i < JointNames.size(); i++) {
+    // TODO: set tolerance with parameter or msg
+    if (std::abs(this->curt_joint_state_[JointNames[i]] - target_joint_rad[i]) > 0.1) {
+      RCLCPP_ERROR(this->get_logger(), "Failed to reach the goal");
+
+      result->success = false;
+      result->message = "[FAIL] Failed to reach the goal";
+      result->total_elapsed_time.sec = (this->now() - start_time).seconds();
+      result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
+      goal_handle->abort(result);
+
+      return;
+    }
+  }
+
+  // Clear the current joint state
+  curt_joint_state_.clear();
+
+  // Publish the result
+  result->message = "[SUCCESS] Goal has been succeeded";
+  result->success = true;
+  result->total_elapsed_time.sec = (this->now() - start_time).seconds();
+  result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
+
+  goal_handle->succeed(result);
+}
+
+// ================================================================================================================
 
 void JointActionServer::get_pos_to_coord(
   const std::shared_ptr<GetHandToTargetCoord::Request> request,
