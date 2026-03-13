@@ -41,26 +41,26 @@ struct PoseParams
   double arm_right_elbow;
   double arm_right_wrist_tilt;
   double arm_right_wrist_roll;
-  // double hand_right_finger_l_mcp;
-  // double hand_right_finger_l_dip;
-  // double hand_right_finger_l_pip;
-  // double hand_right_finger_c_mcp;
-  // double hand_right_finger_c_ip;
-  // double hand_right_finger_r_dip;
-  // double hand_right_finger_r_pip;
+  double hand_right_finger_l_mcp;
+  double hand_right_finger_l_dip;
+  double hand_right_finger_l_pip;
+  double hand_right_finger_c_mcp;
+  double hand_right_finger_c_ip;
+  double hand_right_finger_r_pip;
+  double hand_right_finger_r_dip;
   double arm_left_shoulder_tilt;
   double arm_left_upper_roll;
   double arm_left_upper_flex;
   double arm_left_elbow;
   double arm_left_wrist_tilt;
   double arm_left_wrist_roll;
-  // double hand_left_finger_l_mcp;
-  // double hand_left_finger_l_dip;
-  // double hand_left_finger_l_pip;
-  // double hand_left_finger_c_mcp;
-  // double hand_left_finger_c_ip;
-  // double hand_left_finger_r_dip;
-  // double hand_left_finger_r_pip;
+  double hand_left_finger_l_mcp;
+  double hand_left_finger_l_dip;
+  double hand_left_finger_l_pip;
+  double hand_left_finger_c_mcp;
+  double hand_left_finger_c_ip;
+  double hand_left_finger_r_pip;
+  double hand_left_finger_r_dip;
   double body_lift;
   double head_pan;
   double head_tilt;
@@ -76,12 +76,12 @@ enum JointIds
   Arm_R_Wrist_Roll_Joint,
 
   Hand_R_Finger_L_Mcp_Joint,
-  Hand_R_Finger_L_Dip_Joint,
   Hand_R_Finger_L_Pip_Joint,
+  Hand_R_Finger_L_Dip_Joint,
   Hand_R_Finger_C_Mcp_Joint,
   Hand_R_Finger_C_Ip_Joint,
-  Hand_Right_Finger_R_Pip_Joint,
-  Hand_right_finger_R_Dip_joint,
+  Hand_R_Finger_R_Pip_Joint,
+  Hand_R_Finger_R_Dip_Joint,
 
   Arm_L_Shoulder_Tilt_Joint,
   Arm_L_Upper_Roll_Joint,
@@ -91,8 +91,8 @@ enum JointIds
   Arm_L_Wrist_Roll_Joint,
 
   Hand_L_Finger_L_Mcp_Joint,
-  Hand_L_Finger_L_Dip_Joint,
   Hand_L_Finger_L_Pip_Joint,
+  Hand_L_Finger_L_Dip_Joint,
   Hand_L_Finger_C_Mcp_Joint,
   Hand_L_Finger_C_Ip_Joint,
   Hand_L_Finger_R_Pip_Joint,
@@ -147,26 +147,26 @@ private:
     "arm_right_elbow_joint",
     "arm_right_wrist_tilt_joint",
     "arm_right_wrist_roll_joint",
-    // "hand_right_finger_l_mcp_joint",
-    // "hand_right_finger_l_pip_joint",
-    // "hand_right_finger_l_dip_joint",
-    // "hand_right_finger_c_mcp_joint",
-    // "hand_right_finger_c_ip_joint",
-    // "hand_right_finger_r_pip_joint",
-    // "hand_right_finger_r_dip_joint",
+    "hand_right_finger_l_mcp_joint",
+    "hand_right_finger_l_pip_joint",
+    "hand_right_finger_l_dip_joint",
+    "hand_right_finger_c_mcp_joint",
+    "hand_right_finger_c_ip_joint",
+    "hand_right_finger_r_pip_joint",
+    "hand_right_finger_r_dip_joint",
     "arm_left_shoulder_tilt_joint",
     "arm_left_upper_roll_joint",
     "arm_left_upper_flex_joint",
     "arm_left_elbow_joint",
     "arm_left_wrist_tilt_joint",
     "arm_left_wrist_roll_joint",
-    // "hand_left_finger_l_mcp_joint",
-    // "hand_left_finger_l_pip_joint",
-    // "hand_left_finger_l_dip_joint",
-    // "hand_left_finger_c_mcp_joint",
-    // "hand_left_finger_c_ip_joint",
-    // "hand_left_finger_r_pip_joint",
-    // "hand_left_finger_r_dip_joint",
+    "hand_left_finger_l_mcp_joint",
+    "hand_left_finger_l_pip_joint",
+    "hand_left_finger_l_dip_joint",
+    "hand_left_finger_c_mcp_joint",
+    "hand_left_finger_c_ip_joint",
+    "hand_left_finger_r_pip_joint",
+    "hand_left_finger_r_dip_joint",
     "body_lift_joint",
     "head_pan_joint",
     "head_tilt_joint"
@@ -229,11 +229,13 @@ private:
   /*box高さ 0.291m*/
 
   std::vector<PoseParams> poses_;
+  std::vector<PoseParams> hand_poses_;
   std::map<std::string, double> init_joint_state_;
   std::map<std::string, double> curt_joint_state_;
 
   rclcpp_action::Server<MoveJoint>::SharedPtr action_server_move_joints_;
   rclcpp_action::Server<MoveToPose>::SharedPtr action_server_move_to_pose_;
+  rclcpp_action::Server<MoveToPose>::SharedPtr action_server_move_hand_to_pose_;
 
   rclcpp::Service<GetHandToTargetCoord>::SharedPtr service_get_hand_to_coord_left_;
   rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_hand_to_tf_left_;
@@ -249,15 +251,19 @@ private:
 
   rclcpp_action::GoalResponse handle_move_joints_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const MoveJoint::Goal> goal);
   rclcpp_action::GoalResponse handle_move_to_pose_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const MoveToPose::Goal> goal);
+  rclcpp_action::GoalResponse handle_move_hand_to_pose_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const MoveToPose::Goal> goal);
 
   rclcpp_action::CancelResponse handle_move_joints_cancel(const std::shared_ptr<GoalHandleMoveJoints> goal_handle);
   rclcpp_action::CancelResponse handle_move_to_pose_cancel(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
+  rclcpp_action::CancelResponse handle_move_hand_to_pose_cancel(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
 
   void handle_move_joints_accepted(const std::shared_ptr<GoalHandleMoveJoints> goal_handle);
   void handle_move_to_pose_accepted(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
+  void handle_move_hand_to_pose_accepted(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
 
   void exe_move_joints(const std::shared_ptr<GoalHandleMoveJoints> goal_handle);
   void exe_move_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
+  void exe_move_hand_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
 
   void get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right, bool is_one_rink);
   void get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right, bool is_one_rink);
