@@ -875,7 +875,10 @@
     <joint name="${prefix}_lift_joint">
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">5</param>
-        <param name="gear_ratio">${200*M_PI}</param>
+        <param name="gear_ratio">-${200*M_PI}</param>
+        <param name="position_kp">5.0</param>
+        <param name="stop_threshold">0.01</param>
+        <param name="max_velocity">${2*M_PI*0.05}</param> <!-- [rad/s] = ${2*M_PI} * [m/s] -->
       </xacro:unless>
       <command_interface name="position">
         <param name="min">0.0</param>
