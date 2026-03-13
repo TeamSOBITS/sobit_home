@@ -108,9 +108,9 @@ def launch_gz(context, *args, **kwargs):
         fail_flag = os.system('sudo ip link set can0 down')
         fail_flag = os.system('sudo ip link set can0 type can bitrate 1000000')
         fail_flag = os.system('sudo ip link set can0 up')
-        if fail_flag != 0:
+        if ((fail_flag != 0) and (enable_mobile_base == 'True')):
             print('Failed to set up CAN0 interface. Please check CAN adapter connection.')
-            # exit(1)
+            exit(1)
         else:
             print('CAN0 interface is set up.')
 
