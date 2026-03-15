@@ -29,10 +29,10 @@ namespace sobit_home
     std::vector<double> look_at(const geometry_msgs::msg::TransformStamped &target_tf);
 
   private:
-    static constexpr double BaseToShoulderDY = 0.278;    // ロボット中心(base)から肩関節までの左右オフセット
-    static constexpr double LengthShoulderElbow = 0.398; // 肩関節から肘関節までの長さ(上腕)
-    static constexpr double LengthElbowWrist = 0.566;    // 肘関節から手首関節までの長さ(前腕)
-    static constexpr double LengthHand = 0.18;           // 手首関節から手先までの長さ
+    static constexpr double BaseToShoulderDY = 0.278;
+    static constexpr double LengthShoulderElbow = 0.398;
+    static constexpr double LengthElbowWrist = 0.566;
+    static constexpr double LengthHand = 0.18;
   };
 }
 #endif
