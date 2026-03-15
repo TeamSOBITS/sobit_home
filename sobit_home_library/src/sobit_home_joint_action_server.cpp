@@ -280,20 +280,24 @@ namespace sobit_home
   void JointActionServer::get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right)
   {
     geometry_msgs::msg::TransformStamped goal_in_base;
-    std::string base_frame = "sobit_home/body_lift_link";
+    geometry_msgs::msg::TransformStamped goal_in_lift;
+    std::string base_frame = "sobit_home/base_footprint";
+    std::string lift_frame = "sobit_home/body_lift_link";
 
     try
     {
       goal_in_base = tf_buffer_->transform(request->target_coord, base_frame, tf2::durationFromSec(1.0));
+      goal_in_lift = tf_buffer_->transform(request->target_coord, lift_frame, tf2::durationFromSec(1.0));
     }
     catch (const std::exception &ex)
     {
       RCLCPP_ERROR(this->get_logger(), "TF transform failed: %s", ex.what());
       response->success = false;
+      response->message = "TF error: " + std::string(ex.what());
       return;
     }
 
-    auto rads = kinematics_->inverse_kinematics(goal_in_base, is_right);
+    auto rads = kinematics_->inverse_kinematics(goal_in_lift, is_right);
 
     if (rads.empty())
     {
@@ -302,25 +306,30 @@ namespace sobit_home
       return;
     }
 
+    response->move_pose = kinematics_->forward_kinematics(rads, goal_in_base, is_right);
     response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
     response->target_joint_rad = rads;
-    response->move_pose = kinematics_->forward_kinematics(rads, is_right);
     response->success = true;
+    response->message = "Success: Target reached.";
   }
 
   void JointActionServer::get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right)
   {
     geometry_msgs::msg::TransformStamped goal_in_base;
-    std::string base_frame = "sobit_home/body_lift_link";
+    geometry_msgs::msg::TransformStamped goal_in_lift;
+    std::string base_frame = "sobit_home/base_footprint";
+    std::string lift_frame = "sobit_home/body_lift_link";
 
     try
     {
-      goal_in_base = tf_buffer_->lookupTransform(base_frame, request->target_frame, tf2::TimePointZero);
+      goal_in_base = tf_buffer_->lookupTransform(base_frame, request->target_frame, tf2::TimePointZero, tf2::durationFromSec(1.0));
+      goal_in_lift = tf_buffer_->lookupTransform(lift_frame, request->target_frame, tf2::TimePointZero, tf2::durationFromSec(1.0));
     }
     catch (const std::exception &ex)
     {
       RCLCPP_ERROR(this->get_logger(), "TF lookup failed: %s", ex.what());
       response->success = false;
+      response->message = "TF error: " + std::string(ex.what());
       return;
     }
 
@@ -328,7 +337,11 @@ namespace sobit_home
     goal_in_base.transform.translation.y += request->tf_differential.transform.translation.y;
     goal_in_base.transform.translation.z += request->tf_differential.transform.translation.z;
 
-    auto rads = kinematics_->inverse_kinematics(goal_in_base, is_right);
+    goal_in_lift.transform.translation.x += request->tf_differential.transform.translation.x;
+    goal_in_lift.transform.translation.y += request->tf_differential.transform.translation.y;
+    goal_in_lift.transform.translation.z += request->tf_differential.transform.translation.z;
+
+    auto rads = kinematics_->inverse_kinematics(goal_in_lift, is_right);
 
     if (rads.empty())
     {
@@ -337,10 +350,11 @@ namespace sobit_home
       return;
     }
 
+    response->move_pose = kinematics_->forward_kinematics(rads, goal_in_base, is_right);
     response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
     response->target_joint_rad = rads;
-    response->move_pose = kinematics_->forward_kinematics(rads, is_right);
     response->success = true;
+    response->message = "Success: TF target reached.";
   }
 
   void JointActionServer::get_head_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response)

@@ -5,16 +5,13 @@
 #include <string>
 #include <cmath>
 #include <algorithm>
-#include <cstdio>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <tf2/LinearMath/Quaternion.h>
-#include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 namespace sobit_home
 {
-
   class Kinematics
   {
   public:
@@ -22,23 +19,20 @@ namespace sobit_home
 
     geometry_msgs::msg::Pose forward_kinematics(
         const std::vector<double> &joint_angles_rad,
+        const geometry_msgs::msg::TransformStamped &base_target_tf,
         const bool is_right);
 
     std::vector<double> inverse_kinematics(
-        const geometry_msgs::msg::TransformStamped &target_coord,
+        const geometry_msgs::msg::TransformStamped &lift_target_tf,
         const bool is_right);
 
-    std::vector<double> look_at(
-        const geometry_msgs::msg::TransformStamped &target_tf);
+    std::vector<double> look_at(const geometry_msgs::msg::TransformStamped &target_tf);
 
   private:
-    static constexpr double BaseToShoulderDX = 0.17;
-    static constexpr double BaseToShoulderDY = 0.20;
-    static constexpr double LengthShoulderElbow = 0.40;
-    static constexpr double LengthElbowWrist = 0.50;
-    static constexpr double LengthHand = 0.18;
+    static constexpr double BaseToShoulderDY = 0.278;    // ロボット中心(base)から肩関節までの左右オフセット
+    static constexpr double LengthShoulderElbow = 0.398; // 肩関節から肘関節までの長さ(上腕)
+    static constexpr double LengthElbowWrist = 0.566;    // 肘関節から手首関節までの長さ(前腕)
+    static constexpr double LengthHand = 0.18;           // 手首関節から手先までの長さ
   };
-
 }
-
 #endif
