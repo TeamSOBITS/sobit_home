@@ -147,23 +147,6 @@ def launch_gz(context, *args, **kwargs):
             'dxl_p_upper_body_port': dxl_p_upper_body_port,
         })
 
-    if enable_gz == 'False':
-        rviz_file = 'real.rviz'
-    else:
-        rviz_file = 'gazebo.rviz'
-
-    rviz_config = PathJoinSubstitution([
-        FindPackageShare('sobit_home_bringup'),
-        'rviz',
-        rviz_file
-    ])
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        arguments=['-d', rviz_config],
-        output='screen',
-    )
 
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
@@ -474,6 +457,5 @@ def launch_gz(context, *args, **kwargs):
         nodes.extend(controllers)
     nodes.append(robot_state_publisher_node)
     nodes.append(action_server_launch)
-    nodes.append(rviz_node)
 
     return nodes

@@ -12,7 +12,7 @@
     laser1R: 0
     laser1XOff: 0.285 # TODO
     laser1YOff: 0.285 # TODO
-    laser1ZOff: 0.185 # TODO
+    laser1ZOff: 0.0
     laser2Alpha: -135.0
     laser2AngleMax: 0.0
     laser2AngleMin: 0.0
@@ -21,9 +21,9 @@
     laser2R: 0
     laser2XOff: -0.285 # TODO
     laser2YOff: -0.285 # TODO
-    laser2ZOff: 0.185  # TODO
+    laser2ZOff: 0.0
     pointCloudTopic: /sobit_home/lidar_scan/points # TODO: dynamic namespase
-    pointCloutFrameId: sobit_home/base_footprint   # TODO: dynamic namespase
+    pointCloutFrameId: sobit_home/lidar_merged_laser   # TODO: dynamic namespase
     qos_overrides./parameter_events.publisher.depth: 1000
     # qos_overrides./parameter_events.publisher.durability: volatile
     # qos_overrides./parameter_events.publisher.history: keep_last
@@ -53,7 +53,7 @@
     range_max: 10.0
     range_min: 0.35
     scan_time: 0.3333
-    target_frame: sobit_home/base_footprint # TODO: dynamic namespase
+    target_frame: sobit_home/lidar_merged_laser # TODO: dynamic namespase
     transform_tolerance: 0.01
     use_inf: true
     use_sim_time: false

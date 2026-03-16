@@ -55,12 +55,24 @@
 
   <xacro:if value="${ $(arg enable_mobile_base) }">
     <xacro:base/>
+    <joint name="lidar_merged_joint" type="fixed">
+      <origin xyz="0.0 0.0 0.185" rpy="0.0 0.0 0.0" />
+      <parent link="base_footprint" />
+      <child link="lidar_merged_laser" />
+    </joint>
+    <link name="lidar_merged_laser" />
     <xacro:plate prefix="plate" parent="base_link" />
     <xacro:wheel prefix="wheel" parent="plate_middle_link" />
     <xacro:lidar prefix="lidar" parent="plate_middle_link" robot_name="$(arg robot_name)" />
   </xacro:if>
   <xacro:unless value="${ $(arg enable_mobile_base) }">
     <xacro:base/>
+    <joint name="lidar_merged_joint" type="fixed">
+      <origin xyz="0.0 0.0 0.185" rpy="0.0 0.0 0.0" />
+      <parent link="base_footprint" />
+      <child link="lidar_merged_laser" />
+    </joint>
+    <link name="lidar_merged_laser" />
     <joint name="plate_top_joint" type="fixed" >
       <origin xyz="0.0 0.0 0.371058" rpy="0.0 0.0 0.0" />
       <parent link="base_link" />
