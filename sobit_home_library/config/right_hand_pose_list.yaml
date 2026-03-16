@@ -1,0 +1,64 @@
+/**:
+  ros__parameters:
+    right_hand_poses:
+      - peace_pose
+      - fist_pose
+      - two_fingers_open_pose
+      - two_fingers_close_pose
+      - three_fingers_open_pose
+      - three_fingers_close_pose
+
+# performance poses
+    peace_pose:
+      hand_right_finger_l_mcp : -1.3
+      hand_right_finger_l_pip : -0.5
+      hand_right_finger_l_dip : -2.0
+      hand_right_finger_c_mcp : 1.571
+      hand_right_finger_c_ip : 0.0
+      hand_right_finger_r_pip : -1.571 
+      hand_right_finger_r_dip : 0.0
+    fist_pose:
+      hand_right_finger_l_mcp : -1.571
+      hand_right_finger_l_pip : -0.5
+      hand_right_finger_l_dip : -2.0 
+      hand_right_finger_c_mcp : -0.5
+      hand_right_finger_c_ip : -2.0
+      hand_right_finger_r_pip : 0.5 
+      hand_right_finger_r_dip : 2.0
+
+# two fingers pose
+    two_fingers_open_pose:
+      hand_right_finger_l_mcp : 1.571
+      hand_right_finger_l_pip : 1.571
+      hand_right_finger_l_dip : 0.0 
+      hand_right_finger_c_mcp : 1.571
+      hand_right_finger_c_ip : 0.0
+      hand_right_finger_r_pip : -1.571 
+      hand_right_finger_r_dip : 0.0
+    two_fingers_close_pose:
+      hand_right_finger_l_mcp : 1.571
+      hand_right_finger_l_pip : -0.5
+      hand_right_finger_l_dip : -1.571 
+      hand_right_finger_c_mcp : -0.5
+      hand_right_finger_c_ip : -1.571
+      hand_right_finger_r_pip : 0.5 
+      hand_right_finger_r_dip : 1.571
+
+# three fingers pose
+    three_fingers_open_pose:
+      hand_right_finger_l_mcp : 0.524
+      hand_right_finger_l_pip : 1.571
+      hand_right_finger_l_dip : 0.0 
+      hand_right_finger_c_mcp : 1.571
+      hand_right_finger_c_ip : 0.0
+      hand_right_finger_r_pip : -1.571 
+      hand_right_finger_r_dip : 0.0
+    three_fingers_close_pose:
+      hand_right_finger_l_mcp : 0.524
+      hand_right_finger_l_pip : -0.5
+      hand_right_finger_l_dip : -1.571 
+      hand_right_finger_c_mcp : -0.5
+      hand_right_finger_c_ip : -1.571
+      hand_right_finger_r_pip : 0.5 
+      hand_right_finger_r_dip : 1.571
+
