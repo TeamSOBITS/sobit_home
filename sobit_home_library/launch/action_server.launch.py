@@ -46,10 +46,16 @@ def launch_gz(context, *args, **kwargs):
         "pose_list.yaml",
     )    
     
-    hand_pose_config = os.path.join(
+    right_hand_pose_config = os.path.join(
         get_package_share_directory("sobit_home_library"),
         "config",
-        "hand_pose_list.yaml",
+        "right_hand_pose_list.yaml",
+    )
+
+    left_hand_pose_config = os.path.join(
+        get_package_share_directory("sobit_home_library"),
+        "config",
+        "left_hand_pose_list.yaml",
     )
 
     joint_action_server_node = Node(
@@ -59,7 +65,8 @@ def launch_gz(context, *args, **kwargs):
         namespace=robot_name,
         parameters=[
             pose_config,
-            hand_pose_config,
+            right_hand_pose_config,
+            left_hand_pose_config,
             {"use_sim_time": True if enable_gz == 'True' else False},
         ],
         output="screen",
