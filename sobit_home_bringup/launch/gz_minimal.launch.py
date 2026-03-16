@@ -28,28 +28,40 @@ def generate_launch_description():
     world_file = ''
     if world_model == 'empty':
         world_file = os.path.join(get_package_share_directory(
-            'sobit_home_description'), 
+            'sobit_home_description'),
             'worlds',
             'empty_w_physics.sdf'
         )
     elif world_model == 'wrs':
         world_file = os.path.join(get_package_share_directory(
-            'tmc_wrs_gz_worlds'), 
+            'tmc_wrs_gz_worlds'),
             'worlds',
             'wrs2020.world.xacro'
         )
     elif world_model == 'small_house':
         world_file = os.path.join(get_package_share_directory(
-            'aws_small_house_world'), 
+            'aws_small_house_world'),
             'worlds',
             'small_house.world'
         )
     elif world_model == 'rcjo2025_arena':
         world_file = os.path.join(get_package_share_directory(
-            'sobits_gazebo_worlds'), 
+            'sobits_gazebo_worlds'),
             'worlds',
             'rcjo2025_arena.world.xacro'
         )
+
+    rviz_config = PathJoinSubstitution([
+            FindPackageShare('sobit_home_bringup'),
+            'rviz',
+            'gazebo.rviz'
+    ])
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config],
+    )
 
     return LaunchDescription([
         # Launch gazebo environment
@@ -62,7 +74,8 @@ def generate_launch_description():
                 ])
             ]),
             launch_arguments={
-                'gz_args' : ' -s -r -v 4 ' + world_file + ' --physics-engine gz-physics-dartsim-plugin', # no mimic
+                'gz_args' : ' -r -v 4 ' + world_file, # no mimic
+                # 'gz_args' : ' -r -v 4 ' + world_file + ' --physics-engine gz-physics-dartsim-plugin', # no mimic
                 # 'gz_args' : ' -r -v 4 ' + world_file + ' --physics-engine gz-physics-bullet-featherstone-plugin', # no mobile base motion
             }.items()
         ),
@@ -78,7 +91,7 @@ def generate_launch_description():
             ]),
             launch_arguments={
                 'robot_name': robot_name if robot_id == 0 else robot_name + '_' + str(robot_id),
-                'robot_coords_x': '-3.5', # x 
+                'robot_coords_x': '-3.5', # x
                 'robot_coords_y': '1.5', # y
                 'robot_coords_z': '0.0', # z
                 'robot_coords_Y': '0', # yaw
@@ -109,7 +122,7 @@ def generate_launch_description():
         #     ]),
         #     launch_arguments={
         #         'robot_name': robot_name if robot_id == 0 else robot_name + '_' + str(robot_id),
-        #         'robot_coords_x': '0', # x 
+        #         'robot_coords_x': '0', # x
         #         'robot_coords_y': '2', # y
         #         'robot_coords_Y': '0', # yaw
         #         'enable_gz' : 'True',
@@ -121,4 +134,5 @@ def generate_launch_description():
         #         'enable_gz_hand_right_cam_depth' : 'True',
         #     }.items()
         # ),
+        rviz_node,
     ])
