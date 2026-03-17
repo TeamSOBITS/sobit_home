@@ -25,6 +25,18 @@ namespace sobit_home
         std::bind(&JointActionServer::handle_move_to_pose_cancel, this, std::placeholders::_1),
         std::bind(&JointActionServer::handle_move_to_pose_accepted, this, std::placeholders::_1));
 
+    this->action_server_move_right_hand_to_pose_ = rclcpp_action::create_server<MoveToPose>(
+        this, "move_right_hand_to_pose",
+        std::bind(&JointActionServer::handle_move_right_hand_to_pose_goal, this, std::placeholders::_1, std::placeholders::_2),
+        std::bind(&JointActionServer::handle_move_right_hand_to_pose_cancel, this, std::placeholders::_1),
+        std::bind(&JointActionServer::handle_move_right_hand_to_pose_accepted, this, std::placeholders::_1));
+
+    this->action_server_move_left_hand_to_pose_ = rclcpp_action::create_server<MoveToPose>(
+        this, "move_left_hand_to_pose",
+        std::bind(&JointActionServer::handle_move_left_hand_to_pose_goal, this, std::placeholders::_1, std::placeholders::_2),
+        std::bind(&JointActionServer::handle_move_left_hand_to_pose_cancel, this, std::placeholders::_1),
+        std::bind(&JointActionServer::handle_move_left_hand_to_pose_accepted, this, std::placeholders::_1));
+
     this->service_get_hand_to_coord_left_ = this->create_service<GetHandToTargetCoord>(
         "get_hand_to_coord/left", [this](const std::shared_ptr<GetHandToTargetCoord::Request> req, std::shared_ptr<GetHandToTargetCoord::Response> res)
         { get_pos_to_coord(req, res, false); });
@@ -62,6 +74,12 @@ namespace sobit_home
 
     this->declare_parameter("poses", std::vector<std::string>());
     auto pose_names = this->get_parameter("poses").as_string_array();
+
+    this->declare_parameter("right_hand_poses", std::vector<std::string>());
+    auto right_hand_pose_names = this->get_parameter("right_hand_poses").as_string_array();
+
+    this->declare_parameter("left_hand_poses", std::vector<std::string>());
+    auto left_hand_pose_names = this->get_parameter("left_hand_poses").as_string_array();
 
     for (const auto &pose_name : pose_names)
     {
@@ -139,6 +157,53 @@ namespace sobit_home
       poses_.push_back(p);
     }
 
+    for (const auto &right_hand_pose_name : right_hand_pose_names)
+    {
+      this->declare_parameter(right_hand_pose_name + ".hand_right_finger_l_mcp", 0.0);
+      this->declare_parameter(right_hand_pose_name + ".hand_right_finger_l_pip", 0.0);
+      this->declare_parameter(right_hand_pose_name + ".hand_right_finger_l_dip", 0.0);
+      this->declare_parameter(right_hand_pose_name + ".hand_right_finger_c_mcp", 0.0);
+      this->declare_parameter(right_hand_pose_name + ".hand_right_finger_c_ip", 0.0);
+      this->declare_parameter(right_hand_pose_name + ".hand_right_finger_r_pip", 0.0);
+      this->declare_parameter(right_hand_pose_name + ".hand_right_finger_r_dip", 0.0);
+
+      PoseParams p;
+      p.pose_name = right_hand_pose_name;
+      p.hand_right_finger_l_mcp = this->get_parameter(right_hand_pose_name + ".hand_right_finger_l_mcp").as_double();
+      p.hand_right_finger_l_pip = this->get_parameter(right_hand_pose_name + ".hand_right_finger_l_pip").as_double();
+      p.hand_right_finger_l_dip = this->get_parameter(right_hand_pose_name + ".hand_right_finger_l_dip").as_double();
+      p.hand_right_finger_c_mcp = this->get_parameter(right_hand_pose_name + ".hand_right_finger_c_mcp").as_double();
+      p.hand_right_finger_c_ip = this->get_parameter(right_hand_pose_name + ".hand_right_finger_c_ip").as_double();
+      p.hand_right_finger_r_pip = this->get_parameter(right_hand_pose_name + ".hand_right_finger_r_pip").as_double();
+      p.hand_right_finger_r_dip = this->get_parameter(right_hand_pose_name + ".hand_right_finger_r_dip").as_double();
+
+      right_hand_poses_.push_back(p);
+    }
+
+    for (const auto &left_hand_pose_name : left_hand_pose_names)
+    {
+      this->declare_parameter(left_hand_pose_name + ".hand_left_finger_l_mcp", 0.0);
+      this->declare_parameter(left_hand_pose_name + ".hand_left_finger_l_pip", 0.0);
+      this->declare_parameter(left_hand_pose_name + ".hand_left_finger_l_dip", 0.0);
+      this->declare_parameter(left_hand_pose_name + ".hand_left_finger_c_mcp", 0.0);
+      this->declare_parameter(left_hand_pose_name + ".hand_left_finger_c_ip", 0.0);
+      this->declare_parameter(left_hand_pose_name + ".hand_left_finger_r_pip", 0.0);
+      this->declare_parameter(left_hand_pose_name + ".hand_left_finger_r_dip", 0.0);
+
+      PoseParams p;
+      p.pose_name = left_hand_pose_name;
+      p.hand_left_finger_l_mcp = this->get_parameter(left_hand_pose_name + ".hand_left_finger_l_mcp").as_double();
+      p.hand_left_finger_l_pip = this->get_parameter(left_hand_pose_name + ".hand_left_finger_l_pip").as_double();
+      p.hand_left_finger_l_dip = this->get_parameter(left_hand_pose_name + ".hand_left_finger_l_dip").as_double();
+      p.hand_left_finger_c_mcp = this->get_parameter(left_hand_pose_name + ".hand_left_finger_c_mcp").as_double();
+      p.hand_left_finger_c_ip = this->get_parameter(left_hand_pose_name + ".hand_left_finger_c_ip").as_double();
+      p.hand_left_finger_r_pip = this->get_parameter(left_hand_pose_name + ".hand_left_finger_r_pip").as_double();
+      p.hand_left_finger_r_dip = this->get_parameter(left_hand_pose_name + ".hand_left_finger_r_dip").as_double();
+
+      left_hand_poses_.push_back(p);
+    }
+
+
     RCLCPP_INFO(this->get_logger(), "JointActionServer has been initialized.");
   }
 
@@ -146,8 +211,13 @@ namespace sobit_home
 
   rclcpp_action::GoalResponse JointActionServer::handle_move_joints_goal(const rclcpp_action::GoalUUID &, std::shared_ptr<const MoveJoint::Goal>) { return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE; }
   rclcpp_action::GoalResponse JointActionServer::handle_move_to_pose_goal(const rclcpp_action::GoalUUID &, std::shared_ptr<const MoveToPose::Goal>) { return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE; }
+  rclcpp_action::GoalResponse JointActionServer::handle_move_right_hand_to_pose_goal(const rclcpp_action::GoalUUID &, std::shared_ptr<const MoveToPose::Goal>) { return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE; }
+  rclcpp_action::GoalResponse JointActionServer::handle_move_left_hand_to_pose_goal(const rclcpp_action::GoalUUID &, std::shared_ptr<const MoveToPose::Goal>) { return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE; }
+
   rclcpp_action::CancelResponse JointActionServer::handle_move_joints_cancel(const std::shared_ptr<GoalHandleMoveJoints>) { return rclcpp_action::CancelResponse::ACCEPT; }
   rclcpp_action::CancelResponse JointActionServer::handle_move_to_pose_cancel(const std::shared_ptr<GoalHandleMoveToPose>) { return rclcpp_action::CancelResponse::ACCEPT; }
+  rclcpp_action::CancelResponse JointActionServer::handle_move_right_hand_to_pose_cancel(const std::shared_ptr<GoalHandleMoveToPose>) { return rclcpp_action::CancelResponse::ACCEPT; }
+  rclcpp_action::CancelResponse JointActionServer::handle_move_left_hand_to_pose_cancel(const std::shared_ptr<GoalHandleMoveToPose>) { return rclcpp_action::CancelResponse::ACCEPT; }
 
   void JointActionServer::handle_move_joints_accepted(const std::shared_ptr<GoalHandleMoveJoints> goal_handle)
   {
@@ -159,6 +229,18 @@ namespace sobit_home
   {
     RCLCPP_INFO(this->get_logger(), "Accepted move_to_pose goal request");
     std::thread{std::bind(&JointActionServer::exe_move_to_pose, this, std::placeholders::_1), goal_handle}.detach();
+  }
+
+  void JointActionServer::handle_move_right_hand_to_pose_accepted(const std::shared_ptr<GoalHandleMoveToPose> goal_handle)
+  {
+    RCLCPP_INFO(this->get_logger(), "Accepted move_right_hand_to_pose goal request");
+    std::thread{std::bind(&JointActionServer::exe_move_right_hand_to_pose, this, std::placeholders::_1), goal_handle}.detach();
+  }
+
+  void JointActionServer::handle_move_left_hand_to_pose_accepted(const std::shared_ptr<GoalHandleMoveToPose> goal_handle)
+  {
+    RCLCPP_INFO(this->get_logger(), "Accepted move_left_hand_to_pose goal request");
+    std::thread{std::bind(&JointActionServer::exe_move_left_hand_to_pose, this, std::placeholders::_1), goal_handle}.detach();
   }
 
   void JointActionServer::exe_move_joints(const std::shared_ptr<GoalHandleMoveJoints> goal_handle)
@@ -262,6 +344,100 @@ namespace sobit_home
     publish_group(pub_right_hand_joint_control_, "hand_right");
     publish_group(pub_body_joint_control_, "body");
     publish_group(pub_head_joint_control_, "head");
+
+    auto start_time = this->now();
+    while (this->now() - start_time < goal->time_allowance)
+    {
+      if (goal_handle->is_canceling())
+      {
+        goal_handle->canceled(result);
+        return;
+      }
+      rclcpp::sleep_for(std::chrono::milliseconds(100));
+    }
+    result->success = true;
+    goal_handle->succeed(result);
+  }
+
+  // right hand
+  void JointActionServer::exe_move_right_hand_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle)
+  {
+    const auto goal = goal_handle->get_goal();
+    auto result = std::make_shared<MoveToPose::Result>();
+
+    auto it = std::find_if(right_hand_poses_.begin(), right_hand_poses_.end(), [&](const PoseParams &p)
+                           { return p.pose_name == goal->pose_name; });
+    if (it == right_hand_poses_.end())
+    {
+      goal_handle->abort(result);
+      return;
+    }
+
+    std::vector<std::string> names;
+    std::vector<double> rads;
+    auto add = [&](const std::vector<std::string> &n, const std::vector<double> &r)
+    {
+      names.insert(names.end(), n.begin(), n.end());
+      rads.insert(rads.end(), r.begin(), r.end());
+    };
+
+    add(JointNamesHandRight, {it->hand_right_finger_l_mcp, it->hand_right_finger_l_pip, it->hand_right_finger_l_dip, it->hand_right_finger_c_mcp, it->hand_right_finger_c_ip, it->hand_right_finger_r_pip, it->hand_right_finger_r_dip});
+
+    auto publish_group = [&](auto &pub, const std::string &grp)
+    {
+      auto traj = set_joints(names, rads, goal->time_allowance, grp);
+      if (!traj.joint_names.empty())
+        pub->publish(traj);
+    };
+
+    publish_group(pub_right_hand_joint_control_, "hand_right");
+
+    auto start_time = this->now();
+    while (this->now() - start_time < goal->time_allowance)
+    {
+      if (goal_handle->is_canceling())
+      {
+        goal_handle->canceled(result);
+        return;
+      }
+      rclcpp::sleep_for(std::chrono::milliseconds(100));
+    }
+    result->success = true;
+    goal_handle->succeed(result);
+  }
+
+  // left hand
+  void JointActionServer::exe_move_left_hand_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle)
+  {
+    const auto goal = goal_handle->get_goal();
+    auto result = std::make_shared<MoveToPose::Result>();
+
+    auto it = std::find_if(left_hand_poses_.begin(), left_hand_poses_.end(), [&](const PoseParams &p)
+                           { return p.pose_name == goal->pose_name; });
+    if (it == left_hand_poses_.end())
+    {
+      goal_handle->abort(result);
+      return;
+    }
+
+    std::vector<std::string> names;
+    std::vector<double> rads;
+    auto add = [&](const std::vector<std::string> &n, const std::vector<double> &r)
+    {
+      names.insert(names.end(), n.begin(), n.end());
+      rads.insert(rads.end(), r.begin(), r.end());
+    };
+
+    add(JointNamesHandLeft, {it->hand_left_finger_l_mcp, it->hand_left_finger_l_pip, it->hand_left_finger_l_dip, it->hand_left_finger_c_mcp, it->hand_left_finger_c_ip, it->hand_left_finger_r_pip, it->hand_left_finger_r_dip});
+
+    auto publish_group = [&](auto &pub, const std::string &grp)
+    {
+      auto traj = set_joints(names, rads, goal->time_allowance, grp);
+      if (!traj.joint_names.empty())
+        pub->publish(traj);
+    };
+
+    publish_group(pub_left_hand_joint_control_, "hand_left");
 
     auto start_time = this->now();
     while (this->now() - start_time < goal->time_allowance)

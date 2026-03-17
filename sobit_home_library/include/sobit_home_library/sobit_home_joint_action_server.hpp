@@ -175,11 +175,16 @@ namespace sobit_home
         "body_lift_joint"};
 
     std::vector<PoseParams> poses_;
+    std::vector<PoseParams> right_hand_poses_;
+    std::vector<PoseParams> left_hand_poses_;
+
     std::map<std::string, double> curt_joint_state_;
     std::unique_ptr<Kinematics> kinematics_;
 
     rclcpp_action::Server<MoveJoint>::SharedPtr action_server_move_joints_;
     rclcpp_action::Server<MoveToPose>::SharedPtr action_server_move_to_pose_;
+    rclcpp_action::Server<MoveToPose>::SharedPtr action_server_move_right_hand_to_pose_;
+    rclcpp_action::Server<MoveToPose>::SharedPtr action_server_move_left_hand_to_pose_;
 
     rclcpp::Service<GetHandToTargetCoord>::SharedPtr service_get_hand_to_coord_left_;
     rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_hand_to_tf_left_;
@@ -191,15 +196,23 @@ namespace sobit_home
 
     rclcpp_action::GoalResponse handle_move_joints_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const MoveJoint::Goal> goal);
     rclcpp_action::GoalResponse handle_move_to_pose_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const MoveToPose::Goal> goal);
+    rclcpp_action::GoalResponse handle_move_right_hand_to_pose_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const MoveToPose::Goal> goal);
+    rclcpp_action::GoalResponse handle_move_left_hand_to_pose_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const MoveToPose::Goal> goal);
 
     rclcpp_action::CancelResponse handle_move_joints_cancel(const std::shared_ptr<GoalHandleMoveJoints> goal_handle);
     rclcpp_action::CancelResponse handle_move_to_pose_cancel(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
+    rclcpp_action::CancelResponse handle_move_right_hand_to_pose_cancel(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
+    rclcpp_action::CancelResponse handle_move_left_hand_to_pose_cancel(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
 
     void handle_move_joints_accepted(const std::shared_ptr<GoalHandleMoveJoints> goal_handle);
     void handle_move_to_pose_accepted(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
+    void handle_move_right_hand_to_pose_accepted(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
+    void handle_move_left_hand_to_pose_accepted(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
 
     void exe_move_joints(const std::shared_ptr<GoalHandleMoveJoints> goal_handle);
     void exe_move_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
+    void exe_move_right_hand_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
+    void exe_move_left_hand_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
 
     void get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right);
     void get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right);
