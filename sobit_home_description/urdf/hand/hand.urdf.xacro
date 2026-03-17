@@ -231,7 +231,13 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_c_mcp_link" />
       <origin xyz="0.036751 ${y_sign * 0.036625} ${y_sign * 0.014550} " rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 0.0 1.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="0.52" velocity="11.031179004" />
+      <!-- <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="0.52" velocity="11.031179004" /> -->
+      <xacro:if value="${position == 'left'}">
+        <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="0.52" velocity="11.031" />
+      </xacro:if>
+      <xacro:if value="${position == 'right'}">
+        <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="0.52" velocity="11.031" />
+      </xacro:if>
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_c_mcp_link" >
