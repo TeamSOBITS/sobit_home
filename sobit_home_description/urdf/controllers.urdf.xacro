@@ -333,8 +333,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
-        <param name="max">${M_PI/2}</param>
+        <param name="min">-${M_PI}</param>
+        <param name="max">${M_PI}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -355,8 +355,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
-        <param name="max">${M_PI/2}</param>
+        <param name="min">-${M_PI}</param>
+        <param name="max">${M_PI}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -396,8 +396,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
-        <param name="max">${M_PI/2}</param>
+        <param name="min">-${M_PI}</param>
+        <param name="max">${M_PI}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -415,7 +415,7 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
+        <param name="min">${-140*M_PI/180}</param>
         <param name="max">0</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
@@ -453,8 +453,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
-        <param name="max">${M_PI/2}</param>
+        <param name="min">-${M_PI}</param>
+        <param name="max">${M_PI}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -494,8 +494,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
-        <param name="max">${M_PI/2}</param>
+        <param name="min">-${M_PI}</param>
+        <param name="max">${M_PI}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -513,8 +513,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">0</param>
-        <param name="max">${M_PI/2}</param>
+        <param name="min">0.0</param>
+        <param name="max">${140*M_PI/180}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -551,8 +551,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-1.570796327</param>
-        <param name="max">1.570796327</param>
+        <param name="min">-${M_PI}</param>
+        <param name="max">${M_PI}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -574,7 +574,7 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
+        <param name="min">${-M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
@@ -604,7 +604,7 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
+        <param name="min">${-M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
@@ -624,8 +624,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
-        <param name="max">${M_PI/2}</param>
+        <param name="min">${-M_PI/2}</param>
+        <param name="max">${M_PI/6}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -644,8 +644,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
-        <param name="max">${M_PI/2}</param>
+        <param name="min">${-M_PI/2}</param>
+        <param name="max">${M_PI/6}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -664,7 +664,7 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
+        <param name="min">${-M_PI/6}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
@@ -684,8 +684,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
-        <param name="max">${M_PI/2}</param>
+        <param name="min">${-M_PI/2}</param>
+        <param name="max">${M_PI/6}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -704,7 +704,7 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
+        <param name="min">${-M_PI/6}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
@@ -777,8 +777,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-2.0</param>
-        <param name="max">0.5</param>
+        <param name="min">${-M_PI/2}</param>
+        <param name="max">${M_PI/6}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -797,7 +797,7 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-0.9</param>
+        <param name="min">${-M_PI/6}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
@@ -817,8 +817,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-2.0</param>
-        <param name="max">0.5</param>
+        <param name="min">${-M_PI/2}</param>
+        <param name="max">${M_PI/6}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -837,8 +837,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
-        <param name="max">0.5</param>
+        <param name="min">${-M_PI/2}</param>
+        <param name="max">${M_PI/6}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -857,8 +857,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-0.5</param>
-        <param name="max">2.0</param>
+        <param name="min">${-M_PI/6}</param>
+        <param name="max">${M_PI/2}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">

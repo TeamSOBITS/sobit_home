@@ -45,7 +45,7 @@
       <child link="${prefix}_${position}_shoulder_tilt_link" />
       <origin xyz="0.0 ${y_sign * 0.126} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 ${y_sign} 0.0" />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${44.7 * effort_ratio}" velocity="3.0" />
+      <limit lower="${-M_PI}" upper="${M_PI}" effort="${44.7 * effort_ratio}" velocity="3.0" />
     </joint>
 
     <link name="${prefix}_${position}_shoulder_tilt_link" >
@@ -107,7 +107,7 @@
       <child link="${prefix}_${position}_upper_flex_link" />
       <origin xyz="0.0 ${y_sign * 0.2} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 ${y_sign} 0.0" />
-      <limit lower="${-y_sign * M_PI/2}" upper="${y_sign * M_PI/2}" effort="${4.1 * effort_ratio}" velocity="4.81" />
+      <limit lower="${-y_sign * M_PI}" upper="${y_sign * M_PI}" effort="${4.1 * effort_ratio}" velocity="4.81" />
     </joint>
 
     <link name="${prefix}_${position}_upper_flex_link" >
@@ -208,7 +208,7 @@
       <child link="${prefix}_${position}_wrist_roll_link" />
       <origin xyz="0.0 ${y_sign * 0.06648202} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 ${y_sign} 0.0" />
-      <limit lower="${-y_sign * M_PI/2}" upper="${y_sign * M_PI/2}" effort="${10.6 * effort_ratio}" velocity="11.031179004" />
+      <limit lower="${-y_sign * M_PI}" upper="${y_sign * M_PI}" effort="${10.6 * effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix}_${position}_wrist_roll_link" >
