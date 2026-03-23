@@ -67,6 +67,7 @@ def generate_launch_description():
 
 def launch_gz(context, *args, **kwargs):
     robot_name = LaunchConfiguration('robot_name').perform(context)
+    bringup_package = 'sobit_home_bringup'
 
     enable_lidar = LaunchConfiguration('enable_lidar').perform(context)
 
@@ -122,11 +123,11 @@ def launch_gz(context, *args, **kwargs):
     )
 
     urg_configs = [
-        os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "front_urg_node_param.yaml"),
-        os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "back_urg_node_param.yaml"),
+        os.path.join(get_package_share_directory(bringup_package), "config", "front_urg_node_param.yaml"),
+        os.path.join(get_package_share_directory(bringup_package), "config", "back_urg_node_param.yaml"),
     ]
-    merge_scan_config = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "laser_scan_merger.yaml")
-    swerve_config = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "swerve_config.yaml")
+    merge_scan_config = os.path.join(get_package_share_directory(bringup_package), "config", "laser_scan_merger.yaml")
+    swerve_config = os.path.join(get_package_share_directory(bringup_package), "config", "swerve_config.yaml")
 
     robot_description_config = xacro.process_file(
         robot_description,
