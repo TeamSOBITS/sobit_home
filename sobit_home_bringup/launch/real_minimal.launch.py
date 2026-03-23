@@ -1,7 +1,8 @@
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, ExecuteProcess
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 
@@ -9,6 +10,13 @@ from launch_ros.actions import Node
 def generate_launch_description():
     robot_name = 'sobit_home'
     robot_id = 0
+    enable_display = LaunchConfiguration('enable_display')
+
+    arg_enable_display = DeclareLaunchArgument(
+        'enable_display',
+        default_value='True',
+        description='Launch SOBITS Display',
+    )
 
     rviz_config = PathJoinSubstitution([
             FindPackageShare('sobit_home_bringup'),
@@ -21,6 +29,20 @@ def generate_launch_description():
         name='rviz2',
         arguments=['-d', rviz_config],
         output='screen',
+    )
+
+    sobits_display_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            PathJoinSubstitution([
+                FindPackageShare('sobits_display'),
+                'launch',
+                'sobits_display.launch.py'
+            ])
+        ]),
+        launch_arguments={
+            'robot_type': robot_name,
+        }.items(),
+        condition=IfCondition(enable_display),
     )
 
     return LaunchDescription([
@@ -48,5 +70,7 @@ def generate_launch_description():
                 'enable_gz'            : 'False',
             }.items()
         ),
+        arg_enable_display,
+        sobits_display_launch,
         rviz_node,
     ])
