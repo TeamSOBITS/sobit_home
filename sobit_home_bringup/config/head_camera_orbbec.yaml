@@ -1,0 +1,36 @@
+serial_number: ""
+usb_port: ""
+device_num: 1
+
+depth_registration: true
+enable_point_cloud: true
+enable_colored_point_cloud: true
+enable_publish_extrinsic: true
+enable_frame_sync: true
+publish_tf: true
+
+enable_color: true
+color_width: 640
+color_height: 480
+color_fps: 30
+color_format: MJPG
+
+enable_depth: true
+depth_width: 640
+depth_height: 480
+depth_fps: 30
+depth_format: Y16
+
+enable_left_ir: false
+enable_right_ir: false
+
+point_cloud_qos: DEFAULT      # SENSOR_DATA or DEFAULT
+color_qos: DEFAULT        # SENSOR_DATA or DEFAULT
+depth_qos: DEFAULT        # SENSOR_DATA or DEFAULT
+
+align_mode: SW
+connection_delay: 100
+use_hardware_time: true
+enable_sync_host_time: true
+enable_soft_filter: true
+enable_noise_removal_filter: true
