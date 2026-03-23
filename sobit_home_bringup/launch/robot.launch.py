@@ -174,7 +174,7 @@ def launch_gz(context, *args, **kwargs):
             ])
         ]),
         launch_arguments={
-            'robot_type': robot_name,
+            'robot_type': 'sobit_home',
             'namespace': robot_name,
         }.items(),
         condition=IfCondition(enable_display),
