@@ -175,6 +175,7 @@ def launch_gz(context, *args, **kwargs):
         ]),
         launch_arguments={
             'robot_type': robot_name,
+            'namespace': robot_name,
         }.items(),
         condition=IfCondition(enable_display),
     )
