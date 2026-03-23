@@ -19,10 +19,10 @@
           <update_rate>1</update_rate>
 
           <camera name="head_camera_color">
-            <horizontal_fov>1.50098</horizontal_fov>
+            <horizontal_fov>1.64061</horizontal_fov>
             <image>
-              <width>1280</width>
-              <height>720</height>
+              <width>640</width>
+              <height>480</height>
               <format>RGB_INT8</format>
             </image>
             <clip>
@@ -55,10 +55,10 @@
           <update_rate>1</update_rate>
 
           <camera name="head_camera_depth">
-            <horizontal_fov>1.50098</horizontal_fov>
+            <horizontal_fov>1.64061</horizontal_fov>
             <image>
-              <width>1280</width>
-              <height>720</height>
+              <width>640</width>
+              <height>480</height>
             </image>
             <clip>
               <near>0.1</near>
