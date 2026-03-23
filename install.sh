@@ -20,6 +20,7 @@ ros_packages=(
     "aws_small_house_world"
     "sobits_gazebo_worlds"
     # "iai_hardware"
+    "sobits_display"
 )
 
 #Clone all packages
