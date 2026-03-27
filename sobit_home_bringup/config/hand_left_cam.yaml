@@ -1,0 +1,17 @@
+/**:
+    ros__parameters:
+      video_device: "/dev/video0"
+      framerate: 30.0
+      io_method: "mmap"
+      frame_id: "hand_left_camera_optical_frame"
+      pixel_format: "mjpeg2rgb"  # ELP-USBGS1200P01-H120 outputs MJPEG
+      image_width: 1920
+      image_height: 1200
+      camera_name: "hand_left_camera_color"
+      autoexposure: true
+      auto_white_balance: true
+      brightness: -1
+      contrast: -1
+      saturation: -1
+      sharpness: -1
+      gain: -1
