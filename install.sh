@@ -19,7 +19,6 @@ ros_packages=(
     "tmc_wrs_gz"
     "aws_small_house_world"
     "sobits_gazebo_worlds"
-    # "iai_hardware"
 )
 
 #Clone all packages
@@ -48,9 +47,11 @@ sudo apt-get update
 sudo apt-get install -y \
     ros-$ROS_DISTRO-ros2-control \
     ros-$ROS_DISTRO-ros2-controllers \
+    ros-$ROS_DISTRO-control-msgs \
     ros-$ROS_DISTRO-control-toolbox \
     ros-$ROS_DISTRO-controller-interface \
     ros-$ROS_DISTRO-controller-manager \
+    ros-$ROS_DISTRO-controller-manager-msgs \
     ros-$ROS_DISTRO-position-controllers \
     ros-$ROS_DISTRO-velocity-controllers \
     ros-$ROS_DISTRO-effort-controllers \
@@ -82,7 +83,8 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-gps-msgs \
     ros-$ROS_DISTRO-ros-gz-bridge \
     ros-$ROS_DISTRO-ros-gz-sim \
-    ros-$ROS_DISTRO-ros-gz-interfaces
+    ros-$ROS_DISTRO-ros-gz-interfaces \
+    ros-$ROS_DISTRO-usb-cam
 
 # Set up the environment
 sudo usermod -aG dialout $USERNAME
