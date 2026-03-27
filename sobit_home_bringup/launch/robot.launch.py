@@ -22,20 +22,18 @@ def generate_launch_description():
     arg_robot_coords_z = DeclareLaunchArgument('robot_coords_z', default_value='0')
     arg_robot_coords_Y = DeclareLaunchArgument('robot_coords_Y', default_value='0')
 
-    arg_enable_gz                       = DeclareLaunchArgument('enable_gz', default_value='True')
-    arg_enable_mobile_base              = DeclareLaunchArgument('enable_mobile_base', default_value='True')
-    arg_enable_arm_left                 = DeclareLaunchArgument('enable_arm_left', default_value='True')
-    arg_enable_arm_right                = DeclareLaunchArgument('enable_arm_right', default_value='True')
-    arg_enable_hand_left                = DeclareLaunchArgument('enable_hand_left', default_value='True')
-    arg_enable_hand_right               = DeclareLaunchArgument('enable_hand_right', default_value='True')
-    arg_enable_head                     = DeclareLaunchArgument('enable_head', default_value='True')
-    arg_enable_body                     = DeclareLaunchArgument('enable_body', default_value='True')
-    arg_enable_gz_head_cam_color        = DeclareLaunchArgument('enable_gz_head_cam_color', default_value='True')
-    arg_enable_gz_head_cam_depth        = DeclareLaunchArgument('enable_gz_head_cam_depth', default_value='True')
-    arg_enable_gz_hand_left_cam_color   = DeclareLaunchArgument('enable_gz_hand_left_cam_color', default_value='True')
-    arg_enable_gz_hand_left_cam_depth   = DeclareLaunchArgument('enable_gz_hand_left_cam_depth', default_value='True')
-    arg_enable_gz_hand_right_cam_color  = DeclareLaunchArgument('enable_gz_hand_right_cam_color', default_value='True')
-    arg_enable_gz_hand_right_cam_depth  = DeclareLaunchArgument('enable_gz_hand_right_cam_depth', default_value='True')
+    arg_enable_gz              = DeclareLaunchArgument('enable_gz', default_value='True')
+    arg_enable_mobile_base     = DeclareLaunchArgument('enable_mobile_base', default_value='True')
+    arg_enable_arm_left        = DeclareLaunchArgument('enable_arm_left', default_value='True')
+    arg_enable_arm_right       = DeclareLaunchArgument('enable_arm_right', default_value='True')
+    arg_enable_hand_left       = DeclareLaunchArgument('enable_hand_left', default_value='True')
+    arg_enable_hand_right      = DeclareLaunchArgument('enable_hand_right', default_value='True')
+    arg_enable_head            = DeclareLaunchArgument('enable_head', default_value='True')
+    arg_enable_body            = DeclareLaunchArgument('enable_body', default_value='True')
+    arg_enable_head_cam_color      = DeclareLaunchArgument('enable_head_cam_color', default_value='True')
+    arg_enable_head_cam_depth      = DeclareLaunchArgument('enable_head_cam_depth', default_value='True')
+    arg_enable_hand_left_cam_color = DeclareLaunchArgument('enable_hand_left_cam_color', default_value='True')
+    arg_enable_hand_right_cam_color= DeclareLaunchArgument('enable_hand_right_cam_color', default_value='True')
 
     return LaunchDescription([
         arg_robot_name,
@@ -52,12 +50,10 @@ def generate_launch_description():
         arg_enable_hand_right,
         arg_enable_head,
         arg_enable_body,
-        arg_enable_gz_head_cam_color,
-        arg_enable_gz_head_cam_depth,
-        arg_enable_gz_hand_left_cam_color,
-        arg_enable_gz_hand_left_cam_depth,
-        arg_enable_gz_hand_right_cam_color,
-        arg_enable_gz_hand_right_cam_depth,
+        arg_enable_head_cam_color,
+        arg_enable_head_cam_depth,
+        arg_enable_hand_left_cam_color,
+        arg_enable_hand_right_cam_color,
         OpaqueFunction(function = launch_gz),
     ])
 
@@ -72,21 +68,19 @@ def launch_gz(context, *args, **kwargs):
     robot_coords_z = LaunchConfiguration('robot_coords_z').perform(context)
     robot_coords_Y = LaunchConfiguration('robot_coords_Y').perform(context)
 
-    enable_gz                       = LaunchConfiguration('enable_gz').perform(context)
-    enable_mobile_base              = LaunchConfiguration('enable_mobile_base').perform(context)
-    enable_body                     = LaunchConfiguration('enable_body').perform(context)
-    enable_arm_left                 = LaunchConfiguration('enable_arm_left').perform(context)
-    enable_arm_right                = LaunchConfiguration('enable_arm_right').perform(context)
-    enable_hand_left                = LaunchConfiguration('enable_hand_left').perform(context)
-    enable_hand_right               = LaunchConfiguration('enable_hand_right').perform(context)
-    enable_head                     = LaunchConfiguration('enable_head').perform(context)
-    enable_body                     = LaunchConfiguration('enable_body').perform(context)
-    enable_gz_head_cam_color        = LaunchConfiguration('enable_gz_head_cam_color').perform(context)
-    enable_gz_head_cam_depth        = LaunchConfiguration('enable_gz_head_cam_depth').perform(context)
-    enable_gz_hand_left_cam_color   = LaunchConfiguration('enable_gz_hand_left_cam_color').perform(context)
-    enable_gz_hand_left_cam_depth   = LaunchConfiguration('enable_gz_hand_left_cam_depth').perform(context)
-    enable_gz_hand_right_cam_color  = LaunchConfiguration('enable_gz_hand_right_cam_color').perform(context)
-    enable_gz_hand_right_cam_depth  = LaunchConfiguration('enable_gz_hand_right_cam_depth').perform(context)
+    enable_gz                  = LaunchConfiguration('enable_gz').perform(context)
+    enable_mobile_base         = LaunchConfiguration('enable_mobile_base').perform(context)
+    enable_body                = LaunchConfiguration('enable_body').perform(context)
+    enable_arm_left            = LaunchConfiguration('enable_arm_left').perform(context)
+    enable_arm_right           = LaunchConfiguration('enable_arm_right').perform(context)
+    enable_hand_left           = LaunchConfiguration('enable_hand_left').perform(context)
+    enable_hand_right          = LaunchConfiguration('enable_hand_right').perform(context)
+    enable_head                = LaunchConfiguration('enable_head').perform(context)
+    enable_body                = LaunchConfiguration('enable_body').perform(context)
+    enable_head_cam_color      = LaunchConfiguration('enable_head_cam_color').perform(context)
+    enable_head_cam_depth      = LaunchConfiguration('enable_head_cam_depth').perform(context)
+    enable_hand_left_cam_color = LaunchConfiguration('enable_hand_left_cam_color').perform(context)
+    enable_hand_right_cam_color= LaunchConfiguration('enable_hand_right_cam_color').perform(context)
 
     # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
     dxl_x_lower_body_port = ''
@@ -112,7 +106,7 @@ def launch_gz(context, *args, **kwargs):
             print('CAN0 interface is set up.')
 
     robot_description = os.path.join(get_package_share_directory(
-        'sobit_home_description'), 
+        'sobit_home_description'),
         'robots',
         'sobit_home_robot.urdf.xacro'
     )
@@ -123,6 +117,8 @@ def launch_gz(context, *args, **kwargs):
     ]
     merge_scan_config = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "laser_scan_merger.yaml")
     swerve_config = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "swerve_config.yaml")
+    hand_left_cam_config  = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "hand_left_cam.yaml")
+    hand_right_cam_config = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "hand_right_cam.yaml")
 
     robot_description_config = xacro.process_file(
         robot_description,
@@ -136,12 +132,10 @@ def launch_gz(context, *args, **kwargs):
             'enable_hand_left': enable_hand_left,
             'enable_hand_right': enable_hand_right,
             'enable_head': enable_head,
-            'enable_gz_head_cam_color' : enable_gz_head_cam_color,
-            'enable_gz_head_cam_depth' : enable_gz_head_cam_depth,
-            'enable_gz_hand_left_cam_color' : enable_gz_hand_left_cam_color,
-            'enable_gz_hand_left_cam_depth' : enable_gz_hand_left_cam_depth,
-            'enable_gz_hand_right_cam_color' : enable_gz_hand_right_cam_color,
-            'enable_gz_hand_right_cam_depth' : enable_gz_hand_right_cam_depth,
+            'enable_head_cam_color' : enable_head_cam_color,
+            'enable_head_cam_depth' : enable_head_cam_depth,
+            'enable_hand_left_cam_color' : enable_hand_left_cam_color,
+            'enable_hand_right_cam_color' : enable_hand_right_cam_color,
             'dxl_x_lower_body_port': dxl_x_lower_body_port,
             'dxl_x_upper_body_port': dxl_x_upper_body_port,
             'dxl_p_upper_body_port': dxl_p_upper_body_port,
@@ -411,10 +405,10 @@ def launch_gz(context, *args, **kwargs):
                     "/" + robot_name + "/head_camera/color" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
                     "/" + robot_name + "/head_camera/depth" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
                     "/" + robot_name + "/head_camera/depth/points" + "@sensor_msgs/msg/PointCloud2" + "[gz.msgs.PointCloudPacked",
-                    # "/" + robot_name + "/hand_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
-                    # "/" + robot_name + "/hand_camera/color" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
-                    # "/" + robot_name + "/hand_camera/depth" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
-                    # "/" + robot_name + "/hand_camera/depth/points" + "@sensor_msgs/msg/PointCloud2" + "[gz.msgs.PointCloudPacked",
+                    "/" + robot_name + "/hand_left_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
+                    "/" + robot_name + "/hand_left_camera/color" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
+                    "/" + robot_name + "/hand_right_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
+                    "/" + robot_name + "/hand_right_camera/color" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
                     "/" + robot_name + "/lidar_front/scan" + "@sensor_msgs/msg/LaserScan" + "[gz.msgs.LaserScan",
                     "/" + robot_name + "/lidar_front/scan/points" + "@sensor_msgs/msg/PointCloud2" + "[gz.msgs.PointCloudPacked",
                     "/" + robot_name + "/lidar_back/scan" + "@sensor_msgs/msg/LaserScan" + "[gz.msgs.LaserScan",
@@ -424,37 +418,46 @@ def launch_gz(context, *args, **kwargs):
         output='screen'
     )
 
-    # gz_tf_head_cam_node = Node(
-    #     package='tf2_ros',
-    #     executable='static_transform_publisher',
-    #     arguments=['--frame-id', robot_name + '/head_camera_depth_optical_frame',
-    #             '--child-frame-id', robot_name + '/head_tilt_link/head_camera_depth',
-    #             '--pitch', '-1.57',
-    #             '--roll', '1.57'],
-    #     output='screen',
-    # )
+    # Real hardware: ELP wrist cameras via usb_cam
+    wrist_left_cam_node = Node(
+        package='usb_cam',
+        executable='usb_cam_node_exe',
+        name='hand_left_camera',
+        namespace=robot_name,
+        parameters=[hand_left_cam_config],
+        remappings=[
+            ('image_raw', 'hand_left_camera/color'),
+            ('camera_info', 'hand_left_camera/camera_info'),
+        ],
+        output='screen',
+    )
 
-    # gz_tf_hand_cam_node = Node(
-    #     package='tf2_ros',
-    #     executable='static_transform_publisher',
-    #     arguments=['--frame-id', robot_name + '/hand_camera_depth_optical_frame',
-    #             '--child-frame-id', robot_name + '/arm_wrist_roll_link/hand_camera_depth',
-    #             '--pitch', '-1.57',
-    #             '--roll', '1.57'],
-    #     output='screen',
-    # )
+    wrist_right_cam_node = Node(
+        package='usb_cam',
+        executable='usb_cam_node_exe',
+        name='hand_right_camera',
+        namespace=robot_name,
+        parameters=[hand_right_cam_config],
+        remappings=[
+            ('image_raw', 'hand_right_camera/color'),
+            ('camera_info', 'hand_right_camera/camera_info'),
+        ],
+        output='screen',
+    )
 
     if enable_gz == 'True':
         nodes.append(gz_bridge_node)
         nodes.append(gz_spawn_entity_node)
         nodes.append(delayed_joint_state_broadcaster)
         nodes.append(delayed_controllers)
-        # nodes.append(gz_tf_head_cam_node)
-        # nodes.append(gz_tf_hand_cam_node)
     else:
         nodes.append(joint_state_broadcaster)
         nodes.append(control_node)
         nodes.extend(controllers)
+        if enable_hand_left_cam_color == 'True':
+            nodes.append(wrist_left_cam_node)
+        if enable_hand_right_cam_color == 'True':
+            nodes.append(wrist_right_cam_node)
     nodes.append(robot_state_publisher_node)
     nodes.append(action_server_launch)
 

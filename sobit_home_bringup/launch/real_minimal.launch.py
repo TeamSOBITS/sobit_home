@@ -43,9 +43,11 @@ def generate_launch_description():
                 'enable_hand_right'    : 'True',
                 'enable_head'          : 'True',
                 'enable_body'          : 'False',
-                'enable_real_head_cam' : 'False', # TODO: toggle head camera
-                'enable_real_hand_cam' : 'False', # TODO: toggle hand camera
-                'enable_gz'            : 'False',
+                'enable_head_cam_color'       : 'False',
+                'enable_head_cam_depth'       : 'False',
+                'enable_hand_left_cam_color'  : 'False',
+                'enable_hand_right_cam_color' : 'False',
+                'enable_gz'                   : 'False',
             }.items()
         ),
         rviz_node,
