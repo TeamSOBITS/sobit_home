@@ -3,11 +3,13 @@ usb_port: ""
 device_num: 1
 
 depth_registration: true
+ordered_pc: true
 enable_point_cloud: true
 enable_colored_point_cloud: true
 enable_publish_extrinsic: true
 enable_frame_sync: true
-publish_tf: true
+publish_tf: false
+log_level: none
 
 enable_color: true
 color_width: 640
