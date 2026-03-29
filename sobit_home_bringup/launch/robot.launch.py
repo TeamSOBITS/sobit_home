@@ -426,6 +426,14 @@ def launch_gz(context, *args, **kwargs):
                 'namespace': robot_name,
                 'camera_name': 'head_camera',
                 'config_file_path': head_camera_config_file,
+                'head_camera_depth_frame_id':    robot_name + '/head_camera_depth_frame',
+                'depth_optical_frame_id':        robot_name + '/head_camera_depth_optical_frame',
+                'head_camera_color_frame_id':    robot_name + '/head_camera_color_frame',
+                'color_optical_frame_id':        robot_name + '/head_camera_color_optical_frame',
+                'head_camera_left_ir_frame_id':  robot_name + '/head_camera_infra_1_frame',
+                'left_ir_optical_frame_id':      robot_name + '/head_camera_infra_1_optical_frame',
+                'head_camera_right_ir_frame_id': robot_name + '/head_camera_infra2_frame',
+                'right_ir_optical_frame_id':     robot_name + '/head_camera_infra2_optical_frame',
             }.items(),
         )
         nodes.append(real_head_camera_launch)
