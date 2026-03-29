@@ -105,6 +105,12 @@ def launch_gz(context, *args, **kwargs):
         else:
             print('CAN0 interface is set up.')
 
+        # Find USB Cam port
+        cam_left_port = str(os.environ.get('HOME_CAM_LEFT_PORT'))
+        cam_right_port = str(os.environ.get('HOME_CAM_RIGHT_PORT'))
+        print(f'USB Cam (Left) : {cam_left_port}')
+        print(f'USB Cam (RIGHT) : {cam_right_port}')
+
     robot_description = os.path.join(get_package_share_directory(
         'sobit_home_description'),
         'robots',
@@ -419,30 +425,44 @@ def launch_gz(context, *args, **kwargs):
     )
 
     # Real hardware: ELP wrist cameras via usb_cam
-    wrist_left_cam_node = Node(
+    hand_left_cam_node = Node(
         package='usb_cam',
         executable='usb_cam_node_exe',
         name='hand_left_camera',
-        namespace=robot_name,
-        parameters=[hand_left_cam_config],
+        namespace=robot_name + '/hand_left_camera',
+        parameters=[
+            hand_left_cam_config,
+            {"video_device": cam_left_port},
+            {"frame_id": robot_name + '/hand_left_camera_optical_frame'},
+            ],
         remappings=[
-            ('image_raw', 'hand_left_camera/color'),
-            ('camera_info', 'hand_left_camera/camera_info'),
+            ('image_raw', 'color'),
+            ('image_raw/compressed', 'color/compressed'),
+            ('image_raw/compressedDepth', 'color/compressedDepth'),
+            ('image_raw/theora', 'color/theora'),
+            ('image_raw/zstd', 'color/zstd'),
         ],
-        output='screen',
+        output='log',
     )
 
-    wrist_right_cam_node = Node(
+    hand_right_cam_node = Node(
         package='usb_cam',
         executable='usb_cam_node_exe',
         name='hand_right_camera',
-        namespace=robot_name,
-        parameters=[hand_right_cam_config],
-        remappings=[
-            ('image_raw', 'hand_right_camera/color'),
-            ('camera_info', 'hand_right_camera/camera_info'),
+        namespace=robot_name + '/hand_right_camera',
+        parameters=[
+            hand_right_cam_config,
+            {"video_device": cam_right_port},
+            {"frame_id": robot_name + '/hand_right_camera_optical_frame'},
         ],
-        output='screen',
+        remappings=[
+            ('image_raw', 'color'),
+            ('image_raw/compressed', 'color/compressed'),
+            ('image_raw/compressedDepth', 'color/compressedDepth'),
+            ('image_raw/theora', 'color/theora'),
+            ('image_raw/zstd', 'color/zstd'),
+        ],
+        output='log',
     )
 
     if enable_gz == 'True':
@@ -455,9 +475,9 @@ def launch_gz(context, *args, **kwargs):
         nodes.append(control_node)
         nodes.extend(controllers)
         if enable_hand_left_cam_color == 'True':
-            nodes.append(wrist_left_cam_node)
+            nodes.append(hand_left_cam_node)
         if enable_hand_right_cam_color == 'True':
-            nodes.append(wrist_right_cam_node)
+            nodes.append(hand_right_cam_node)
     nodes.append(robot_state_publisher_node)
     nodes.append(action_server_launch)
 
