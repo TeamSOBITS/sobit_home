@@ -109,8 +109,8 @@ echo "export DXL_X_LOWER_PORT=\`realpath /dev/serial/by-id/usb-FTDI_USB__-__Seri
 echo "export DXL_X_UPPER_PORT=\`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W9E57-if00-port0\`" >> /home/$USERNAME/.bashrc
 echo "export DXL_P_UPPER_PORT=\`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4TCRFG-if00-port0\`" >> /home/$USERNAME/.bashrc
 echo "export UM_PORT=\`realpath /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_dabce0b66407f0118d421f2e6d9880ab-if00-port0\`" >> /home/$USERNAME/.bashrc
-echo "export HOME_CAM_LEFT_PORT=\"/dev/\$(ls /sys/bus/usb/devices/3-5.3:1.0/video4linux/ | sort -V | head -1)\"" >> /home/$USERNAME/.bashrc
-echo "export HOME_CAM_RIGHT_PORT=\"/dev/\$(ls /sys/bus/usb/devices/3-6.3:1.0/video4linux/ | sort -V | head -1)\"" >> /home/$USERNAME/.bashrc
+echo "export HOME_CAM_LEFT_PORT=\"/dev/\$(ls /sys/bus/usb/devices/3-5.4:1.0/video4linux/ | sort -V | head -1)\"" >> /home/$USERNAME/.bashrc
+echo "export HOME_CAM_RIGHT_PORT=\"/dev/\$(ls /sys/bus/usb/devices/3-6.4:1.0/video4linux/ | sort -V | head -1)\"" >> /home/$USERNAME/.bashrc
 echo "" >> /home/$USERNAME/.bashrc
 source /home/$USERNAME/.bashrc
 
