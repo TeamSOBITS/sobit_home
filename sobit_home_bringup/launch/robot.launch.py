@@ -35,7 +35,7 @@ def generate_launch_description():
     arg_enable_hand_left_cam_color = DeclareLaunchArgument('enable_hand_left_cam_color', default_value='True')
     arg_enable_hand_right_cam_color= DeclareLaunchArgument('enable_hand_right_cam_color', default_value='True')
     arg_head_cam_config_file         = DeclareLaunchArgument(
-        'head_camera_config_file',
+        'head_cam_config_file',
         default_value=os.path.join(
             get_package_share_directory('sobit_home_bringup'),
             'config',
