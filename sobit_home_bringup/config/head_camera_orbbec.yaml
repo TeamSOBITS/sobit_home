@@ -3,11 +3,11 @@ usb_port: ""
 device_num: 1
 
 depth_registration: true
-ordered_pc: true
-enable_point_cloud: true
+ordered_pc: false
+enable_point_cloud: false
 enable_colored_point_cloud: true
 enable_publish_extrinsic: true
-enable_frame_sync: true
+enable_frame_sync: false
 publish_tf: false
 log_level: none
 
@@ -26,11 +26,11 @@ depth_format: Y16
 enable_left_ir: false
 enable_right_ir: false
 
-point_cloud_qos: DEFAULT      # SENSOR_DATA or DEFAULT
-color_qos: DEFAULT        # SENSOR_DATA or DEFAULT
-depth_qos: DEFAULT        # SENSOR_DATA or DEFAULT
+point_cloud_qos: SENSOR_DATA  # SENSOR_DATA or DEFAULT
+color_qos: SENSOR_DATA    # SENSOR_DATA or DEFAULT
+depth_qos: SENSOR_DATA    # SENSOR_DATA or DEFAULT
 
-align_mode: SW
+align_mode: HW
 connection_delay: 100
 use_hardware_time: true
 enable_sync_host_time: true
