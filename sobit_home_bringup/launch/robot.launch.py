@@ -36,6 +36,16 @@ def generate_launch_description():
     arg_enable_gz_hand_left_cam_depth   = DeclareLaunchArgument('enable_gz_hand_left_cam_depth', default_value='True')
     arg_enable_gz_hand_right_cam_color  = DeclareLaunchArgument('enable_gz_hand_right_cam_color', default_value='True')
     arg_enable_gz_hand_right_cam_depth  = DeclareLaunchArgument('enable_gz_hand_right_cam_depth', default_value='True')
+    arg_enable_real_head_cam            = DeclareLaunchArgument('enable_real_head_cam', default_value='False')
+    arg_enable_real_hand_cam            = DeclareLaunchArgument('enable_real_hand_cam', default_value='False')
+    arg_head_camera_config_file         = DeclareLaunchArgument(
+        'head_camera_config_file',
+        default_value=os.path.join(
+            get_package_share_directory('sobit_home_bringup'),
+            'config',
+            'head_camera_orbbec.yaml',
+        ),
+    )
 
     return LaunchDescription([
         arg_robot_name,
@@ -58,6 +68,9 @@ def generate_launch_description():
         arg_enable_gz_hand_left_cam_depth,
         arg_enable_gz_hand_right_cam_color,
         arg_enable_gz_hand_right_cam_depth,
+        arg_enable_real_head_cam,
+        arg_enable_real_hand_cam,
+        arg_head_camera_config_file,
         OpaqueFunction(function = launch_gz),
     ])
 
@@ -87,6 +100,8 @@ def launch_gz(context, *args, **kwargs):
     enable_gz_hand_left_cam_depth   = LaunchConfiguration('enable_gz_hand_left_cam_depth').perform(context)
     enable_gz_hand_right_cam_color  = LaunchConfiguration('enable_gz_hand_right_cam_color').perform(context)
     enable_gz_hand_right_cam_depth  = LaunchConfiguration('enable_gz_hand_right_cam_depth').perform(context)
+    enable_real_head_cam            = LaunchConfiguration('enable_real_head_cam').perform(context)
+    head_camera_config_file         = LaunchConfiguration('head_camera_config_file').perform(context)
 
     # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
     dxl_x_lower_body_port = ''
@@ -397,6 +412,31 @@ def launch_gz(context, *args, **kwargs):
             'enable_gz': enable_gz,
         }.items(),
     )
+
+    if enable_gz == 'False' and enable_real_head_cam == 'True':
+        real_head_camera_launch = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                PathJoinSubstitution([
+                    FindPackageShare('orbbec_camera'),
+                    'launch',
+                    'gemini_330_series.launch.py'
+                ])
+            ]),
+            launch_arguments={
+                'namespace': robot_name,
+                'camera_name': 'head_camera',
+                'config_file_path': head_camera_config_file,
+                'head_camera_depth_frame_id':    robot_name + '/head_camera_depth_frame',
+                'depth_optical_frame_id':        robot_name + '/head_camera_depth_optical_frame',
+                'head_camera_color_frame_id':    robot_name + '/head_camera_color_frame',
+                'color_optical_frame_id':        robot_name + '/head_camera_color_optical_frame',
+                'head_camera_left_ir_frame_id':  robot_name + '/head_camera_infra_1_frame',
+                'left_ir_optical_frame_id':      robot_name + '/head_camera_infra_1_optical_frame',
+                'head_camera_right_ir_frame_id': robot_name + '/head_camera_infra2_frame',
+                'right_ir_optical_frame_id':     robot_name + '/head_camera_infra2_optical_frame',
+            }.items(),
+        )
+        nodes.append(real_head_camera_launch)
 
     gz_bridge_node = Node(
         package='ros_gz_bridge',
