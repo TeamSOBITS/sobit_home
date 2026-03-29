@@ -1,10 +1,10 @@
 /**:
     ros__parameters:
       # video_device: "/dev/video8"
-      framerate: 5.0
+      framerate: 30.0
       io_method: "mmap"
       # frame_id: "hand_right_camera_optical_frame"
-      pixel_format: "mjpeg2rgb"  # ELP-USBGS1200P01-H120 outputs MJPEG
+      pixel_format: "mjpeg2rgb"
       av_device_format: "YUV422P"
       image_width: 640
       image_height: 480
