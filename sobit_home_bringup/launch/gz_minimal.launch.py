@@ -103,12 +103,10 @@ def generate_launch_description():
                 'enable_hand_left': 'True',
                 'enable_hand_right': 'True',
                 'enable_head': 'True',
-                'enable_gz_head_cam_color'      : 'True',
-                'enable_gz_head_cam_depth'      : 'True',
-                'enable_gz_hand_left_cam_color' : 'False',
-                'enable_gz_hand_left_cam_depth' : 'False',
-                'enable_gz_hand_right_cam_color': 'False',
-                'enable_gz_hand_right_cam_depth': 'False',
+                'enable_head_cam_color'      : 'True',
+                'enable_head_cam_depth'      : 'True',
+                'enable_hand_left_cam_color' : 'True',
+                'enable_hand_right_cam_color': 'True',
             }.items()
         ),
         # Launch Robot No. 2
@@ -126,12 +124,10 @@ def generate_launch_description():
         #         'robot_coords_y': '2', # y
         #         'robot_coords_Y': '0', # yaw
         #         'enable_gz' : 'True',
-        #         'enable_gz_head_cam_color' : 'True',
-        #         'enable_gz_head_cam_depth' : 'True',
-        #         'enable_gz_hand_left_cam_color' : 'True',
-        #         'enable_gz_hand_left_cam_depth' : 'True',
-        #         'enable_gz_hand_right_cam_color' : 'True',
-        #         'enable_gz_hand_right_cam_depth' : 'True',
+        #         'enable_head_cam_color' : 'True',
+        #         'enable_head_cam_depth' : 'True',
+        #         'enable_hand_left_cam_color' : 'True',
+        #         'enable_hand_right_cam_color' : 'True',
         #     }.items()
         # ),
         rviz_node,

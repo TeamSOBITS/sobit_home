@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- SOBIT HOME (Gazebo) -->
 <robot name="sobit_home_gazebo" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:macro name="gazebo_sensors" params="robot_name enable_gz_head_cam_color:=True enable_gz_head_cam_depth:=True enable_gz_hand_left_cam_color:=True enable_gz_hand_left_cam_depth:=True enable_gz_hand_right_cam_color:=True enable_gz_hand_right_cam_depth:=True">
+  <xacro:macro name="gazebo_sensors" params="robot_name enable_head_cam_color:=True enable_head_cam_depth:=True enable_hand_left_cam_color:=True enable_hand_right_cam_color:=True">
 
     <!-- Sensor - Head Camera (Color) -->
-    <xacro:if value="${enable_gz_head_cam_color}">
+    <xacro:if value="${enable_head_cam_color}">
       <gazebo reference="head_camera_color_optical_frame">
         <sensor name="head_camera_color" type="camera">
           <pose>0 0 0 ${M_PI/2} -${M_PI/2} 0 </pose>
@@ -19,78 +19,7 @@
           <update_rate>1</update_rate>
 
           <camera name="head_camera_color">
-            <horizontal_fov>1.50098</horizontal_fov>
-            <image>
-              <width>1280</width>
-              <height>720</height>
-              <format>RGB_INT8</format>
-            </image>
-            <clip>
-              <near>0.1</near>
-              <far>10</far>
-            </clip>
-            <!-- TODO - adjust noise -->
-            <!-- <noise>
-              <type>gaussian</type>
-              <mean>0</mean>
-              <stddev>0.007</stddev>
-            </noise> -->
-          </camera>
-        </sensor>
-      </gazebo>
-    </xacro:if>
-
-    <!-- Sensor - Head Camera (Depth) -->
-    <xacro:if value="${enable_gz_head_cam_depth}">
-      <gazebo reference="head_camera_depth_optical_frame">
-        <sensor name="head_camera_depth" type="depth_camera">
-          <pose>0 0 0 ${M_PI/2} -${M_PI/2} 0 </pose>
-          
-          <!-- <ignition_frame_id>${robot_name}/head_camera_depth_optical_frame</ignition_frame_id> -->
-          <gz_frame_id>${robot_name}/head_camera_depth_frame</gz_frame_id>
-          <topic>${robot_name}/head_camera/depth</topic>
-
-          <always_on>1</always_on>
-          <visualize>true</visualize>
-          <update_rate>1</update_rate>
-
-          <camera name="head_camera_depth">
-            <horizontal_fov>1.50098</horizontal_fov>
-            <image>
-              <width>1280</width>
-              <height>720</height>
-            </image>
-            <clip>
-              <near>0.1</near>
-              <far>10.0</far>
-            </clip>
-            <!-- TODO - adjust noise -->
-            <!-- <noise>
-              <type>gaussian</type>
-              <mean>0</mean>
-              <stddev>0.1</stddev>
-            </noise> -->
-          </camera>
-        </sensor>
-      </gazebo>
-    </xacro:if>
-
-    <!-- Sensor - Hand Left Camera (Color) -->
-    <xacro:if value="${enable_gz_hand_left_cam_color}">
-      <gazebo reference="hand_camera_color_optical_frame">
-        <sensor name="hand_camera_color" type="camera">
-          <pose>0 0 ${0.0175/2} ${M_PI/2} -${M_PI/2} 0 </pose>
-          
-          <!-- <ignition_frame_id>${robot_name}/hand_camera_color_optical_frame</ignition_frame_id> -->
-          <gz_frame_id>${robot_name}/hand_camera_color_optical_frame</gz_frame_id>
-          <topic>${robot_name}/hand_camera/color</topic>
-
-          <always_on>1</always_on>
-          <visualize>true</visualize>
-          <update_rate>1</update_rate>
-
-          <camera name="hand_camera_color">
-            <horizontal_fov>1.21126</horizontal_fov>
+            <horizontal_fov>1.64061</horizontal_fov>
             <image>
               <width>640</width>
               <height>480</height>
@@ -111,29 +40,29 @@
       </gazebo>
     </xacro:if>
 
-    <!-- Sensor - Hand Left Camera (Depth) -->
-    <xacro:if value="${enable_gz_hand_left_cam_depth}">
-      <gazebo reference="hand_camera_depth_optical_frame">
-        <sensor name="hand_camera_depth" type="depth">
-          <pose>0 0 ${0.0175/2} ${M_PI/2} -${M_PI/2} 0 </pose>
+    <!-- Sensor - Head Camera (Depth) -->
+    <xacro:if value="${enable_head_cam_depth}">
+      <gazebo reference="head_camera_depth_optical_frame">
+        <sensor name="head_camera_depth" type="depth_camera">
+          <pose>0 0 0 ${M_PI/2} -${M_PI/2} 0 </pose>
           
-          <!-- <ignition_frame_id>${robot_name}/hand_camera_depth_optical_frame</ignition_frame_id> -->
-          <gz_frame_id>${robot_name}/hand_camera_depth_optical_frame</gz_frame_id>
-          <topic>${robot_name}/hand_camera/depth</topic>
+          <!-- <ignition_frame_id>${robot_name}/head_camera_depth_optical_frame</ignition_frame_id> -->
+          <gz_frame_id>${robot_name}/head_camera_depth_frame</gz_frame_id>
+          <topic>${robot_name}/head_camera/depth</topic>
 
           <always_on>1</always_on>
           <visualize>true</visualize>
           <update_rate>1</update_rate>
 
           <camera name="head_camera_depth">
-            <horizontal_fov>1.48702</horizontal_fov>
+            <horizontal_fov>1.64061</horizontal_fov>
             <image>
-              <width>1280</width>
-              <height>720</height>
+              <width>640</width>
+              <height>480</height>
             </image>
             <clip>
               <near>0.1</near>
-              <far>10</far>
+              <far>10.0</far>
             </clip>
             <!-- TODO - adjust noise -->
             <!-- <noise>
@@ -141,6 +70,68 @@
               <mean>0</mean>
               <stddev>0.1</stddev>
             </noise> -->
+          </camera>
+        </sensor>
+      </gazebo>
+    </xacro:if>
+
+    <!-- Sensor - Wrist Left Camera (ELP-USBGS1200P01-H120, Color) -->
+    <!-- AR0234 Global Shutter, HFOV 126 deg (2.19911 rad), 1920x1200 @ 90fps -->
+    <xacro:if value="${enable_hand_left_cam_color}">
+      <gazebo reference="hand_left_camera_optical_frame">
+        <sensor name="hand_left_camera_color" type="camera">
+          <pose>0 0 0 ${M_PI/2} -${M_PI/2} ${M_PI}</pose>
+
+          <gz_frame_id>${robot_name}/hand_left_camera_optical_frame</gz_frame_id>
+          <topic>${robot_name}/hand_left_camera/color</topic>
+
+          <always_on>1</always_on>
+          <visualize>true</visualize>
+          <update_rate>1</update_rate>
+
+          <camera name="hand_left_camera_color">
+            <!-- ELP-USBGS1200P01-H120: HFOV 126 deg -->
+            <horizontal_fov>2.19911</horizontal_fov>
+            <image>
+              <width>1920</width>
+              <height>1200</height>
+              <format>RGB_INT8</format>
+            </image>
+            <clip>
+              <near>0.01</near>
+              <!-- <far>10</far> -->
+            </clip>
+          </camera>
+        </sensor>
+      </gazebo>
+    </xacro:if>
+
+    <!-- Sensor - Wrist Right Camera (ELP-USBGS1200P01-H120, Color) -->
+    <!-- AR0234 Global Shutter, HFOV 126 deg (2.19911 rad), 1920x1200 @ 90fps -->
+    <xacro:if value="${enable_hand_right_cam_color}">
+      <gazebo reference="hand_right_camera_optical_frame">
+        <sensor name="hand_right_camera_color" type="camera">
+          <pose>0 0 0 ${M_PI/2} -${M_PI/2} ${M_PI}</pose>
+
+          <gz_frame_id>${robot_name}/hand_right_camera_optical_frame</gz_frame_id>
+          <topic>${robot_name}/hand_right_camera/color</topic>
+
+          <always_on>1</always_on>
+          <visualize>true</visualize>
+          <update_rate>1</update_rate>
+
+          <camera name="hand_right_camera_color">
+            <!-- ELP-USBGS1200P01-H120: HFOV 126 deg -->
+            <horizontal_fov>2.19911</horizontal_fov>
+            <image>
+              <width>1920</width>
+              <height>1200</height>
+              <format>RGB_INT8</format>
+            </image>
+            <clip>
+              <near>0.01</near>
+              <!-- <far>10</far> -->
+            </clip>
           </camera>
         </sensor>
       </gazebo>
