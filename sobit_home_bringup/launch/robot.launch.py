@@ -6,7 +6,7 @@ from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.event_handlers import OnProcessExit, OnProcessStart, OnExecutionComplete
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
-from launch.conditions import LaunchConfigurationEquals
+from launch.conditions import IfCondition
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 
@@ -22,19 +22,20 @@ def generate_launch_description():
     arg_robot_coords_z = DeclareLaunchArgument('robot_coords_z', default_value='0')
     arg_robot_coords_Y = DeclareLaunchArgument('robot_coords_Y', default_value='0')
 
-    arg_enable_gz              = DeclareLaunchArgument('enable_gz', default_value='True')
-    arg_enable_mobile_base     = DeclareLaunchArgument('enable_mobile_base', default_value='True')
-    arg_enable_arm_left        = DeclareLaunchArgument('enable_arm_left', default_value='True')
-    arg_enable_arm_right       = DeclareLaunchArgument('enable_arm_right', default_value='True')
-    arg_enable_hand_left       = DeclareLaunchArgument('enable_hand_left', default_value='True')
-    arg_enable_hand_right      = DeclareLaunchArgument('enable_hand_right', default_value='True')
-    arg_enable_head            = DeclareLaunchArgument('enable_head', default_value='True')
-    arg_enable_body            = DeclareLaunchArgument('enable_body', default_value='True')
-    arg_enable_head_cam_color      = DeclareLaunchArgument('enable_head_cam_color', default_value='True')
-    arg_enable_head_cam_depth      = DeclareLaunchArgument('enable_head_cam_depth', default_value='True')
-    arg_enable_hand_left_cam_color = DeclareLaunchArgument('enable_hand_left_cam_color', default_value='True')
-    arg_enable_hand_right_cam_color= DeclareLaunchArgument('enable_hand_right_cam_color', default_value='True')
-    arg_head_cam_config_file         = DeclareLaunchArgument(
+    arg_enable_gz                   = DeclareLaunchArgument('enable_gz', default_value='True')
+    arg_enable_display              = DeclareLaunchArgument('enable_display', default_value='True')
+    arg_enable_mobile_base          = DeclareLaunchArgument('enable_mobile_base', default_value='True')
+    arg_enable_arm_left             = DeclareLaunchArgument('enable_arm_left', default_value='True')
+    arg_enable_arm_right            = DeclareLaunchArgument('enable_arm_right', default_value='True')
+    arg_enable_hand_left            = DeclareLaunchArgument('enable_hand_left', default_value='True')
+    arg_enable_hand_right           = DeclareLaunchArgument('enable_hand_right', default_value='True')
+    arg_enable_head                 = DeclareLaunchArgument('enable_head', default_value='True')
+    arg_enable_body                 = DeclareLaunchArgument('enable_body', default_value='True')
+    arg_enable_head_cam_color       = DeclareLaunchArgument('enable_head_cam_color', default_value='True')
+    arg_enable_head_cam_depth       = DeclareLaunchArgument('enable_head_cam_depth', default_value='True')
+    arg_enable_hand_left_cam_color  = DeclareLaunchArgument('enable_hand_left_cam_color', default_value='True')
+    arg_enable_hand_right_cam_color = DeclareLaunchArgument('enable_hand_right_cam_color', default_value='True')
+    arg_head_cam_config_file        = DeclareLaunchArgument(
         'head_cam_config_file',
         default_value=os.path.join(
             get_package_share_directory('sobit_home_bringup'),
@@ -51,6 +52,7 @@ def generate_launch_description():
         arg_robot_coords_z,
         arg_robot_coords_Y,
         arg_enable_gz,
+        arg_enable_display,
         arg_enable_mobile_base,
         arg_enable_arm_left,
         arg_enable_arm_right,
@@ -69,6 +71,7 @@ def generate_launch_description():
 
 def launch_gz(context, *args, **kwargs):
     robot_name = LaunchConfiguration('robot_name').perform(context)
+    bringup_package = 'sobit_home_bringup'
 
     enable_lidar = LaunchConfiguration('enable_lidar').perform(context)
 
@@ -78,6 +81,7 @@ def launch_gz(context, *args, **kwargs):
     robot_coords_Y = LaunchConfiguration('robot_coords_Y').perform(context)
 
     enable_gz                  = LaunchConfiguration('enable_gz').perform(context)
+    enable_display             = LaunchConfiguration('enable_display').perform(context)
     enable_mobile_base         = LaunchConfiguration('enable_mobile_base').perform(context)
     enable_body                = LaunchConfiguration('enable_body').perform(context)
     enable_arm_left            = LaunchConfiguration('enable_arm_left').perform(context)
@@ -128,13 +132,13 @@ def launch_gz(context, *args, **kwargs):
     )
 
     urg_configs = [
-        os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "front_urg_node_param.yaml"),
-        os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "back_urg_node_param.yaml"),
+        os.path.join(get_package_share_directory(bringup_package), "config", "front_urg_node_param.yaml"),
+        os.path.join(get_package_share_directory(bringup_package), "config", "back_urg_node_param.yaml"),
     ]
-    merge_scan_config = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "laser_scan_merger.yaml")
-    swerve_config = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "swerve_config.yaml")
-    hand_left_cam_config  = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "hand_left_cam.yaml")
-    hand_right_cam_config = os.path.join(get_package_share_directory(robot_name + "_bringup"), "config", "hand_right_cam.yaml")
+    merge_scan_config = os.path.join(get_package_share_directory(bringup_package), "config", "laser_scan_merger.yaml")
+    swerve_config = os.path.join(get_package_share_directory(bringup_package), "config", "swerve_config.yaml")
+    hand_left_cam_config  = os.path.join(get_package_share_directory(bringup_package), "config", "hand_left_cam.yaml")
+    hand_right_cam_config = os.path.join(get_package_share_directory(bringup_package), "config", "hand_right_cam.yaml")
 
     robot_description_config = xacro.process_file(
         robot_description,
@@ -169,6 +173,21 @@ def launch_gz(context, *args, **kwargs):
             {"use_sim_time": True if enable_gz == 'True' else False},
         ],
         output="screen",
+    )
+
+    sobits_display_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            PathJoinSubstitution([
+                FindPackageShare('sobits_display'),
+                'launch',
+                'sobits_display.launch.py'
+            ])
+        ]),
+        launch_arguments={
+            'robot_type': 'sobit_home',
+            'namespace': robot_name,
+        }.items(),
+        condition=IfCondition(enable_display),
     )
 
     controllers = []
@@ -515,5 +534,6 @@ def launch_gz(context, *args, **kwargs):
             nodes.append(hand_right_cam_node)
     nodes.append(robot_state_publisher_node)
     nodes.append(action_server_launch)
+    nodes.append(sobits_display_launch)
 
     return nodes

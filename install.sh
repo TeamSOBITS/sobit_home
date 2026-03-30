@@ -19,6 +19,7 @@ ros_packages=(
     "tmc_wrs_gz"
     "aws_small_house_world"
     "sobits_gazebo_worlds"
+    "sobits_display"
 )
 
 #Clone all packages

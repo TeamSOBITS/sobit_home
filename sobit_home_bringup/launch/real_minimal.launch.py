@@ -47,6 +47,7 @@ def generate_launch_description():
                 'enable_head_cam_depth'       : 'True',
                 'enable_hand_left_cam_color'  : 'True',
                 'enable_hand_right_cam_color' : 'True',
+                'enable_display'       : 'False',
                 'enable_gz'                   : 'False',
             }.items()
         ),
