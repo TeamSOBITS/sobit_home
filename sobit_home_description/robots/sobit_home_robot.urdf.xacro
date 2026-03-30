@@ -52,8 +52,9 @@
   <xacro:arg name="dxl_x_lower_body_port"  default="/dev/ttyUSB0" />
   <xacro:arg name="dxl_x_upper_body_port"  default="/dev/ttyUSB1" />
   <xacro:arg name="dxl_p_upper_body_port"  default="/dev/ttyUSB2" />
-  <!-- Uirobot Motors Ports -->
+  <!-- Uirobot Body Lift Gateway Port -->
   <xacro:arg name="um_body_port" default="/dev/ttyUSB3" />
+  <xacro:arg name="um_body_id" default="5" />
 
   <xacro:if value="${ $(arg enable_mobile_base) }">
     <xacro:base/>
