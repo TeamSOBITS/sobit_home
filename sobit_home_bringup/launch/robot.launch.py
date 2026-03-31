@@ -479,45 +479,46 @@ def launch_gz(context, *args, **kwargs):
     )
 
     # Real hardware: ELP wrist cameras via usb_cam
-    hand_left_cam_node = Node(
-        package='usb_cam',
-        executable='usb_cam_node_exe',
-        name='hand_left_camera',
-        namespace=robot_name + '/hand_left_camera',
-        parameters=[
-            hand_left_cam_config,
-            {"video_device": cam_left_port},
-            {"frame_id": robot_name + '/hand_left_camera_optical_frame'},
+    if enable_gz == 'False':
+        hand_left_cam_node = Node(
+            package='usb_cam',
+            executable='usb_cam_node_exe',
+            name='hand_left_camera',
+            namespace=robot_name + '/hand_left_camera',
+            parameters=[
+                hand_left_cam_config,
+                {"video_device": cam_left_port},
+                {"frame_id": robot_name + '/hand_left_camera_optical_frame'},
+                ],
+            remappings=[
+                ('image_raw', 'color'),
+                ('image_raw/compressed', 'color/compressed'),
+                ('image_raw/compressedDepth', 'color/compressedDepth'),
+                ('image_raw/theora', 'color/theora'),
+                ('image_raw/zstd', 'color/zstd'),
             ],
-        remappings=[
-            ('image_raw', 'color'),
-            ('image_raw/compressed', 'color/compressed'),
-            ('image_raw/compressedDepth', 'color/compressedDepth'),
-            ('image_raw/theora', 'color/theora'),
-            ('image_raw/zstd', 'color/zstd'),
-        ],
-        output='log',
-    )
+            output='log',
+        )
 
-    hand_right_cam_node = Node(
-        package='usb_cam',
-        executable='usb_cam_node_exe',
-        name='hand_right_camera',
-        namespace=robot_name + '/hand_right_camera',
-        parameters=[
-            hand_right_cam_config,
-            {"video_device": cam_right_port},
-            {"frame_id": robot_name + '/hand_right_camera_optical_frame'},
-        ],
-        remappings=[
-            ('image_raw', 'color'),
-            ('image_raw/compressed', 'color/compressed'),
-            ('image_raw/compressedDepth', 'color/compressedDepth'),
-            ('image_raw/theora', 'color/theora'),
-            ('image_raw/zstd', 'color/zstd'),
-        ],
-        output='log',
-    )
+        hand_right_cam_node = Node(
+            package='usb_cam',
+            executable='usb_cam_node_exe',
+            name='hand_right_camera',
+            namespace=robot_name + '/hand_right_camera',
+            parameters=[
+                hand_right_cam_config,
+                {"video_device": cam_right_port},
+                {"frame_id": robot_name + '/hand_right_camera_optical_frame'},
+            ],
+            remappings=[
+                ('image_raw', 'color'),
+                ('image_raw/compressed', 'color/compressed'),
+                ('image_raw/compressedDepth', 'color/compressedDepth'),
+                ('image_raw/theora', 'color/theora'),
+                ('image_raw/zstd', 'color/zstd'),
+            ],
+            output='log',
+        )
 
     if enable_gz == 'True':
         nodes.append(gz_bridge_node)
