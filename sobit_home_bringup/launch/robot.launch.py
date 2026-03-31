@@ -100,6 +100,9 @@ def launch_gz(context, *args, **kwargs):
     dxl_x_lower_body_port = ''
     dxl_x_upper_body_port = ''
     dxl_p_upper_body_port = ''
+    # Find USB Cam port name from HOME_CAM_LEFT_PORT/HOME_CAM_RIGHT_PORT environment variable
+    cam_left_port = ''
+    cam_right_port = ''
     if enable_gz == 'False':
         dxl_x_lower_body_port = str(os.environ.get('DXL_X_LOWER_PORT'))
         dxl_x_upper_body_port = str(os.environ.get('DXL_X_UPPER_PORT'))
