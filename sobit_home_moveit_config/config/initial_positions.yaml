@@ -1,0 +1,30 @@
+# Default initial positions for sobit_home's ros2_control fake system
+
+initial_positions:
+  arm_left_elbow_joint: 0
+  arm_left_shoulder_tilt_joint: 0
+  arm_left_upper_flex_joint: 0
+  arm_left_upper_roll_joint: 0
+  arm_left_wrist_roll_joint: 0
+  arm_left_wrist_tilt_joint: 0
+  arm_right_elbow_joint: 0
+  arm_right_shoulder_tilt_joint: 0
+  arm_right_upper_flex_joint: 0
+  arm_right_upper_roll_joint: 0
+  arm_right_wrist_roll_joint: 0
+  arm_right_wrist_tilt_joint: 0
+  body_lift_joint: 0
+  hand_left_finger_c_ip_joint: 0
+  hand_left_finger_c_mcp_joint: 0
+  hand_left_finger_l_dip_joint: 0
+  hand_left_finger_l_mcp_joint: 0
+  hand_left_finger_l_pip_joint: 0
+  hand_left_finger_r_dip_joint: 0
+  hand_left_finger_r_pip_joint: 0
+  hand_right_finger_c_ip_joint: 0
+  hand_right_finger_c_mcp_joint: 0
+  hand_right_finger_l_dip_joint: 0
+  hand_right_finger_l_mcp_joint: 0
+  hand_right_finger_l_pip_joint: 0
+  hand_right_finger_r_dip_joint: 0
+  hand_right_finger_r_pip_joint: 0

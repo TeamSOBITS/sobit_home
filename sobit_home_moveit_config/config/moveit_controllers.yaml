@@ -1,0 +1,64 @@
+# MoveIt uses this configuration for controller management
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - arm_left_position_controller
+    - arm_right_position_controller
+    - hand_left_position_controller
+    - hand_right_position_controller
+    - body_position_controller
+
+  arm_left_position_controller:
+    type: FollowJointTrajectory
+    joints:
+      - arm_left_shoulder_tilt_joint
+      - arm_left_upper_roll_joint
+      - arm_left_upper_flex_joint
+      - arm_left_elbow_joint
+      - arm_left_wrist_tilt_joint
+      - arm_left_wrist_roll_joint
+    action_ns: follow_joint_trajectory
+    default: true
+  arm_right_position_controller:
+    type: FollowJointTrajectory
+    joints:
+      - arm_right_shoulder_tilt_joint
+      - arm_right_upper_roll_joint
+      - arm_right_upper_flex_joint
+      - arm_right_elbow_joint
+      - arm_right_wrist_tilt_joint
+      - arm_right_wrist_roll_joint
+    action_ns: follow_joint_trajectory
+    default: true
+  hand_left_position_controller:
+    type: FollowJointTrajectory
+    joints:
+      - hand_left_finger_c_mcp_joint
+      - hand_left_finger_c_ip_joint
+      - hand_left_finger_l_mcp_joint
+      - hand_left_finger_l_pip_joint
+      - hand_left_finger_l_dip_joint
+      - hand_left_finger_r_pip_joint
+      - hand_left_finger_r_dip_joint
+    action_ns: follow_joint_trajectory
+    default: true
+  hand_right_position_controller:
+    type: FollowJointTrajectory
+    joints:
+      - hand_right_finger_c_mcp_joint
+      - hand_right_finger_c_ip_joint
+      - hand_right_finger_l_mcp_joint
+      - hand_right_finger_l_pip_joint
+      - hand_right_finger_l_dip_joint
+      - hand_right_finger_r_pip_joint
+      - hand_right_finger_r_dip_joint
+    action_ns: follow_joint_trajectory
+    default: true
+  body_position_controller:
+    type: FollowJointTrajectory
+    joints:
+      - body_lift_joint
+    action_ns: follow_joint_trajectory
+    default: true
