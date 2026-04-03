@@ -74,7 +74,6 @@ def launch_gz(context, *args, **kwargs):
 
     enable_gz                       = LaunchConfiguration('enable_gz').perform(context)
     enable_mobile_base              = LaunchConfiguration('enable_mobile_base').perform(context)
-    enable_body                     = LaunchConfiguration('enable_body').perform(context)
     enable_arm_left                 = LaunchConfiguration('enable_arm_left').perform(context)
     enable_arm_right                = LaunchConfiguration('enable_arm_right').perform(context)
     enable_hand_left                = LaunchConfiguration('enable_hand_left').perform(context)
