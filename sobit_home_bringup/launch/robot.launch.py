@@ -1,4 +1,5 @@
 import os
+import subprocess
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
@@ -341,6 +342,25 @@ def launch_gz(context, *args, **kwargs):
                 ],
         )
         controllers.append(body_position_controller)
+
+        if enable_gz == 'False': # release the brake before launching the robot bringup only when not using Gazebo, as Gazebo won't affect the real hardware
+            # release the brake before launching the robot bringup
+            # TODO: add into uirobot_hardware 
+            um_port = os.environ.get('UM_PORT', '')
+            um_id = os.environ.get('UM_ID', '5')
+
+            if um_port:
+                subprocess.run([
+                    'python3',
+                    os.path.join(
+                        get_package_share_directory('uirobot_hardware'),
+                        'scripts', 'release_brake.py'
+                    ),
+                    '--port', um_port,
+                    '--baud', '57600',
+                    '--id', um_id,
+                ], check=True)
+
 
     gz_spawn_entity_node = Node(
         package='ros_gz_sim',
