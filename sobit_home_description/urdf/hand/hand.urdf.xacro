@@ -19,7 +19,7 @@
     <joint name="${prefix_hand}_${position}_cmc_joint" type="fixed" >
       <parent link="${parent}" />
       <child link="${prefix_hand}_${position}_cmc_link" />
-      <origin xyz="0.0 ${y_sign * 0.025375} 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 ${y_sign * 0.025375} 0.0" rpy="0.0 ${M_PI/2} 0.0" />
     </joint>
 
     <link name="${prefix_hand}_${position}_cmc_link" >
@@ -303,7 +303,7 @@
 
     <!-- Joint: End Effector -->
     <joint name="${prefix_hand}_${position}_end_effector_joint" type="fixed">
-      <origin xyz="0.0 ${y_sign*0.13} 0.0" rpy="${M_PI} 0.0 ${y_sign * M_PI/2}"/>
+      <origin xyz="0.0 ${y_sign*0.13} 0.0" rpy="${y_sign * M_PI/2} 0.0 ${y_sign * M_PI/2}"/>
       <parent link="${parent}"/>
       <child link="${prefix_hand}_${position}_end_effector_link"/>
     </joint>
