@@ -110,6 +110,8 @@
             <plugin>uirobot_hardware/UirobotHardware</plugin>
             <param name="port_name">${um_body_port}</param>
             <param name="baud_rate">57600</param>
+            <param name="toggle_torque_on_configure">false</param>
+            <param name="enable_torque_before_motion">false</param>
           </xacro:unless>
         </hardware>
 
