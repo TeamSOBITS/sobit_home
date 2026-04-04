@@ -4,11 +4,30 @@ moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControll
 
 moveit_simple_controller_manager:
   controller_names:
+    - head_position_controller
     - arm_left_position_controller
     - arm_right_position_controller
     - hand_left_position_controller
     - hand_right_position_controller
     - body_position_controller
+    - mobile_base_controller
+
+  mobile_base_controller:
+    type: FollowJointTrajectory
+    joints:
+      - virtual_joint/x
+      - virtual_joint/y
+      - virtual_joint/theta
+    action_ns: follow_joint_trajectory
+    default: true
+
+  head_position_controller:
+    type: FollowJointTrajectory
+    joints:
+      - head_pan_joint
+      - head_tilt_joint
+    action_ns: follow_joint_trajectory
+    default: true
 
   arm_left_position_controller:
     type: FollowJointTrajectory
@@ -21,6 +40,7 @@ moveit_simple_controller_manager:
       - arm_left_wrist_roll_joint
     action_ns: follow_joint_trajectory
     default: true
+
   arm_right_position_controller:
     type: FollowJointTrajectory
     joints:
@@ -32,6 +52,7 @@ moveit_simple_controller_manager:
       - arm_right_wrist_roll_joint
     action_ns: follow_joint_trajectory
     default: true
+
   hand_left_position_controller:
     type: FollowJointTrajectory
     joints:
@@ -44,6 +65,7 @@ moveit_simple_controller_manager:
       - hand_left_finger_r_dip_joint
     action_ns: follow_joint_trajectory
     default: true
+
   hand_right_position_controller:
     type: FollowJointTrajectory
     joints:
@@ -56,6 +78,7 @@ moveit_simple_controller_manager:
       - hand_right_finger_r_dip_joint
     action_ns: follow_joint_trajectory
     default: true
+
   body_position_controller:
     type: FollowJointTrajectory
     joints:

@@ -10,12 +10,12 @@ default_acceleration_scaling_factor: 0.1
 joint_limits:
   arm_left_elbow_joint:
     has_velocity_limits: true
-    max_velocity: 3.1400000000000001
+    max_velocity: 3.1416
     has_acceleration_limits: true
     max_acceleration: 0.1
   arm_left_shoulder_tilt_joint:
     has_velocity_limits: true
-    max_velocity: 3.1400000000000001
+    max_velocity: 3.1416
     has_acceleration_limits: true
     max_acceleration: 0.1
   arm_left_upper_flex_joint:
@@ -25,7 +25,7 @@ joint_limits:
     max_acceleration: 0.1
   arm_left_upper_roll_joint:
     has_velocity_limits: true
-    max_velocity: 3.1400000000000001
+    max_velocity: 3.1416
     has_acceleration_limits: true
     max_acceleration: 0.1
   arm_left_wrist_roll_joint:
@@ -40,12 +40,12 @@ joint_limits:
     max_acceleration: 0.1
   arm_right_elbow_joint:
     has_velocity_limits: true
-    max_velocity: 3.1400000000000001
+    max_velocity: 3.1416
     has_acceleration_limits: true
     max_acceleration: 0.1
   arm_right_shoulder_tilt_joint:
     has_velocity_limits: true
-    max_velocity: 3.1400000000000001
+    max_velocity: 3.1416
     has_acceleration_limits: true
     max_acceleration: 0.1
   arm_right_upper_flex_joint:
@@ -55,7 +55,7 @@ joint_limits:
     max_acceleration: 0.1
   arm_right_upper_roll_joint:
     has_velocity_limits: true
-    max_velocity: 3.1400000000000001
+    max_velocity: 3.1416
     has_acceleration_limits: true
     max_acceleration: 0.1
   arm_right_wrist_roll_joint:
@@ -143,3 +143,18 @@ joint_limits:
     max_velocity: 11.031179004
     has_acceleration_limits: true
     max_acceleration: 0.1
+  virtual_joint/x:
+    has_velocity_limits: true
+    max_velocity: 0.5
+    has_acceleration_limits: true
+    max_acceleration: 0.5
+  virtual_joint/y:
+    has_velocity_limits: true
+    max_velocity: 0.5
+    has_acceleration_limits: true
+    max_acceleration: 0.5
+  virtual_joint/theta:
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
