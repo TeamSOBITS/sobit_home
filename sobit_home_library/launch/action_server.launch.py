@@ -2,8 +2,13 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch_ros.actions import Node, ComposableNodeContainer, PushRosNamespace
+from launch_ros.descriptions import ComposableNode
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, GroupAction, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration
+from moveit_configs_utils import MoveItConfigsBuilder
 from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
@@ -87,8 +92,55 @@ def launch_gz(context, *args, **kwargs):
         output="screen",
     )
 
+    moveit_config = MoveItConfigsBuilder("sobit_home", package_name="sobit_home_moveit_config").to_moveit_configs()
+
+    moveit_action_server_node = ComposableNodeContainer(
+        name='moveit_server_container',
+        namespace=robot_name,
+        package='rclcpp_components',
+        executable='component_container_mt',
+        composable_node_descriptions=[
+            ComposableNode(
+                package="sobit_home_library",
+                plugin="sobit_home::MoveitServer",
+                name="moveit_server",
+                namespace=robot_name,
+                parameters=[
+                    moveit_config.robot_description,
+                    moveit_config.robot_description_semantic,
+                    moveit_config.robot_description_kinematics,
+                    moveit_config.planning_pipelines,
+                    {"use_sim_time": True if enable_gz == 'True' else False},
+                    # {"active_planning_groups": ["arm_left", "arm_right", "arm_group"]}
+                ],
+                remappings=[
+                    ('/attached_collision_object', 'attached_collision_object'),
+                    ('/trajectory_execution_event', 'trajectory_execution_event'),
+                    ('/transform_listener', 'transform_listener'),
+                    ('/planning_scene', 'planning_scene'),
+                    ('/planning_scene_world', 'planning_scene_world'),
+                    ('/collision_object', 'collision_object'),
+                    ('/joint_states', 'joint_states'),
+                    ('tf', '/tf'),
+                    ('tf_static', '/tf_static'),
+                ]
+            )
+        ],
+        output="screen",
+    )
+
+    move_group_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([get_package_share_directory('sobit_home_moveit_config'), '/launch/move_group.launch.py']),
+        launch_arguments={
+            'robot_name': robot_name,
+            'use_sim_time': enable_gz,
+            'use_rviz': 'true'
+        }.items(),
+    )
 
     return [
         joint_action_server_node,
         wheel_action_server_node,
+        moveit_action_server_node,
+        move_group_launch,
     ]

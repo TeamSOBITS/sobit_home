@@ -20,6 +20,9 @@ find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(urdf REQUIRED)
+find_package(moveit_ros_planning_interface REQUIRED)
+find_package(moveit_core REQUIRED)
+find_package(moveit_msgs REQUIRED)
 
 # Find libraries
 include_directories(include)
@@ -28,6 +31,7 @@ include_directories(include)
 add_library(${PROJECT_NAME} SHARED
   src/sobit_home_joint_action_server.cpp
   src/sobit_home_wheel_action_server.cpp
+  src/sobit_home_moveit_server.cpp
   src/kinematics.cpp
 )
 
@@ -39,6 +43,10 @@ rclcpp_components_register_node(${PROJECT_NAME}
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN "sobit_home::WheelActionServer"
   EXECUTABLE wheel_action_server)
+
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "sobit_home::MoveitServer"
+  EXECUTABLE moveit_action_server)
 
 # Dependencies
 ament_target_dependencies(${PROJECT_NAME}
@@ -55,6 +63,9 @@ ament_target_dependencies(${PROJECT_NAME}
   "tf2_ros"
   "tf2"
   "urdf"
+  "moveit_ros_planning_interface"
+  "moveit_core"
+  "moveit_msgs"
 )
 
 #############
