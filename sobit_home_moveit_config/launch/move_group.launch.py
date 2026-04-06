@@ -5,16 +5,18 @@ from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node
+from launch_ros.actions import Node, ComposableNodeContainer
 from launch_ros.substitutions import FindPackageShare
+from launch_ros.descriptions import ComposableNode
 from moveit_configs_utils import MoveItConfigsBuilder
-
 
 def generate_launch_description():
 
     package_name_moveit_config = 'sobit_home_moveit_config'
 
     pkg_share_moveit_config = FindPackageShare(package=package_name_moveit_config).find(package_name_moveit_config)
+    pkg_share_control = FindPackageShare(package='sobit_home_control').find('sobit_home_control')
+    bridge_config_file = os.path.join(pkg_share_control, 'config', 'moveit_whole_body_bridge.yaml')
 
     # Configuration file paths
     srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home.srdf')
@@ -80,6 +82,7 @@ def generate_launch_description():
         parameters=[
             config_dict,
             {'use_sim_time': use_sim_time},
+            {'trajectory_execution.control_multi_dof_joint_variables': True},
         ],
         remappings=[
             ('/attached_collision_object', 'attached_collision_object'),
@@ -114,17 +117,6 @@ def generate_launch_description():
                 # 'robot_description_planning.frame_prefix': robot_name + '/',
             },
         ],
-        # remappings=[
-        #     ('/robot_description', '/sobit_home/robot_description'),
-        #     ('/robot_description_semantic', '/sobit_home/robot_description_semantic'),
-        #     ('/robot_description_kinematics', '/sobit_home/robot_description_kinematics'),
-        #     ('/joint_limits', '/sobit_home/joint_limits'),
-        #     ('/planning_pipelines', '/sobit_home/planning_pipelines'),
-        #     ('/planning_scene', '/sobit_home/planning_scene'),
-        #     ('/planning_scene_monitor', '/sobit_home/planning_scene_monitor'),
-        #     ('/pilz_cartesian_limits', '/sobit_home/pilz_cartesian_limits'),
-        #     ('/sensors_3d', '/sobit_home/sensors_3d'),
-        # ],
         remappings=[
             ('/attached_collision_object', 'attached_collision_object'),
             ('/trajectory_execution_event', 'trajectory_execution_event'),
@@ -146,6 +138,25 @@ def generate_launch_description():
         ),
     )
 
+    bridge_container = ComposableNodeContainer(
+        name='sobit_home_controllers_container',
+        namespace=robot_name,
+        package='rclcpp_components',
+        executable='component_container_mt', # MT = MultiThreaded, required for Action Servers
+        composable_node_descriptions=[
+            ComposableNode(
+                package='sobit_home_control',
+                plugin='sobit_home::MoveitWholeBodyBridge',
+                name='moveit_whole_body_bridge',
+                namespace=robot_name,
+                parameters=[{'use_sim_time': use_sim_time}, bridge_config_file],
+                extra_arguments=[{'use_intra_process_comms': True}]
+            )
+        ],
+        output='screen',
+    )
+
+
     ld = LaunchDescription()
 
     ld.add_action(declare_robot_name_cmd)
@@ -154,6 +165,6 @@ def generate_launch_description():
 
     ld.add_action(start_move_group_node_cmd)
     ld.add_action(start_rviz_node_cmd)
-    # ld.add_action(exit_event_handler)
+    ld.add_action(bridge_container)
 
     return ld
