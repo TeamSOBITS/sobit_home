@@ -171,7 +171,7 @@ def launch_gz(context, *args, **kwargs):
         name="robot_state_publisher",
         namespace=robot_name,
         parameters=[
-            {"frame_prefix": robot_name + '/'},
+            # {"frame_prefix": robot_name + '/'},
             {"robot_description": robot_description_config.toxml()},
             {"use_sim_time": True if enable_gz == 'True' else False},
         ],
@@ -461,7 +461,6 @@ def launch_gz(context, *args, **kwargs):
         name='parameter_bridge',
         namespace=robot_name,
         arguments=[
-                    "clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
                     "/" + robot_name + "/joint_states" + "@sensor_msgs/msg/JointState" + "[gz.msgs.Model",
                     # "/model/" + robot_name + "/pose" + "@geometry_msgs/msg/Pose" + "[gz.msgs.Pose",
                     "/" + robot_name + "/head_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
