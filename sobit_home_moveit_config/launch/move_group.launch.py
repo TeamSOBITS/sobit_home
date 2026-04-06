@@ -9,6 +9,7 @@ from launch_ros.actions import Node, ComposableNodeContainer
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.descriptions import ComposableNode
 from moveit_configs_utils import MoveItConfigsBuilder
+from moveit_configs_utils.launches import generate_moveit_rviz_launch
 
 def generate_launch_description():
 
@@ -51,21 +52,26 @@ def generate_launch_description():
     # Build MoveIt configuration
     moveit_config = (
         MoveItConfigsBuilder("sobit_home", package_name=package_name_moveit_config)
-        .trajectory_execution(file_path=moveit_controllers_file_path)
         .robot_description_semantic(file_path=srdf_model_path)
-        .joint_limits(file_path=joint_limits_file_path)
         .robot_description_kinematics(file_path=kinematics_file_path)
-        .planning_pipelines(
-            pipelines=["ompl", "pilz_industrial_motion_planner", "chomp", "stomp"],
-            default_planning_pipeline="ompl"
-        )
+        .joint_limits(file_path=joint_limits_file_path)
+        # .moveit_cpp(file_path=moveit_cpp_file_path)
+        .trajectory_execution(file_path=moveit_controllers_file_path)
         .planning_scene_monitor(
+            publish_planning_scene=True,
+            publish_geometry_updates=True,
+            publish_state_updates=True,
+            publish_transforms_updates=True,
             publish_robot_description=False,
             publish_robot_description_semantic=True,
-            publish_planning_scene=True,
+        )
+        # .sensors_3d(file_path=sensors_file_path)
+        .planning_pipelines(
+            default_planning_pipeline="ompl",
+            pipelines=["ompl", "pilz_industrial_motion_planner", "chomp", "stomp"],
+            load_all=True
         )
         .pilz_cartesian_limits(file_path=pilz_cartesian_limits_file_path)
-        # .sensors_3d(file_path=sensors_file_path)
         .to_moveit_configs()
     )
 
@@ -83,6 +89,7 @@ def generate_launch_description():
             config_dict,
             {'use_sim_time': use_sim_time},
             {'trajectory_execution.control_multi_dof_joint_variables': True},
+            # {'robot_description_planning.frame_prefix': robot_name + '/'},
         ],
         remappings=[
             ('/attached_collision_object', 'attached_collision_object'),
@@ -90,6 +97,8 @@ def generate_launch_description():
             ('/transform_listener', 'transform_listener'),
             ('/planning_scene', 'planning_scene'),
             ('/planning_scene_world', 'planning_scene_world'),
+            ('/recognize_objects', 'recognize_objects'),
+            ('/recognized_object_array', 'recognized_object_array'),
             ('/collision_object', 'collision_object'),
             ('/joint_states', 'joint_states'),
             ('tf', '/tf'),
@@ -102,7 +111,7 @@ def generate_launch_description():
         condition=IfCondition(use_rviz),
         package="rviz2",
         executable="rviz2",
-        name="rviz2_moveit",
+        # name="rviz2_moveit",
         arguments=["-d", rviz_config_file],
         output="screen",
         parameters=[
@@ -118,13 +127,15 @@ def generate_launch_description():
             },
         ],
         remappings=[
-            ('/attached_collision_object', 'attached_collision_object'),
-            ('/trajectory_execution_event', 'trajectory_execution_event'),
-            ('/transform_listener', 'transform_listener'),
-            ('/planning_scene', 'planning_scene'),
-            ('/planning_scene_world', 'planning_scene_world'),
-            ('/collision_object', 'collision_object'),
-            ('/joint_states', 'joint_states'),
+            ('/attached_collision_object', '/sobit_home/attached_collision_object'),
+            ('/trajectory_execution_event', '/sobit_home/trajectory_execution_event'),
+            ('/transform_listener', '/sobit_home/transform_listener'),
+            ('/planning_scene', '/sobit_home/planning_scene'),
+            ('/planning_scene_world', '/sobit_home/planning_scene_world'),
+            ('/recognize_objects', '/sobit_home/recognize_objects'),
+            ('/recognized_object_array', '/sobit_home/recognized_object_array'),
+            ('/collision_object', '/sobit_home/collision_object'),
+            ('/joint_states', '/sobit_home/joint_states'),
             ('tf', '/tf'),
             ('tf_static', '/tf_static')
         ]
@@ -166,5 +177,7 @@ def generate_launch_description():
     ld.add_action(start_move_group_node_cmd)
     ld.add_action(start_rviz_node_cmd)
     ld.add_action(bridge_container)
+
+    ld.add_action(exit_event_handler)
 
     return ld
