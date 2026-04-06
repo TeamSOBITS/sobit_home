@@ -10,16 +10,16 @@ moveit_simple_controller_manager:
     - hand_left_position_controller
     - hand_right_position_controller
     - body_position_controller
-    # - mobile_base_controller
+    - mobile_base_controller
 
-  # mobile_base_controller:
-  #   type: FollowJointTrajectory
-  #   joints:
-  #     - virtual_joint/x
-  #     - virtual_joint/y
-  #     - virtual_joint/theta
-  #   action_ns: follow_joint_trajectory
-  #   default: true
+  mobile_base_controller:
+    type: FollowJointTrajectory
+    joints:
+      - virtual_base_joint/x
+      - virtual_base_joint/y
+      - virtual_base_joint/theta
+    action_ns: follow_joint_trajectory
+    default: true
 
   head_position_controller:
     type: FollowJointTrajectory
