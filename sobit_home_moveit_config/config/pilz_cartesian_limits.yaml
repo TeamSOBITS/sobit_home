@@ -4,5 +4,3 @@ cartesian_limits:
   max_trans_acc: 5.0
   max_trans_dec: -5.0
   max_rot_vel: 3.14
-  # max_rot_acc: 5.0
-  # max_rot_dec: -5.0
