@@ -1,0 +1,7 @@
+<library path="sobit_home_kinematics_plugin">
+  <class name="sobit_home_kinematics_plugin/SobitHomeKinematicsPlugin" type="sobit_home_kinematics_plugin::SobitHomeKinematicsPlugin" base_class_type="kinematics::KinematicsBase">
+    <description>
+      A custom kinematics plugin for the SOBIT HOME mobile manipulator. It resolves the planar mobile base position and delegates the arm resolution to the arm's default IK solver.
+    </description>
+  </class>
+</library>
