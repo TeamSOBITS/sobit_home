@@ -49,7 +49,6 @@ public:
 
   bool supportsGroup(const moveit::core::JointModelGroup* jmg, std::string* error_text_out = nullptr) const override;
 
-
 private:
   bool timedOut(const rclcpp::Time& start_time, double duration) const;
 
@@ -57,15 +56,18 @@ private:
   unsigned int dimension_;
   moveit_msgs::msg::KinematicSolverInfo solver_info_;
 
-  const moveit::core::JointModelGroup* joint_model_group_;
+  const moveit::core::JointModelGroup* joint_model_group_ = nullptr;
   mutable moveit::core::RobotStatePtr state_;
 
-  const moveit::core::JointModelGroup* arm_jmg_;
-  const moveit::core::JointModelGroup* mobile_base_jmg_;
-  const moveit::core::JointModel* mobile_base_joint_;
-  
-  std::size_t mobile_base_index_;
-  double optimal_arm_reach_ = 0.45; // Optimal reach of SOBIT HOME arm from base center [meters]
+  const moveit::core::JointModelGroup* arm_jmg_         = nullptr;
+  const moveit::core::JointModelGroup* mobile_base_jmg_ = nullptr;
+  const moveit::core::JointModel*      mobile_base_joint_ = nullptr;
+  const moveit::core::JointModelGroup* body_jmg_        = nullptr;  // optional, nullptr if not present
+
+  std::size_t mobile_base_index_ = 0;
+  std::size_t body_index_        = 0;   // index of body_lift_joint variable in the group state vector
+
+  double optimal_arm_reach_ = 0.45; // Optimal reach of SOBIT HOME arm from base center [m]
 };
 
 }  // namespace sobit_home_kinematics_plugin
