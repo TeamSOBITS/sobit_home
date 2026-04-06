@@ -20,39 +20,59 @@ bool SobitHomeKinematicsPlugin::initialize(const rclcpp::Node::SharedPtr& node,
 
   // --- Identify required sub-groups ---
 
-  // Mobile base: single PLANAR joint
-  auto base_it = std::find_if(sub_groups.cbegin(), sub_groups.cend(), [](const moveit::core::JointModelGroup* g) {
-    return g->getJointModels().size() == 1 &&
-           g->getJointModels()[0]->getType() == moveit::core::JointModel::PLANAR;
-  });
+  // Mobile base: sub-group containing a single PLANAR joint
+  // (also accept the group itself having the PLANAR joint directly — no sub-groups case)
+  auto is_planar_group = [](const moveit::core::JointModelGroup* g) {
+    const auto& joints = g->getJointModels();
+    return joints.size() == 1 && joints[0]->getType() == moveit::core::JointModel::PLANAR;
+  };
+
+  auto base_it = std::find_if(sub_groups.cbegin(), sub_groups.cend(), is_planar_group);
   if (base_it == sub_groups.cend()) {
+    // Check if the group itself is the planar base (no sub-groups)
+    if (is_planar_group(joint_model_group_)) {
+      RCLCPP_WARN(LOGGER, "Group '%s' is a standalone mobile base — no IK to solve.", group_name.c_str());
+      // Still initialize minimally so we don't crash, but nothing useful to do
+      dimension_ = joint_model_group_->getVariableCount();
+      solver_info_.link_names.push_back(base_frame);
+      state_.reset(new moveit::core::RobotState(robot_model_));
+      mobile_base_jmg_  = joint_model_group_;
+      mobile_base_joint_ = joint_model_group_->getJointModels()[0];
+      initialized_ = true;
+      return true;
+    }
     RCLCPP_ERROR(LOGGER, "Group '%s': failed to find mobile base sub-group (single PLANAR joint)", group_name.c_str());
     return false;
   }
-  mobile_base_jmg_  = *base_it;
+  mobile_base_jmg_   = *base_it;
   mobile_base_joint_ = mobile_base_jmg_->getJointModels()[0];
 
-  // Arm: chain sub-group
-  auto arm_it = std::find_if(sub_groups.cbegin(), sub_groups.cend(), [](const moveit::core::JointModelGroup* g) {
-    return g->isChain();
-  });
-  if (arm_it == sub_groups.cend()) {
+  // Arm: chain sub-group with the most active joints (distinguishes arm from single-joint body)
+  arm_jmg_ = nullptr;
+  for (const auto* sg : sub_groups) {
+    if (sg == mobile_base_jmg_) continue;
+    if (sg->isChain()) {
+      if (!arm_jmg_ || sg->getActiveJointModels().size() > arm_jmg_->getActiveJointModels().size())
+        arm_jmg_ = sg;
+    }
+  }
+  if (!arm_jmg_) {
     RCLCPP_ERROR(LOGGER, "Group '%s': failed to find arm sub-group (chain)", group_name.c_str());
     return false;
   }
-  arm_jmg_ = *arm_it;
 
-  // Body (optional): single PRISMATIC or REVOLUTE joint that is neither arm nor base
+  // Body (optional): first remaining sub-group that has at least one PRISMATIC or REVOLUTE active joint
   body_jmg_ = nullptr;
   for (const auto* sg : sub_groups) {
     if (sg == mobile_base_jmg_ || sg == arm_jmg_) continue;
-    if (sg->getJointModels().size() == 1) {
-      auto type = sg->getJointModels()[0]->getType();
+    for (const auto* j : sg->getActiveJointModels()) {
+      auto type = j->getType();
       if (type == moveit::core::JointModel::PRISMATIC || type == moveit::core::JointModel::REVOLUTE) {
         body_jmg_ = sg;
         break;
       }
     }
+    if (body_jmg_) break;
   }
 
   // --- Build solver info (joint names + limits) ---
@@ -252,42 +272,45 @@ const std::vector<std::string>& SobitHomeKinematicsPlugin::getLinkNames() const 
 
 bool SobitHomeKinematicsPlugin::supportsGroup(const moveit::core::JointModelGroup* jmg, std::string* error_text_out) const
 {
+  auto is_planar_group = [](const moveit::core::JointModelGroup* g) {
+    const auto& joints = g->getJointModels();
+    return joints.size() == 1 && joints[0]->getType() == moveit::core::JointModel::PLANAR;
+  };
+
+  // Accept standalone mobile base group (no sub-groups, just the planar joint)
+  if (is_planar_group(jmg)) return true;
+
   std::vector<const moveit::core::JointModelGroup*> sub_groups;
   jmg->getSubgroups(sub_groups);
 
-  bool has_planar = std::any_of(sub_groups.begin(), sub_groups.end(),
-    [](const moveit::core::JointModelGroup* g) {
-      return g->getJointModels().size() == 1 &&
-             g->getJointModels()[0]->getType() == moveit::core::JointModel::PLANAR;
-    });
-  bool has_chain = std::any_of(sub_groups.begin(), sub_groups.end(),
-    [](const moveit::core::JointModelGroup* g) { return g->isChain(); });
-
-  if (!has_planar || !has_chain) {
+  // Require a PLANAR sub-group (mobile base)
+  const moveit::core::JointModelGroup* base_sg = nullptr;
+  for (const auto* sg : sub_groups) {
+    if (is_planar_group(sg)) { base_sg = sg; break; }
+  }
+  if (!base_sg) {
     if (error_text_out)
-      *error_text_out = "SobitHomeKinematicsPlugin requires one chain sub-group (arm) and one planar sub-group (mobile base)";
+      *error_text_out = "SobitHomeKinematicsPlugin requires a sub-group with a single PLANAR joint (mobile base)";
     return false;
   }
 
-  // Count non-base, non-arm sub-groups — only a single-joint body group is allowed as extra
+  // Arm: the chain sub-group with the most joints (excludes single-joint body groups)
+  const moveit::core::JointModelGroup* arm_sg = nullptr;
   for (const auto* sg : sub_groups) {
-    bool is_planar = sg->getJointModels().size() == 1 &&
-                     sg->getJointModels()[0]->getType() == moveit::core::JointModel::PLANAR;
-    bool is_chain  = sg->isChain();
-    if (is_planar || is_chain) continue;
-    // Extra sub-group must be a single prismatic/revolute joint (body lift)
-    if (sg->getJointModels().size() != 1) {
-      if (error_text_out)
-        *error_text_out = "SobitHomeKinematicsPlugin only supports an optional single-joint body sub-group as extra";
-      return false;
-    }
-    auto type = sg->getJointModels()[0]->getType();
-    if (type != moveit::core::JointModel::PRISMATIC && type != moveit::core::JointModel::REVOLUTE) {
-      if (error_text_out)
-        *error_text_out = "SobitHomeKinematicsPlugin: extra sub-group must be PRISMATIC or REVOLUTE (body lift)";
-      return false;
+    if (sg == base_sg) continue;
+    if (sg->isChain()) {
+      if (!arm_sg || sg->getActiveJointModels().size() > arm_sg->getActiveJointModels().size())
+        arm_sg = sg;
     }
   }
+  if (!arm_sg) {
+    if (error_text_out)
+      *error_text_out = "SobitHomeKinematicsPlugin requires a chain sub-group (arm)";
+    return false;
+  }
+
+  // Remaining sub-groups are accepted as optional body/lift groups (e.g. body_lift_joint)
+  // We don't restrict their structure here — initialize() will detect them by active joint type.
   return true;
 }
 
