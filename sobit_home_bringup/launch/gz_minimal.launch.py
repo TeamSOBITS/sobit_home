@@ -91,22 +91,24 @@ def generate_launch_description():
             ]),
             launch_arguments={
                 'robot_name': robot_name if robot_id == 0 else robot_name + '_' + str(robot_id),
-                'robot_coords_x': '-3.5', # x
-                'robot_coords_y': '1.5', # y
-                'robot_coords_z': '0.0', # z
-                'robot_coords_Y': '0', # yaw
-                'enable_gz' : 'True',
-                'enable_mobile_base': 'True',
-                'enable_body': 'True',
-                'enable_arm_left': 'True',
-                'enable_arm_right': 'True',
-                'enable_hand_left': 'True',
-                'enable_hand_right': 'True',
-                'enable_head': 'True',
-                'enable_head_cam_color'      : 'True',
-                'enable_head_cam_depth'      : 'True',
-                'enable_hand_left_cam_color' : 'True',
-                'enable_hand_right_cam_color': 'True',
+                'robot_coords_x'              : '-3.5', # x
+                'robot_coords_y'              : '1.5', # y
+                'robot_coords_z'              : '0.0', # z
+                'robot_coords_Y'              : '0.0', # yaw
+                'enable_mobile_base'          : 'True',
+                'enable_body'                 : 'True',
+                'enable_arm_left'             : 'True',
+                'enable_arm_right'            : 'True',
+                'enable_hand_left'            : 'True',
+                'enable_hand_right'           : 'True',
+                'enable_head'                 : 'True',
+                'enable_head_cam_color'       : 'True',
+                'enable_head_cam_depth'       : 'True',
+                'enable_hand_left_cam_color'  : 'True',
+                'enable_hand_right_cam_color' : 'True',
+                'enable_lidar'                : 'True',
+                'enable_display'              : 'False',
+                'enable_gz'                   : 'True',
             }.items()
         ),
         # Launch Robot No. 2
@@ -120,15 +122,25 @@ def generate_launch_description():
         #     ]),
         #     launch_arguments={
         #         'robot_name': robot_name if robot_id == 0 else robot_name + '_' + str(robot_id),
-        #         'robot_coords_x': '0', # x
-        #         'robot_coords_y': '2', # y
-        #         'robot_coords_Y': '0', # yaw
-        #         'enable_gz' : 'True',
-        #         'enable_head_cam_color' : 'True',
-        #         'enable_head_cam_depth' : 'True',
-        #         'enable_hand_left_cam_color' : 'True',
+        #         'robot_coords_x'              : '-3.5', # x
+        #         'robot_coords_y'              : '1.5', # y
+        #         'robot_coords_z'              : '0.0', # z
+        #         'robot_coords_Y'              : '0.0', # yaw
+        #         'enable_mobile_base'          : 'True',
+        #         'enable_body'                 : 'True',
+        #         'enable_arm_left'             : 'True',
+        #         'enable_arm_right'            : 'True',
+        #         'enable_hand_left'            : 'True',
+        #         'enable_hand_right'           : 'True',
+        #         'enable_head'                 : 'True',
+        #         'enable_head_cam_color'       : 'True',
+        #         'enable_head_cam_depth'       : 'True',
+        #         'enable_hand_left_cam_color'  : 'True',
         #         'enable_hand_right_cam_color' : 'True',
+        #         'enable_lidar'                : 'True',
+        #         'enable_display'              : 'False',
+        #         'enable_gz'                   : 'True',
         #     }.items()
         # ),
-        rviz_node,
+        # rviz_node,
     ])
