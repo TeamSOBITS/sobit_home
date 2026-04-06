@@ -1,0 +1,9 @@
+/**:
+  ros__parameters:
+    # P-gain applied to pose error (desired - actual from odometry)
+    kp_xy: 1.5       # [1/s]  translational correction gain
+    kp_theta: 2.0    # [1/s]  rotational correction gain
+
+    # Maximum commanded velocities (clamped after feedback)
+    max_v_xy: 0.3    # [m/s]
+    max_omega: 1.0   # [rad/s]
