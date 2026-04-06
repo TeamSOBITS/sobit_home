@@ -126,6 +126,26 @@
         <group name="mobile_base" />
         <group name="arm" />
     </group>
+    <group name="mobile_base_body">
+        <group name="mobile_base" />
+        <group name="body" />
+    </group>
+    <group name="mobile_base_arm_left_body">
+        <group name="mobile_base" />
+        <group name="arm_left" />
+        <group name="body" />
+    </group>
+    <group name="mobile_base_arm_right_body">
+        <group name="mobile_base" />
+        <group name="arm_right" />
+        <group name="body" />
+    </group>
+    <group name="mobile_base_arm_body">
+        <group name="mobile_base" />
+        <group name="arm" />
+        <group name="body" />
+    </group>
+
 
     <!-- GROUP STATES
     Purpose: Define a named state for a particular group, in terms of joint values. This is
