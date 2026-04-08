@@ -142,5 +142,5 @@ def generate_launch_description():
         #         'enable_gz'                   : 'True',
         #     }.items()
         # ),
-        # rviz_node,
+        rviz_node,
     ])
