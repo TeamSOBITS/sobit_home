@@ -1,5 +1,6 @@
 #include "sobit_home_library/sobit_home_moveit_server.hpp"
 #include <atomic>
+#include <rclcpp/parameter_client.hpp>
 
 namespace sobit_home
 {
@@ -10,12 +11,17 @@ MoveitServer::MoveitServer(const rclcpp::NodeOptions & options)
   tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
-  auto action_cb_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-  
+  // Use a dedicated reentrant callback group for the plan service so its
+  // blocking plan() call does not deadlock the node's main executor.
+  plan_service_cb_group_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  action_cb_group_       = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+
   // Service
   plan_service_ = this->create_service<PlanToPose>(
       "plan_to_pose",
-      std::bind(&MoveitServer::handle_plan_request, this, std::placeholders::_1, std::placeholders::_2));
+      std::bind(&MoveitServer::handle_plan_request, this, std::placeholders::_1, std::placeholders::_2),
+      rclcpp::ServicesQoS(),
+      plan_service_cb_group_);
 
   // Action
   execute_action_server_ = rclcpp_action::create_server<ExecutePlan>(
@@ -24,41 +30,31 @@ MoveitServer::MoveitServer(const rclcpp::NodeOptions & options)
       std::bind(&MoveitServer::handle_exec_cancel, this, std::placeholders::_1),
       std::bind(&MoveitServer::handle_exec_accepted, this, std::placeholders::_1),
       rcl_action_server_get_default_options(),
-      action_cb_group);
+      action_cb_group_);
 
   // Cleanup timer
   cleanup_timer_ = this->create_wall_timer(
       std::chrono::seconds(10),
       std::bind(&MoveitServer::purge_stale_plans, this));
 
-  // Initialize move groups dynamically from parameter
-  this->declare_parameter("active_planning_groups", std::vector<std::string>{"arm_left", "arm_right", "arm_group"});
-  
-  // Background dedicated Node & Executor to completely eliminate ROS 2 Action Service Deadlocks.
-  move_group_node_ = std::make_shared<rclcpp::Node>("moveit_server_client", this->get_namespace(), options);
-  
-  move_group_executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-  move_group_executor_->add_node(move_group_node_);
-  
-  move_group_thread_ = std::thread([this]() {
-    this->move_group_executor_->spin();
-  });
+  // Declare with default only if not already provided via launch/overrides
+  if (!this->has_parameter("active_planning_groups")) {
+    this->declare_parameter("active_planning_groups", std::vector<std::string>{"arm_left", "arm_right"});
+  }
 
-  // Use a one-shot timer to initialize movegroups after construction
-  init_timer_ = this->create_wall_timer(
-      std::chrono::milliseconds(100),
-      [this]() {
-        this->init_move_groups();
-        this->init_timer_->cancel(); // One shot
-      });
+  RCLCPP_INFO(this->get_logger(),
+              "MoveitServer starting (clock_type=%d)",
+              static_cast<int>(this->get_clock()->get_clock_type()));
+
+  // MoveGroupInterface constructor blocks until /move_action is available
+  init_thread_ = std::thread([this]() {
+    this->init_move_groups();
+  });
 }
 
 MoveitServer::~MoveitServer() {
-  if (move_group_executor_) {
-    move_group_executor_->cancel();
-  }
-  if (move_group_thread_.joinable()) {
-    move_group_thread_.join();
+  if (init_thread_.joinable()) {
+    init_thread_.join();
   }
 }
 
@@ -66,49 +62,106 @@ void MoveitServer::init_move_groups()
 {
   auto groups = this->get_parameter("active_planning_groups").as_string_array();
 
-    for (const auto & group_name : groups) {
-      try {
-        moveit::planning_interface::MoveGroupInterface::Options mgi_options(group_name);
-        // Explicitly define the move_group action namespace to prevent the Action Client
-        // from hanging by defaulting to the global "/move_action".
-        mgi_options.move_group_namespace = this->get_namespace();
-        RCLCPP_INFO(this->get_logger(), "Initializing MoveGroupInterface for %s in namespace %s",
-                    group_name.c_str(), mgi_options.move_group_namespace.c_str());
-        
-        auto mgi = std::make_shared<moveit::planning_interface::MoveGroupInterface>(move_group_node_, mgi_options);
-        
-        // Check if the group is actually valid
-        if (mgi->getJoints().empty()) {
-          RCLCPP_ERROR(this->get_logger(), "Group '%s' appears to have no joints. Is the SRDF loaded?", group_name.c_str());
-        } else {
-          RCLCPP_INFO(this->get_logger(), "Initialized MoveGroupInterface for %s (Planning Frame: %s, End Effector: %s)", 
-                      group_name.c_str(), mgi->getPlanningFrame().c_str(), mgi->getEndEffectorLink().c_str());
-          active_groups_[group_name] = mgi;
-        }
-      } catch (const std::exception & e) {
-        RCLCPP_ERROR(this->get_logger(), "Failed to initialize MoveGroup Interface for %s: %s", group_name.c_str(), e.what());
+  // Derive the namespace string without leading slash.
+  std::string ns = this->get_namespace();
+  if (!ns.empty() && ns.front() == '/') {
+    ns = ns.substr(1);
+  }
+
+  // MoveGroupInterface needs robot_description on the node it's given (this node).
+  // Fetch it from move_group's parameter server and declare it here once.
+  if (!this->has_parameter("robot_description")) {
+    RCLCPP_INFO(this->get_logger(), "Fetching robot_description from /%s/move_group ...", ns.c_str());
+    auto tmp_node = std::make_shared<rclcpp::Node>("moveit_server_param_fetch", this->get_namespace());
+    auto param_client = std::make_shared<rclcpp::SyncParametersClient>(
+        tmp_node, "/" + ns + "/move_group");
+    if (!param_client->wait_for_service(std::chrono::seconds(15))) {
+      RCLCPP_ERROR(this->get_logger(), "move_group parameter service not available — aborting init");
+      return;
+    }
+    auto params = param_client->get_parameters({"robot_description", "robot_description_semantic"});
+    if (params.size() >= 2 && !params[0].as_string().empty()) {
+      this->declare_parameter("robot_description", params[0].as_string());
+      this->declare_parameter("robot_description_semantic", params[1].as_string());
+      RCLCPP_INFO(this->get_logger(),
+                  "robot_description declared on this node (%zu chars), SRDF (%zu chars)",
+                  params[0].as_string().size(), params[1].as_string().size());
+    } else {
+      RCLCPP_ERROR(this->get_logger(), "robot_description is empty — aborting init");
+      return;
+    }
+  }
+
+  for (const auto & group_name : groups) {
+    {
+      std::lock_guard<std::mutex> lock(active_groups_mutex_);
+      if (active_groups_.count(group_name)) {
+        continue; // already initialized on a previous retry
       }
     }
+
+    try {
+      RCLCPP_INFO(this->get_logger(),
+                  "Initializing MoveGroupInterface for '%s' (ns: '%s')",
+                  group_name.c_str(), ns.c_str());
+
+      // Pass shared_from_this() so MoveGroupInterface uses this registered node.
+      moveit::planning_interface::MoveGroupInterface::Options opts(
+          group_name,
+          "robot_description",
+          "/" + ns);
+      auto mgi = std::make_shared<moveit::planning_interface::MoveGroupInterface>(
+          shared_from_this(),
+          opts,
+          tf_buffer_,
+          rclcpp::Duration::from_seconds(30.0));
+
+      mgi->setPlanningTime(10.0);
+      mgi->setNumPlanningAttempts(10);
+      mgi->setMaxVelocityScalingFactor(0.1);
+      mgi->setMaxAccelerationScalingFactor(0.1);
+
+      if (mgi->getJoints().empty()) {
+        RCLCPP_ERROR(this->get_logger(),
+                     "Group '%s' has no joints — is the SRDF loaded and move_group running?",
+                     group_name.c_str());
+      } else {
+        RCLCPP_INFO(this->get_logger(),
+                    "Initialized '%s'  planning_frame='%s'  ee_link='%s'",
+                    group_name.c_str(),
+                    mgi->getPlanningFrame().c_str(),
+                    mgi->getEndEffectorLink().c_str());
+        std::lock_guard<std::mutex> lock(active_groups_mutex_);
+        active_groups_[group_name] = mgi;
+      }
+    } catch (const std::exception & e) {
+      RCLCPP_ERROR(this->get_logger(),
+                   "Failed to init MoveGroupInterface for '%s': %s",
+                   group_name.c_str(), e.what());
+    }
+  }
 }
 
 void MoveitServer::handle_plan_request(
   const std::shared_ptr<PlanToPose::Request> request,
   std::shared_ptr<PlanToPose::Response> response)
 {
-  if (active_groups_.empty()) {
-    response->success = false;
-    response->message = "MoveGroups are still initializing.";
-    return;
+  std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group;
+  {
+    std::lock_guard<std::mutex> lock(active_groups_mutex_);
+    if (active_groups_.empty()) {
+      response->success = false;
+      response->message = "MoveGroups are still initializing.";
+      return;
+    }
+    auto it = active_groups_.find(request->planning_group);
+    if (it == active_groups_.end()) {
+      response->success = false;
+      response->message = "Planning group not found: " + request->planning_group;
+      return;
+    }
+    move_group = it->second;
   }
-
-  auto it = active_groups_.find(request->planning_group);
-  if (it == active_groups_.end()) {
-    response->success = false;
-    response->message = "Planning group not found: " + request->planning_group;
-    return;
-  }
-
-  auto move_group = it->second;
 
   RCLCPP_INFO(this->get_logger(), "Received planning request for group: %s", request->planning_group.c_str());
 
@@ -207,8 +260,6 @@ void MoveitServer::handle_plan_request(
     // Diagnostic: Check if start state is in collision
     auto start_state = move_group->getCurrentState();
     if (start_state) {
-        // We can't easily check collision without the planning scene monitor here, 
-        // but we can log that we are investigating.
         RCLCPP_INFO(this->get_logger(), "Hint: If planning fails with code 99999, check for self-collisions in the URDF/SRDF.");
     }
   }
@@ -219,11 +270,13 @@ rclcpp_action::GoalResponse MoveitServer::handle_exec_goal(
   std::shared_ptr<const ExecutePlan::Goal> goal)
 {
   (void)uuid;
+  RCLCPP_INFO(this->get_logger(), "handle_exec_goal called for plan_id: %s", goal->plan_id.c_str());
   std::lock_guard<std::mutex> lock(plan_cache_mutex_);
   if (plan_cache_.find(goal->plan_id) == plan_cache_.end()) {
     RCLCPP_ERROR(this->get_logger(), "Plan ID not found or expired: %s", goal->plan_id.c_str());
     return rclcpp_action::GoalResponse::REJECT;
   }
+  RCLCPP_INFO(this->get_logger(), "Goal ACCEPTED for plan_id: %s", goal->plan_id.c_str());
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
@@ -236,8 +289,6 @@ rclcpp_action::CancelResponse MoveitServer::handle_exec_cancel(
   std::string group_to_stop;
   {
     std::lock_guard<std::mutex> lock(plan_cache_mutex_);
-    // Note: goal_handle->get_goal_id() requires casting to string, 
-    // or you can retrieve the plan_id from goal_handle->get_goal()->plan_id
     std::string plan_id = goal_handle->get_goal()->plan_id; 
     if (active_executions_.find(plan_id) != active_executions_.end()) {
         group_to_stop = active_executions_[plan_id];
@@ -245,7 +296,17 @@ rclcpp_action::CancelResponse MoveitServer::handle_exec_cancel(
   }
 
   if (!group_to_stop.empty()) {
-    active_groups_[group_to_stop]->stop();
+    std::shared_ptr<moveit::planning_interface::MoveGroupInterface> mgi;
+    {
+      std::lock_guard<std::mutex> lock(active_groups_mutex_);
+      auto it = active_groups_.find(group_to_stop);
+      if (it != active_groups_.end()) {
+        mgi = it->second;
+      }
+    }
+    if (mgi) {
+      mgi->stop();
+    }
   }
   return rclcpp_action::CancelResponse::ACCEPT;
 }
@@ -277,14 +338,18 @@ void MoveitServer::execute_plan_thread(const std::shared_ptr<GoalHandleExecutePl
   }
 
   // 2. Find the MoveGroup
-  auto move_group_it = active_groups_.find(cached_plan.planning_group);
-  if (move_group_it == active_groups_.end()) {
-    result->success = false;
-    result->message = "Planning group lost";
-    goal_handle->abort(result);
-    return;
+  std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group;
+  {
+    std::lock_guard<std::mutex> lock(active_groups_mutex_);
+    auto move_group_it = active_groups_.find(cached_plan.planning_group);
+    if (move_group_it == active_groups_.end()) {
+      result->success = false;
+      result->message = "Planning group lost";
+      goal_handle->abort(result);
+      return;
+    }
+    move_group = move_group_it->second;
   }
-  auto move_group = move_group_it->second;
 
   // 3. Register this execution so handle_exec_cancel knows which arm to stop
   {

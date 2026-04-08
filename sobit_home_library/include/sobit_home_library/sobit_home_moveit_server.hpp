@@ -5,7 +5,7 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
-#include <moveit/move_group_interface/move_group_interface.h>
+#include <moveit/move_group_interface/move_group_interface.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 
 #include <tf2_ros/transform_listener.h>
@@ -57,19 +57,23 @@ private:
   void init_move_groups();
 
 
-
-  // Background Node for MoveGroupInterface
-  rclcpp::Node::SharedPtr move_group_node_;
-  std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> move_group_executor_;
-  std::thread move_group_thread_;
+  // Background thread for blocking MoveGroupInterface construction
+  std::thread init_thread_;
 
   // Core map mapping string -> MoveGroupInterface
+  // Both active_groups_ and active_executions_ are guarded by their respective mutexes.
   std::unordered_map<std::string, std::shared_ptr<moveit::planning_interface::MoveGroupInterface>> active_groups_;
-  std::unordered_map<std::string, std::string> active_executions_; // Maps UUID -> planning_group
+  mutable std::mutex active_groups_mutex_;
+
+  std::unordered_map<std::string, std::string> active_executions_; // plan_id -> planning_group
 
   // TF
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+
+  // Callback groups — must be members to prevent destruction at end of constructor
+  rclcpp::CallbackGroup::SharedPtr plan_service_cb_group_;
+  rclcpp::CallbackGroup::SharedPtr action_cb_group_;
 
   // Service & Action
   rclcpp::Service<PlanToPose>::SharedPtr plan_service_;
@@ -79,7 +83,6 @@ private:
   std::unordered_map<std::string, CachedPlan> plan_cache_;
   std::mutex plan_cache_mutex_;
   rclcpp::TimerBase::SharedPtr cleanup_timer_;
-  rclcpp::TimerBase::SharedPtr init_timer_;
 };
 
 }  // namespace sobit_home
