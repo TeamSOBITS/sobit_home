@@ -207,7 +207,10 @@ def launch_gz(context, *args, **kwargs):
         executable="ros2_control_node",
         name="controller_manager",
         namespace=robot_name,
-        parameters=[controller_config],
+        parameters=[
+            controller_config,
+            {"use_sim_time": True if enable_gz == 'True' else False},
+        ],
         remappings=[
             ("controller_manager/robot_description", "robot_description"),
         ],
