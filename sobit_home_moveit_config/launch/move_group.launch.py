@@ -153,7 +153,8 @@ def generate_launch_description():
         name='sobit_home_controllers_container',
         namespace=robot_name,
         package='rclcpp_components',
-        executable='component_container_mt', # MT = MultiThreaded, required for Action Servers
+        executable='component_container_mt',
+        parameters=[{'use_sim_time': use_sim_time}],
         composable_node_descriptions=[
             ComposableNode(
                 package='sobit_home_control',
@@ -162,7 +163,27 @@ def generate_launch_description():
                 namespace=robot_name,
                 parameters=[{'use_sim_time': use_sim_time}, bridge_config_file],
                 extra_arguments=[{'use_intra_process_comms': True}]
-            )
+            ),
+            # MoveIt plan/execute server:
+            #   Service: /<robot_name>/plan_to_pose  (sobits_interfaces/srv/PlanToPose)
+            #   Action:  /<robot_name>/execute_plan  (sobits_interfaces/action/ExecutePlan)
+            # intra_process_comms must be False: MoveGroupInterface's internal
+            # subscriptions are incompatible with intra-process transport.
+            # MoveIt plan/execute server.
+            # robot_description is NOT passed here — it is too large for DDS
+            # composable node parameter passing and is not needed: MoveitServer
+            # reads it directly from the move_group node's parameters at runtime.
+            ComposableNode(
+                package='sobit_home_library',
+                plugin='sobit_home::MoveitServer',
+                name='moveit_server',
+                namespace=robot_name,
+                parameters=[
+                    {'use_sim_time': use_sim_time},
+                    {'active_planning_groups': ['arm_left', 'arm_right']},
+                ],
+                extra_arguments=[{'use_intra_process_comms': False}]
+            ),
         ],
         output='screen',
     )
