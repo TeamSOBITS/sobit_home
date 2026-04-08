@@ -11,7 +11,7 @@
 
           
           <!-- <ignition_frame_id>${robot_name}/head_camera_color_optical_frame</ignition_frame_id> -->
-          <gz_frame_id>${robot_name}/head_camera_color_optical_frame</gz_frame_id>
+          <gz_frame_id>head_camera_color_optical_frame</gz_frame_id>
           <topic>${robot_name}/head_camera/color</topic>
 
           <always_on>1</always_on>
@@ -47,7 +47,7 @@
           <pose>0 0 0 ${M_PI/2} -${M_PI/2} 0 </pose>
           
           <!-- <ignition_frame_id>${robot_name}/head_camera_depth_optical_frame</ignition_frame_id> -->
-          <gz_frame_id>${robot_name}/head_camera_depth_frame</gz_frame_id>
+          <gz_frame_id>head_camera_depth_frame</gz_frame_id>
           <topic>${robot_name}/head_camera/depth</topic>
 
           <always_on>1</always_on>
@@ -82,7 +82,7 @@
         <sensor name="hand_left_camera_color" type="camera">
           <pose>0 0 0 ${M_PI/2} -${M_PI/2} ${M_PI}</pose>
 
-          <gz_frame_id>${robot_name}/hand_left_camera_optical_frame</gz_frame_id>
+          <gz_frame_id>hand_left_camera_optical_frame</gz_frame_id>
           <topic>${robot_name}/hand_left_camera/color</topic>
 
           <always_on>1</always_on>
@@ -113,7 +113,7 @@
         <sensor name="hand_right_camera_color" type="camera">
           <pose>0 0 0 ${M_PI/2} -${M_PI/2} ${M_PI}</pose>
 
-          <gz_frame_id>${robot_name}/hand_right_camera_optical_frame</gz_frame_id>
+          <gz_frame_id>hand_right_camera_optical_frame</gz_frame_id>
           <topic>${robot_name}/hand_right_camera/color</topic>
 
           <always_on>1</always_on>
