@@ -880,6 +880,7 @@
         <param name="gear_ratio">${200*M_PI}</param>
         <param name="position_kp">0.7</param>
         <param name="stop_threshold">0.005</param>
+        <param name="min_velocity">0.01</param> <!-- [m/s], 1 cm in 1 s is smooth; slower tends to stall -->
         <param name="max_velocity">0.025</param> <!-- [m/s] -->
       </xacro:unless>
       <command_interface name="position">
