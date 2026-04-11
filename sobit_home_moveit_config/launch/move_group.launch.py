@@ -4,12 +4,11 @@ from launch.actions import DeclareLaunchArgument, EmitEvent, RegisterEventHandle
 from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node, ComposableNodeContainer, LoadComposableNodes
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.descriptions import ComposableNode
 from moveit_configs_utils import MoveItConfigsBuilder
-from moveit_configs_utils.launches import generate_moveit_rviz_launch
 
 def generate_launch_description():
 
@@ -191,7 +190,7 @@ def generate_launch_description():
     # Real-time arm teleop bridge
     load_arm_teleop = LoadComposableNodes(
         condition=IfCondition(enable_teleop),
-        target_container=robot_name + '/sobit_home_controllers_container',
+        target_container=PythonExpression(["'", robot_name, "' + '/sobit_home_controllers_container'"]),
         composable_node_descriptions=[
             ComposableNode(
                 package='sobit_home_library',
