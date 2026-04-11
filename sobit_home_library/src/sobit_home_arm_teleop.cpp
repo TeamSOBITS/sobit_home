@@ -296,8 +296,10 @@ void MoveitArmTeleop::enable_callback(
   auto & arm = *it->second;
 
   if (!arm.mgi) {
-    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 3000,
-      "Arm '%s' not initialised yet — ignoring enable request", arm_name.c_str());
+    RCLCPP_WARN(get_logger(),
+      "Arm '%s' MoveGroupInterface not ready yet — ignoring enable=true. "
+      "Check that move_group is running and robot_description was fetched.",
+      arm_name.c_str());
     return;
   }
 
@@ -350,8 +352,8 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
       tf_stamped = tf_buffer_->lookupTransform(
         cfg.base_frame,
         cfg.target_frame,
-        rclcpp::Time(0),
-        rclcpp::Duration::from_nanoseconds(0));
+        tf2::TimePointZero,
+        tf2::Duration(0));
     } catch (const tf2::TransformException & e) {
       RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
         "TF lookup failed for arm '%s': %s", arm_name.c_str(), e.what());
@@ -430,11 +432,19 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
     auto plan_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
       std::chrono::steady_clock::now() - t0).count();
 
-    RCLCPP_DEBUG(get_logger(),
-      "Arm '%s': dist=%.3f m, step=%.3f m, fraction=%.2f, plan=%ldms",
-      arm_name.c_str(), dist,
-      std::min(dist, max_cartesian_step_m_),
-      fraction, plan_ms);
+    if (first_iter) {
+      RCLCPP_INFO(get_logger(),
+        "Arm '%s': first plan — dist=%.3f m, step=%.3f m, fraction=%.2f, plan=%ldms",
+        arm_name.c_str(), dist,
+        std::min(dist, max_cartesian_step_m_),
+        fraction, plan_ms);
+    } else {
+      RCLCPP_DEBUG(get_logger(),
+        "Arm '%s': dist=%.3f m, step=%.3f m, fraction=%.2f, plan=%ldms",
+        arm_name.c_str(), dist,
+        std::min(dist, max_cartesian_step_m_),
+        fraction, plan_ms);
+    }
 
     // Log a throttled INFO only when planning is slow (>control period)
     const double period_ms = 1000.0 / update_rate_hz_;
