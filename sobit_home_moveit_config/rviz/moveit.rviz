@@ -7,7 +7,7 @@ Panels:
         - /Global Options1
         - /MotionPlanning1
         - /MotionPlanning1/Planned Path1
-      Splitter Ratio: 0.4975247383117676
+      Splitter Ratio: 0.5036057829856873
     Tree Height: 483
   - Class: rviz_common/Selection
     Name: Selection
@@ -49,66 +49,301 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-    - Class: rviz_common/Group
-      Displays:
-        - Class: rviz_default_plugins/Axes
-          Enabled: true
-          Length: 0.10000000149011612
-          Name: Axes
-          Radius: 0.004999999888241291
-          Reference Frame: hand_right_end_effector_link
-          Value: true
-        - Class: rviz_default_plugins/Axes
-          Enabled: true
-          Length: 0.10000000149011612
-          Name: Axes
-          Radius: 0.004999999888241291
-          Reference Frame: hand_left_end_effector_link
-          Value: true
-        - Class: rviz_default_plugins/Axes
-          Enabled: true
-          Length: 0.10000000149011612
-          Name: Axes
-          Radius: 0.004999999888241291
-          Reference Frame: head_camera_depth_optical_frame
-          Value: true
-        - Class: rviz_default_plugins/Axes
-          Enabled: true
-          Length: 0.10000000149011612
-          Name: Axes
-          Radius: 0.004999999888241291
-          Reference Frame: head_camera_color_optical_frame
-          Value: true
-        - Class: rviz_default_plugins/Axes
-          Enabled: true
-          Length: 0.10000000149011612
-          Name: Axes
-          Radius: 0.004999999888241291
-          Reference Frame: hand_right_camera_optical_frame
-          Value: true
-        - Class: rviz_default_plugins/Axes
-          Enabled: true
-          Length: 0.10000000149011612
-          Name: Axes
-          Radius: 0.004999999888241291
-          Reference Frame: hand_left_camera_optical_frame
-          Value: true
-        - Class: rviz_default_plugins/Axes
-          Enabled: true
-          Length: 0.10000000149011612
-          Name: Axes
-          Radius: 0.004999999888241291
-          Reference Frame: odom
-          Value: true
-        - Class: rviz_default_plugins/Axes
-          Enabled: true
-          Length: 0.10000000149011612
-          Name: Axes
-          Radius: 0.004999999888241291
-          Reference Frame: base_footprint
-          Value: true
+    - Class: rviz_default_plugins/TF
       Enabled: true
+      Filter (blacklist): ""
+      Filter (whitelist): ""
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+        arm_left_base_link:
+          Value: false
+        arm_left_elbow_link:
+          Value: false
+        arm_left_shoulder_tilt_link:
+          Value: false
+        arm_left_upper_flex_link:
+          Value: false
+        arm_left_upper_roll_link:
+          Value: false
+        arm_left_wrist_roll_link:
+          Value: false
+        arm_left_wrist_tilt_link:
+          Value: false
+        arm_right_base_link:
+          Value: false
+        arm_right_elbow_link:
+          Value: false
+        arm_right_shoulder_tilt_link:
+          Value: false
+        arm_right_upper_flex_link:
+          Value: false
+        arm_right_upper_roll_link:
+          Value: false
+        arm_right_wrist_roll_link:
+          Value: false
+        arm_right_wrist_tilt_link:
+          Value: false
+        base_footprint:
+          Value: true
+        base_link:
+          Value: false
+        body_lift_link:
+          Value: false
+        body_link:
+          Value: false
+        hand_left_camera_base_link:
+          Value: false
+        hand_left_camera_link:
+          Value: false
+        hand_left_camera_optical_frame:
+          Value: true
+        hand_left_cmc_link:
+          Value: false
+        hand_left_end_effector_link:
+          Value: false
+        hand_left_finger_c_ip_link:
+          Value: false
+        hand_left_finger_c_mcp_link:
+          Value: false
+        hand_left_finger_l_dip_link:
+          Value: false
+        hand_left_finger_l_mcp_link:
+          Value: false
+        hand_left_finger_l_pip_link:
+          Value: false
+        hand_left_finger_r_dip_link:
+          Value: false
+        hand_left_finger_r_mcp_link:
+          Value: false
+        hand_left_finger_r_pip_link:
+          Value: false
+        hand_right_camera_base_link:
+          Value: false
+        hand_right_camera_link:
+          Value: false
+        hand_right_camera_optical_frame:
+          Value: true
+        hand_right_cmc_link:
+          Value: false
+        hand_right_end_effector_link:
+          Value: false
+        hand_right_finger_c_ip_link:
+          Value: false
+        hand_right_finger_c_mcp_link:
+          Value: false
+        hand_right_finger_l_dip_link:
+          Value: false
+        hand_right_finger_l_mcp_link:
+          Value: false
+        hand_right_finger_l_pip_link:
+          Value: false
+        hand_right_finger_r_dip_link:
+          Value: false
+        hand_right_finger_r_mcp_link:
+          Value: false
+        hand_right_finger_r_pip_link:
+          Value: false
+        head_base_link:
+          Value: false
+        head_camera_base_link:
+          Value: false
+        head_camera_bottom_screw_frame:
+          Value: false
+        head_camera_color_frame:
+          Value: false
+        head_camera_color_optical_frame:
+          Value: true
+        head_camera_depth_frame:
+          Value: false
+        head_camera_depth_optical_frame:
+          Value: true
+        head_camera_infra2_frame:
+          Value: false
+        head_camera_infra2_optical_frame:
+          Value: false
+        head_camera_infra_1_frame:
+          Value: false
+        head_camera_infra_1_optical_frame:
+          Value: false
+        head_pan_link:
+          Value: false
+        head_plug_base_link:
+          Value: false
+        head_tilt_link:
+          Value: false
+        lidar_back_base_link:
+          Value: false
+        lidar_back_laser:
+          Value: false
+        lidar_back_laser_mount:
+          Value: false
+        lidar_front_base_link:
+          Value: false
+        lidar_front_laser:
+          Value: false
+        lidar_front_laser_mount:
+          Value: false
+        lidar_merged_laser:
+          Value: false
+        mic_base_link:
+          Value: false
+        mic_link:
+          Value: false
+        odom:
+          Value: true
+        plate_bottom_link:
+          Value: false
+        plate_cover_link:
+          Value: false
+        plate_middle_link:
+          Value: false
+        plate_top_link:
+          Value: false
+        wheel_drive_b_l_link:
+          Value: false
+        wheel_drive_b_r_link:
+          Value: false
+        wheel_drive_f_l_link:
+          Value: false
+        wheel_drive_f_r_link:
+          Value: false
+        wheel_steer_b_l_link:
+          Value: false
+        wheel_steer_b_r_link:
+          Value: false
+        wheel_steer_base_b_l_link:
+          Value: false
+        wheel_steer_base_b_r_link:
+          Value: false
+        wheel_steer_base_f_l_link:
+          Value: false
+        wheel_steer_base_f_r_link:
+          Value: false
+        wheel_steer_f_l_link:
+          Value: false
+        wheel_steer_f_r_link:
+          Value: false
+      Marker Scale: 0.5
       Name: TF
+      Show Arrows: false
+      Show Axes: true
+      Show Names: false
+      Tree:
+        odom:
+          base_footprint:
+            base_link:
+              plate_middle_link:
+                lidar_back_base_link:
+                  lidar_back_laser_mount:
+                    lidar_back_laser:
+                      {}
+                lidar_front_base_link:
+                  lidar_front_laser_mount:
+                    lidar_front_laser:
+                      {}
+                plate_bottom_link:
+                  {}
+                plate_top_link:
+                  body_link:
+                    body_lift_link:
+                      arm_left_base_link:
+                        arm_left_shoulder_tilt_link:
+                          arm_left_upper_roll_link:
+                            arm_left_upper_flex_link:
+                              arm_left_elbow_link:
+                                arm_left_wrist_tilt_link:
+                                  arm_left_wrist_roll_link:
+                                    hand_left_camera_base_link:
+                                      hand_left_camera_link:
+                                        hand_left_camera_optical_frame:
+                                          {}
+                                    hand_left_cmc_link:
+                                      hand_left_finger_c_mcp_link:
+                                        hand_left_finger_c_ip_link:
+                                          {}
+                                      hand_left_finger_l_mcp_link:
+                                        hand_left_finger_l_pip_link:
+                                          hand_left_finger_l_dip_link:
+                                            {}
+                                      hand_left_finger_r_mcp_link:
+                                        hand_left_finger_r_pip_link:
+                                          hand_left_finger_r_dip_link:
+                                            {}
+                                    hand_left_end_effector_link:
+                                      {}
+                      arm_right_base_link:
+                        arm_right_shoulder_tilt_link:
+                          arm_right_upper_roll_link:
+                            arm_right_upper_flex_link:
+                              arm_right_elbow_link:
+                                arm_right_wrist_tilt_link:
+                                  arm_right_wrist_roll_link:
+                                    hand_right_camera_base_link:
+                                      hand_right_camera_link:
+                                        hand_right_camera_optical_frame:
+                                          {}
+                                    hand_right_cmc_link:
+                                      hand_right_finger_c_mcp_link:
+                                        hand_right_finger_c_ip_link:
+                                          {}
+                                      hand_right_finger_l_mcp_link:
+                                        hand_right_finger_l_pip_link:
+                                          hand_right_finger_l_dip_link:
+                                            {}
+                                      hand_right_finger_r_mcp_link:
+                                        hand_right_finger_r_pip_link:
+                                          hand_right_finger_r_dip_link:
+                                            {}
+                                    hand_right_end_effector_link:
+                                      {}
+                      head_base_link:
+                        head_pan_link:
+                          head_tilt_link:
+                            head_camera_base_link:
+                              head_plug_base_link:
+                                head_camera_bottom_screw_frame:
+                                  head_camera_color_frame:
+                                    {}
+                                  head_camera_color_optical_frame:
+                                    {}
+                                  head_camera_depth_frame:
+                                    {}
+                                  head_camera_depth_optical_frame:
+                                    {}
+                                  head_camera_infra2_frame:
+                                    {}
+                                  head_camera_infra2_optical_frame:
+                                    {}
+                                  head_camera_infra_1_frame:
+                                    {}
+                                  head_camera_infra_1_optical_frame:
+                                    {}
+                            mic_base_link:
+                              mic_link:
+                                {}
+                wheel_steer_base_b_l_link:
+                  wheel_steer_b_l_link:
+                    wheel_drive_b_l_link:
+                      {}
+                wheel_steer_base_b_r_link:
+                  wheel_steer_b_r_link:
+                    wheel_drive_b_r_link:
+                      {}
+                wheel_steer_base_f_l_link:
+                  wheel_steer_f_l_link:
+                    wheel_drive_f_l_link:
+                      {}
+                wheel_steer_base_f_r_link:
+                  wheel_steer_f_r_link:
+                    wheel_drive_f_r_link:
+                      {}
+            lidar_merged_laser:
+              {}
+            plate_cover_link:
+              {}
+      Update Interval: 0
+      Value: true
     - Acceleration_Scaling_Factor: 0.1
       Class: moveit_rviz_plugin/MotionPlanning
       Enabled: true
@@ -468,6 +703,11 @@ Visualization Manager:
             Show Trail: false
             Value: true
           plate_bottom_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          plate_cover_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -920,6 +1160,11 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          plate_cover_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           plate_middle_link:
             Alpha: 1
             Show Axes: false
@@ -1071,7 +1316,7 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001f70000038afc020000000bfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007301000000390000021c000000c500fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000003d00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000025b000001680000015d00fffffffb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000003c005400720061006a006500630074006f007200790020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff000000000000000000000001000002880000038afc0200000004fb0000000a005600690065007700730000000039000002d80000009d00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730000000317000000ac0000005c00fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073000000031a000000a90000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007be00000059fc0100000002fb0000000800540069006d00650100000000000007be0000021400fffffffb0000000800540069006d00650100000000000004500000000000000000000005c10000038a00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000003420000038afc020000000bfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007301000000390000021c000000c500fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000003d00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000025b000001680000015d00fffffffb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000003c005400720061006a006500630074006f007200790020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff000000000000000000000001000002880000038afc0200000004fb0000000a005600690065007700730000000039000002d80000009d00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730000000317000000ac0000005c00fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073000000031a000000a90000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007be00000059fc0100000002fb0000000800540069006d00650100000000000007be0000021400fffffffb0000000800540069006d00650100000000000004500000000000000000000004760000038a00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
