@@ -15,6 +15,7 @@
   <depend>rclcpp</depend>
   <depend>rclcpp_action</depend>
   <depend>rclcpp_components</depend>
+  <depend>std_msgs</depend>
   <depend>sobits_interfaces</depend>
   <depend>trajectory_msgs</depend>
   <depend>sensor_msgs</depend>

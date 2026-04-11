@@ -32,6 +32,7 @@ add_library(${PROJECT_NAME} SHARED
   src/sobit_home_joint_action_server.cpp
   src/sobit_home_wheel_action_server.cpp
   src/sobit_home_moveit_server.cpp
+  src/sobit_home_arm_teleop.cpp
   src/kinematics.cpp
 )
 
@@ -47,6 +48,10 @@ rclcpp_components_register_node(${PROJECT_NAME}
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN "sobit_home::MoveitServer"
   EXECUTABLE moveit_action_server)
+
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "sobit_home::MoveitArmTeleop"
+  EXECUTABLE moveit_arm_teleop)
 
 # Dependencies
 ament_target_dependencies(${PROJECT_NAME}
