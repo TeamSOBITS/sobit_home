@@ -5,7 +5,7 @@ from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node, ComposableNodeContainer
+from launch_ros.actions import Node, ComposableNodeContainer, LoadComposableNodes
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.descriptions import ComposableNode
 from moveit_configs_utils import MoveItConfigsBuilder
@@ -17,7 +17,9 @@ def generate_launch_description():
 
     pkg_share_moveit_config = FindPackageShare(package=package_name_moveit_config).find(package_name_moveit_config)
     pkg_share_control = FindPackageShare(package='sobit_home_control').find('sobit_home_control')
+    pkg_share_library = FindPackageShare(package='sobit_home_library').find('sobit_home_library')
     bridge_config_file = os.path.join(pkg_share_control, 'config', 'moveit_whole_body_bridge.yaml')
+    arm_teleop_config_file = os.path.join(pkg_share_library, 'config', 'arm_teleop.yaml')
 
     # Configuration file paths
     srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home.srdf')
@@ -32,6 +34,7 @@ def generate_launch_description():
     robot_name = LaunchConfiguration('robot_name')
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_rviz = LaunchConfiguration('use_rviz')
+    enable_teleop = LaunchConfiguration('enable_teleop')
 
     # Declare launch arguments
     declare_robot_name_cmd = DeclareLaunchArgument(
@@ -48,6 +51,11 @@ def generate_launch_description():
         name='use_rviz',
         default_value='true',
         description='Whether to start RViz')
+
+    declare_enable_teleop_cmd = DeclareLaunchArgument(
+        name='enable_teleop',
+        default_value='false',
+        description='Whether to load the MoveitArmTeleop composable node')
 
     # Build MoveIt configuration
     moveit_config = (
@@ -164,15 +172,7 @@ def generate_launch_description():
                 parameters=[{'use_sim_time': use_sim_time}, bridge_config_file],
                 extra_arguments=[{'use_intra_process_comms': True}]
             ),
-            # MoveIt plan/execute server:
-            #   Service: /<robot_name>/plan_to_pose  (sobits_interfaces/srv/PlanToPose)
-            #   Action:  /<robot_name>/execute_plan  (sobits_interfaces/action/ExecutePlan)
-            # intra_process_comms must be False: MoveGroupInterface's internal
-            # subscriptions are incompatible with intra-process transport.
-            # MoveIt plan/execute server.
-            # robot_description is NOT passed here — it is too large for DDS
-            # composable node parameter passing and is not needed: MoveitServer
-            # reads it directly from the move_group node's parameters at runtime.
+            # MoveIt plan/execute server
             ComposableNode(
                 package='sobit_home_library',
                 plugin='sobit_home::MoveitServer',
@@ -188,16 +188,37 @@ def generate_launch_description():
         output='screen',
     )
 
+    # Real-time arm teleop bridge
+    load_arm_teleop = LoadComposableNodes(
+        condition=IfCondition(enable_teleop),
+        target_container=robot_name + '/sobit_home_controllers_container',
+        composable_node_descriptions=[
+            ComposableNode(
+                package='sobit_home_library',
+                plugin='sobit_home::MoveitArmTeleop',
+                name='moveit_arm_teleop',
+                namespace=robot_name,
+                parameters=[
+                    {'use_sim_time': use_sim_time},
+                    arm_teleop_config_file,
+                ],
+                extra_arguments=[{'use_intra_process_comms': False}]
+            ),
+        ],
+    )
+
 
     ld = LaunchDescription()
 
     ld.add_action(declare_robot_name_cmd)
     ld.add_action(declare_use_sim_time_cmd)
     ld.add_action(declare_use_rviz_cmd)
+    ld.add_action(declare_enable_teleop_cmd)
 
     ld.add_action(start_move_group_node_cmd)
     ld.add_action(start_rviz_node_cmd)
     ld.add_action(bridge_container)
+    ld.add_action(load_arm_teleop)
 
     ld.add_action(exit_event_handler)
 
