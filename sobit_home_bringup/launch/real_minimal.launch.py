@@ -48,6 +48,7 @@ def generate_launch_description():
                 'enable_hand_right_cam_color' : 'True',
                 'enable_lidar'                : 'True',
                 'enable_display'              : 'False',
+                'enable_teleop'               : 'False',
                 'enable_gz'                   : 'False',
             }.items()
         ),
