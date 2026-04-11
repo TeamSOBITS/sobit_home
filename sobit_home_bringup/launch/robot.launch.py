@@ -4,7 +4,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction, IncludeLaunchDescription, RegisterEventHandler, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.event_handlers import OnProcessExit, OnProcessStart, OnExecutionComplete
+from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch.conditions import IfCondition
 from launch_ros.substitutions import FindPackageShare
@@ -177,6 +177,7 @@ def launch_gz(context, *args, **kwargs):
             # {"frame_prefix": robot_name + '/'},
             {"robot_description": robot_description_config.toxml()},
             {"use_sim_time": True if enable_gz == 'True' else False},
+            {"publish_frequency": 50.0},
         ],
         output="screen",
     )
@@ -278,19 +279,16 @@ def launch_gz(context, *args, **kwargs):
                 '-c', 'controller_manager', '--activate'
                 ],
         )
-        swerve_controller = IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                PathJoinSubstitution([
-                    FindPackageShare('sobit_home_control'),
-                    'launch',
-                    'swerve_controller.launch.py'
-                ])
-            ]),
-            launch_arguments={
-                'namespace' : robot_name,
-                'use_sim_time' : enable_gz,
-                'config_file' : swerve_config,
-            }.items()
+        swerve_controller = Node(
+            package='sobit_home_control',
+            executable='swerve_controller_node',
+            name='swerve_controller',
+            namespace=robot_name,
+            parameters=[
+                {'use_sim_time': True if enable_gz == 'True' else False},
+                swerve_config,
+            ],
+            output='screen',
         )
         controllers.append(wheel_steer_position_controller)
         controllers.append(wheel_drive_velocity_controller)
@@ -417,7 +415,7 @@ def launch_gz(context, *args, **kwargs):
         delayed_swerve_controller = RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=controllers[-1],
-                on_exit=swerve_controller,
+                on_exit=[swerve_controller],
             )
         )
         nodes.append(delayed_swerve_controller)
@@ -529,11 +527,30 @@ def launch_gz(context, *args, **kwargs):
             output='log',
         )
 
+    # action_server_launch is delayed until the drive stack is ready
+    if enable_mobile_base == 'True':
+        delayed_action_server = RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=swerve_controller,
+                on_start=[action_server_launch],
+            )
+        )
+    elif controllers:
+        delayed_action_server = RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=controllers[-1],
+                on_exit=[action_server_launch],
+            )
+        )
+    else:
+        delayed_action_server = action_server_launch
+
     if enable_gz == 'True':
         nodes.append(gz_bridge_node)
         nodes.append(gz_spawn_entity_node)
         nodes.append(delayed_joint_state_broadcaster)
         nodes.append(delayed_controllers)
+        nodes.append(delayed_action_server)
 
         # Republish raw images as compressed for each camera in Gazebo
         for cam_name, enabled in [
@@ -559,12 +576,12 @@ def launch_gz(context, *args, **kwargs):
         nodes.append(joint_state_broadcaster)
         nodes.append(control_node)
         nodes.extend(controllers)
+        nodes.append(delayed_action_server)
         if enable_hand_left_cam_color == 'True':
             nodes.append(hand_left_cam_node)
         if enable_hand_right_cam_color == 'True':
             nodes.append(hand_right_cam_node)
     nodes.append(robot_state_publisher_node)
-    nodes.append(action_server_launch)
     nodes.append(sobits_display_launch)
 
     return nodes
