@@ -1,0 +1,65 @@
+/**:
+  ros__parameters:
+    arm_teleop:
+      # List of arms to initialise (must match planning group names in SRDF)
+      arms:
+        - arm_left
+        - arm_right
+
+      # ── Per-arm configuration ─────────────────────────────────────────────
+      arm_left:
+        planning_group: "arm_left"
+        # TF frame broadcast by sobits_teleop when Quest left controller is active
+        target_frame: "left_target_link"
+        # Reference frame used for all TF lookups and plan_to_pose calls
+        base_frame: "base_footprint"
+        # Direct-publish topic for the arm joint trajectory controller
+        trajectory_topic: "arm_left_position_controller/joint_trajectory"
+
+      arm_right:
+        planning_group: "arm_right"
+        target_frame: "right_target_link"
+        base_frame: "base_footprint"
+        trajectory_topic: "arm_right_position_controller/joint_trajectory"
+
+      # ── Global tuning parameters ──────────────────────────────────────────
+
+      # Tracking loop frequency [Hz].
+      # 25 Hz gives ~40ms cycle budget — enough for Cartesian planning on 6-DOF arms.
+      update_rate_hz: 25.0
+
+      # Maximum Cartesian step attempted per control cycle [m].
+      # Set large enough to cover gaps when the target moves far (Quest scale > 1.0).
+      # The step is clamped to this value; if the target is closer it goes straight there.
+      max_cartesian_step_m: 0.5
+
+      # Cartesian path interpolation resolution [m].
+      # 3 cm = ~3x fewer IK calls vs the old 1 cm default, cutting plan time significantly.
+      # Still fine enough for smooth robot motion.
+      eef_step_m: 0.03
+
+      # Minimum fraction of the Cartesian path that must be computable before
+      # the trajectory is submitted.  Lower = arm keeps moving even near limits.
+      min_cartesian_fraction: 0.2
+
+      # Replan whenever the target moves more than this from the last submitted goal [m].
+      # 2 cm = tight tracking; arm follows the target in near-real-time.
+      replan_threshold_m: 0.02
+
+      # Do not replan when EE is already within this distance of target [m].
+      arrival_threshold_m: 0.03
+
+      # Velocity and acceleration scaling factors [0, 1] passed to TOTG.
+      # 0.6 = 60% of max — fast enough for responsive teleoperation.
+      velocity_scaling: 0.6
+      acceleration_scaling: 0.6
+
+      # Milliseconds added to the trajectory header stamp before publishing.
+      # Gives the controller a head-start to pre-buffer the trajectory,
+      # eliminating the stall between the end of one trajectory and the next.
+      traj_lookahead_ms: 40
+
+      # OMPL planning timeout [s] used in the Cartesian fallback path.
+      # When computeCartesianPath fraction < min_cartesian_fraction, we fall back
+      # to OMPL joint-space planning to cross singularities/out-of-workspace regions.
+      ompl_planning_timeout_s: 0.5
