@@ -43,6 +43,7 @@ def generate_launch_description():
             'head_camera_orbbec.yaml',
         ),
     )
+    arg_enable_teleop = DeclareLaunchArgument('enable_teleop', default_value='false')
 
     return LaunchDescription([
         arg_robot_name,
@@ -65,6 +66,7 @@ def generate_launch_description():
         arg_enable_hand_left_cam_color,
         arg_enable_hand_right_cam_color,
         arg_head_cam_config_file,
+        arg_enable_teleop,
         OpaqueFunction(function = launch_gz),
     ])
 
@@ -95,6 +97,7 @@ def launch_gz(context, *args, **kwargs):
     enable_hand_left_cam_color = LaunchConfiguration('enable_hand_left_cam_color').perform(context)
     enable_hand_right_cam_color= LaunchConfiguration('enable_hand_right_cam_color').perform(context)
     head_cam_config_file       = LaunchConfiguration('head_cam_config_file').perform(context)
+    enable_teleop                 = LaunchConfiguration('enable_teleop').perform(context)
 
     # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
     dxl_x_lower_body_port = ''
@@ -428,8 +431,9 @@ def launch_gz(context, *args, **kwargs):
             ])
         ]),
         launch_arguments={
-            'robot_name': robot_name,
-            'enable_gz': enable_gz,
+            'robot_name':   robot_name,
+            'use_sim_time': 'true' if enable_gz == 'True' else 'false',
+            'enable_teleop':   enable_teleop,
         }.items(),
     )
 
@@ -530,6 +534,27 @@ def launch_gz(context, *args, **kwargs):
         nodes.append(gz_spawn_entity_node)
         nodes.append(delayed_joint_state_broadcaster)
         nodes.append(delayed_controllers)
+
+        # Republish raw images as compressed for each camera in Gazebo
+        for cam_name, enabled in [
+            ('head_camera',       enable_head_cam_color),
+            ('hand_left_camera',  enable_hand_left_cam_color),
+            ('hand_right_camera', enable_hand_right_cam_color),
+        ]:
+            if enabled == 'True':
+                nodes.append(Node(
+                    package='image_transport',
+                    executable='republish',
+                    name=cam_name + '_compressed_republisher',
+                    namespace=robot_name,
+                    arguments=['raw', 'compressed'],
+                    remappings=[
+                        ('in',              '/' + robot_name + '/' + cam_name + '/color'),
+                        ('out/compressed',  '/' + robot_name + '/' + cam_name + '/color/compressed'),
+                    ],
+                    parameters=[{'use_sim_time': True}],
+                    output='log',
+                ))
     else:
         nodes.append(joint_state_broadcaster)
         nodes.append(control_node)
