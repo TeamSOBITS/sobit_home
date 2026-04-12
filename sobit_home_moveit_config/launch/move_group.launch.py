@@ -72,7 +72,7 @@ def generate_launch_description():
             publish_robot_description=False,
             publish_robot_description_semantic=True,
         )
-        # .sensors_3d(file_path=sensors_file_path)
+        .sensors_3d(file_path=sensors_file_path)
         .planning_pipelines(
             default_planning_pipeline="ompl",
             pipelines=["ompl", "pilz_industrial_motion_planner", "chomp", "stomp"],
@@ -86,6 +86,14 @@ def generate_launch_description():
     config_dict = moveit_config.to_dict()
     # config_dict['robot_description_planning.frame_prefix'] = robot_name + '/'
 
+
+    octomap_config = {
+        'octomap_frame': 'base_footprint',  # if mobile robot, should be a fixed frame in the world
+        'octomap_resolution': 0.05,
+        'max_range': 5.0
+    }
+
+
     # move_group node
     start_move_group_node_cmd = Node(
         package="moveit_ros_move_group",
@@ -94,6 +102,7 @@ def generate_launch_description():
         output="screen",
         parameters=[
             config_dict,
+            octomap_config,
             {'use_sim_time': use_sim_time},
             {'trajectory_execution.control_multi_dof_joint_variables': True},
             # {'robot_description_planning.frame_prefix': robot_name + '/'},
@@ -127,7 +136,7 @@ def generate_launch_description():
             moveit_config.planning_pipelines,
             moveit_config.robot_description_kinematics,
             moveit_config.joint_limits,
-            # moveit_config.sensors_3d,
+            moveit_config.sensors_3d,
             {
                 'use_sim_time': use_sim_time,
                 # 'robot_description_planning.frame_prefix': robot_name + '/',
