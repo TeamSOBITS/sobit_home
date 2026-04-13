@@ -1,7 +1,11 @@
 sobit_home_mode() {
     local domain_id=80
     export ROS_DOMAIN_ID=$domain_id
-    export CYCLONEDDS_URI=${CYCLONEDDS_URI_PATH}
+    if [ "${CYCLONEDDS_URI_PATH#file://}" != "${CYCLONEDDS_URI_PATH}" ]; then
+        export CYCLONEDDS_URI="${CYCLONEDDS_URI_PATH}"
+    else
+        export CYCLONEDDS_URI="file://${CYCLONEDDS_URI_PATH}"
+    fi
     echo "[SOBIT HOME] ROS_DOMAIN_ID=${ROS_DOMAIN_ID}"
 }
 default_mode() {
