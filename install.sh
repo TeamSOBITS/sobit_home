@@ -118,7 +118,6 @@ echo "export HOST_ROS_DOMAIN_ID=\${ROS_DOMAIN_ID}" >> /home/$USERNAME/.bashrc
 echo "export CYCLONEDDS_URI_PATH=${DIR}/cyclonedds_profile.xml" >> /home/$USERNAME/.bashrc
 echo "source ${DIR}/mode_ctr.sh" >> /home/$USERNAME/.bashrc
 echo "" >> /home/$USERNAME/.bashrc
-source ${DIR}/mode_ctr.sh
 source /home/$USERNAME/.bashrc
 
 # Reboot notice
