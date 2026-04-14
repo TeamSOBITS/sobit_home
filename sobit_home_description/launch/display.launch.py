@@ -43,7 +43,7 @@ def generate_launch_description():
         name="robot_state_publisher",
         namespace=robot_namespace,
         parameters=[{
-            "frame_prefix": robot_namespace + '/',
+            # "frame_prefix": robot_namespace + '/',
             "robot_description": robot_description_config.toxml(),
             "use_sim_time": True,
         }],
