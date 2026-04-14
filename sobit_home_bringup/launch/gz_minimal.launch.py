@@ -28,25 +28,25 @@ def generate_launch_description():
     world_file = ''
     if world_model == 'empty':
         world_file = os.path.join(get_package_share_directory(
-            'sobit_home_description'), 
+            'sobit_home_description'),
             'worlds',
             'empty_w_physics.sdf'
         )
     elif world_model == 'wrs':
         world_file = os.path.join(get_package_share_directory(
-            'tmc_wrs_gz_worlds'), 
+            'tmc_wrs_gz_worlds'),
             'worlds',
             'wrs2020.world.xacro'
         )
     elif world_model == 'small_house':
         world_file = os.path.join(get_package_share_directory(
-            'aws_small_house_world'), 
+            'aws_small_house_world'),
             'worlds',
             'small_house.world'
         )
     elif world_model == 'rcjo2025_arena':
         world_file = os.path.join(get_package_share_directory(
-            'sobits_gazebo_worlds'), 
+            'sobits_gazebo_worlds'),
             'worlds',
             'rcjo2025_arena.world.xacro'
         )
@@ -91,7 +91,7 @@ def generate_launch_description():
             ]),
             launch_arguments={
                 'robot_name': robot_name if robot_id == 0 else robot_name + '_' + str(robot_id),
-                'robot_coords_x': '-3.5', # x 
+                'robot_coords_x': '-3.5', # x
                 'robot_coords_y': '1.5', # y
                 'robot_coords_z': '0.0', # z
                 'robot_coords_Y': '0', # yaw
@@ -103,12 +103,10 @@ def generate_launch_description():
                 'enable_hand_left': 'True',
                 'enable_hand_right': 'True',
                 'enable_head': 'True',
-                'enable_gz_head_cam_color'      : 'True',
-                'enable_gz_head_cam_depth'      : 'True',
-                'enable_gz_hand_left_cam_color' : 'False',
-                'enable_gz_hand_left_cam_depth' : 'False',
-                'enable_gz_hand_right_cam_color': 'False',
-                'enable_gz_hand_right_cam_depth': 'False',
+                'enable_head_cam_color'      : 'True',
+                'enable_head_cam_depth'      : 'True',
+                'enable_hand_left_cam_color' : 'True',
+                'enable_hand_right_cam_color': 'True',
             }.items()
         ),
         # Launch Robot No. 2
@@ -122,16 +120,14 @@ def generate_launch_description():
         #     ]),
         #     launch_arguments={
         #         'robot_name': robot_name if robot_id == 0 else robot_name + '_' + str(robot_id),
-        #         'robot_coords_x': '0', # x 
+        #         'robot_coords_x': '0', # x
         #         'robot_coords_y': '2', # y
         #         'robot_coords_Y': '0', # yaw
         #         'enable_gz' : 'True',
-        #         'enable_gz_head_cam_color' : 'True',
-        #         'enable_gz_head_cam_depth' : 'True',
-        #         'enable_gz_hand_left_cam_color' : 'True',
-        #         'enable_gz_hand_left_cam_depth' : 'True',
-        #         'enable_gz_hand_right_cam_color' : 'True',
-        #         'enable_gz_hand_right_cam_depth' : 'True',
+        #         'enable_head_cam_color' : 'True',
+        #         'enable_head_cam_depth' : 'True',
+        #         'enable_hand_left_cam_color' : 'True',
+        #         'enable_hand_right_cam_color' : 'True',
         #     }.items()
         # ),
         rviz_node,
