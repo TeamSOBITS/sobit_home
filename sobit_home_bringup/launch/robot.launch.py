@@ -111,7 +111,7 @@ def launch_gz(context, *args, **kwargs):
         dxl_x_upper_body_port = str(os.environ.get('DXL_X_UPPER_PORT'))
         dxl_p_upper_body_port = str(os.environ.get('DXL_P_UPPER_PORT'))
         
-        = str(os.environ.get('UM_PORT'))
+        um_body_port = str(os.environ.get('UM_PORT'))
         um_body_id = str(os.environ.get('UM_ID', '5'))
         print('Dynamixel Lower Body Port : ' + dxl_x_lower_body_port)
         print('Dynamixel Upper Body Port : ' + dxl_x_upper_body_port)
