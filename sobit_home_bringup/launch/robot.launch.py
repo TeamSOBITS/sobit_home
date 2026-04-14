@@ -1,4 +1,5 @@
 import os
+import subprocess
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
@@ -100,6 +101,8 @@ def launch_gz(context, *args, **kwargs):
     dxl_x_lower_body_port = ''
     dxl_x_upper_body_port = ''
     dxl_p_upper_body_port = ''
+    um_body_port = ''
+    um_body_id = ''
     # Find USB Cam port name from HOME_CAM_LEFT_PORT/HOME_CAM_RIGHT_PORT environment variable
     cam_left_port = ''
     cam_right_port = ''
@@ -107,20 +110,25 @@ def launch_gz(context, *args, **kwargs):
         dxl_x_lower_body_port = str(os.environ.get('DXL_X_LOWER_PORT'))
         dxl_x_upper_body_port = str(os.environ.get('DXL_X_UPPER_PORT'))
         dxl_p_upper_body_port = str(os.environ.get('DXL_P_UPPER_PORT'))
+        
+        = str(os.environ.get('UM_PORT'))
+        um_body_id = str(os.environ.get('UM_ID', '5'))
         print('Dynamixel Lower Body Port : ' + dxl_x_lower_body_port)
         print('Dynamixel Upper Body Port : ' + dxl_x_upper_body_port)
         print('Dynamixel Upper Body Port : ' + dxl_p_upper_body_port)
+        print('Uirobot Gateway Port : ' + um_body_port)
+        print('Uirobot Body Node ID : ' + um_body_id)
 
-        # Open CAN0 port
-        fail_flag = False
-        fail_flag = os.system('sudo ip link set can0 down')
-        fail_flag = os.system('sudo ip link set can0 type can bitrate 1000000')
-        fail_flag = os.system('sudo ip link set can0 up')
-        if fail_flag != 0:
-            print('Failed to set up CAN0 interface. Please check CAN adapter connection.')
-            exit(1)
-        else:
-            print('CAN0 interface is set up.')
+        if enable_mobile_base == 'True':
+            fail_flag = False
+            fail_flag = os.system('sudo ip link set can0 down')
+            fail_flag = os.system('sudo ip link set can0 type can bitrate 1000000')
+            fail_flag = os.system('sudo ip link set can0 up')
+            if fail_flag != 0:
+                print('Failed to set up CAN0 interface. Please check CAN adapter connection.')
+                exit(1)
+            else:
+                print('CAN0 interface is set up.')
 
         # Find USB Cam port
         cam_left_port = str(os.environ.get('HOME_CAM_LEFT_PORT'))
@@ -162,6 +170,8 @@ def launch_gz(context, *args, **kwargs):
             'dxl_x_lower_body_port': dxl_x_lower_body_port,
             'dxl_x_upper_body_port': dxl_x_upper_body_port,
             'dxl_p_upper_body_port': dxl_p_upper_body_port,
+            'um_body_port': um_body_port,
+            'um_body_id': um_body_id,
         })
 
 
@@ -366,6 +376,25 @@ def launch_gz(context, *args, **kwargs):
                 ],
         )
         controllers.append(body_position_controller)
+
+        if enable_gz == 'False': # release the brake before launching the robot bringup only when not using Gazebo, as Gazebo won't affect the real hardware
+            # release the brake before launching the robot bringup
+            # TODO: add into uirobot_hardware 
+            um_port = os.environ.get('UM_PORT', '')
+            um_id = os.environ.get('UM_ID', '5')
+
+            if um_port:
+                subprocess.run([
+                    'python3',
+                    os.path.join(
+                        get_package_share_directory('uirobot_hardware'),
+                        'scripts', 'release_brake.py'
+                    ),
+                    '--port', um_port,
+                    '--baud', '57600',
+                    '--id', um_id,
+                ], check=True)
+
 
     gz_spawn_entity_node = Node(
         package='ros_gz_sim',

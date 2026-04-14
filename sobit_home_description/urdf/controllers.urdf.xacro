@@ -99,21 +99,23 @@
     </xacro:if>
 
     <xacro:if value="${$(arg enable_body)}">
-      <ros2_control name="iai_control" type="system">
+      <ros2_control name="uirobot_control" type="system">
 
         <hardware>
           <xacro:if value="${$(arg enable_gz)}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
           </xacro:if>
-          <!-- TODO - Develop IAI controller -->
-          <!-- <xacro:unless value="${$(arg enable_gz)}">
-            <plugin>iai_hardware/IaiHardware</plugin>
-            <param name="port_name">/dev/ttyUSB1</param>
-            <param name="baud_rate">115200</param>
-          </xacro:unless> -->
+          <xacro:unless value="${$(arg enable_gz)}">
+            <xacro:property name="um_body_port" value="$(arg um_body_port)"/>
+            <plugin>uirobot_hardware/UirobotHardware</plugin>
+            <param name="port_name">${um_body_port}</param>
+            <param name="baud_rate">57600</param>
+            <param name="toggle_torque_on_configure">false</param>
+            <param name="enable_torque_before_motion">false</param>
+          </xacro:unless>
         </hardware>
 
-        <xacro:iai_body_controllers prefix="body" enable_gz="${$(arg enable_gz)}"/>
+        <xacro:uirobot_control prefix="body" enable_gz="${$(arg enable_gz)}"/>
 
       </ros2_control>
     </xacro:if>
@@ -870,18 +872,20 @@
   </xacro:macro>
 
 
-  <xacro:macro name="iai_body_controllers"        params="prefix enable_gz:=False">
+  <xacro:macro name="uirobot_control" params="prefix enable_gz:=False">
 
     <joint name="${prefix}_lift_joint">
-      <!-- TODO - Develop IAI controller -->
-      <!-- <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">1</param>
-        <param name="control_mode">0</param>
-        <param name="interface">rs</param>
-      </xacro:unless> -->
+      <xacro:unless value="${$(arg enable_gz)}">
+        <param name="id">$(arg um_body_id)</param>
+        <param name="gear_ratio">${200*M_PI}</param>
+        <param name="position_kp">0.7</param>
+        <param name="stop_threshold">0.005</param>
+        <param name="min_velocity">0.01</param> <!-- [m/s], 1 cm in 1 s is smooth; slower tends to stall -->
+        <param name="max_velocity">0.025</param> <!-- [m/s] -->
+      </xacro:unless>
       <command_interface name="position">
         <param name="min">0.0</param>
-        <param name="max">0.69</param>
+        <param name="max">0.6</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">

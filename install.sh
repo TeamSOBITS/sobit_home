@@ -13,6 +13,7 @@ ros_packages=(
     "sobits_interfaces"
     "orbbecsdk_ros2"
     "dynamixel_hardware"
+    "uirobot_hardware"
     "rm_motors_ros"
     # "swerve_steering_controller"
     "ros2_laser_scan_merger"
