@@ -457,8 +457,8 @@ namespace sobit_home
   {
     geometry_msgs::msg::TransformStamped goal_in_base;
     geometry_msgs::msg::TransformStamped goal_in_lift;
-    std::string base_frame = "sobit_home/base_footprint";
-    std::string lift_frame = "sobit_home/body_lift_link";
+    std::string base_frame = "base_footprint";
+    std::string lift_frame = "body_lift_link";
 
     try
     {
@@ -493,8 +493,8 @@ namespace sobit_home
   {
     geometry_msgs::msg::TransformStamped goal_in_base;
     geometry_msgs::msg::TransformStamped goal_in_lift;
-    std::string base_frame = "sobit_home/base_footprint";
-    std::string lift_frame = "sobit_home/body_lift_link";
+    std::string base_frame = "base_footprint";
+    std::string lift_frame = "body_lift_link";
 
     try
     {
