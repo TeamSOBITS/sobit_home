@@ -5,7 +5,6 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /RobotModel1/Description Topic1
         - /HeadCam (RGB)1/Topic1
         - /HeadCam (Depth)1/Topic1
         - /HeadCam (Points)1/Topic1
@@ -155,6 +154,12 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+          Value: true
+        body_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         hand_left_camera_base_link:
           Alpha: 1
           Show Axes: false
@@ -399,6 +404,11 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        plate_cover_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         plate_middle_link:
           Alpha: 1
           Show Axes: false
@@ -473,7 +483,7 @@ Visualization Manager:
         Inertia: false
         Mass: false
       Name: RobotModel
-      TF Prefix: sobit_home
+      TF Prefix: ""
       Update Interval: 0
       Value: true
       Visual Enabled: true
@@ -484,169 +494,173 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        sobit_home/arm_left_base_link:
+        arm_left_base_link:
           Value: true
-        sobit_home/arm_left_elbow_link:
+        arm_left_elbow_link:
           Value: true
-        sobit_home/arm_left_shoulder_tilt_link:
+        arm_left_shoulder_tilt_link:
           Value: true
-        sobit_home/arm_left_upper_flex_link:
+        arm_left_upper_flex_link:
           Value: true
-        sobit_home/arm_left_upper_roll_link:
+        arm_left_upper_roll_link:
           Value: true
-        sobit_home/arm_left_wrist_roll_link:
+        arm_left_wrist_roll_link:
           Value: true
-        sobit_home/arm_left_wrist_tilt_link:
+        arm_left_wrist_tilt_link:
           Value: true
-        sobit_home/arm_right_base_link:
+        arm_right_base_link:
           Value: true
-        sobit_home/arm_right_elbow_link:
+        arm_right_elbow_link:
           Value: true
-        sobit_home/arm_right_shoulder_tilt_link:
+        arm_right_shoulder_tilt_link:
           Value: true
-        sobit_home/arm_right_upper_flex_link:
+        arm_right_upper_flex_link:
           Value: true
-        sobit_home/arm_right_upper_roll_link:
+        arm_right_upper_roll_link:
           Value: true
-        sobit_home/arm_right_wrist_roll_link:
+        arm_right_wrist_roll_link:
           Value: true
-        sobit_home/arm_right_wrist_tilt_link:
+        arm_right_wrist_tilt_link:
           Value: true
-        sobit_home/base_footprint:
+        base_footprint:
           Value: true
-        sobit_home/base_link:
+        base_link:
           Value: true
-        sobit_home/body_lift_link:
+        body_lift_link:
           Value: true
-        sobit_home/hand_left_camera_base_link:
+        body_link:
           Value: true
-        sobit_home/hand_left_camera_link:
+        hand_left_camera_base_link:
           Value: true
-        sobit_home/hand_left_camera_optical_frame:
+        hand_left_camera_link:
           Value: true
-        sobit_home/hand_left_cmc_link:
+        hand_left_camera_optical_frame:
           Value: true
-        sobit_home/hand_left_end_effector_link:
+        hand_left_cmc_link:
           Value: true
-        sobit_home/hand_left_finger_c_ip_link:
+        hand_left_end_effector_link:
           Value: true
-        sobit_home/hand_left_finger_c_mcp_link:
+        hand_left_finger_c_ip_link:
           Value: true
-        sobit_home/hand_left_finger_l_dip_link:
+        hand_left_finger_c_mcp_link:
           Value: true
-        sobit_home/hand_left_finger_l_mcp_link:
+        hand_left_finger_l_dip_link:
           Value: true
-        sobit_home/hand_left_finger_l_pip_link:
+        hand_left_finger_l_mcp_link:
           Value: true
-        sobit_home/hand_left_finger_r_dip_link:
+        hand_left_finger_l_pip_link:
           Value: true
-        sobit_home/hand_left_finger_r_mcp_link:
+        hand_left_finger_r_dip_link:
           Value: true
-        sobit_home/hand_left_finger_r_pip_link:
+        hand_left_finger_r_mcp_link:
           Value: true
-        sobit_home/hand_right_camera_base_link:
+        hand_left_finger_r_pip_link:
           Value: true
-        sobit_home/hand_right_camera_link:
+        hand_right_camera_base_link:
           Value: true
-        sobit_home/hand_right_camera_optical_frame:
+        hand_right_camera_link:
           Value: true
-        sobit_home/hand_right_cmc_link:
+        hand_right_camera_optical_frame:
           Value: true
-        sobit_home/hand_right_end_effector_link:
+        hand_right_cmc_link:
           Value: true
-        sobit_home/hand_right_finger_c_ip_link:
+        hand_right_end_effector_link:
           Value: true
-        sobit_home/hand_right_finger_c_mcp_link:
+        hand_right_finger_c_ip_link:
           Value: true
-        sobit_home/hand_right_finger_l_dip_link:
+        hand_right_finger_c_mcp_link:
           Value: true
-        sobit_home/hand_right_finger_l_mcp_link:
+        hand_right_finger_l_dip_link:
           Value: true
-        sobit_home/hand_right_finger_l_pip_link:
+        hand_right_finger_l_mcp_link:
           Value: true
-        sobit_home/hand_right_finger_r_dip_link:
+        hand_right_finger_l_pip_link:
           Value: true
-        sobit_home/hand_right_finger_r_mcp_link:
+        hand_right_finger_r_dip_link:
           Value: true
-        sobit_home/hand_right_finger_r_pip_link:
+        hand_right_finger_r_mcp_link:
           Value: true
-        sobit_home/head_base_link:
+        hand_right_finger_r_pip_link:
           Value: true
-        sobit_home/head_camera_base_link:
+        head_base_link:
           Value: true
-        sobit_home/head_camera_bottom_screw_frame:
+        head_camera_base_link:
           Value: true
-        sobit_home/head_camera_color_frame:
+        head_camera_bottom_screw_frame:
           Value: true
-        sobit_home/head_camera_color_optical_frame:
+        head_camera_color_frame:
           Value: true
-        sobit_home/head_camera_depth_frame:
+        head_camera_color_optical_frame:
           Value: true
-        sobit_home/head_camera_depth_optical_frame:
+        head_camera_depth_frame:
           Value: true
-        sobit_home/head_camera_infra2_frame:
+        head_camera_depth_optical_frame:
           Value: true
-        sobit_home/head_camera_infra2_optical_frame:
+        head_camera_infra2_frame:
           Value: true
-        sobit_home/head_camera_infra_1_frame:
+        head_camera_infra2_optical_frame:
           Value: true
-        sobit_home/head_camera_infra_1_optical_frame:
+        head_camera_infra_1_frame:
           Value: true
-        sobit_home/head_pan_link:
+        head_camera_infra_1_optical_frame:
           Value: true
-        sobit_home/head_plug_base_link:
+        head_pan_link:
           Value: true
-        sobit_home/head_tilt_link:
+        head_plug_base_link:
           Value: true
-        sobit_home/lidar_back_base_link:
+        head_tilt_link:
           Value: true
-        sobit_home/lidar_back_laser:
+        lidar_back_base_link:
           Value: true
-        sobit_home/lidar_back_laser_mount:
+        lidar_back_laser:
           Value: true
-        sobit_home/lidar_front_base_link:
+        lidar_back_laser_mount:
           Value: true
-        sobit_home/lidar_front_laser:
+        lidar_front_base_link:
           Value: true
-        sobit_home/lidar_front_laser_mount:
+        lidar_front_laser:
           Value: true
-        sobit_home/lidar_merged_laser:
+        lidar_front_laser_mount:
           Value: true
-        sobit_home/mic_base_link:
+        lidar_merged_laser:
           Value: true
-        sobit_home/mic_link:
+        mic_base_link:
           Value: true
-        sobit_home/odom:
+        mic_link:
           Value: true
-        sobit_home/plate_bottom_link:
+        odom:
           Value: true
-        sobit_home/plate_middle_link:
+        plate_bottom_link:
           Value: true
-        sobit_home/plate_top_link:
+        plate_cover_link:
           Value: true
-        sobit_home/wheel_drive_b_l_link:
+        plate_middle_link:
           Value: true
-        sobit_home/wheel_drive_b_r_link:
+        plate_top_link:
           Value: true
-        sobit_home/wheel_drive_f_l_link:
+        wheel_drive_b_l_link:
           Value: true
-        sobit_home/wheel_drive_f_r_link:
+        wheel_drive_b_r_link:
           Value: true
-        sobit_home/wheel_steer_b_l_link:
+        wheel_drive_f_l_link:
           Value: true
-        sobit_home/wheel_steer_b_r_link:
+        wheel_drive_f_r_link:
           Value: true
-        sobit_home/wheel_steer_base_b_l_link:
+        wheel_steer_b_l_link:
           Value: true
-        sobit_home/wheel_steer_base_b_r_link:
+        wheel_steer_b_r_link:
           Value: true
-        sobit_home/wheel_steer_base_f_l_link:
+        wheel_steer_base_b_l_link:
           Value: true
-        sobit_home/wheel_steer_base_f_r_link:
+        wheel_steer_base_b_r_link:
           Value: true
-        sobit_home/wheel_steer_f_l_link:
+        wheel_steer_base_f_l_link:
           Value: true
-        sobit_home/wheel_steer_f_r_link:
+        wheel_steer_base_f_r_link:
+          Value: true
+        wheel_steer_f_l_link:
+          Value: true
+        wheel_steer_f_r_link:
           Value: true
       Marker Scale: 0.5
       Name: TF
@@ -654,116 +668,118 @@ Visualization Manager:
       Show Axes: true
       Show Names: false
       Tree:
-        sobit_home/base_footprint:
-          sobit_home/base_link:
-            sobit_home/plate_middle_link:
-              sobit_home/lidar_back_base_link:
-                sobit_home/lidar_back_laser_mount:
-                  sobit_home/lidar_back_laser:
-                    {}
-              sobit_home/lidar_front_base_link:
-                sobit_home/lidar_front_laser_mount:
-                  sobit_home/lidar_front_laser:
-                    {}
-              sobit_home/plate_bottom_link:
-                {}
-              sobit_home/plate_top_link:
-                sobit_home/body_lift_link:
-                  sobit_home/arm_left_base_link:
-                    sobit_home/arm_left_shoulder_tilt_link:
-                      sobit_home/arm_left_upper_roll_link:
-                        sobit_home/arm_left_upper_flex_link:
-                          sobit_home/arm_left_elbow_link:
-                            sobit_home/arm_left_wrist_tilt_link:
-                              sobit_home/arm_left_wrist_roll_link:
-                                sobit_home/hand_left_camera_base_link:
-                                  sobit_home/hand_left_camera_link:
-                                    sobit_home/hand_left_camera_optical_frame:
+        odom:
+          base_footprint:
+            base_link:
+              plate_middle_link:
+                lidar_back_base_link:
+                  lidar_back_laser_mount:
+                    lidar_back_laser:
+                      {}
+                lidar_front_base_link:
+                  lidar_front_laser_mount:
+                    lidar_front_laser:
+                      {}
+                plate_bottom_link:
+                  {}
+                plate_top_link:
+                  body_link:
+                    body_lift_link:
+                      arm_left_base_link:
+                        arm_left_shoulder_tilt_link:
+                          arm_left_upper_roll_link:
+                            arm_left_upper_flex_link:
+                              arm_left_elbow_link:
+                                arm_left_wrist_tilt_link:
+                                  arm_left_wrist_roll_link:
+                                    hand_left_camera_base_link:
+                                      hand_left_camera_link:
+                                        hand_left_camera_optical_frame:
+                                          {}
+                                    hand_left_cmc_link:
+                                      hand_left_finger_c_mcp_link:
+                                        hand_left_finger_c_ip_link:
+                                          {}
+                                      hand_left_finger_l_mcp_link:
+                                        hand_left_finger_l_pip_link:
+                                          hand_left_finger_l_dip_link:
+                                            {}
+                                      hand_left_finger_r_mcp_link:
+                                        hand_left_finger_r_pip_link:
+                                          hand_left_finger_r_dip_link:
+                                            {}
+                                    hand_left_end_effector_link:
                                       {}
-                                sobit_home/hand_left_cmc_link:
-                                  sobit_home/hand_left_finger_c_mcp_link:
-                                    sobit_home/hand_left_finger_c_ip_link:
+                      arm_right_base_link:
+                        arm_right_shoulder_tilt_link:
+                          arm_right_upper_roll_link:
+                            arm_right_upper_flex_link:
+                              arm_right_elbow_link:
+                                arm_right_wrist_tilt_link:
+                                  arm_right_wrist_roll_link:
+                                    hand_right_camera_base_link:
+                                      hand_right_camera_link:
+                                        hand_right_camera_optical_frame:
+                                          {}
+                                    hand_right_cmc_link:
+                                      hand_right_finger_c_mcp_link:
+                                        hand_right_finger_c_ip_link:
+                                          {}
+                                      hand_right_finger_l_mcp_link:
+                                        hand_right_finger_l_pip_link:
+                                          hand_right_finger_l_dip_link:
+                                            {}
+                                      hand_right_finger_r_mcp_link:
+                                        hand_right_finger_r_pip_link:
+                                          hand_right_finger_r_dip_link:
+                                            {}
+                                    hand_right_end_effector_link:
                                       {}
-                                  sobit_home/hand_left_finger_l_mcp_link:
-                                    sobit_home/hand_left_finger_l_pip_link:
-                                      sobit_home/hand_left_finger_l_dip_link:
-                                        {}
-                                  sobit_home/hand_left_finger_r_mcp_link:
-                                    sobit_home/hand_left_finger_r_pip_link:
-                                      sobit_home/hand_left_finger_r_dip_link:
-                                        {}
-                                sobit_home/hand_left_end_effector_link:
-                                  {}
-                  sobit_home/arm_right_base_link:
-                    sobit_home/arm_right_shoulder_tilt_link:
-                      sobit_home/arm_right_upper_roll_link:
-                        sobit_home/arm_right_upper_flex_link:
-                          sobit_home/arm_right_elbow_link:
-                            sobit_home/arm_right_wrist_tilt_link:
-                              sobit_home/arm_right_wrist_roll_link:
-                                sobit_home/hand_right_camera_base_link:
-                                  sobit_home/hand_right_camera_link:
-                                    sobit_home/hand_right_camera_optical_frame:
-                                      {}
-                                sobit_home/hand_right_cmc_link:
-                                  sobit_home/hand_right_finger_c_mcp_link:
-                                    sobit_home/hand_right_finger_c_ip_link:
-                                      {}
-                                  sobit_home/hand_right_finger_l_mcp_link:
-                                    sobit_home/hand_right_finger_l_pip_link:
-                                      sobit_home/hand_right_finger_l_dip_link:
-                                        {}
-                                  sobit_home/hand_right_finger_r_mcp_link:
-                                    sobit_home/hand_right_finger_r_pip_link:
-                                      sobit_home/hand_right_finger_r_dip_link:
-                                        {}
-                                sobit_home/hand_right_end_effector_link:
-                                  {}
-                  sobit_home/head_base_link:
-                    sobit_home/head_pan_link:
-                      sobit_home/head_tilt_link:
-                        sobit_home/head_camera_base_link:
-                          sobit_home/head_plug_base_link:
-                            sobit_home/head_camera_bottom_screw_frame:
-                              sobit_home/head_camera_color_frame:
+                      head_base_link:
+                        head_pan_link:
+                          head_tilt_link:
+                            head_camera_base_link:
+                              head_plug_base_link:
+                                head_camera_bottom_screw_frame:
+                                  head_camera_color_frame:
+                                    {}
+                                  head_camera_color_optical_frame:
+                                    {}
+                                  head_camera_depth_frame:
+                                    {}
+                                  head_camera_depth_optical_frame:
+                                    {}
+                                  head_camera_infra2_frame:
+                                    {}
+                                  head_camera_infra2_optical_frame:
+                                    {}
+                                  head_camera_infra_1_frame:
+                                    {}
+                                  head_camera_infra_1_optical_frame:
+                                    {}
+                            mic_base_link:
+                              mic_link:
                                 {}
-                              sobit_home/head_camera_color_optical_frame:
-                                {}
-                              sobit_home/head_camera_depth_frame:
-                                {}
-                              sobit_home/head_camera_depth_optical_frame:
-                                {}
-                              sobit_home/head_camera_infra2_frame:
-                                {}
-                              sobit_home/head_camera_infra2_optical_frame:
-                                {}
-                              sobit_home/head_camera_infra_1_frame:
-                                {}
-                              sobit_home/head_camera_infra_1_optical_frame:
-                                {}
-                        sobit_home/mic_base_link:
-                          sobit_home/mic_link:
-                            {}
-              sobit_home/wheel_steer_base_b_l_link:
-                sobit_home/wheel_steer_b_l_link:
-                  sobit_home/wheel_drive_b_l_link:
-                    {}
-              sobit_home/wheel_steer_base_b_r_link:
-                sobit_home/wheel_steer_b_r_link:
-                  sobit_home/wheel_drive_b_r_link:
-                    {}
-              sobit_home/wheel_steer_base_f_l_link:
-                sobit_home/wheel_steer_f_l_link:
-                  sobit_home/wheel_drive_f_l_link:
-                    {}
-              sobit_home/wheel_steer_base_f_r_link:
-                sobit_home/wheel_steer_f_r_link:
-                  sobit_home/wheel_drive_f_r_link:
-                    {}
-          sobit_home/lidar_merged_laser:
-            {}
-        sobit_home/odom:
-          {}
+                wheel_steer_base_b_l_link:
+                  wheel_steer_b_l_link:
+                    wheel_drive_b_l_link:
+                      {}
+                wheel_steer_base_b_r_link:
+                  wheel_steer_b_r_link:
+                    wheel_drive_b_r_link:
+                      {}
+                wheel_steer_base_f_l_link:
+                  wheel_steer_f_l_link:
+                    wheel_drive_f_l_link:
+                      {}
+                wheel_steer_base_f_r_link:
+                  wheel_steer_f_r_link:
+                    wheel_drive_f_r_link:
+                      {}
+            lidar_merged_laser:
+              {}
+            plate_cover_link:
+              {}
       Update Interval: 0
       Value: true
     - Class: rviz_default_plugins/Image
@@ -960,7 +976,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: sobit_home/base_footprint
+    Fixed Frame: base_footprint
     Frame Rate: 30
   Name: root
   Tools:
@@ -1012,16 +1028,16 @@ Visualization Manager:
       Focal Point:
         X: 0
         Y: 0
-        Z: 0
+        Z: 0.25
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.2785990834236145
+      Pitch: 0.5
       Target Frame: sobit_home/base_footprint
       Value: ThirdPersonFollower (rviz_default_plugins)
-      Yaw: 0.1135995164513588
+      Yaw: 0.5
     Saved: ~
 Window Geometry:
   Displays:
