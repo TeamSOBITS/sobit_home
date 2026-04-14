@@ -82,8 +82,8 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options = rclcpp:
   
   // Initilize Odometry
   sobit_home_odometry_->odom_.header.stamp    = this->get_clock()->now();
-  sobit_home_odometry_->odom_.header.frame_id = robot_name + "odom";
-  sobit_home_odometry_->odom_.child_frame_id  = robot_name + this->get_parameter("robot_base_frame").as_string();
+  sobit_home_odometry_->odom_.header.frame_id = "odom";
+  sobit_home_odometry_->odom_.child_frame_id  = this->get_parameter("robot_base_frame").as_string();
 
   // Start up sound
   play_sound(true);

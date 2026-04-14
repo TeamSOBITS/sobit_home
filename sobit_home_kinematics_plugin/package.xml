@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>sobit_home_kinematics_plugin</name>
+  <version>0.0.1</version>
+  <description>MoveIt 2 kinematics plugin for SOBIT HOME whole-body control</description>
+  <maintainer email="your_email@domain.com">Your Name</maintainer>
+  <license>BSD-3-Clause</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>moveit_core</depend>
+  <depend>moveit_ros_planning</depend>
+  <depend>pluginlib</depend>
+  <depend>tf2_eigen</depend>
+  <depend>geometry_msgs</depend>
+  <depend>moveit_msgs</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+    <moveit_core plugin="${prefix}/sobit_home_kinematics_plugin_description.xml"/>
+  </export>
+</package>

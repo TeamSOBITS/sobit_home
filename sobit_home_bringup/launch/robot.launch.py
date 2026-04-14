@@ -5,7 +5,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction, IncludeLaunchDescription, RegisterEventHandler, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.event_handlers import OnProcessExit, OnProcessStart, OnExecutionComplete
+from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch.conditions import IfCondition
 from launch_ros.substitutions import FindPackageShare
@@ -44,6 +44,7 @@ def generate_launch_description():
             'head_camera_orbbec.yaml',
         ),
     )
+    arg_enable_teleop = DeclareLaunchArgument('enable_teleop', default_value='false')
 
     return LaunchDescription([
         arg_robot_name,
@@ -66,6 +67,7 @@ def generate_launch_description():
         arg_enable_hand_left_cam_color,
         arg_enable_hand_right_cam_color,
         arg_head_cam_config_file,
+        arg_enable_teleop,
         OpaqueFunction(function = launch_gz),
     ])
 
@@ -81,21 +83,22 @@ def launch_gz(context, *args, **kwargs):
     robot_coords_z = LaunchConfiguration('robot_coords_z').perform(context)
     robot_coords_Y = LaunchConfiguration('robot_coords_Y').perform(context)
 
-    enable_gz                  = LaunchConfiguration('enable_gz').perform(context)
-    enable_display             = LaunchConfiguration('enable_display').perform(context)
-    enable_mobile_base         = LaunchConfiguration('enable_mobile_base').perform(context)
-    enable_body                = LaunchConfiguration('enable_body').perform(context)
-    enable_arm_left            = LaunchConfiguration('enable_arm_left').perform(context)
-    enable_arm_right           = LaunchConfiguration('enable_arm_right').perform(context)
-    enable_hand_left           = LaunchConfiguration('enable_hand_left').perform(context)
-    enable_hand_right          = LaunchConfiguration('enable_hand_right').perform(context)
-    enable_head                = LaunchConfiguration('enable_head').perform(context)
-    enable_body                = LaunchConfiguration('enable_body').perform(context)
-    enable_head_cam_color      = LaunchConfiguration('enable_head_cam_color').perform(context)
-    enable_head_cam_depth      = LaunchConfiguration('enable_head_cam_depth').perform(context)
-    enable_hand_left_cam_color = LaunchConfiguration('enable_hand_left_cam_color').perform(context)
-    enable_hand_right_cam_color= LaunchConfiguration('enable_hand_right_cam_color').perform(context)
-    head_cam_config_file       = LaunchConfiguration('head_cam_config_file').perform(context)
+    enable_mobile_base          = LaunchConfiguration('enable_mobile_base').perform(context)
+    enable_body                 = LaunchConfiguration('enable_body').perform(context)
+    enable_arm_left             = LaunchConfiguration('enable_arm_left').perform(context)
+    enable_arm_right            = LaunchConfiguration('enable_arm_right').perform(context)
+    enable_hand_left            = LaunchConfiguration('enable_hand_left').perform(context)
+    enable_hand_right           = LaunchConfiguration('enable_hand_right').perform(context)
+    enable_head                 = LaunchConfiguration('enable_head').perform(context)
+    enable_body                 = LaunchConfiguration('enable_body').perform(context)
+    enable_head_cam_color       = LaunchConfiguration('enable_head_cam_color').perform(context)
+    enable_head_cam_depth       = LaunchConfiguration('enable_head_cam_depth').perform(context)
+    enable_hand_left_cam_color  = LaunchConfiguration('enable_hand_left_cam_color').perform(context)
+    enable_hand_right_cam_color = LaunchConfiguration('enable_hand_right_cam_color').perform(context)
+    head_cam_config_file        = LaunchConfiguration('head_cam_config_file').perform(context)
+    enable_display              = LaunchConfiguration('enable_display').perform(context)
+    enable_teleop               = LaunchConfiguration('enable_teleop').perform(context)
+    enable_gz                   = LaunchConfiguration('enable_gz').perform(context)
 
     # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
     dxl_x_lower_body_port = ''
@@ -181,9 +184,10 @@ def launch_gz(context, *args, **kwargs):
         name="robot_state_publisher",
         namespace=robot_name,
         parameters=[
-            {"frame_prefix": robot_name + '/'},
+            # {"frame_prefix": robot_name + '/'},
             {"robot_description": robot_description_config.toxml()},
             {"use_sim_time": True if enable_gz == 'True' else False},
+            {"publish_frequency": 50.0},
         ],
         output="screen",
     )
@@ -217,7 +221,10 @@ def launch_gz(context, *args, **kwargs):
         executable="ros2_control_node",
         name="controller_manager",
         namespace=robot_name,
-        parameters=[controller_config],
+        parameters=[
+            controller_config,
+            {"use_sim_time": True if enable_gz == 'True' else False},
+        ],
         remappings=[
             ("controller_manager/robot_description", "robot_description"),
         ],
@@ -282,19 +289,16 @@ def launch_gz(context, *args, **kwargs):
                 '-c', 'controller_manager', '--activate'
                 ],
         )
-        swerve_controller = IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                PathJoinSubstitution([
-                    FindPackageShare('sobit_home_control'),
-                    'launch',
-                    'swerve_controller.launch.py'
-                ])
-            ]),
-            launch_arguments={
-                'namespace' : robot_name,
-                'use_sim_time' : enable_gz,
-                'config_file' : swerve_config,
-            }.items()
+        swerve_controller = Node(
+            package='sobit_home_control',
+            executable='swerve_controller_node',
+            name='swerve_controller',
+            namespace=robot_name,
+            parameters=[
+                {'use_sim_time': True if enable_gz == 'True' else False},
+                swerve_config,
+            ],
+            output='screen',
         )
         controllers.append(wheel_steer_position_controller)
         controllers.append(wheel_drive_velocity_controller)
@@ -440,7 +444,7 @@ def launch_gz(context, *args, **kwargs):
         delayed_swerve_controller = RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=controllers[-1],
-                on_exit=swerve_controller,
+                on_exit=[swerve_controller],
             )
         )
         nodes.append(delayed_swerve_controller)
@@ -454,8 +458,9 @@ def launch_gz(context, *args, **kwargs):
             ])
         ]),
         launch_arguments={
-            'robot_name': robot_name,
-            'enable_gz': enable_gz,
+            'robot_name':   robot_name,
+            'use_sim_time': 'true' if enable_gz == 'True' else 'false',
+            'enable_teleop':   enable_teleop,
         }.items(),
     )
 
@@ -490,7 +495,6 @@ def launch_gz(context, *args, **kwargs):
         name='parameter_bridge',
         namespace=robot_name,
         arguments=[
-                    "clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
                     "/" + robot_name + "/joint_states" + "@sensor_msgs/msg/JointState" + "[gz.msgs.Model",
                     # "/model/" + robot_name + "/pose" + "@geometry_msgs/msg/Pose" + "[gz.msgs.Pose",
                     "/" + robot_name + "/head_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
@@ -552,21 +556,61 @@ def launch_gz(context, *args, **kwargs):
             output='log',
         )
 
+    # action_server_launch is delayed until the drive stack is ready
+    if enable_mobile_base == 'True':
+        delayed_action_server = RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=swerve_controller,
+                on_start=[action_server_launch],
+            )
+        )
+    elif controllers:
+        delayed_action_server = RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=controllers[-1],
+                on_exit=[action_server_launch],
+            )
+        )
+    else:
+        delayed_action_server = action_server_launch
+
     if enable_gz == 'True':
         nodes.append(gz_bridge_node)
         nodes.append(gz_spawn_entity_node)
         nodes.append(delayed_joint_state_broadcaster)
         nodes.append(delayed_controllers)
+        nodes.append(delayed_action_server)
+
+        # Republish raw images as compressed for each camera in Gazebo
+        for cam_name, enabled in [
+            ('head_camera',       enable_head_cam_color),
+            ('hand_left_camera',  enable_hand_left_cam_color),
+            ('hand_right_camera', enable_hand_right_cam_color),
+        ]:
+            if enabled == 'True':
+                nodes.append(Node(
+                    package='image_transport',
+                    executable='republish',
+                    name=cam_name + '_compressed_republisher',
+                    namespace=robot_name,
+                    arguments=['raw', 'compressed'],
+                    remappings=[
+                        ('in',              '/' + robot_name + '/' + cam_name + '/color'),
+                        ('out/compressed',  '/' + robot_name + '/' + cam_name + '/color/compressed'),
+                    ],
+                    parameters=[{'use_sim_time': True}],
+                    output='log',
+                ))
     else:
         nodes.append(joint_state_broadcaster)
         nodes.append(control_node)
         nodes.extend(controllers)
+        nodes.append(delayed_action_server)
         if enable_hand_left_cam_color == 'True':
             nodes.append(hand_left_cam_node)
         if enable_hand_right_cam_color == 'True':
             nodes.append(hand_right_cam_node)
     nodes.append(robot_state_publisher_node)
-    nodes.append(action_server_launch)
     nodes.append(sobits_display_launch)
 
     return nodes

@@ -19,6 +19,7 @@ initial_positions:
   hand_left_finger_l_dip_joint: 0
   hand_left_finger_l_mcp_joint: 0
   hand_left_finger_l_pip_joint: 0
+  hand_left_finger_r_mcp_joint: 0
   hand_left_finger_r_dip_joint: 0
   hand_left_finger_r_pip_joint: 0
   hand_right_finger_c_ip_joint: 0
@@ -26,5 +27,6 @@ initial_positions:
   hand_right_finger_l_dip_joint: 0
   hand_right_finger_l_mcp_joint: 0
   hand_right_finger_l_pip_joint: 0
+  hand_right_finger_r_mcp_joint: 0
   hand_right_finger_r_dip_joint: 0
   hand_right_finger_r_pip_joint: 0

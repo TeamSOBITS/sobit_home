@@ -69,6 +69,7 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-urdf-launch \
     ros-$ROS_DISTRO-xacro \
     ros-$ROS_DISTRO-moveit \
+    ros-$ROS_DISTRO-moveit-ros-perception \
     ros-$ROS_DISTRO-std-msgs \
     ros-$ROS_DISTRO-geometry-msgs \
     ros-$ROS_DISTRO-sensor-msgs \

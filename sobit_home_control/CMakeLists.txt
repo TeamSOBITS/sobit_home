@@ -18,6 +18,7 @@ find_package(joint_trajectory_controller REQUIRED)
 find_package(velocity_controllers REQUIRED)
 find_package(position_controllers REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
@@ -26,8 +27,8 @@ find_package(std_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
+find_package(control_msgs REQUIRED)
 find_package(ament_index_cpp REQUIRED)
-
 
 ## Include directories
 include_directories(include)
@@ -38,17 +39,21 @@ add_library(${PROJECT_NAME} SHARED
   src/swerve_controller_control.cpp
   src/swerve_controller_odometry.cpp
   src/swerve_controller_main.cpp
+  src/moveit_whole_body_bridge.cpp
 )
-
 
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN "sobit_home::SwerveController"
   EXECUTABLE swerve_controller_node
 )
-
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "sobit_home::MoveitWholeBodyBridge"
+  EXECUTABLE moveit_whole_body_bridge_node
+)
 
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
+  rclcpp_action
   rclcpp_components
   std_msgs
   tf2
@@ -57,6 +62,7 @@ ament_target_dependencies(${PROJECT_NAME}
   nav_msgs
   sensor_msgs
   trajectory_msgs
+  control_msgs
   ament_index_cpp
 )
 
