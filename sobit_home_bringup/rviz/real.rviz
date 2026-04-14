@@ -10,8 +10,10 @@ Panels:
         - /HeadCam (Points)1/Topic1
         - /HandLeftCam (RGB)1/Topic1
         - /HandRightCam (RGB)1/Topic1
+        - /FrontLiDAR1/Topic1
+        - /BackLiDAR1/Topic1
         - /MergedLiDAR1/Topic1
-      Splitter Ratio: 0.6522727012634277
+      Splitter Ratio: 0.43632566928863525
     Tree Height: 492
   - Class: rviz_common/Selection
     Name: Selection
@@ -495,291 +497,292 @@ Visualization Manager:
       Frames:
         All Enabled: false
         arm_left_base_link:
-          Value: true
+          Value: false
         arm_left_elbow_link:
-          Value: true
+          Value: false
         arm_left_shoulder_tilt_link:
-          Value: true
+          Value: false
         arm_left_upper_flex_link:
-          Value: true
+          Value: false
         arm_left_upper_roll_link:
-          Value: true
+          Value: false
         arm_left_wrist_roll_link:
-          Value: true
+          Value: false
         arm_left_wrist_tilt_link:
-          Value: true
+          Value: false
         arm_right_base_link:
-          Value: true
+          Value: false
         arm_right_elbow_link:
-          Value: true
+          Value: false
         arm_right_shoulder_tilt_link:
-          Value: true
+          Value: false
         arm_right_upper_flex_link:
-          Value: true
+          Value: false
         arm_right_upper_roll_link:
-          Value: true
+          Value: false
         arm_right_wrist_roll_link:
-          Value: true
+          Value: false
         arm_right_wrist_tilt_link:
-          Value: true
+          Value: false
         base_footprint:
           Value: true
         base_link:
-          Value: true
+          Value: false
         body_lift_link:
-          Value: true
+          Value: false
         body_link:
-          Value: true
+          Value: false
         hand_left_camera_base_link:
-          Value: true
+          Value: false
         hand_left_camera_link:
-          Value: true
+          Value: false
         hand_left_camera_optical_frame:
           Value: true
         hand_left_cmc_link:
-          Value: true
+          Value: false
         hand_left_end_effector_link:
           Value: true
         hand_left_finger_c_ip_link:
-          Value: true
+          Value: false
         hand_left_finger_c_mcp_link:
-          Value: true
+          Value: false
         hand_left_finger_l_dip_link:
-          Value: true
+          Value: false
         hand_left_finger_l_mcp_link:
-          Value: true
+          Value: false
         hand_left_finger_l_pip_link:
-          Value: true
+          Value: false
         hand_left_finger_r_dip_link:
-          Value: true
+          Value: false
         hand_left_finger_r_mcp_link:
-          Value: true
+          Value: false
         hand_left_finger_r_pip_link:
-          Value: true
+          Value: false
         hand_right_camera_base_link:
-          Value: true
+          Value: false
         hand_right_camera_link:
-          Value: true
+          Value: false
         hand_right_camera_optical_frame:
           Value: true
         hand_right_cmc_link:
-          Value: true
+          Value: false
         hand_right_end_effector_link:
           Value: true
         hand_right_finger_c_ip_link:
-          Value: true
+          Value: false
         hand_right_finger_c_mcp_link:
-          Value: true
+          Value: false
         hand_right_finger_l_dip_link:
-          Value: true
+          Value: false
         hand_right_finger_l_mcp_link:
-          Value: true
+          Value: false
         hand_right_finger_l_pip_link:
-          Value: true
+          Value: false
         hand_right_finger_r_dip_link:
-          Value: true
+          Value: false
         hand_right_finger_r_mcp_link:
-          Value: true
+          Value: false
         hand_right_finger_r_pip_link:
-          Value: true
+          Value: false
         head_base_link:
-          Value: true
+          Value: false
         head_camera_base_link:
-          Value: true
+          Value: false
         head_camera_bottom_screw_frame:
-          Value: true
+          Value: false
         head_camera_color_frame:
-          Value: true
+          Value: false
         head_camera_color_optical_frame:
           Value: true
         head_camera_depth_frame:
-          Value: true
+          Value: false
         head_camera_depth_optical_frame:
           Value: true
         head_camera_infra2_frame:
-          Value: true
+          Value: false
         head_camera_infra2_optical_frame:
-          Value: true
+          Value: false
         head_camera_infra_1_frame:
-          Value: true
+          Value: false
         head_camera_infra_1_optical_frame:
-          Value: true
+          Value: false
         head_pan_link:
-          Value: true
+          Value: false
         head_plug_base_link:
-          Value: true
+          Value: false
         head_tilt_link:
-          Value: true
+          Value: false
         lidar_back_base_link:
-          Value: true
+          Value: false
         lidar_back_laser:
-          Value: true
+          Value: false
         lidar_back_laser_mount:
-          Value: true
+          Value: false
         lidar_front_base_link:
-          Value: true
+          Value: false
         lidar_front_laser:
-          Value: true
+          Value: false
         lidar_front_laser_mount:
-          Value: true
+          Value: false
         lidar_merged_laser:
-          Value: true
+          Value: false
         mic_base_link:
-          Value: true
+          Value: false
         mic_link:
-          Value: true
+          Value: false
         odom:
           Value: true
         plate_bottom_link:
-          Value: true
+          Value: false
         plate_cover_link:
-          Value: true
+          Value: false
         plate_middle_link:
-          Value: true
+          Value: false
         plate_top_link:
-          Value: true
+          Value: false
         wheel_drive_b_l_link:
-          Value: true
+          Value: false
         wheel_drive_b_r_link:
-          Value: true
+          Value: false
         wheel_drive_f_l_link:
-          Value: true
+          Value: false
         wheel_drive_f_r_link:
-          Value: true
+          Value: false
         wheel_steer_b_l_link:
-          Value: true
+          Value: false
         wheel_steer_b_r_link:
-          Value: true
+          Value: false
         wheel_steer_base_b_l_link:
-          Value: true
+          Value: false
         wheel_steer_base_b_r_link:
-          Value: true
+          Value: false
         wheel_steer_base_f_l_link:
-          Value: true
+          Value: false
         wheel_steer_base_f_r_link:
-          Value: true
+          Value: false
         wheel_steer_f_l_link:
-          Value: true
+          Value: false
         wheel_steer_f_r_link:
-          Value: true
+          Value: false
       Marker Scale: 0.5
       Name: TF
       Show Arrows: false
       Show Axes: true
       Show Names: false
       Tree:
+        base_footprint:
+          base_link:
+            plate_middle_link:
+              lidar_back_base_link:
+                lidar_back_laser_mount:
+                  lidar_back_laser:
+                    {}
+              lidar_front_base_link:
+                lidar_front_laser_mount:
+                  lidar_front_laser:
+                    {}
+              plate_bottom_link:
+                {}
+              plate_top_link:
+                body_link:
+                  body_lift_link:
+                    arm_left_base_link:
+                      arm_left_shoulder_tilt_link:
+                        arm_left_upper_roll_link:
+                          arm_left_upper_flex_link:
+                            arm_left_elbow_link:
+                              arm_left_wrist_tilt_link:
+                                arm_left_wrist_roll_link:
+                                  hand_left_camera_base_link:
+                                    hand_left_camera_link:
+                                      hand_left_camera_optical_frame:
+                                        {}
+                                  hand_left_cmc_link:
+                                    hand_left_finger_c_mcp_link:
+                                      hand_left_finger_c_ip_link:
+                                        {}
+                                    hand_left_finger_l_mcp_link:
+                                      hand_left_finger_l_pip_link:
+                                        hand_left_finger_l_dip_link:
+                                          {}
+                                    hand_left_finger_r_mcp_link:
+                                      hand_left_finger_r_pip_link:
+                                        hand_left_finger_r_dip_link:
+                                          {}
+                                  hand_left_end_effector_link:
+                                    {}
+                    arm_right_base_link:
+                      arm_right_shoulder_tilt_link:
+                        arm_right_upper_roll_link:
+                          arm_right_upper_flex_link:
+                            arm_right_elbow_link:
+                              arm_right_wrist_tilt_link:
+                                arm_right_wrist_roll_link:
+                                  hand_right_camera_base_link:
+                                    hand_right_camera_link:
+                                      hand_right_camera_optical_frame:
+                                        {}
+                                  hand_right_cmc_link:
+                                    hand_right_finger_c_mcp_link:
+                                      hand_right_finger_c_ip_link:
+                                        {}
+                                    hand_right_finger_l_mcp_link:
+                                      hand_right_finger_l_pip_link:
+                                        hand_right_finger_l_dip_link:
+                                          {}
+                                    hand_right_finger_r_mcp_link:
+                                      hand_right_finger_r_pip_link:
+                                        hand_right_finger_r_dip_link:
+                                          {}
+                                  hand_right_end_effector_link:
+                                    {}
+                    head_base_link:
+                      head_pan_link:
+                        head_tilt_link:
+                          head_camera_base_link:
+                            head_plug_base_link:
+                              head_camera_bottom_screw_frame:
+                                head_camera_color_frame:
+                                  {}
+                                head_camera_color_optical_frame:
+                                  {}
+                                head_camera_depth_frame:
+                                  {}
+                                head_camera_depth_optical_frame:
+                                  {}
+                                head_camera_infra2_frame:
+                                  {}
+                                head_camera_infra2_optical_frame:
+                                  {}
+                                head_camera_infra_1_frame:
+                                  {}
+                                head_camera_infra_1_optical_frame:
+                                  {}
+                          mic_base_link:
+                            mic_link:
+                              {}
+              wheel_steer_base_b_l_link:
+                wheel_steer_b_l_link:
+                  wheel_drive_b_l_link:
+                    {}
+              wheel_steer_base_b_r_link:
+                wheel_steer_b_r_link:
+                  wheel_drive_b_r_link:
+                    {}
+              wheel_steer_base_f_l_link:
+                wheel_steer_f_l_link:
+                  wheel_drive_f_l_link:
+                    {}
+              wheel_steer_base_f_r_link:
+                wheel_steer_f_r_link:
+                  wheel_drive_f_r_link:
+                    {}
+          lidar_merged_laser:
+            {}
+          plate_cover_link:
+            {}
         odom:
-          base_footprint:
-            base_link:
-              plate_middle_link:
-                lidar_back_base_link:
-                  lidar_back_laser_mount:
-                    lidar_back_laser:
-                      {}
-                lidar_front_base_link:
-                  lidar_front_laser_mount:
-                    lidar_front_laser:
-                      {}
-                plate_bottom_link:
-                  {}
-                plate_top_link:
-                  body_link:
-                    body_lift_link:
-                      arm_left_base_link:
-                        arm_left_shoulder_tilt_link:
-                          arm_left_upper_roll_link:
-                            arm_left_upper_flex_link:
-                              arm_left_elbow_link:
-                                arm_left_wrist_tilt_link:
-                                  arm_left_wrist_roll_link:
-                                    hand_left_camera_base_link:
-                                      hand_left_camera_link:
-                                        hand_left_camera_optical_frame:
-                                          {}
-                                    hand_left_cmc_link:
-                                      hand_left_finger_c_mcp_link:
-                                        hand_left_finger_c_ip_link:
-                                          {}
-                                      hand_left_finger_l_mcp_link:
-                                        hand_left_finger_l_pip_link:
-                                          hand_left_finger_l_dip_link:
-                                            {}
-                                      hand_left_finger_r_mcp_link:
-                                        hand_left_finger_r_pip_link:
-                                          hand_left_finger_r_dip_link:
-                                            {}
-                                    hand_left_end_effector_link:
-                                      {}
-                      arm_right_base_link:
-                        arm_right_shoulder_tilt_link:
-                          arm_right_upper_roll_link:
-                            arm_right_upper_flex_link:
-                              arm_right_elbow_link:
-                                arm_right_wrist_tilt_link:
-                                  arm_right_wrist_roll_link:
-                                    hand_right_camera_base_link:
-                                      hand_right_camera_link:
-                                        hand_right_camera_optical_frame:
-                                          {}
-                                    hand_right_cmc_link:
-                                      hand_right_finger_c_mcp_link:
-                                        hand_right_finger_c_ip_link:
-                                          {}
-                                      hand_right_finger_l_mcp_link:
-                                        hand_right_finger_l_pip_link:
-                                          hand_right_finger_l_dip_link:
-                                            {}
-                                      hand_right_finger_r_mcp_link:
-                                        hand_right_finger_r_pip_link:
-                                          hand_right_finger_r_dip_link:
-                                            {}
-                                    hand_right_end_effector_link:
-                                      {}
-                      head_base_link:
-                        head_pan_link:
-                          head_tilt_link:
-                            head_camera_base_link:
-                              head_plug_base_link:
-                                head_camera_bottom_screw_frame:
-                                  head_camera_color_frame:
-                                    {}
-                                  head_camera_color_optical_frame:
-                                    {}
-                                  head_camera_depth_frame:
-                                    {}
-                                  head_camera_depth_optical_frame:
-                                    {}
-                                  head_camera_infra2_frame:
-                                    {}
-                                  head_camera_infra2_optical_frame:
-                                    {}
-                                  head_camera_infra_1_frame:
-                                    {}
-                                  head_camera_infra_1_optical_frame:
-                                    {}
-                            mic_base_link:
-                              mic_link:
-                                {}
-                wheel_steer_base_b_l_link:
-                  wheel_steer_b_l_link:
-                    wheel_drive_b_l_link:
-                      {}
-                wheel_steer_base_b_r_link:
-                  wheel_steer_b_r_link:
-                    wheel_drive_b_r_link:
-                      {}
-                wheel_steer_base_f_l_link:
-                  wheel_steer_f_l_link:
-                    wheel_drive_f_l_link:
-                      {}
-                wheel_steer_base_f_r_link:
-                  wheel_steer_f_r_link:
-                    wheel_drive_f_r_link:
-                      {}
-            lidar_merged_laser:
-              {}
-            plate_cover_link:
-              {}
+          {}
       Update Interval: 0
       Value: true
     - Class: rviz_default_plugins/Image
@@ -813,33 +816,33 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
+        Max Value: 7.35286808013916
+        Min Value: 0.16315631568431854
         Value: true
-      Axis: Z
-      Channel Name: rgb
+      Axis: X
+      Channel Name: x
       Class: rviz_default_plugins/PointCloud2
       Color: 255; 255; 255
-      Color Transformer: RGB8
+      Color Transformer: FlatColor
       Decay Time: 0
       Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 4096
+      Max Intensity: 3.8599600791931152
       Min Color: 0; 0; 0
-      Min Intensity: 0
+      Min Intensity: -30.866466522216797
       Name: HeadCam (Points)
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.009999999776482582
-      Style: Flat Squares
+      Style: Points
       Topic:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Best Effort
-        Value: /sobit_home/head_camera/depth_registered/points
+        Value: /sobit_home/head_camera/depth/points
       Use Fixed Frame: true
       Use rainbow: true
       Value: false
@@ -1053,7 +1056,7 @@ Window Geometry:
   Height: 1011
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001ba00000229fc020000000afb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000120054006f006600430061006d006500720061000000018c000001020000000000000000fb0000001400480061006e006400430061006d00650072006101000001900000011f0000000000000000fb000000100044006900730070006c00610079007301000001ad00000229000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000c00430061006d0065007200610100000521000001930000000000000000000000010000018800000229fc0200000004fb0000000a0056006900650077007301000001ad0000014b000000a400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007301000002fe000000d80000005c00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000020000073e0000016afc0100000008fb0000002200480061006e0064004c00650066007400430061006d0020002800520047004200290100000000000001d0000000ac00fffffffb0000001a004800650061006400430061006d00200028005200470042002901000001d6000001cc0000009600fffffffb0000001e004800650061006400430061006d0020002800440065007000740068002901000003a8000001cb000000a000fffffffb0000002400480061006e00640052006900670068007400430061006d0020002800520047004200290100000579000001c5000000b500fffffffb0000000a0049006d00610067006501000001ce000001c60000000000000000fb0000001600460072006f006e007400430061006d006500720061000000039c000001cb0000000000000000fb00000014004200610063006b00430061006d00650072006100000004d00000026e0000000000000000fb0000000a00560069006500770073030000004e00000080000002e1000001970000000300000bd00000005afc0100000002fb0000000800540069006d0065000000000000000bd00000022700fffffffb0000000800540069006d00650100000000000004500000000000000000000003f00000022900000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001e100000229fc020000000afb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000120054006f006600430061006d006500720061000000018c000001020000000000000000fb0000001400480061006e006400430061006d00650072006101000001900000011f0000000000000000fb000000100044006900730070006c00610079007301000001ad00000229000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000c00430061006d0065007200610100000521000001930000000000000000000000010000018800000229fc0200000004fb0000000a0056006900650077007301000001ad0000014b000000a400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007301000002fe000000d80000005c00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000020000073e0000016afc0100000008fb0000002200480061006e0064004c00650066007400430061006d0020002800520047004200290100000000000001d0000000ac00fffffffb0000001a004800650061006400430061006d00200028005200470042002901000001d6000001cc0000009600fffffffb0000001e004800650061006400430061006d0020002800440065007000740068002901000003a8000001cb000000a000fffffffb0000002400480061006e00640052006900670068007400430061006d0020002800520047004200290100000579000001c5000000b500fffffffb0000000a0049006d00610067006501000001ce000001c60000000000000000fb0000001600460072006f006e007400430061006d006500720061000000039c000001cb0000000000000000fb00000014004200610063006b00430061006d00650072006100000004d00000026e0000000000000000fb0000000a00560069006500770073030000004e00000080000002e1000001970000000300000bd00000005afc0100000002fb0000000800540069006d0065000000000000000bd00000022700fffffffb0000000800540069006d00650100000000000004500000000000000000000003c90000022900000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
