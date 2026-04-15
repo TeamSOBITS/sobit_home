@@ -519,6 +519,12 @@ def launch_gz(context, *args, **kwargs):
                     "/" + robot_name + "/lidar_back/scan/points" + "@sensor_msgs/msg/PointCloud2" + "[gz.msgs.PointCloudPacked",
                     # "/" + robot_name + "/imu" + "@sensor_msgs/msg/Imu" + "[gz.msgs.IMU",
                 ],
+        remappings=[
+                    ("/" + robot_name + "/head_camera/color", "/" + robot_name + "/head_camera/color/image_raw"),
+                    ("/" + robot_name + "/head_camera/depth", "/" + robot_name + "/head_camera/depth/image_raw"),
+                    ("/" + robot_name + "/hand_left_camera/color", "/" + robot_name + "/hand_left_camera/color/image_raw"),
+                    ("/" + robot_name + "/hand_right_camera/color", "/" + robot_name + "/hand_right_camera/color/image_raw"),
+                ],
         output='screen'
     )
 
@@ -535,11 +541,11 @@ def launch_gz(context, *args, **kwargs):
                 {"frame_id": robot_name + '/hand_left_camera_optical_frame'},
                 ],
             remappings=[
-                ('image_raw', 'color'),
-                ('image_raw/compressed', 'color/compressed'),
-                ('image_raw/compressedDepth', 'color/compressedDepth'),
-                ('image_raw/theora', 'color/theora'),
-                ('image_raw/zstd', 'color/zstd'),
+                ('image_raw', 'color/image_raw'),
+                ('image_raw/compressed', 'color/image_raw/compressed'),
+                ('image_raw/compressedDepth', 'color/image_raw/compressedDepth'),
+                ('image_raw/theora', 'color/image_raw/theora'),
+                ('image_raw/zstd', 'color/image_raw/zstd'),
             ],
             output='log',
         )
@@ -555,11 +561,11 @@ def launch_gz(context, *args, **kwargs):
                 {"frame_id": robot_name + '/hand_right_camera_optical_frame'},
             ],
             remappings=[
-                ('image_raw', 'color'),
-                ('image_raw/compressed', 'color/compressed'),
-                ('image_raw/compressedDepth', 'color/compressedDepth'),
-                ('image_raw/theora', 'color/theora'),
-                ('image_raw/zstd', 'color/zstd'),
+                ('image_raw', 'color/image_raw'),
+                ('image_raw/compressed', 'color/image_raw/compressed'),
+                ('image_raw/compressedDepth', 'color/image_raw/compressedDepth'),
+                ('image_raw/theora', 'color/image_raw/theora'),
+                ('image_raw/zstd', 'color/image_raw/zstd'),
             ],
             output='log',
         )
@@ -603,8 +609,8 @@ def launch_gz(context, *args, **kwargs):
                     namespace=robot_name,
                     arguments=['raw', 'compressed'],
                     remappings=[
-                        ('in',              '/' + robot_name + '/' + cam_name + '/color'),
-                        ('out/compressed',  '/' + robot_name + '/' + cam_name + '/color/compressed'),
+                        ('in',              '/' + robot_name + '/' + cam_name + '/color/image_raw'),
+                        ('out/compressed',  '/' + robot_name + '/' + cam_name + '/color/image_raw/compressed'),
                     ],
                     parameters=[{'use_sim_time': True}],
                     output='log',
