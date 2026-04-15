@@ -2,9 +2,11 @@
 #define SOBIT_HOME_LIBRARY__SOBIT_HOME_ARM_TELEOP_HPP_
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_action/rclcpp_action.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
+#include <control_msgs/action/follow_joint_trajectory.hpp>
 
 #include <moveit/move_group_interface/move_group_interface.hpp>
 #include <moveit/robot_trajectory/robot_trajectory.hpp>
@@ -18,6 +20,7 @@
 
 #include <thread>
 #include <atomic>
+#include <mutex>
 #include <memory>
 #include <unordered_map>
 #include <string>
@@ -36,6 +39,9 @@ struct ArmTeleopConfig {
 class MoveitArmTeleop : public rclcpp::Node
 {
 public:
+  using FollowJointTrajectory = control_msgs::action::FollowJointTrajectory;
+  using GoalHandleFJT = rclcpp_action::ClientGoalHandle<FollowJointTrajectory>;
+
   explicit MoveitArmTeleop(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
   ~MoveitArmTeleop();
 
@@ -43,13 +49,15 @@ private:
   struct ArmData {
     ArmTeleopConfig config;
     std::shared_ptr<moveit::planning_interface::MoveGroupInterface> mgi;
-    rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr traj_pub;
+    rclcpp_action::Client<FollowJointTrajectory>::SharedPtr action_client;
+    std::shared_ptr<GoalHandleFJT> goal_handle;  // protected by goal_mutex
+    std::mutex goal_mutex;
+    std::atomic<bool> executing{false};  // true while a trajectory goal is active
     std::atomic<bool> enabled{false};
     std::atomic<bool> thread_active{false};
     std::thread thread;
 
     // Cached TOTG joint limit maps — built once after MoveGroupInterface init.
-    // Avoids rebuilding from parameters on every control cycle.
     std::unordered_map<std::string, double> vel_limits;
     std::unordered_map<std::string, double> accel_limits;
 
@@ -65,6 +73,13 @@ private:
     const std_msgs::msg::Bool::SharedPtr msg);
 
   void tracking_loop(const std::string & arm_name);
+
+  // Send a trajectory via the action client; returns immediately.
+  // Sets arm.executing=true; cleared in the result callback.
+  void send_trajectory(ArmData & arm, const trajectory_msgs::msg::JointTrajectory & jtraj);
+
+  // Cancel the active goal if one is executing.
+  void cancel_trajectory(ArmData & arm);
 
   static double pose_distance(
     const geometry_msgs::msg::Pose & a,
@@ -89,6 +104,7 @@ private:
   double replan_threshold_m_;      // Min target movement to trigger replan [m]
   int    traj_lookahead_ms_;       // Stamp offset added to trajectory header [ms]
   double ompl_planning_timeout_s_; // Max time for OMPL fallback plan [s]
+  double preempt_threshold_m_;     // Target must move this far to cancel an executing trajectory [m]
 
   double last_heartbeat_sec_{0.0};
   static constexpr double heartbeat_period_sec_ = 2.0;
