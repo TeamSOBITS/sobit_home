@@ -13,7 +13,7 @@ def generate_launch_description():
     rviz_config = PathJoinSubstitution([
             FindPackageShare('sobit_home_bringup'),
             'rviz',
-            'real.rviz'
+            'sobit_home.rviz'
     ])
     rviz_node = Node(
         package='rviz2',
