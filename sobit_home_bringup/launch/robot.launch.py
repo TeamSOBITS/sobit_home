@@ -495,7 +495,13 @@ def launch_gz(context, *args, **kwargs):
                 'right_ir_optical_frame_id':     'head_camera_infra2_optical_frame',
             }.items(),
         )
-        nodes.append(head_cam_launch)
+        nodes.append(GroupAction([
+            SetRemap(
+                src='/' + robot_name + '/head_camera/camera_info',
+                dst='/' + robot_name + '/head_camera/color/camera_info',
+            ),
+            head_cam_launch,
+        ]))
 
     gz_bridge_node = Node(
         package='ros_gz_bridge',
