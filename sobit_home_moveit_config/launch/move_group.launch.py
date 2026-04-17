@@ -1,6 +1,6 @@
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, EmitEvent, RegisterEventHandler
+from launch.actions import DeclareLaunchArgument, EmitEvent, OpaqueFunction, RegisterEventHandler
 from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
@@ -10,7 +10,8 @@ from launch_ros.substitutions import FindPackageShare
 from launch_ros.descriptions import ComposableNode
 from moveit_configs_utils import MoveItConfigsBuilder
 
-def generate_launch_description():
+
+def _launch_setup(context, *args, **kwargs):
 
     package_name_moveit_config = 'sobit_home_moveit_config'
 
@@ -20,8 +21,13 @@ def generate_launch_description():
     bridge_config_file = os.path.join(pkg_share_control, 'config', 'moveit_whole_body_bridge.yaml')
     arm_teleop_config_file = os.path.join(pkg_share_library, 'config', 'arm_teleop.yaml')
 
-    # Configuration file paths
-    srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home.srdf')
+    enable_teleop = LaunchConfiguration('enable_teleop').perform(context).lower() == 'true'
+
+    # Configuration file paths — SRDF chosen based on enable_teleop
+    if enable_teleop:
+        srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home_teleop.srdf')
+    else:
+        srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home.srdf')
     moveit_controllers_file_path = os.path.join(pkg_share_moveit_config, 'config', 'moveit_controllers.yaml')
     joint_limits_file_path = os.path.join(pkg_share_moveit_config, 'config', 'joint_limits.yaml')
     kinematics_file_path = os.path.join(pkg_share_moveit_config, 'config', 'kinematics.yaml')
@@ -33,28 +39,7 @@ def generate_launch_description():
     robot_name = LaunchConfiguration('robot_name')
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_rviz = LaunchConfiguration('use_rviz')
-    enable_teleop = LaunchConfiguration('enable_teleop')
-
-    # Declare launch arguments
-    declare_robot_name_cmd = DeclareLaunchArgument(
-        name='robot_name',
-        default_value='sobit_home',
-        description='Robot name used as namespace')
-
-    declare_use_sim_time_cmd = DeclareLaunchArgument(
-        name='use_sim_time',
-        default_value='true',
-        description='Use simulation (Gazebo) clock if true')
-
-    declare_use_rviz_cmd = DeclareLaunchArgument(
-        name='use_rviz',
-        default_value='true',
-        description='Whether to start RViz')
-
-    declare_enable_teleop_cmd = DeclareLaunchArgument(
-        name='enable_teleop',
-        default_value='false',
-        description='Whether to load the MoveitArmTeleop composable node')
+    enable_teleop_cfg = LaunchConfiguration('enable_teleop')
 
     # Build MoveIt configuration
     moveit_config = (
@@ -86,13 +71,11 @@ def generate_launch_description():
     config_dict = moveit_config.to_dict()
     # config_dict['robot_description_planning.frame_prefix'] = robot_name + '/'
 
-
     octomap_config = {
         'octomap_frame': 'base_footprint',  # if mobile robot, should be a fixed frame in the world
         'octomap_resolution': 0.05,
         'max_range': 5.0
     }
-
 
     # move_group node
     start_move_group_node_cmd = Node(
@@ -198,7 +181,7 @@ def generate_launch_description():
 
     # Real-time arm teleop bridge
     load_arm_teleop = LoadComposableNodes(
-        condition=IfCondition(enable_teleop),
+        condition=IfCondition(enable_teleop_cfg),
         target_container=PythonExpression(["'", robot_name, "' + '/sobit_home_controllers_container'"]),
         composable_node_descriptions=[
             ComposableNode(
@@ -215,19 +198,41 @@ def generate_launch_description():
         ],
     )
 
+    return [
+        start_move_group_node_cmd,
+        start_rviz_node_cmd,
+        bridge_container,
+        load_arm_teleop,
+        exit_event_handler,
+    ]
 
-    ld = LaunchDescription()
 
-    ld.add_action(declare_robot_name_cmd)
-    ld.add_action(declare_use_sim_time_cmd)
-    ld.add_action(declare_use_rviz_cmd)
-    ld.add_action(declare_enable_teleop_cmd)
+def generate_launch_description():
 
-    ld.add_action(start_move_group_node_cmd)
-    ld.add_action(start_rviz_node_cmd)
-    ld.add_action(bridge_container)
-    ld.add_action(load_arm_teleop)
+    declare_robot_name_cmd = DeclareLaunchArgument(
+        name='robot_name',
+        default_value='sobit_home',
+        description='Robot name used as namespace')
 
-    ld.add_action(exit_event_handler)
+    declare_use_sim_time_cmd = DeclareLaunchArgument(
+        name='use_sim_time',
+        default_value='true',
+        description='Use simulation (Gazebo) clock if true')
 
-    return ld
+    declare_use_rviz_cmd = DeclareLaunchArgument(
+        name='use_rviz',
+        default_value='true',
+        description='Whether to start RViz')
+
+    declare_enable_teleop_cmd = DeclareLaunchArgument(
+        name='enable_teleop',
+        default_value='false',
+        description='Whether to load the MoveitArmTeleop composable node')
+
+    return LaunchDescription([
+        declare_robot_name_cmd,
+        declare_use_sim_time_cmd,
+        declare_use_rviz_cmd,
+        declare_enable_teleop_cmd,
+        OpaqueFunction(function=_launch_setup),
+    ])

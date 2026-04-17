@@ -88,7 +88,8 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-ros-gz-bridge \
     ros-$ROS_DISTRO-ros-gz-sim \
     ros-$ROS_DISTRO-ros-gz-interfaces \
-    ros-$ROS_DISTRO-usb-cam
+    ros-$ROS_DISTRO-usb-cam \
+    ros-$ROS_DISTRO-rmw-cyclonedds-cpp
 
 # Set up the environment
 sudo usermod -aG dialout $USERNAME
@@ -111,7 +112,7 @@ echo "" >> /home/$USERNAME/.bashrc
 echo "# SOBIT HOME environment variables" >> /home/$USERNAME/.bashrc
 echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> /home/$USERNAME/.bashrc
 echo "export HOST_ROS_DOMAIN_ID=\${ROS_DOMAIN_ID}" >> /home/$USERNAME/.bashrc
-echo "export CYCLONEDDS_URI_PATH=${DIR}/cyclonedds_profile.xml" >> /home/$USERNAME/.bashrc
+echo "export CYCLONEDDS_URI=file://${DIR}/cyclonedds_profile.xml" >> /home/$USERNAME/.bashrc
 echo "source ${DIR}/mode_ctr.sh" >> /home/$USERNAME/.bashrc
 echo "if [ \"\$ROS_DOMAIN_ID\" = \"80\" ]; then" >> /home/$USERNAME/.bashrc
 echo "    export DXL_X_LOWER_PORT=\`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W9E4N-if00-port0\`" >> /home/$USERNAME/.bashrc
