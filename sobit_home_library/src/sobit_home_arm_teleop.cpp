@@ -43,6 +43,8 @@ MoveitArmTeleop::MoveitArmTeleop(const rclcpp::NodeOptions & options)
     this->declare_parameter("arm_teleop.traj_lookahead_ms", 50);
   if (!this->has_parameter("arm_teleop.ompl_planning_timeout_s"))
     this->declare_parameter("arm_teleop.ompl_planning_timeout_s", 0.5);
+  if (!this->has_parameter("arm_teleop.preempt_threshold_m"))
+    this->declare_parameter("arm_teleop.preempt_threshold_m", 0.15);
 
   update_rate_hz_           = this->get_parameter("arm_teleop.update_rate_hz").as_double();
   max_cartesian_step_m_     = this->get_parameter("arm_teleop.max_cartesian_step_m").as_double();
@@ -54,6 +56,7 @@ MoveitArmTeleop::MoveitArmTeleop(const rclcpp::NodeOptions & options)
   replan_threshold_m_       = this->get_parameter("arm_teleop.replan_threshold_m").as_double();
   traj_lookahead_ms_        = this->get_parameter("arm_teleop.traj_lookahead_ms").as_int();
   ompl_planning_timeout_s_  = this->get_parameter("arm_teleop.ompl_planning_timeout_s").as_double();
+  preempt_threshold_m_      = this->get_parameter("arm_teleop.preempt_threshold_m").as_double();
 
   // ---------- Read per-arm configs ----------
   if (!this->has_parameter("arm_teleop.arms"))
@@ -87,8 +90,16 @@ MoveitArmTeleop::MoveitArmTeleop(const rclcpp::NodeOptions & options)
     auto arm_data = std::make_unique<ArmData>();
     arm_data->config = cfg;
 
-    arm_data->traj_pub = this->create_publisher<trajectory_msgs::msg::JointTrajectory>(
-      cfg.trajectory_topic, rclcpp::QoS(1));
+    // Derive action server name from trajectory topic:
+    // "arm_right_position_controller/joint_trajectory"
+    // → "arm_right_position_controller/follow_joint_trajectory"
+    std::string action_topic = cfg.trajectory_topic;
+    auto pos = action_topic.rfind('/');
+    if (pos != std::string::npos) {
+      action_topic = action_topic.substr(0, pos) + "/follow_joint_trajectory";
+    }
+    arm_data->action_client =
+      rclcpp_action::create_client<FollowJointTrajectory>(this, action_topic);
 
     arms_[arm_name] = std::move(arm_data);
 
@@ -101,25 +112,31 @@ MoveitArmTeleop::MoveitArmTeleop(const rclcpp::NodeOptions & options)
     enable_subs_.push_back(sub);
 
     RCLCPP_INFO(get_logger(),
-      "Arm '%s': target_frame='%s', base_frame='%s', traj_topic='%s'",
+      "Arm '%s': target_frame='%s', base_frame='%s', action='%s'",
       arm_name.c_str(), cfg.target_frame.c_str(),
-      cfg.base_frame.c_str(), cfg.trajectory_topic.c_str());
+      cfg.base_frame.c_str(), action_topic.c_str());
   }
 
   RCLCPP_INFO(get_logger(),
     "MoveitArmTeleop: rate=%.1f Hz, max_step=%.3f m, eef_step=%.3f m, "
-    "replan_thresh=%.3f m, vel_scale=%.2f, lookahead=%d ms, ompl_timeout=%.2f s",
+    "replan_thresh=%.3f m, preempt_thresh=%.3f m, vel_scale=%.2f, "
+    "lookahead=%d ms, ompl_timeout=%.2f s",
     update_rate_hz_, max_cartesian_step_m_, eef_step_m_,
-    replan_threshold_m_, velocity_scaling_, traj_lookahead_ms_,
-    ompl_planning_timeout_s_);
+    replan_threshold_m_, preempt_threshold_m_, velocity_scaling_,
+    traj_lookahead_ms_, ompl_planning_timeout_s_);
 
   init_thread_ = std::thread([this]() { init_move_groups(); });
 }
+
+// ---------------------------------------------------------------------------
+// Destructor
+// ---------------------------------------------------------------------------
 
 MoveitArmTeleop::~MoveitArmTeleop()
 {
   for (auto & [name, arm] : arms_) {
     arm->enabled = false;
+    cancel_trajectory(*arm);
   }
   for (auto & [name, arm] : arms_) {
     if (arm->thread.joinable()) {
@@ -249,8 +266,7 @@ void MoveitArmTeleop::init_move_groups()
         mgi->getPlanningFrame().c_str(),
         mgi->getEndEffectorLink().c_str());
 
-      // ── Pre-build TOTG joint limit maps (cached for lifetime of tracking) ──
-      // This avoids rebuilding the map on every control cycle (was ~1ms/cycle).
+      // Pre-build TOTG joint limit maps
       const moveit::core::JointModelGroup * jmg =
         mgi->getRobotModel()->getJointModelGroup(arm_data->config.planning_group);
       if (jmg) {
@@ -318,7 +334,82 @@ void MoveitArmTeleop::enable_callback(
   } else {
     if (!arm.enabled.load()) return;
     arm.enabled = false;
+    cancel_trajectory(arm);
     RCLCPP_INFO(get_logger(), "Arm tracking DISABLED for '%s'", arm_name.c_str());
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Trajectory helpers
+// ---------------------------------------------------------------------------
+
+void MoveitArmTeleop::send_trajectory(
+  ArmData & arm,
+  const trajectory_msgs::msg::JointTrajectory & jtraj)
+{
+  if (!arm.action_client->wait_for_action_server(std::chrono::milliseconds(0))) {
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
+      "follow_joint_trajectory action server not available");
+    return;
+  }
+
+  FollowJointTrajectory::Goal goal;
+  goal.trajectory = jtraj;
+
+  auto send_opts = rclcpp_action::Client<FollowJointTrajectory>::SendGoalOptions();
+
+  send_opts.result_callback =
+    [this, &arm](const GoalHandleFJT::WrappedResult & result) {
+      {
+        std::lock_guard<std::mutex> lock(arm.goal_mutex);
+        arm.goal_handle.reset();  // clear so cancel_trajectory won't reuse it
+      }
+      arm.executing = false;
+      if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
+        RCLCPP_DEBUG(get_logger(), "Trajectory succeeded");
+      } else if (result.code == rclcpp_action::ResultCode::CANCELED) {
+        RCLCPP_DEBUG(get_logger(), "Trajectory canceled (preempted for replan)");
+      } else {
+        RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
+          "Trajectory finished with code %d", static_cast<int>(result.code));
+      }
+    };
+
+  // Send goal and wait synchronously for acceptance — this gives us a valid
+  // goal_handle before returning, eliminating the race between goal_handle
+  // storage and cancel_trajectory calls.
+  arm.executing = true;
+  auto gh_future = arm.action_client->async_send_goal(goal, send_opts);
+
+  // Wait up to 2s for acceptance
+  auto status = gh_future.wait_for(std::chrono::seconds(2));
+  if (status != std::future_status::ready) {
+    RCLCPP_WARN(get_logger(), "Timed out waiting for goal acceptance");
+    arm.executing = false;
+    return;
+  }
+
+  auto gh = gh_future.get();
+  if (!gh) {
+    RCLCPP_WARN(get_logger(), "Goal was rejected by action server");
+    arm.executing = false;
+    return;
+  }
+
+  std::lock_guard<std::mutex> lock(arm.goal_mutex);
+  arm.goal_handle = gh;
+}
+
+void MoveitArmTeleop::cancel_trajectory(ArmData & arm)
+{
+  std::shared_ptr<GoalHandleFJT> gh;
+  {
+    std::lock_guard<std::mutex> lock(arm.goal_mutex);
+    gh = arm.goal_handle;
+  }
+  if (gh && arm.executing.load()) {
+    arm.action_client->async_cancel_goal(gh);
+    // executing and goal_handle are cleared by the result callback
   }
 }
 
@@ -340,13 +431,11 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
   bool first_iter = true;
   last_heartbeat_sec_ = this->now().seconds();
 
-  // Lookahead duration added to trajectory stamp so the controller can
-  // start interpolating immediately rather than waiting for the next cycle.
   const rclcpp::Duration lookahead =
     rclcpp::Duration::from_nanoseconds(traj_lookahead_ms_ * 1'000'000LL);
 
   while (rclcpp::ok() && arm.enabled.load()) {
-    // ── 1. Look up target TF (non-blocking: timeout=0) ────────────────────
+    // ── 1. Look up target TF ──────────────────────────────────────────────
     geometry_msgs::msg::TransformStamped tf_stamped;
     try {
       tf_stamped = tf_buffer_->lookupTransform(
@@ -367,7 +456,7 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
     target_pose.position.z  = tf_stamped.transform.translation.z;
     target_pose.orientation = tf_stamped.transform.rotation;
 
-    // ── 2. Get current EE pose via robot state monitor (no ROS round-trip) ─
+    // ── 2. Get current EE pose ────────────────────────────────────────────
     geometry_msgs::msg::Pose current_pose;
     try {
       current_pose = mgi->getCurrentPose().pose;
@@ -378,28 +467,44 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
       continue;
     }
 
-    // ── 3. Distance check ─────────────────────────────────────────────────
+    // ── 3. Distance to target ─────────────────────────────────────────────
     double dist = pose_distance(current_pose, target_pose);
     if (dist < arrival_threshold_m_) {
       rate.sleep();
       continue;
     }
 
-    // ── 4. Replan decision ────────────────────────────────────────────────
-    // Replan whenever target moved > replan_threshold_m_ (tight tracking),
-    // OR on heartbeat so the first publish is never silently dropped.
-    auto now_sec = this->now().seconds();
-    bool heartbeat = (now_sec - last_heartbeat_sec_ >= heartbeat_period_sec_);
-    if (!first_iter && !heartbeat) {
+    // ── 4. Execution / preemption logic ───────────────────────────────────
+    // If a trajectory is executing, only interrupt if the target has moved
+    // significantly (preempt_threshold_m_). Otherwise let it finish.
+    if (arm.executing.load()) {
       double target_moved = pose_distance(target_pose, last_submitted_target);
-      if (target_moved < replan_threshold_m_) {
+      if (target_moved < preempt_threshold_m_) {
         rate.sleep();
         continue;
       }
+      // Target moved enough — cancel and replan
+      RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500,
+        "Arm '%s': target moved %.3f m — preempting trajectory",
+        arm_name.c_str(), target_moved);
+      cancel_trajectory(arm);
+      // Brief wait for cancel to register
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
-    if (heartbeat) last_heartbeat_sec_ = now_sec;
 
-    // ── 5. Clamp step to max_cartesian_step_m_ ────────────────────────────
+    // ── 5. Replan decision (when not executing) ───────────────────────────
+    if (!first_iter && !arm.executing.load()) {
+      auto now_sec = this->now().seconds();
+      bool heartbeat = (now_sec - last_heartbeat_sec_ >= heartbeat_period_sec_);
+      double target_moved = pose_distance(target_pose, last_submitted_target);
+      if (!heartbeat && target_moved < replan_threshold_m_) {
+        rate.sleep();
+        continue;
+      }
+      if (heartbeat) last_heartbeat_sec_ = now_sec;
+    }
+
+    // ── 6. Clamp step to max_cartesian_step_m_ ────────────────────────────
     geometry_msgs::msg::Pose step_target = target_pose;
     if (dist > max_cartesian_step_m_) {
       double scale = max_cartesian_step_m_ / dist;
@@ -415,9 +520,7 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
       step_target.orientation = tf2::toMsg(q_c.slerp(q_t, scale));
     }
 
-    // ── 6. Compute Cartesian path ─────────────────────────────────────────
-    // setStartStateToCurrentState() pulls joint state from the robot state
-    // monitor — it is a local read, not a service call.
+    // ── 7. Compute Cartesian path ─────────────────────────────────────────
     mgi->setStartStateToCurrentState();
     std::vector<geometry_msgs::msg::Pose> waypoints = {step_target};
     moveit_msgs::msg::RobotTrajectory traj_msg;
@@ -425,9 +528,9 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
     auto t0 = std::chrono::steady_clock::now();
     double fraction = mgi->computeCartesianPath(
       waypoints,
-      eef_step_m_,   // interpolation resolution (tunable, default 3 cm)
+      eef_step_m_,
       traj_msg,
-      true           // avoid_collisions
+      true  // avoid_collisions
     );
     auto plan_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
       std::chrono::steady_clock::now() - t0).count();
@@ -438,15 +541,8 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
         arm_name.c_str(), dist,
         std::min(dist, max_cartesian_step_m_),
         fraction, plan_ms);
-    } else {
-      RCLCPP_DEBUG(get_logger(),
-        "Arm '%s': dist=%.3f m, step=%.3f m, fraction=%.2f, plan=%ldms",
-        arm_name.c_str(), dist,
-        std::min(dist, max_cartesian_step_m_),
-        fraction, plan_ms);
     }
 
-    // Log a throttled INFO only when planning is slow (>control period)
     const double period_ms = 1000.0 / update_rate_hz_;
     if (plan_ms > static_cast<long>(period_ms)) {
       RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000,
@@ -455,12 +551,12 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
     }
 
     if (fraction < min_cartesian_fraction_) {
-      // ── 6b. Cartesian failed — fall back to OMPL joint-space plan ─────────
-      // This handles transitions through singularities and out-of-workspace
-      // regions that cannot be traversed in a straight Cartesian line.
+      // ── 7b. Cartesian failed — fall back to OMPL ─────────────────────────
       RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 2000,
-        "Arm '%s': Cartesian fraction %.2f < %.2f — falling back to OMPL",
-        arm_name.c_str(), fraction, min_cartesian_fraction_);
+        "Arm '%s': Cartesian fraction %.2f < %.2f — falling back to OMPL "
+        "(step_target xyz=[%.3f, %.3f, %.3f])",
+        arm_name.c_str(), fraction, min_cartesian_fraction_,
+        step_target.position.x, step_target.position.y, step_target.position.z);
 
       mgi->setPlanningTime(ompl_planning_timeout_s_);
       mgi->setPoseTarget(step_target);
@@ -469,26 +565,25 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
 
       if (ompl_result != moveit::core::MoveItErrorCode::SUCCESS) {
         RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
-          "OMPL plan failed for arm '%s' (code %d)", arm_name.c_str(),
-          ompl_result.val);
+          "OMPL plan failed for arm '%s' (code %d) — target xyz=[%.3f, %.3f, %.3f]",
+          arm_name.c_str(), ompl_result.val,
+          step_target.position.x, step_target.position.y, step_target.position.z);
         rate.sleep();
         continue;
       }
 
-      // Publish OMPL trajectory directly (already time-parameterized by planner)
       trajectory_msgs::msg::JointTrajectory jtraj_ompl =
         ompl_plan.trajectory.joint_trajectory;
       jtraj_ompl.header.stamp = this->now() + lookahead;
-      arm.traj_pub->publish(jtraj_ompl);
+      send_trajectory(arm, jtraj_ompl);
 
       last_submitted_target = step_target;
       first_iter = false;
-
       rate.sleep();
       continue;
     }
 
-    // ── 7. Time-parameterise with cached TOTG limits ───────────────────────
+    // ── 8. Time-parameterise ──────────────────────────────────────────────
     auto robot_traj = std::make_shared<robot_trajectory::RobotTrajectory>(
       mgi->getRobotModel(), cfg.planning_group);
     robot_traj->setRobotTrajectoryMsg(*mgi->getCurrentState(), traj_msg);
@@ -496,7 +591,6 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
     trajectory_processing::TimeOptimalTrajectoryGeneration totg;
     bool totg_ok = false;
     if (!arm.vel_limits.empty() && !arm.accel_limits.empty()) {
-      // Use pre-built cached limit maps — no parameter lookup per cycle
       totg_ok = totg.computeTimeStamps(*robot_traj, arm.vel_limits, arm.accel_limits);
     } else {
       totg_ok = totg.computeTimeStamps(*robot_traj, velocity_scaling_, acceleration_scaling_);
@@ -510,12 +604,10 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
     }
     robot_traj->getRobotTrajectoryMsg(traj_msg);
 
-    // ── 8. Publish directly to joint trajectory controller ────────────────
-    // Stamp with now() + lookahead so the controller can pre-buffer the
-    // trajectory and start executing without waiting for the next cycle.
+    // ── 9. Send via action client ─────────────────────────────────────────
     trajectory_msgs::msg::JointTrajectory jtraj = traj_msg.joint_trajectory;
     jtraj.header.stamp = this->now() + lookahead;
-    arm.traj_pub->publish(jtraj);
+    send_trajectory(arm, jtraj);
 
     last_submitted_target = step_target;
     first_iter = false;
@@ -523,6 +615,7 @@ void MoveitArmTeleop::tracking_loop(const std::string & arm_name)
     rate.sleep();
   }
 
+  cancel_trajectory(arm);
   mgi->stop();
   arm.thread_active = false;
   RCLCPP_INFO(get_logger(), "Tracking loop ended for arm '%s'", arm_name.c_str());

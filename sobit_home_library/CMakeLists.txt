@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
+find_package(control_msgs REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(sobits_interfaces REQUIRED)
 find_package(std_msgs REQUIRED)
@@ -57,6 +58,7 @@ rclcpp_components_register_node(${PROJECT_NAME}
 ament_target_dependencies(${PROJECT_NAME}
   "rclcpp"
   "rclcpp_action"
+  "control_msgs"
   "rclcpp_components"
   "sobits_interfaces"
   "std_msgs"
