@@ -15,8 +15,8 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('robot_name',    default_value='sobit_home'),
         DeclareLaunchArgument('robot_id',      default_value='0'),
-        DeclareLaunchArgument('world_model',   default_value='rcjo2025_arena',
-                              description='empty | wrs | small_house | rcjo2025_arena'),
+        DeclareLaunchArgument('world_model',   default_value='rcjo2026_arena',
+                              description='empty | wrs | small_house | rcjo2025_arena | rcjo2026_arena'),
         DeclareLaunchArgument('robot_coords_x', default_value='-5.5'),
         DeclareLaunchArgument('robot_coords_y', default_value='1.5'),
         DeclareLaunchArgument('robot_coords_z', default_value='0.0'),
@@ -64,10 +64,18 @@ def launch_setup(context, *args, **kwargs):
         world_file = os.path.join(
             get_package_share_directory('aws_small_house_world'),
             'worlds', 'small_house.world')
-    else:  # rcjo2025_arena (default)
+    elif world_model == 'rcjo2025_arena':
         world_file = os.path.join(
             get_package_share_directory('sobits_gazebo_worlds'),
             'worlds', 'rcjo2025_arena.world.xacro')
+    elif world_model == 'rcjo2026_arena':
+        world_file = os.path.join(
+            get_package_share_directory('sobits_gazebo_worlds'),
+            'worlds', 'rcjo2026_arena.world.xacro')
+    else:
+        world_file = os.path.join(
+            get_package_share_directory('sobit_home_description'),
+            'worlds', 'empty_w_physics.sdf')
 
     gz_bridge_node = Node(
         package='ros_gz_bridge',
