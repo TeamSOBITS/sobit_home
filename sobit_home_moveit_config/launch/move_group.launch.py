@@ -1,9 +1,7 @@
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, EmitEvent, OpaqueFunction, RegisterEventHandler
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.conditions import IfCondition
-from launch.event_handlers import OnProcessExit
-from launch.events import Shutdown
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node, ComposableNodeContainer, LoadComposableNodes
 from launch_ros.substitutions import FindPackageShare
@@ -140,14 +138,6 @@ def _launch_setup(context, *args, **kwargs):
         ]
     )
 
-    exit_event_handler = RegisterEventHandler(
-        condition=IfCondition(use_rviz),
-        event_handler=OnProcessExit(
-            target_action=start_rviz_node_cmd,
-            on_exit=EmitEvent(event=Shutdown(reason='rviz exited')),
-        ),
-    )
-
     bridge_container = ComposableNodeContainer(
         name='sobit_home_controllers_container',
         namespace=robot_name,
@@ -203,7 +193,6 @@ def _launch_setup(context, *args, **kwargs):
         start_rviz_node_cmd,
         bridge_container,
         load_arm_teleop,
-        exit_event_handler,
     ]
 
 
