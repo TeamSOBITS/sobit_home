@@ -129,31 +129,37 @@ void SwerveController::control_callback()
     sobit_home_odometry_->current_drive_pos[i] = joints_pos[drive_joints_names[i]];
   }
 
-  // Publish Float64MultiArray of Steering [rad/s]
-  int steering_state = 1; // -1: STOP, 0: CONTINUE(non-publish), 1: Publish
+  // Determine steering state:
+  //   1 = steers at goal  → publish goal drive velocities
+  //   0 = steers adjusting within threshold → publish 0 (drives stop)
+  //  -1 = steers far from goal → publish 0 (drives stop)
+  //
+  // Previously, state==0 did NOT publish, leaving the velocity controller at
+  // its last setpoint while the steer was at an intermediate angle.  This
+  // caused odometry to integrate a wrong heading and produced localization
+  // drift during every mode transition (swivel/rotation).  Now we always
+  // publish an explicit command so the controller is never in open-loop.
+  int steering_state = 1;
   wheel_joint_pos.data.clear();
   for (size_t i=0; i < steering_joints_names.size(); i++) {
     wheel_joint_pos.data.push_back(sobit_home_control_->goal_steer_pos[i]);
     if (steering_state != -1) {
-      if (fabs(sobit_home_control_->goal_steer_pos[i] - sobit_home_control_->current_steer_pos[i]) > (DRIVING_STATUS_THRESHOLD + STEER_MAX_VEL/CYCLE_FEQUENCY)) {
+      double err = fabs(sobit_home_control_->goal_steer_pos[i] - sobit_home_control_->current_steer_pos[i]);
+      if (err > (DRIVING_STATUS_THRESHOLD + STEER_MAX_VEL / CYCLE_FEQUENCY))
         steering_state = -1;
-      } else if (fabs(sobit_home_control_->goal_steer_pos[i] - sobit_home_control_->current_steer_pos[i]) > DRIVING_STATUS_THRESHOLD) {
+      else if (err > DRIVING_STATUS_THRESHOLD)
         steering_state = 0;
-      }
     }
   }
 
   pub_steer_joint_->publish(wheel_joint_pos);
 
-  // Publish Float64MultiArray of Driving [rad/s]
-  if ((steering_state == 1) || (steering_state == -1)) {
-    wheel_joint_vel.data.clear();
-
-    for (size_t i=0; i < drive_joints_names.size(); i++) 
-      wheel_joint_vel.data.push_back((steering_state == 1) ? sobit_home_control_->goal_drive_vel[i] : 0.0);
-
-    pub_wheel_joint_->publish(wheel_joint_vel);
-  }
+  // Always publish drive command — never leave the velocity controller without
+  // an authoritative setpoint.  Drives run only when steer is settled (state 1).
+  wheel_joint_vel.data.clear();
+  for (size_t i=0; i < drive_joints_names.size(); i++)
+    wheel_joint_vel.data.push_back((steering_state == 1) ? sobit_home_control_->goal_drive_vel[i] : 0.0);
+  pub_wheel_joint_->publish(wheel_joint_vel);
 
   // Calculate Odometry
   sobit_home_odometry_->update_odom();
