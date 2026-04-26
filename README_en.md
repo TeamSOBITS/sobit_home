@@ -10,57 +10,11 @@
 
 # SOBIT HOME
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#introduction">Introduction</a>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li>
-    　<a href="#launch-and-usage">Launch and Usage</a>
-      <ul>
-        <li><a href="#visualization-on-rviz<">Visualization on Rviz</a></li>
-        <li><a href="#run-on-gazebo-sim<">Run on Gazebo Sim</a></li>
-      </ul>
-    </li>
-    <li>
-    　<a href="#software">Software</a>
-      <ul>
-        <li><a href="#joint-controller">Joint Controller</a></li>
-        <li><a href="#wheel-controller">Wheel Controller</a></li>
-      </ul>
-    </li>
-    <li>
-    　<a href="#hardware">Hardware</a>
-      <ul>
-        <li><a href="#how-to-download-3d-parts">How to download 3D Parts</a></li>
-        <li><a href="#electronic-circuit-diagram">Electronic circuit Diagram</a></li>
-        <!-- <li><a href="#robot-assembly">Robot Assembly</a></li> -->
-        <li><a href="#features">Features</a></li>
-        <li><a href="#bill-of-material-BOM">Bill of Material (BOM)</a></li>
-      </ul>
-    </li>
-    <li><a href="#milestone">Milestone</a></li>
-    <!-- <li><a href="#contributing">Contributing</a></li> -->
-    <!-- <li><a href="#license">License</a></li> -->
-    <li><a href="#references">References</a></li>
-  </ol>
-</details>
-
-
 
 <!-- INTRODUCTION -->
 ## Introduction
 
-<!-- ![SOBIT HOME](sobit_home/docs/img/sobit_home.png) -->
+![SOBIT HOME](sobit_home/docs/img/sobit_home.png)
 
 This package is for operating the SOBITS custom mobile manipulator, which combines a four-wheel independent steering drive mechanism, a lift mechanism, dual arms, and a pan-tilt mechanism.
 
@@ -139,31 +93,35 @@ First, please set up the following environment before proceeding to the next ins
 <!-- LAUNCH AND USAGE EXAMPLES -->
 ## Launch and Usage
 
-1. Set the parameters inside [real_minimal.launch.py](sobit_home_bringup/launch/real_minimal.launch.py) and select the functions to launch with SOBIT HOME.
-   ```python
-    'enable_mobile_base' : 'True',
-    'enable_arm_left'    : 'True',
-    'enable_arm_right'   : 'True',
-    'enable_head'        : 'True',
-    ...
-   ```
-> [!NOTE]
-> Rewrite it as `True` or `False` depending on the functions you want to use.
-
-
-2. Execute the launch file [real_minimal.launch.py](sobit_home_bringup/launch/real_minimal.launch.py) in your **development environment**.
+1. Select features with launch arguments and execute [real_minimal.launch.py](sobit_home_bringup/launch/real_minimal.launch.py) in your **development environment**.
     ```sh
     $ ros2 launch sobit_home_bringup real_minimal.launch.py
     ```
 
-If you did not succeed in connecting to Kachaka, check the following points:
+2. You can enable/disable modules directly from CLI (recommended).
+    ```sh
+    $ ros2 launch sobit_home_bringup real_minimal.launch.py \
+      enable_mobile_base:=true \
+      enable_body:=true \
+      enable_arm_left:=true \
+      enable_arm_right:=false \
+      enable_head:=true \
+      enable_lidar:=true \
+      use_rviz:=true
+    ```
+
+3. For real hardware mode, load `.bashrc` and set SOBIT HOME domain before launch.
+    ```sh
+    $ source ~/.bashrc
+    $ sobit_home_mode
+    ```
+
+If you did not succeed in connecting to the real robot, check the following points:
 - Ensure the emergency stop button is not pressed.
 - Verify the battery is sufficiently charged.
 - Confirm the USB hub is connected to the computer.
-- Check if the Dynamixel Dongle is named `/dev/ttyUSB0`.
-  - To verify, run `$ ls /dev` and if `/dev/ttyUSB1` is displayed, update the `usb_port` in [controllers.urdf.xacro](sobit_home_description/urdf/controllers.urdf.xacro).
-- Ensure the Kachaka IP is correct.
-- Verify that the `ROS_DOMAIN_ID` is the same on both the Kachaka and the development environment.
+- Verify that required environment variables are set in your shell (`DXL_X_LOWER_PORT`, `DXL_X_UPPER_PORT`, `DXL_P_UPPER_PORT`, `UM_PORT`, `HOME_CAM_LEFT_PORT`, `HOME_CAM_RIGHT_PORT`).
+- Verify CAN is available (`can0`) when `enable_mobile_base:=true`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -184,7 +142,7 @@ $ ros2 launch sobit_home_description display.launch.py
 
 ### Run on Gazebo Sim
 
-SOBIT HOME has a simulation environment with Gazebo Fortress, allowing you to verify operations even without the actual machine.
+SOBIT HOME has a simulation environment with Gazebo Harmonic, allowing you to verify operations even without the actual machine.
 
 ```sh
 $ ros2 launch sobit_home_bringup gz_minimal.launch.py
@@ -196,9 +154,15 @@ At present, the following virtual environments are available.
 | ------------ | ----------- |
 | `empty`        | Spawns an environment without furniture or obstacles. |
 | `wrs`          | Spawns the Tidy Up environment used in WRS2020. |
-| `small_room`   | Spawns a small room layout developed by AWS. |
+| `small_house`  | Spawns a small house layout developed by AWS. |
+| `rcjo2025_arena` | Spawns the RCJ Open 2025 arena world. |
+| `rcjo2026_arena` | Spawns the RCJ Open 2026 arena world (default). |
 
 To change the environment, modify the `world_model` parameter in [gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py).
+
+```sh
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
+```
 
 <!-- If it works correctly, the following Gazebo screen will be displayed.
 ![SOBIT HOME Gazebo Harmonic](sobit_home/docs/img/sobit_home_gz_sim.png) -->
@@ -207,63 +171,40 @@ To change the environment, modify the `world_model` parameter in [gz_minimal.lau
 > Since it is equipped with sensors similar to the actual machine, the processing may become heavy depending on the computer. Please select only the necessary sensors in [gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py).
 
 ```python
-'enable_gz_head_cam_color'      : 'True',
-'enable_gz_head_cam_depth'      : 'True',
-'enable_gz_hand_left_cam_color' : 'True',
-'enable_gz_hand_left_cam_depth' : 'True',
-'enable_gz_hand_right_cam_color': 'True',
-'enable_gz_hand_right_cam_depth': 'True',
+'enable_head_cam_color'       : 'true',
+'enable_head_cam_depth'       : 'true',
+'enable_hand_left_cam_color'  : 'true',
+'enable_hand_right_cam_color' : 'true',
+'enable_lidar'                : 'true',
 ```
 
-Additionally, multiple SOBIT HOMEs can be spawned in the same simulation environment. To do so, configure [gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py) to execute `gz_robot.launch.py` according to the number of robots.
+Additionally, multiple SOBIT HOMEs can be spawned in the same simulation environment by launching additional instances with different `robot_id` and spawn coordinates.
 
-Please, make sure that each `robot_name` have different values among robots.
-Moreover, you can change the spawining coordinates of the robot in `robot_coords_x`, `robot_coords_y` and `robot_coords_z`.
+```sh
+# Robot 1
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+  robot_name:=sobit_home robot_id:=1 robot_coords_x:=0.0 robot_coords_y:=0.0 robot_coords_Y:=0.0
 
-Here is an example.
-```python
-...
-# Launch Robot No. 1
-IncludeLaunchDescription(
-    PythonLaunchDescriptionSource([
-        PathJoinSubstitution([
-            FindPackageShare('sobit_home_bringup'),
-            'launch',
-            'robot.launch.py'
-        ])
-    ]),
-    launch_arguments={
-        'robot_name': 'sobit_home_1',
-        'robot_coords_x': '0', # x 
-        'robot_coords_y': '0', # y
-        'robot_coords_Y': '0', # yaw
-        ...
-    }.items()
-),
-# Launch Robot No. 2
-IncludeLaunchDescription(
-    PythonLaunchDescriptionSource([
-        PathJoinSubstitution([
-            FindPackageShare('sobit_home_bringup'),
-            'launch',
-            'gz_robot.launch.py'
-        ])
-    ]),
-    launch_arguments={
-        'robot_name': 'sobit_home_2',
-        'robot_coords_x': '0', # x 
-        'robot_coords_y': '2', # y
-        'robot_coords_Y': '0', # yaw
-        ...
-    }.items()
-),
-...
+# Robot 2
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+  robot_name:=sobit_home robot_id:=2 robot_coords_x:=0.0 robot_coords_y:=2.0 robot_coords_Y:=0.0
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 ## Software
+
+### Package Overview
+
+| Package | Role | Main Entry Points |
+| --- | --- | --- |
+| `sobit_home_bringup` | Integrated startup for real robot and Gazebo | `launch/real_minimal.launch.py`, `launch/gz_minimal.launch.py`, `launch/robot.launch.py` |
+| `sobit_home_control` | Swerve base control and MoveIt whole-body bridge | `swerve_controller_node`, `moveit_whole_body_bridge_node` |
+| `sobit_home_library` | High-level action/service servers (joint, wheel, MoveIt) | `launch/action_server.launch.py`, `joint_action_server`, `wheel_action_server`, `moveit_action_server`, `moveit_arm_teleop` |
+| `sobit_home_description` | URDF/Xacro model, RViz config, and base world file | `launch/display.launch.py`, `robots/sobit_home_robot.urdf.xacro` |
+| `sobit_home_moveit_config` | MoveIt planning configuration and launch | `launch/move_group.launch.py` |
+| `sobit_home_kinematics_plugin` | MoveIt kinematics plugin for SOBIT HOME | `sobit_home_kinematics_plugin_description.xml` |
 
 <details>
 <summary>Summary of information on SOBIT HOME and related software</summary>
@@ -278,80 +219,26 @@ This is a summary of information for moving the joints (pan-tilt mechanism, line
 
 #### Movement Methods
 
-<!-- 1. `move_to_pose` : Move it to a predetermined pose.
-    ```yaml
-    # MoveToPose.action
-    # Goal
-    string pose_name                                # Target pose name
-    builtin_interfaces/Duration time_allowance      # Target time length
-    ---
-    # Result
-    bool success                                    # Success / Failure
-    string message                                  # Result message
-    builtin_interfaces/Duration total_elapsed_time  # Finished time length
-    ---
-    # Feedback
-    string[] current_joint_names                    # Currently moving joint name(s)
-    float32[] current_joint_rad                     # Currently moving joint position(s)
-    # float32[] current_joint_vel                   # Currently moving joint velocity(s)
-    builtin_interfaces/Duration move_time           # Elapsed time length
-    ```
+Implemented interfaces in `sobit_home_library`:
 
-> [!NOTE]
-> Existing poses can be found in [pose_list.yaml](sobit_home_library/config/pose_list.yaml). Please refer to [How to set new poses](#how-to-set-new-poses) for how to create a new pose.
+1. Actions
+   - `move_joint`
+   - `move_to_pose`
+   - `move_right_hand_to_pose`
+   - `move_left_hand_to_pose`
 
-2. `move_joint` : Moves any joint to an arbitrary angle.
-    ```yaml
-    # MoveJoint.action
-    # Goal
-    string[] target_joint_names                     # Target joint name(s)
-    float64[] target_joint_rad                      # Target joint position(s)
-    builtin_interfaces/Duration time_allowance      # Target time length
-    ---
-    # Result
-    bool success                                    # Success / Failure
-    string message                                  # Result message
-    builtin_interfaces/Duration total_elapsed_time  # Finished time length
-    ---
-    # Feedback
-    string[] current_joint_names                    # Currently moving joint name(s)
-    float64[] current_joint_rad                     # Currently moving joint position(s)
-    # float32[] current_joint_vel                   # Currently moving joint velocity(s)
-    builtin_interfaces/Duration move_time           # Elapsed time length
-    ```
+2. Services
+   - `get_hand_to_coord/left`
+   - `get_hand_to_coord/right`
+   - `get_hand_to_tf/left`
+   - `get_hand_to_tf/right`
+   - `get_head_to_coord`
+   - `get_head_to_tf`
+   - `get_finger_angle`
 
-> [!NOTE]
-> Please check the previously defined joint names in the [Joints Name](#joints-name) section.
- 
-3. `move_hand_to_target_coord` : Checks how to move the hand to the given xyz coordinates .
-    ```yaml
-    # MoveHandToTargetCoord.srv
-    # Request
-    geometry_msgs/TransformStamped target_coord     # Target coordinates
-
-    ---
-    # Result
-    geometry_msgs/Pose move_pose                    # Moving pose for grasping
-    string[] target_joint_names                     # List of joint names to move
-    float64[] target_joint_rad                      # List of joint angles to move
-    bool success                                    # Enable grasp
-    string message                                  # Result message
-    ```
-
-4.  `move_hand_to_target_tf` : Checks how to move the hand to the given tf name.
-    ```yaml
-    # MoveHandToTargetTF.srv
-    # Request
-    string target_frame                             # Frame name to be grasped
-    geometry_msgs/TransformStamped tf_differential  # Differential coordinates of Target frame
-    ---
-    # Result
-    geometry_msgs/Pose move_pose                    # Moving pose for grasping
-    string[] target_joint_names                     # List of joint names to move
-    float64[] target_joint_rad                      # List of joint angles to move
-    bool success                                    # Enable grasp
-    string message                                  # Result message
-    ``` -->
+3. MoveIt interfaces (launched from `action_server.launch.py`)
+   - Service: `plan_to_pose`
+   - Action: `execute_plan`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -368,34 +255,37 @@ The joint names of SOBIT HOME and their constants are listed below.
 |  3 | arm_left_upper_roll_joint     | - |
 |  4 | arm_left_upper_flex_joint     | - |
 |  5 | arm_left_elbow_joint          | - |
-|  6 | arm_left_wrist_joint          | - |
-|  7 | arm_right_shoulder_tilt_joint | - |
-|  8 | arm_right_upper_roll_joint    | - |
-|  9 | arm_right_upper_flex_joint    | - |
-| 10 | arm_right_elbow_joint         | - |
-| 11 | arm_right_wrist_joint         | - |
-| 12 | hand_left_finger_mcp_joint    | - |
-| 13 | hand_left_finger_l_cmc_joint  | - |
+|  6 | arm_left_wrist_tilt_joint     | - |
+|  7 | arm_left_wrist_roll_joint     | - |
+|  8 | arm_right_shoulder_tilt_joint | - |
+|  9 | arm_right_upper_roll_joint    | - |
+| 10 | arm_right_upper_flex_joint    | - |
+| 11 | arm_right_elbow_joint         | - |
+| 12 | arm_right_wrist_tilt_joint    | - |
+| 13 | arm_right_wrist_roll_joint    | - |
 | 14 | hand_left_finger_l_mcp_joint  | - |
-| 15 | hand_left_finger_c_cmc_joint  | - |
-| 16 | hand_left_finger_c_mcp_joint  | - |
-| 17 | hand_left_finger_r_cmc_joint  | - |
-| 18 | hand_left_finger_r_mcp_joint  | - |
-| 19 | hand_right_finger_mcp_joint   | - |
-| 20 | hand_right_finger_l_cmc_joint | - |
+| 15 | hand_left_finger_l_pip_joint  | - |
+| 16 | hand_left_finger_l_dip_joint  | - |
+| 17 | hand_left_finger_c_mcp_joint  | - |
+| 18 | hand_left_finger_c_ip_joint   | - |
+| 19 | hand_left_finger_r_pip_joint  | - |
+| 20 | hand_left_finger_r_dip_joint  | - |
 | 21 | hand_right_finger_l_mcp_joint | - |
-| 22 | hand_right_finger_c_cmc_joint | - |
-| 23 | hand_right_finger_c_mcp_joint | - |
-| 24 | hand_right_finger_r_cmc_joint | - |
-| 25 | hand_right_finger_r_mcp_joint | - |
-<!-- | 26 | wheel_steer_f_l_joint | - |
-| 27 | wheel_steer_f_r_joint | - |
-| 28 | wheel_steer_b_l_joint | - |
-| 29 | wheel_steer_b_r_joint | - |
-| 30 | wheel_drive_f_l_joint | - |
-| 31 | wheel_drive_f_r_joint | - |
-| 32 | wheel_drive_b_l_joint | - |
-| 33 | wheel_drive_b_r_joint | - | -->
+| 22 | hand_right_finger_l_pip_joint | - |
+| 23 | hand_right_finger_l_dip_joint | - |
+| 24 | hand_right_finger_c_mcp_joint | - |
+| 25 | hand_right_finger_c_ip_joint  | - |
+| 26 | hand_right_finger_r_pip_joint | - |
+| 27 | hand_right_finger_r_dip_joint | - |
+| 28 | body_lift_joint               | - |
+| 29 | wheel_steer_f_l_joint         | - |
+| 30 | wheel_steer_f_r_joint         | - |
+| 31 | wheel_steer_b_l_joint         | - |
+| 32 | wheel_steer_b_r_joint         | - |
+| 33 | wheel_drive_f_l_joint         | - |
+| 34 | wheel_drive_f_r_joint         | - |
+| 35 | wheel_drive_b_l_joint         | - |
+| 36 | wheel_drive_b_r_joint         | - |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -405,24 +295,28 @@ The joint names of SOBIT HOME and their constants are listed below.
 Poses can be added and edited in the file [pose_list.yaml](sobit_home_library/config/pose_list.yaml). The format is as follows:
 
 ```yaml
-poses:
-    - initial_pose
-    - detecting_pose
-    - following_pose
+/**:
+  ros__parameters:
+    poses:
+      - initial_pose
+      - detecting_pose
 
-initial_pose:
-    head_pan                  : 0.0
-    head_tilt                 : 0.0
-    arm_left_shoulder_tilt    : 0.0
-    arm_left_upper_roll       : 0.0
-    arm_left_upper_flex       : 0.0
-    arm_left_elbow            : 0.0
-    arm_left_wrist            : 0.0
-    arm_right_shoulder_tilt   : 0.0
-    arm_right_upper_roll      : 0.0
-    arm_right_upper_flex      : 0.0
-    arm_right_elbow           : 0.0
-    arm_right_wrist           : 0.0
+    initial_pose:
+      body_lift               : 0.5
+      head_pan                : 0.0
+      head_tilt               : 0.0
+      arm_left_shoulder_tilt  : 0.0
+      arm_left_upper_roll     : 0.0
+      arm_left_upper_flex     : 0.0
+      arm_left_elbow          : 0.0
+      arm_left_wrist_tilt     : 0.0
+      arm_left_wrist_roll     : 0.0
+      arm_right_shoulder_tilt : 0.0
+      arm_right_upper_roll    : 0.0
+      arm_right_upper_flex    : 0.0
+      arm_right_elbow         : 0.0
+      arm_right_wrist_tilt    : 0.0
+      arm_right_wrist_roll    : 0.0
 ...
 ```  
 
@@ -440,39 +334,12 @@ This is a summary of information for moving the SOBIT HOME moving mechanism.
 
 #### Moving Methods
 
-<!-- 1.  `move_wheel_linear` : Perform translational motion (straight-line only).
-    ```yaml
-    # MoveWheelLinear.action
-    # Goal
-    geometry_msgs/Point target_point                # Target Translational Distance
-    builtin_interfaces/Duration time_allowance      # Target time length
-    ---
-    # Result
-    bool success                                    # Success / Failure
-    string message                                  # Result message
-    builtin_interfaces/Duration total_elapsed_time  # Finished time length
-    ---
-    # Feedback
-    geometry_msgs/Point current_point               # Currently displaced distance
-    builtin_interfaces/Duration move_time           # Currently elapsed time
-    ```  
+Implemented action interfaces in `sobit_home_library`:
 
-2.  `move_wheel_rotate` : Perform rotational motion (units: Radian)
-    ```yaml
-    # MoveWheelRotate.action
-    # Goal
-    float32 target_yaw                              # Target Rotational Distance
-    builtin_interfaces/Duration time_allowance      # Target time length
-    ---
-    # Result
-    bool success                                    # Success / Failure
-    string message                                  # Result message
-    builtin_interfaces/Duration total_elapsed_time  # Finished time length
-    ---
-    # Feedback
-    geometry_msgs/Point current_point               # Currently displaced distance
-    builtin_interfaces/Duration move_time           # Currently elapsed time
-    ``` -->
+1. `move_wheel_linear`
+2. `move_wheel_rotate`
+
+The wheel action server publishes velocity commands to `cmd_vel` and uses `odom` for feedback.
 
 </details>
 
@@ -481,9 +348,9 @@ This is a summary of information for moving the SOBIT HOME moving mechanism.
 
 ## Hardware
 
-SOBIT HOME is available as open hardware at [OnShape](https://cad.onshape.com/documents/).
+SOBIT HOME is available as open hardware at [OnShape](https://cad.onshape.com/documents/e17931db96792e39eba48d39/w/a81eeb68b7f4ed981ce8878a/e/42d5107e3af255ccdf5ca7e7?renderMode=0&uiState=69ee43ae00a7b5401b55d390).
 
-<!-- ![SOBIT HOME in OnShape](sobit_home/docs/img/sobit_home_onshape.png) -->
+![SOBIT HOME in OnShape](sobit_home/docs/img/sobit_home_onshape.png)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -508,7 +375,7 @@ SOBIT HOME is available as open hardware at [OnShape](https://cad.onshape.com/do
 
 ### Electronic Circuit Diagram
 
-<!-- ![SOBIT HOME Circuit](sobit_home/docs/img/sobit_home_circuit.svg) -->
+![SOBIT HOME Circuit](sobit_home/docs/img/sobit_home_circuit.png)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -521,6 +388,8 @@ TBD
 
 
 ### Features
+
+TBD
 
 <!-- | Item | Details |
 | --- | --- |
@@ -543,6 +412,8 @@ TBD
 
 
 ### Bill of Materials (BOM)
+
+TBD
 
 <!-- | Part | Model Number | Quantity | Approx. Unit Cost | Where to Buy |
 | --- | --- | --- | --- | --- |
@@ -598,20 +469,10 @@ Total Approx. Cost (w/ Optional Items): **$7,510.47**
 
 Total Approx. Cost (w/o Optional Items): **$6,592.54** -->
 
-> [!IMPORTANT]
+<!-- > [!IMPORTANT]
 > Prices may vary depending on the retailer. Please check each link for the latest prices.
 
-</details>
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-<!-- MILESTONE -->
-## Milestone
-
-- [] -
-
-See the [open issues][issues-url] for a full list of proposed features (and known issues).
+</details> -->
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
