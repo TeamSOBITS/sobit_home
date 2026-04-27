@@ -10,57 +10,11 @@
 
 # SOBIT HOME
 
-<!-- 目次 -->
-<details>
-  <summary>目次</summary>
-  <ol>
-    <li>
-      <a href="#概要">概要</a>
-    </li>
-    <li>
-      <a href="#環境構築">環境構築</a>
-      <ul>
-        <li><a href="#環境条件">環境条件</a></li>
-        <li><a href="#インストール方法">インストール方法</a></li>
-      </ul>
-    </li>
-    <li>
-    　<a href="#実行操作方法">実行・操作方法</a>
-      <ul>
-        <li><a href="#Rviz上の可視化">Rviz上の可視化</a></li>
-        <li><a href="#シミュレータの実行方法">シミュレータの実行方法</a></li>
-      </ul>
-    </li>
-    <li>
-    　<a href="#ソフトウェア">ソフトウェア</a>
-      <ul>
-        <li><a href="#ジョイントコントローラ">ジョイントコントローラ</a></li>
-        <li><a href="#ホイルコントローラ">ホイルコントローラ</a></li>
-      </ul>
-    </li>
-    <li>
-    　<a href="#ハードウェア">ハードウェア</a>
-      <ul>
-        <li><a href="#パーツのダウンロード方法">パーツのダウンロード方法</a></li>
-        <li><a href="#電子回路図">電子回路図</a></li>
-        <!-- <li><a href="#ロボットの組み立て">ロボットの組み立て</a></li> -->
-        <li><a href="#ロボットの特徴">ロボットの特徴</a></li>
-        <li><a href="#部品リストBOM">部品リスト（BOM）</a></li>
-      </ul>
-    </li>
-    <li><a href="#マイルストーン">マイルストーン</a></li>
-    <!-- <li><a href="#contributing">Contributing</a></li> -->
-    <!-- <li><a href="#license">License</a></li> -->
-    <li><a href="#参考文献">参考文献</a></li>
-  </ol>
-</details>
-
-
 
 <!-- 概要 -->
 ## 概要
 
-<!-- ![SOBIT HOME](sobit_home/docs/img/sobit_home.png) -->
+![SOBIT HOME](sobit_home/docs/img/sobit_home.png)
 
 4輪独立ステアリング移動機構・昇降機構・2椀・パンチルト機構を組み合わせたSOBITS自作モバイルマニピュレータを動かすためのパッケージです．
 
@@ -139,26 +93,36 @@
 <!-- 実行・操作方法 -->
 ## 実行・操作方法
 
-1. SOBIT HOMEの起動する機能をパラメタとして[real_minimal.launch.py](sobit_home_bringup/launch/real_minimal.launch.py)に設定します．
-   ```python
-    'enable_mobile_base' : 'True',
-    'enable_arm_left'    : 'True',
-    'enable_arm_right'   : 'True',
-    'enable_head'        : 'True',
-    ...
-   ```
+1. まず，[real_minimal.launch.py](sobit_home_bringup/launch/real_minimal.launch.py)を実行します．
+  ```sh
+  $ ros2 launch sobit_home_bringup real_minimal.launch.py
+  ```
 
-> [!NOTE]
-> 使用したい機能に応じて，`True`か`False`かに書き換えてください．
+2. 起動機能はlaunch引数で有効/無効を切り替えることを推奨します．
+  ```sh
+  $ ros2 launch sobit_home_bringup real_minimal.launch.py \
+    enable_mobile_base:=true \
+    enable_body:=true \
+    enable_arm_left:=true \
+    enable_arm_right:=false \
+    enable_head:=true \
+    enable_lidar:=true \
+    use_rviz:=true
+  ```
 
-2. [real_minimal.launch.py](sobit_home_bringup/launch/real_minimal.launch.py)というlaunchファイルを実行します．
-   ```sh
-   $ ros2 launch sobit_home_bringup real_minimal.launch
-   ```
-<!-- 3. [任意] デモプログラムを実行してみましょう．
-   ```sh
-   $ rosr2 un sobit_home_library test_control_wheel.py
-   ``` -->
+3. 実機では，起動前に`.bashrc`を読み込み，SOBIT HOME用のドメインに切り替えてください．
+  ```sh
+  $ source ~/.bashrc
+  $ sobit_home_mode
+  ```
+
+実機接続に失敗する場合は，以下を確認してください．
+
+- 非常停止ボタンが押されていないか．
+- バッテリー残量が十分か．
+- USBハブがPCに接続されているか．
+- 必要な環境変数が設定されているか（`DXL_X_LOWER_PORT`，`DXL_X_UPPER_PORT`，`DXL_P_UPPER_PORT`，`UM_PORT`，`HOME_CAM_LEFT_PORT`，`HOME_CAM_RIGHT_PORT`）．
+- `enable_mobile_base:=true`時に`can0`が利用可能か．
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -190,9 +154,15 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py
 | --- | --- |
 | `empty`      | 家具などのない環境を出現． |
 | `wrs`        | WRS2020に実施されたTidy Up環境を出現． |
-| `small_room` | AWSが開発された小型部屋のレイアウトを出現．|
+| `small_house` | AWSが開発した小型部屋のレイアウトを出現．|
+| `rcjo2025_arena` | RCJ Open 2025向けのアリーナ環境を出現．|
+| `rcjo2026_arena` | RCJ Open 2026向けのアリーナ環境を出現（デフォルト）．|
 
 環境を変更するために，`world_model`を[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py)で変更してください．
+
+```sh
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
+```
 
 
 <!-- 正常に動作した場合は，次のようなGazeboの画面が表示されます．
@@ -202,64 +172,41 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py
 > 実機と同じようなセンサも搭載されていますので，パソコンによって処理が重くなる可能性がありますので，必要なセンサだけを[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py)で選択してください．
 
 ```python
-'enable_gz_head_cam_color'      : 'True',
-'enable_gz_head_cam_depth'      : 'True',
-'enable_gz_hand_left_cam_color' : 'True',
-'enable_gz_hand_left_cam_depth' : 'True',
-'enable_gz_hand_right_cam_color': 'True',
-'enable_gz_hand_right_cam_depth': 'True',
+'enable_head_cam_color'       : 'true',
+'enable_head_cam_depth'       : 'true',
+'enable_hand_left_cam_color'  : 'true',
+'enable_hand_right_cam_color' : 'true',
+'enable_lidar'                : 'true',
 ```
 
 また，複数のSOBIT HOMEを同じシミュレーション環境でも出現できます．
-そのために，[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py)でロボットの数に合わせて`gz_robot.launch.py`が実行されるようにその設定を加えてください．
+`robot_id`と出現座標を変えて起動してください．
 
-`robot_name`はロボット間で異なる値を持つ必要があります．
-さらに，`robot_coords_x`，`robot_coords_y`，および`robot_coords_z`でロボットの出現座標を変更できます．
+```sh
+# Robot 1
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+  robot_name:=sobit_home robot_id:=1 robot_coords_x:=0.0 robot_coords_y:=0.0 robot_coords_Y:=0.0
 
-一例はこちらとなります．
-```python
-...
-# Launch Robot No. 1
-IncludeLaunchDescription(
-    PythonLaunchDescriptionSource([
-        PathJoinSubstitution([
-            FindPackageShare('sobit_home_bringup'),
-            'launch',
-            'robot.launch.py'
-        ])
-    ]),
-    launch_arguments={
-        'robot_name': 'sobit_home_1',
-        'robot_coords_x': '0', # x 
-        'robot_coords_y': '0', # y
-        'robot_coords_Y': '0', # yaw
-        ...
-    }.items()
-),
-# Launch Robot No. 2
-IncludeLaunchDescription(
-    PythonLaunchDescriptionSource([
-        PathJoinSubstitution([
-            FindPackageShare('sobit_home_bringup'),
-            'launch',
-            'gz_robot.launch.py'
-        ])
-    ]),
-    launch_arguments={
-        'robot_name': 'sobit_home_2',
-        'robot_coords_x': '0', # x 
-        'robot_coords_y': '2', # y
-        'robot_coords_Y': '0', # yaw
-        ...
-    }.items()
-),
-...
+# Robot 2
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+  robot_name:=sobit_home robot_id:=2 robot_coords_x:=0.0 robot_coords_y:=2.0 robot_coords_Y:=0.0
 ```
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
 
 ## ソフトウェア
+
+### パッケージ概要
+
+| パッケージ | 役割 | 主なエントリポイント |
+| --- | --- | --- |
+| `sobit_home_bringup` | 実機/シミュレータ起動を統合したbringup | `launch/real_minimal.launch.py`, `launch/gz_minimal.launch.py`, `launch/robot.launch.py` |
+| `sobit_home_control` | スワーブ移動制御とMoveIt全身追従ブリッジ | `swerve_controller_node`, `moveit_whole_body_bridge_node` |
+| `sobit_home_library` | 関節/移動/MoveItの高レベルAction・Service群 | `launch/action_server.launch.py`, `joint_action_server`, `wheel_action_server`, `moveit_action_server`, `moveit_arm_teleop` |
+| `sobit_home_description` | URDF/Xacroモデル，RViz設定，基本ワールド | `launch/display.launch.py`, `robots/sobit_home_robot.urdf.xacro` |
+| `sobit_home_moveit_config` | MoveItの計画設定と起動 | `launch/move_group.launch.py` |
+| `sobit_home_kinematics_plugin` | SOBIT HOME向けMoveIt運動学プラグイン | `sobit_home_kinematics_plugin_description.xml` |
 
 <details>
 <summary>SOBIT HOMEと関わるソフトの情報まとめ</summary>
@@ -274,80 +221,26 @@ SOBIT HOMEのパンチルト機構と昇降機構とマニピュレータを動�
 
 #### 動作方法
 
-<!-- 1. `move_to_pose` : 決められたポーズに動かします．
-    ```yaml
-    # MoveToPose.action
-    # Goal
-    string pose_name                                # Target pose name
-    builtin_interfaces/Duration time_allowance      # Target time length
-    ---
-    # Result
-    bool success                                    # Success / Failure
-    string message                                  # Result message
-    builtin_interfaces/Duration total_elapsed_time  # Finished time length
-    ---
-    # Feedback
-    string[] current_joint_names                    # Currently moving joint name(s)
-    float32[] current_joint_rad                     # Currently moving joint position(s)
-    # float32[] current_joint_vel                   # Currently moving joint velocity(s)
-    builtin_interfaces/Duration move_time           # Elapsed time length
-    ```
+`sobit_home_library`で現在実装されているインターフェースは以下です．
 
-> [!NOTE]
-> 既存のポーズは[pose_list.yaml](sobit_home_library/config/pose_list.yaml)に確認できます．ポーズの作成方法については[ポーズの設定方法](#ポーズの設定方法)をご参照ください．
+1. Action
+   - `move_joint`
+   - `move_to_pose`
+   - `move_right_hand_to_pose`
+   - `move_left_hand_to_pose`
 
-2. `move_joint` : 指定されたジョイント(複数でも可)を任意の角度に動かします．
-    ```yaml
-    # MoveJoint.action
-    # Goal
-    string[] target_joint_names                     # Target joint name(s)
-    float64[] target_joint_rad                      # Target joint position(s)
-    builtin_interfaces/Duration time_allowance      # Target time length
-    ---
-    # Result
-    bool success                                    # Success / Failure
-    string message                                  # Result message
-    builtin_interfaces/Duration total_elapsed_time  # Finished time length
-    ---
-    # Feedback
-    string[] current_joint_names                    # Currently moving joint name(s)
-    float64[] current_joint_rad                     # Currently moving joint position(s)
-    # float32[] current_joint_vel                   # Currently moving joint velocity(s)
-    builtin_interfaces/Duration move_time           # Elapsed time length
-    ```
+2. Service
+   - `get_hand_to_coord/left`
+   - `get_hand_to_coord/right`
+   - `get_hand_to_tf/left`
+   - `get_hand_to_tf/right`
+   - `get_head_to_coord`
+   - `get_head_to_tf`
+   - `get_finger_angle`
 
-> [!NOTE]
-> ジョイント名については[ジョイント名](#ジョイント名)をご確認ください．
-
-3. `move_hand_to_target_coord` : ハンドをxyz座標に届くように各関節の角度を確認します．
-    ```yaml
-    # MoveHandToTargetCoord.srv
-    # Request
-    geometry_msgs/TransformStamped target_coord     # Target coordinates
-
-    ---
-    # Result
-    geometry_msgs/Pose move_pose                    # Moving pose for grasping
-    string[] target_joint_names                     # List of joint names to move
-    float64[] target_joint_rad                      # List of joint angles to move
-    bool success                                    # Enable grasp
-    string message                                  # Result message
-    ```
-
-4.  `move_hand_to_target_tf` : ハンドをtf名に届くように各関節の角度を確認します．
-    ```yaml
-    # MoveHandToTargetTF.srv
-    # Request
-    string target_frame                             # Frame name to be grasped
-    geometry_msgs/TransformStamped tf_differential  # Differential coordinates of Target frame
-    ---
-    # Result
-    geometry_msgs/Pose move_pose                    # Moving pose for grasping
-    string[] target_joint_names                     # List of joint names to move
-    float64[] target_joint_rad                      # List of joint angles to move
-    bool success                                    # Enable grasp
-    string message                                  # Result message
-    ``` -->
+3. MoveIt連携（`action_server.launch.py`で起動）
+   - Service: `plan_to_pose`
+   - Action: `execute_plan`
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -364,34 +257,37 @@ SOBIT HOMEのジョイント名とその定数名を以下の通りです．
 |  3 | arm_left_upper_roll_joint     | - |
 |  4 | arm_left_upper_flex_joint     | - |
 |  5 | arm_left_elbow_joint          | - |
-|  6 | arm_left_wrist_joint          | - |
-|  7 | arm_right_shoulder_tilt_joint | - |
-|  8 | arm_right_upper_roll_joint    | - |
-|  9 | arm_right_upper_flex_joint    | - |
-| 10 | arm_right_elbow_joint         | - |
-| 11 | arm_right_wrist_joint         | - |
-| 12 | hand_left_finger_mcp_joint    | - |
-| 13 | hand_left_finger_l_cmc_joint  | - |
+|  6 | arm_left_wrist_tilt_joint     | - |
+|  7 | arm_left_wrist_roll_joint     | - |
+|  8 | arm_right_shoulder_tilt_joint | - |
+|  9 | arm_right_upper_roll_joint    | - |
+| 10 | arm_right_upper_flex_joint    | - |
+| 11 | arm_right_elbow_joint         | - |
+| 12 | arm_right_wrist_tilt_joint    | - |
+| 13 | arm_right_wrist_roll_joint    | - |
 | 14 | hand_left_finger_l_mcp_joint  | - |
-| 15 | hand_left_finger_c_cmc_joint  | - |
-| 16 | hand_left_finger_c_mcp_joint  | - |
-| 17 | hand_left_finger_r_cmc_joint  | - |
-| 18 | hand_left_finger_r_mcp_joint  | - |
-| 19 | hand_right_finger_mcp_joint   | - |
-| 20 | hand_right_finger_l_cmc_joint | - |
+| 15 | hand_left_finger_l_pip_joint  | - |
+| 16 | hand_left_finger_l_dip_joint  | - |
+| 17 | hand_left_finger_c_mcp_joint  | - |
+| 18 | hand_left_finger_c_ip_joint   | - |
+| 19 | hand_left_finger_r_pip_joint  | - |
+| 20 | hand_left_finger_r_dip_joint  | - |
 | 21 | hand_right_finger_l_mcp_joint | - |
-| 22 | hand_right_finger_c_cmc_joint | - |
-| 23 | hand_right_finger_c_mcp_joint | - |
-| 24 | hand_right_finger_r_cmc_joint | - |
-| 25 | hand_right_finger_r_mcp_joint | - |
-<!-- | 26 | wheel_steer_f_l_joint | - |
-| 27 | wheel_steer_f_r_joint | - |
-| 28 | wheel_steer_b_l_joint | - |
-| 29 | wheel_steer_b_r_joint | - |
-| 30 | wheel_drive_f_l_joint | - |
-| 31 | wheel_drive_f_r_joint | - |
-| 32 | wheel_drive_b_l_joint | - |
-| 33 | wheel_drive_b_r_joint | - | -->
+| 22 | hand_right_finger_l_pip_joint | - |
+| 23 | hand_right_finger_l_dip_joint | - |
+| 24 | hand_right_finger_c_mcp_joint | - |
+| 25 | hand_right_finger_c_ip_joint  | - |
+| 26 | hand_right_finger_r_pip_joint | - |
+| 27 | hand_right_finger_r_dip_joint | - |
+| 28 | body_lift_joint               | - |
+| 29 | wheel_steer_f_l_joint         | - |
+| 30 | wheel_steer_f_r_joint         | - |
+| 31 | wheel_steer_b_l_joint         | - |
+| 32 | wheel_steer_b_r_joint         | - |
+| 33 | wheel_drive_f_l_joint         | - |
+| 34 | wheel_drive_f_r_joint         | - |
+| 35 | wheel_drive_b_l_joint         | - |
+| 36 | wheel_drive_b_r_joint         | - |
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -401,24 +297,28 @@ SOBIT HOMEのジョイント名とその定数名を以下の通りです．
 [pose_list.yaml](sobit_home_library/config/pose_list.yaml)というファイルでポーズの追加・編集ができます．以下のようなフォーマットになります．
 
 ```yaml
-poses:
-    - initial_pose
-    - detecting_pose
-    - following_pose
+/**:
+  ros__parameters:
+    poses:
+      - initial_pose
+      - detecting_pose
 
-initial_pose:
-    head_pan                  : 0.0
-    head_tilt                 : 0.0
-    arm_left_shoulder_tilt    : 0.0
-    arm_left_upper_roll       : 0.0
-    arm_left_upper_flex       : 0.0
-    arm_left_elbow            : 0.0
-    arm_left_wrist            : 0.0
-    arm_right_shoulder_tilt   : 0.0
-    arm_right_upper_roll      : 0.0
-    arm_right_upper_flex      : 0.0
-    arm_right_elbow           : 0.0
-    arm_right_wrist           : 0.0
+    initial_pose:
+      body_lift               : 0.5
+      head_pan                : 0.0
+      head_tilt               : 0.0
+      arm_left_shoulder_tilt  : 0.0
+      arm_left_upper_roll     : 0.0
+      arm_left_upper_flex     : 0.0
+      arm_left_elbow          : 0.0
+      arm_left_wrist_tilt     : 0.0
+      arm_left_wrist_roll     : 0.0
+      arm_right_shoulder_tilt : 0.0
+      arm_right_upper_roll    : 0.0
+      arm_right_upper_flex    : 0.0
+      arm_right_elbow         : 0.0
+      arm_right_wrist_tilt    : 0.0
+      arm_right_wrist_roll    : 0.0
 ...
 ```  
 
@@ -436,39 +336,12 @@ SOBIT HOMEの移動機構を動かすための情報まとめです．
 
 #### 動作方法
 
-<!-- 1.  `move_wheel_linear` : 並進（前進・後退のみ）に移動させます．(弧度法：meters)
-    ```yaml
-    # MoveWheelLinear.action
-    # Goal
-    geometry_msgs/Point target_point                # Target Translational Distance
-    builtin_interfaces/Duration time_allowance      # Target time length
-    ---
-    # Result
-    bool success                                    # Success / Failure
-    string message                                  # Result message
-    builtin_interfaces/Duration total_elapsed_time  # Finished time length
-    ---
-    # Feedback
-    geometry_msgs/Point current_point               # Currently displaced distance
-    builtin_interfaces/Duration move_time           # Currently elapsed time
-    ```  
+`sobit_home_library`で現在実装されている移動系Actionは以下です．
 
-2.  `move_wheel_rotate` : 回転運動を行う．(弧度法：Radian)
-    ```yaml
-    # MoveWheelRotate.action
-    # Goal
-    float32 target_yaw                              # Target Rotational Distance
-    builtin_interfaces/Duration time_allowance      # Target time length
-    ---
-    # Result
-    bool success                                    # Success / Failure
-    string message                                  # Result message
-    builtin_interfaces/Duration total_elapsed_time  # Finished time length
-    ---
-    # Feedback
-    geometry_msgs/Point current_point               # Currently displaced distance
-    builtin_interfaces/Duration move_time           # Currently elapsed time
-    ``` -->
+1. `move_wheel_linear`
+2. `move_wheel_rotate`
+
+ホイールActionサーバは`cmd_vel`を出力し，`odom`をフィードバックとして利用します．
 
 </details>
 
@@ -476,9 +349,9 @@ SOBIT HOMEの移動機構を動かすための情報まとめです．
 
 
 ## ハードウェア
-SOBIT HOMEはオープンソースハードウェアとして[OnShape](https://cad.onshape.com/documents/)にて公開しております．
+SOBIT HOMEはオープンソースハードウェアとして[OnShape](https://cad.onshape.com/documents/e17931db96792e39eba48d39/w/a81eeb68b7f4ed981ce8878a/e/42d5107e3af255ccdf5ca7e7?renderMode=0&uiState=69ee43ae00a7b5401b55d390)にて公開しております．
 
-<!-- ![SOBIT HOME in OnShape](sobit_home/docs/img/sobit_home_onshape.png) -->
+![SOBIT HOME in OnShape](sobit_home/docs/img/sobit_home_onshape.png)
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -503,7 +376,7 @@ SOBIT HOMEはオープンソースハードウェアとして[OnShape](https://c
 
 ### 電子回路図
 
-<!-- ![SOBIT HOME Circuit](sobit_home/docs/img/sobit_home_circuit.svg) -->
+![SOBIT HOME Circuit](sobit_home/docs/img/sobit_home_circuit.png)
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -516,6 +389,7 @@ TBD
 
 
 ### ロボットの特徴
+
 <!-- | 項目 | 詳細 |
 | --- | --- |
 | 最大直線速度 | 0.8[m/s] |
@@ -538,8 +412,10 @@ TBD
 
 ### 部品リスト（BOM）
 
-> [!NOTE]
-> 日本のサイト・値段(円)に更新していく予定です．
+TBD
+
+<!-- > [!NOTE]
+> 日本のサイト・値段(円)に更新していく予定です． -->
 
 <!-- | 部品 | 型番 | 数量 | おおよその単価 | 購入先 |
 | --- | --- | --- | --- | --- |
@@ -595,20 +471,10 @@ TBD
 
 おおよその合計金額（オプション除く）: **¥1,030,000** -->
 
-> [!IMPORTANT]
+<!-- > [!IMPORTANT]
 > 販売店によって価格は変動します．最新の価格は各リンク先でご確認ください．
 
-</details>
-
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
-
-
-<!-- マイルストーン -->
-## マイルストーン
-
-- [] -
-
-現時点のバッグや新規機能の依頼を確認するために[Issueページ][issues-url] をご覧ください．
+</details> -->
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
