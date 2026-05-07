@@ -40,12 +40,14 @@
 
   <!-- Activate Components -->
   <xacro:arg name="enable_mobile_base"  default="True" />
+  <xacro:arg name="enable_rm_motors"    default="True" />
   <xacro:arg name="enable_body"         default="True" />
   <xacro:arg name="enable_arm_left"     default="True" />
   <xacro:arg name="enable_arm_right"    default="True" />
   <xacro:arg name="enable_hand_left"    default="True" />
   <xacro:arg name="enable_hand_right"   default="True" />
   <xacro:arg name="enable_head"         default="True" />
+  <xacro:arg name="enable_dxl_pro"      default="True" />
 
   <!-- DXL Ports -->
   <xacro:arg name="dxl_x_lower_body_port"  default="/dev/ttyUSB0" />
