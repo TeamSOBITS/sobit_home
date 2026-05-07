@@ -45,6 +45,8 @@ def generate_launch_description():
         ),
     )
     arg_enable_teleop = DeclareLaunchArgument('enable_teleop', default_value='false')
+    arg_enable_rm_motors = DeclareLaunchArgument('enable_rm_motors', default_value='True')
+    arg_enable_dxl_pro   = DeclareLaunchArgument('enable_dxl_pro',   default_value='True')
 
     return LaunchDescription([
         arg_robot_name,
@@ -68,6 +70,8 @@ def generate_launch_description():
         arg_enable_hand_right_cam_color,
         arg_head_cam_config_file,
         arg_enable_teleop,
+        arg_enable_rm_motors,
+        arg_enable_dxl_pro,
         OpaqueFunction(function = launch_gz),
     ])
 
@@ -99,6 +103,8 @@ def launch_gz(context, *args, **kwargs):
     enable_display              = LaunchConfiguration('enable_display').perform(context)
     enable_teleop               = LaunchConfiguration('enable_teleop').perform(context)
     enable_gz                   = LaunchConfiguration('enable_gz').perform(context)
+    enable_rm_motors            = LaunchConfiguration('enable_rm_motors').perform(context)
+    enable_dxl_pro              = LaunchConfiguration('enable_dxl_pro').perform(context)
 
     # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
     dxl_x_lower_body_port = ''
@@ -122,7 +128,7 @@ def launch_gz(context, *args, **kwargs):
         print('Uirobot Gateway Port : ' + um_body_port)
         print('Uirobot Body Node ID : ' + um_body_id)
 
-        if enable_mobile_base == 'True':
+        if enable_mobile_base == 'True' and enable_rm_motors == 'True':
             fail_flag = False
             fail_flag = os.system('sudo ip link set can0 down')
             fail_flag = os.system('sudo ip link set can0 type can bitrate 1000000')
@@ -170,6 +176,8 @@ def launch_gz(context, *args, **kwargs):
             'enable_head_cam_depth' : enable_head_cam_depth,
             'enable_hand_left_cam_color' : enable_hand_left_cam_color,
             'enable_hand_right_cam_color' : enable_hand_right_cam_color,
+            'enable_rm_motors': enable_rm_motors,
+            'enable_dxl_pro': enable_dxl_pro,
             'dxl_x_lower_body_port': dxl_x_lower_body_port,
             'dxl_x_upper_body_port': dxl_x_upper_body_port,
             'dxl_p_upper_body_port': dxl_p_upper_body_port,
@@ -228,6 +236,7 @@ def launch_gz(context, *args, **kwargs):
         remappings=[
             ("controller_manager/robot_description", "robot_description"),
         ],
+        prefix='chrt -f 80',
         output="both",
     )
 
@@ -279,16 +288,6 @@ def launch_gz(context, *args, **kwargs):
                 '-c', 'controller_manager', '--activate'
                 ],
         )
-        wheel_drive_velocity_controller = Node(
-            package='controller_manager',
-            executable='spawner',
-            name='wheel_drive_velocity_controller',
-            namespace=robot_name,
-            arguments=[
-                'wheel_drive_velocity_controller',
-                '-c', 'controller_manager', '--activate'
-                ],
-        )
         swerve_controller = Node(
             package='sobit_home_control',
             executable='swerve_controller_node',
@@ -301,7 +300,18 @@ def launch_gz(context, *args, **kwargs):
             output='screen',
         )
         controllers.append(wheel_steer_position_controller)
-        controllers.append(wheel_drive_velocity_controller)
+        if enable_rm_motors == 'True':
+            wheel_drive_velocity_controller = Node(
+                package='controller_manager',
+                executable='spawner',
+                name='wheel_drive_velocity_controller',
+                namespace=robot_name,
+                arguments=[
+                    'wheel_drive_velocity_controller',
+                    '-c', 'controller_manager', '--activate'
+                    ],
+            )
+            controllers.append(wheel_drive_velocity_controller)
 
     if enable_arm_left == 'True':
         arm_left_position_controller = Node(
