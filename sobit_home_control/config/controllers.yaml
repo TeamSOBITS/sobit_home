@@ -1,6 +1,6 @@
 /**/controller_manager:
   ros__parameters:
-    update_rate: 250  # Hz — dynamixel_upper needs ~2ms (2 FSR calls); 4ms period gives headroom
+    update_rate: 200  # Hz
 
     head_position_controller:
       type: joint_trajectory_controller/JointTrajectoryController
