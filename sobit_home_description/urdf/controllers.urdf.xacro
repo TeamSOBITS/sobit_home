@@ -26,7 +26,7 @@
       </ros2_control>
     </xacro:if>
   
-    <xacro:if value="${$(arg enable_head) + $(arg enable_arm_left) + $(arg enable_arm_right) + $(arg enable_hand_left) + $(arg enable_hand_right)}">
+    <xacro:if value="${$(arg enable_head) + $(arg enable_arm_left) + $(arg enable_arm_right)}">
       <ros2_control name="dynamixel_upper" type="system" is_async="true">
         <properties>
           <async scheduling_policy="synchronized" thread_priority="79" affinity="[2]" print_warnings="true"/>
@@ -52,6 +52,27 @@
         <xacro:if value="${$(arg enable_arm_right)}">
           <xacro:dxl_arm_right_controllers   prefix="arm_right"  enable_gz="${$(arg enable_gz)}"/>
         </xacro:if>
+
+      </ros2_control>
+    </xacro:if>
+
+    <xacro:if value="${$(arg enable_hand_left) + $(arg enable_hand_right)}">
+      <ros2_control name="dynamixel_hand" type="system" is_async="true">
+        <properties>
+          <async scheduling_policy="synchronized" thread_priority="79" affinity="[5]" print_warnings="true"/>
+        </properties>
+        <hardware>
+          <xacro:if value="${$(arg enable_gz)}">
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+          </xacro:if>
+          <xacro:unless value="${$(arg enable_gz)}">
+            <xacro:property name="dxl_x_hand_port" value="$(arg dxl_x_hand_port)"/>
+            <plugin>dynamixel_hardware/DynamixelHardware</plugin>
+            <param name="port_name">${dxl_x_hand_port}</param>
+            <param name="baud_rate">4000000</param>
+          </xacro:unless>
+        </hardware>
+
         <xacro:if value="${$(arg enable_hand_left)}">
           <xacro:dxl_hand_left_controllers   prefix="hand_left"  enable_gz="${$(arg enable_gz)}"/>
         </xacro:if>
