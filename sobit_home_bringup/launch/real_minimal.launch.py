@@ -31,6 +31,8 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_lidar',                default_value='true'),
         DeclareLaunchArgument('enable_display',              default_value='true'),
         DeclareLaunchArgument('enable_teleop',               default_value='true'),
+        DeclareLaunchArgument('enable_rm_motors',            default_value='true'),
+        DeclareLaunchArgument('enable_dxl_pro',              default_value='true'),
         OpaqueFunction(function=launch_setup),
     ])
 
@@ -73,6 +75,8 @@ def launch_setup(context, *args, **kwargs):
             'enable_lidar'                : _bool(LaunchConfiguration('enable_lidar'), context),
             'enable_display'              : _bool(LaunchConfiguration('enable_display'), context),
             'enable_teleop'               : _bool(LaunchConfiguration('enable_teleop'), context),
+            'enable_rm_motors'            : _bool(LaunchConfiguration('enable_rm_motors'), context),
+            'enable_dxl_pro'              : _bool(LaunchConfiguration('enable_dxl_pro'), context),
             'enable_gz'                   : 'False',  # never Gazebo on real hardware
         }.items(),
     )
