@@ -240,7 +240,7 @@ def launch_gz(context, *args, **kwargs):
         remappings=[
             ("controller_manager/robot_description", "robot_description"),
         ],
-        prefix='chrt -f 80',
+        # prefix='chrt -f 80',
         output="both",
     )
 
@@ -611,6 +611,20 @@ def launch_gz(context, *args, **kwargs):
         nodes.append(delayed_joint_state_broadcaster)
         nodes.append(delayed_controllers)
         nodes.append(delayed_action_server)
+
+        # Relay color/camera_info → depth/camera_info for MoveIt octomap updater
+        if enable_head_cam_depth == 'True':
+            nodes.append(Node(
+                package='topic_tools',
+                executable='relay',
+                name='head_camera_depth_camera_info_relay',
+                parameters=[
+                    {'input_topic':  '/' + robot_name + '/head_camera/color/camera_info'},
+                    {'output_topic': '/' + robot_name + '/head_camera/depth/camera_info'},
+                    {'use_sim_time': True},
+                ],
+                output='log',
+            ))
 
         # Republish raw images as compressed for each camera in Gazebo
         for cam_name, enabled in [
