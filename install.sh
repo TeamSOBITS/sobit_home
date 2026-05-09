@@ -89,6 +89,7 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-ros-gz-sim \
     ros-$ROS_DISTRO-ros-gz-interfaces \
     ros-$ROS_DISTRO-usb-cam \
+    ros-$ROS_DISTRO-topic-tools \
     ros-$ROS_DISTRO-rmw-cyclonedds-cpp
 
 # Set up the environment
