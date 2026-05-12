@@ -30,7 +30,7 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_hand_right_cam_color', default_value='true'),
         DeclareLaunchArgument('enable_lidar',                default_value='true'),
         DeclareLaunchArgument('enable_display',              default_value='true'),
-        DeclareLaunchArgument('enable_teleop',               default_value='true'),
+        DeclareLaunchArgument('enable_teleop',               default_value='false'),
         DeclareLaunchArgument('enable_rm_motors',            default_value='true'),
         DeclareLaunchArgument('enable_dxl_pro',              default_value='true'),
         OpaqueFunction(function=launch_setup),

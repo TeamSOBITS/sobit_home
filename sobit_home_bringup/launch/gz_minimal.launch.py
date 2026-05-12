@@ -22,7 +22,7 @@ def generate_launch_description():
         DeclareLaunchArgument('robot_coords_z', default_value='0.0'),
         DeclareLaunchArgument('robot_coords_Y', default_value='0.0'),
         DeclareLaunchArgument('use_rviz',          default_value='true'),
-        DeclareLaunchArgument('enable_teleop',     default_value='true'),
+        DeclareLaunchArgument('enable_teleop',     default_value='false'),
         DeclareLaunchArgument('enable_gz',         default_value='true'),
         DeclareLaunchArgument('enable_mobile_base',         default_value='true'),
         DeclareLaunchArgument('enable_body',                default_value='true'),
