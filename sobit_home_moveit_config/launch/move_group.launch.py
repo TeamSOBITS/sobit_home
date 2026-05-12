@@ -17,12 +17,13 @@ def _launch_setup(context, *args, **kwargs):
     pkg_share_control = FindPackageShare(package='sobit_home_control').find('sobit_home_control')
     bridge_config_file = os.path.join(pkg_share_control, 'config', 'moveit_whole_body_bridge.yaml')
 
-    # Launch configuration variables
+    # Resolve runtime values
+    enable_teleop = LaunchConfiguration('enable_teleop').perform(context).lower() == 'true'
+
+    # Launch configuration variables (substitutions for node parameters)
     robot_name = LaunchConfiguration('robot_name')
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_rviz = LaunchConfiguration('use_rviz')
-    enable_teleop = LaunchConfiguration('enable_teleop')
-
     # Configuration file paths — SRDF chosen based on enable_teleop
     if enable_teleop:
         srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home_teleop.srdf')
