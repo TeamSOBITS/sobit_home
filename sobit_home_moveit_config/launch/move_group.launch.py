@@ -15,12 +15,15 @@ def _launch_setup(context, *args, **kwargs):
 
     pkg_share_moveit_config = FindPackageShare(package=package_name_moveit_config).find(package_name_moveit_config)
     pkg_share_control = FindPackageShare(package='sobit_home_control').find('sobit_home_control')
-    pkg_share_library = FindPackageShare(package='sobit_home_library').find('sobit_home_library')
     bridge_config_file = os.path.join(pkg_share_control, 'config', 'moveit_whole_body_bridge.yaml')
-    arm_teleop_config_file = os.path.join(pkg_share_library, 'config', 'arm_teleop.yaml')
 
+    # Resolve runtime values
     enable_teleop = LaunchConfiguration('enable_teleop').perform(context).lower() == 'true'
 
+    # Launch configuration variables (substitutions for node parameters)
+    robot_name = LaunchConfiguration('robot_name')
+    use_sim_time = LaunchConfiguration('use_sim_time')
+    use_rviz = LaunchConfiguration('use_rviz')
     # Configuration file paths — SRDF chosen based on enable_teleop
     if enable_teleop:
         srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home_teleop.srdf')
@@ -32,12 +35,6 @@ def _launch_setup(context, *args, **kwargs):
     pilz_cartesian_limits_file_path = os.path.join(pkg_share_moveit_config, 'config', 'pilz_cartesian_limits.yaml')
     rviz_config_file = os.path.join(pkg_share_moveit_config, 'rviz', 'moveit.rviz')
     sensors_file_path = os.path.join(pkg_share_moveit_config, 'config', 'sensors_3d.yaml')
-
-    # Launch configuration variables
-    robot_name = LaunchConfiguration('robot_name')
-    use_sim_time = LaunchConfiguration('use_sim_time')
-    use_rviz = LaunchConfiguration('use_rviz')
-    enable_teleop_cfg = LaunchConfiguration('enable_teleop')
 
     # Build MoveIt configuration
     moveit_config = (
@@ -169,30 +166,10 @@ def _launch_setup(context, *args, **kwargs):
         output='screen',
     )
 
-    # Real-time arm teleop bridge
-    load_arm_teleop = LoadComposableNodes(
-        condition=IfCondition(enable_teleop_cfg),
-        target_container=PythonExpression(["'", robot_name, "' + '/sobit_home_controllers_container'"]),
-        composable_node_descriptions=[
-            ComposableNode(
-                package='sobit_home_library',
-                plugin='sobit_home::MoveitArmTeleop',
-                name='moveit_arm_teleop',
-                namespace=robot_name,
-                parameters=[
-                    {'use_sim_time': use_sim_time},
-                    arm_teleop_config_file,
-                ],
-                extra_arguments=[{'use_intra_process_comms': False}]
-            ),
-        ],
-    )
-
     return [
         start_move_group_node_cmd,
         start_rviz_node_cmd,
         bridge_container,
-        load_arm_teleop,
     ]
 
 

@@ -14,9 +14,9 @@ def _bool(lc, context):
 
 def generate_launch_description():
     return LaunchDescription([
-        DeclareLaunchArgument('robot_name',   default_value='sobit_home'),
-        DeclareLaunchArgument('robot_id',     default_value='0'),
-        DeclareLaunchArgument('use_rviz',     default_value='true'),
+        DeclareLaunchArgument('robot_name',                  default_value='sobit_home'),
+        DeclareLaunchArgument('robot_id',                    default_value='0'),
+        DeclareLaunchArgument('use_rviz',                    default_value='true'),
         DeclareLaunchArgument('enable_mobile_base',          default_value='true'),
         DeclareLaunchArgument('enable_body',                 default_value='true'),
         DeclareLaunchArgument('enable_arm_left',             default_value='true'),
@@ -30,7 +30,7 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_hand_right_cam_color', default_value='true'),
         DeclareLaunchArgument('enable_lidar',                default_value='true'),
         DeclareLaunchArgument('enable_display',              default_value='true'),
-        DeclareLaunchArgument('enable_teleop',               default_value='true'),
+        DeclareLaunchArgument('enable_teleop',               default_value='false'),
         DeclareLaunchArgument('enable_rm_motors',            default_value='true'),
         DeclareLaunchArgument('enable_dxl_pro',              default_value='true'),
         OpaqueFunction(function=launch_setup),

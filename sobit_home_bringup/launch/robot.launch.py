@@ -44,7 +44,7 @@ def generate_launch_description():
             'head_camera_orbbec.yaml',
         ),
     )
-    arg_enable_teleop = DeclareLaunchArgument('enable_teleop', default_value='false')
+    arg_enable_teleop    = DeclareLaunchArgument('enable_teleop', default_value='false')
     arg_enable_rm_motors = DeclareLaunchArgument('enable_rm_motors', default_value='True')
     arg_enable_dxl_pro   = DeclareLaunchArgument('enable_dxl_pro',   default_value='True')
 

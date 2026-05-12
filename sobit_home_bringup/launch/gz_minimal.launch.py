@@ -13,17 +13,17 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     return LaunchDescription([
-        DeclareLaunchArgument('robot_name',    default_value='sobit_home'),
-        DeclareLaunchArgument('robot_id',      default_value='0'),
-        DeclareLaunchArgument('world_model',   default_value='rcjo2026_arena',
-                              description='empty | wrs | small_house | rcjo2025_arena | rcjo2026_arena'),
-        DeclareLaunchArgument('robot_coords_x', default_value='-5.5'),
-        DeclareLaunchArgument('robot_coords_y', default_value='1.5'),
-        DeclareLaunchArgument('robot_coords_z', default_value='0.0'),
-        DeclareLaunchArgument('robot_coords_Y', default_value='0.0'),
-        DeclareLaunchArgument('use_rviz',          default_value='true'),
-        DeclareLaunchArgument('enable_teleop',     default_value='true'),
-        DeclareLaunchArgument('enable_gz',         default_value='true'),
+        DeclareLaunchArgument('robot_name',                 default_value='sobit_home'),
+        DeclareLaunchArgument('robot_id',                   default_value='0'),
+        DeclareLaunchArgument('world_model',                default_value='rcjo2026_arena',
+                              description='empty | wrs | small_house | rcjo2025_arena | rcjo2026_arena | simple_data_collection'),
+        DeclareLaunchArgument('robot_coords_x',             default_value='2.0'),
+        DeclareLaunchArgument('robot_coords_y',             default_value='-1.5'),
+        DeclareLaunchArgument('robot_coords_z',             default_value='0.0'),
+        DeclareLaunchArgument('robot_coords_Y',             default_value='1.57'),
+        DeclareLaunchArgument('use_rviz',                   default_value='true'),
+        DeclareLaunchArgument('enable_teleop',              default_value='false'),
+        DeclareLaunchArgument('enable_gz',                  default_value='true'),
         DeclareLaunchArgument('enable_mobile_base',         default_value='true'),
         DeclareLaunchArgument('enable_body',                default_value='true'),
         DeclareLaunchArgument('enable_arm_left',            default_value='true'),
@@ -72,6 +72,10 @@ def launch_setup(context, *args, **kwargs):
         world_file = os.path.join(
             get_package_share_directory('sobits_gazebo_worlds'),
             'worlds', 'rcjo2026_arena.world.xacro')
+    elif world_model == 'simple_data_collection':
+        world_file = os.path.join(
+            get_package_share_directory('sobits_gazebo_worlds'),
+            'worlds', 'simple_data_collection.world.xacro')
     else:
         world_file = os.path.join(
             get_package_share_directory('sobit_home_description'),
