@@ -11,7 +11,7 @@ Panels:
         - /FrontLiDAR1/Topic1
         - /BackLiDAR1/Topic1
         - /MergedLiDAR1/Topic1
-      Splitter Ratio: 0.43632566928863525
+      Splitter Ratio: 0.5803757905960083
     Tree Height: 504
   - Class: rviz_common/Selection
     Name: Selection
@@ -497,31 +497,31 @@ Visualization Manager:
         arm_left_base_link:
           Value: false
         arm_left_elbow_link:
-          Value: true
+          Value: false
         arm_left_shoulder_tilt_link:
-          Value: true
+          Value: false
         arm_left_upper_flex_link:
-          Value: true
+          Value: false
         arm_left_upper_roll_link:
-          Value: true
+          Value: false
         arm_left_wrist_roll_link:
           Value: false
         arm_left_wrist_tilt_link:
-          Value: true
+          Value: false
         arm_right_base_link:
           Value: false
         arm_right_elbow_link:
-          Value: true
+          Value: false
         arm_right_shoulder_tilt_link:
-          Value: true
+          Value: false
         arm_right_upper_flex_link:
-          Value: true
+          Value: false
         arm_right_upper_roll_link:
-          Value: true
+          Value: false
         arm_right_wrist_roll_link:
           Value: false
         arm_right_wrist_tilt_link:
-          Value: true
+          Value: false
         base_footprint:
           Value: true
         base_link:
@@ -541,21 +541,21 @@ Visualization Manager:
         hand_left_end_effector_link:
           Value: true
         hand_left_finger_c_ip_link:
-          Value: true
+          Value: false
         hand_left_finger_c_mcp_link:
-          Value: true
+          Value: false
         hand_left_finger_l_dip_link:
-          Value: true
+          Value: false
         hand_left_finger_l_mcp_link:
-          Value: true
+          Value: false
         hand_left_finger_l_pip_link:
-          Value: true
+          Value: false
         hand_left_finger_r_dip_link:
-          Value: true
+          Value: false
         hand_left_finger_r_mcp_link:
-          Value: true
+          Value: false
         hand_left_finger_r_pip_link:
-          Value: true
+          Value: false
         hand_right_camera_base_link:
           Value: false
         hand_right_camera_link:
@@ -567,21 +567,21 @@ Visualization Manager:
         hand_right_end_effector_link:
           Value: true
         hand_right_finger_c_ip_link:
-          Value: true
+          Value: false
         hand_right_finger_c_mcp_link:
-          Value: true
+          Value: false
         hand_right_finger_l_dip_link:
-          Value: true
+          Value: false
         hand_right_finger_l_mcp_link:
-          Value: true
+          Value: false
         hand_right_finger_l_pip_link:
-          Value: true
+          Value: false
         hand_right_finger_r_dip_link:
-          Value: true
+          Value: false
         hand_right_finger_r_mcp_link:
-          Value: true
+          Value: false
         hand_right_finger_r_pip_link:
-          Value: true
+          Value: false
         head_base_link:
           Value: false
         head_camera_base_link:
@@ -605,7 +605,7 @@ Visualization Manager:
         head_camera_infra_1_optical_frame:
           Value: false
         head_pan_link:
-          Value: true
+          Value: false
         head_plug_base_link:
           Value: false
         head_tilt_link:
@@ -639,17 +639,17 @@ Visualization Manager:
         plate_top_link:
           Value: false
         wheel_drive_b_l_link:
-          Value: true
+          Value: false
         wheel_drive_b_r_link:
-          Value: true
+          Value: false
         wheel_drive_f_l_link:
-          Value: true
+          Value: false
         wheel_drive_f_r_link:
-          Value: true
+          Value: false
         wheel_steer_b_l_link:
-          Value: true
+          Value: false
         wheel_steer_b_r_link:
-          Value: true
+          Value: false
         wheel_steer_base_b_l_link:
           Value: false
         wheel_steer_base_b_r_link:
@@ -659,9 +659,9 @@ Visualization Manager:
         wheel_steer_base_f_r_link:
           Value: false
         wheel_steer_f_l_link:
-          Value: true
+          Value: false
         wheel_steer_f_r_link:
-          Value: true
+          Value: false
       Marker Scale: 0.5
       Name: TF
       Show Arrows: false
