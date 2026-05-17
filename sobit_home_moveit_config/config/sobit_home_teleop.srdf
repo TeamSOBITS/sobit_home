@@ -2585,4 +2585,10 @@
     <disable_collisions link1="hand_right_finger_r_pip_link" link2="wheel_steer_base_f_r_link" reason="Never" />
     <disable_collisions link1="hand_right_finger_r_pip_link" link2="wheel_steer_f_l_link" reason="Never" />
     <disable_collisions link1="hand_right_finger_r_pip_link" link2="wheel_steer_f_r_link" reason="Never" />
+    <disable_collisions link1="hand_right_camera_base_link" link2="hand_right_finger_c_mcp_link" reason="Adjacent" />
+    <disable_collisions link1="hand_right_camera_link" link2="hand_right_finger_c_mcp_link" reason="Adjacent" />
+    <disable_collisions link1="hand_left_camera_base_link" link2="hand_left_finger_c_mcp_link" reason="Adjacent" />
+    <disable_collisions link1="hand_left_camera_link" link2="hand_left_finger_c_mcp_link" reason="Adjacent" />
+    <disable_collisions link1="hand_left_camera_base_link" link2="lidar_front_base_link" reason="Never" />
+    <disable_collisions link1="hand_right_camera_base_link" link2="lidar_front_base_link" reason="Never" />
 </robot>
