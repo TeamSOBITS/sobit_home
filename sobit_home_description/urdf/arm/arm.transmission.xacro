@@ -6,7 +6,8 @@
     <xacro:SimpleTransmissionPosition joint="${prefix}_${position}_shoulder_tilt_joint"  reduction="1" />
     <xacro:SimpleTransmissionPosition joint="${prefix}_${position}_upper_roll_joint"     reduction="1" />
     <xacro:SimpleTransmissionPosition joint="${prefix}_${position}_uppder_flex_joint"    reduction="1" />
-    <xacro:SimpleTransmissionPosition joint="${prefix}_${position}_elbow_joint"          reduction="1" />
+    <xacro:SimpleTransmissionPosition joint="${prefix}_${position}_lowe_top_joint"          reduction="1" />
+    <xacro:SimpleTransmissionPosition joint="${prefix}_${position}_lowe_bottom_joint"          reduction="1" />
     <xacro:SimpleTransmissionPosition joint="${prefix}_${position}_wrist_tilt_joint"     reduction="1" />
     <xacro:SimpleTransmissionPosition joint="${prefix}_${position}_wrist_roll_joint"     reduction="1" />
   </xacro:macro>
