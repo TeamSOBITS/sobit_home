@@ -78,7 +78,7 @@
     <joint name="${prefix}_${position}_upper_roll_joint" type="revolute" >
       <parent link="${prefix}_${position}_shoulder_tilt_link" />
       <child link="${prefix}_${position}_upper_roll_link" />
-      <origin xyz="${y_sign * 0.0510} ${y_sign * 0.100} 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="${-y_sign * 0.0510} ${y_sign * 0.100} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
@@ -86,10 +86,10 @@
     <link name="${prefix}_${position}_upper_roll_link" >
       <visual>
         <xacro:if value="${position == 'right'}">
-          <origin xyz="${-y_sign * 0.0510} 0.0 0.0" rpy="${M_PI} 0.0 ${y_sign * M_PI/2}" />
+          <origin xyz="${y_sign * 0.0510} 0.0 0.0" rpy="${M_PI} 0.0 ${y_sign * M_PI/2}" />
         </xacro:if>
         <xacro:unless value="${position == 'right'}">
-          <origin xyz="${-y_sign * 0.0510} 0.0 0.0" rpy="0.0 0.0 ${y_sign * M_PI/2}" />
+          <origin xyz="${y_sign * 0.0510} 0.0 0.0" rpy="0.0 0.0 ${y_sign * M_PI/2}" />
         </xacro:unless>
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_upper_roll.stl" scale="0.001 0.001 0.001" />
@@ -116,7 +116,7 @@
       <mimic joint="${prefix}_${position}_upper_roll_joint" multiplier="-1" offset="0"/>
       <parent link="${prefix}_${position}_shoulder_tilt_link" />
       <child link="${prefix}_${position}_upper_roll_sub_link" />
-      <origin xyz="${-y_sign * 0.0510} ${y_sign * 0.100} 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="${y_sign * 0.0510} ${y_sign * 0.100} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="-1.0 0.0 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
@@ -136,7 +136,7 @@
     <joint name="${prefix}_${position}_upper_flex_joint" type="revolute" >
       <parent link="${prefix}_${position}_upper_roll_link" />
       <child link="${prefix}_${position}_upper_flex_link" />
-      <origin xyz="${-y_sign * 0.0510} ${y_sign * 0.1335} 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="${y_sign * 0.0510} ${y_sign * 0.1335} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 ${y_sign} 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="4.81" />
     </joint>
@@ -169,7 +169,7 @@
       <mimic joint="${prefix}_${position}_upper_flex_joint" multiplier="1" offset="0"/>
       <parent link="${prefix}_${position}_upper_roll_link" />
       <child link="${prefix}_${position}_upper_flex_sub_link" />
-      <origin xyz="${-y_sign * 0.0510} ${y_sign * (0.100+0.0335+0.0510)} 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="${y_sign * 0.0510} ${y_sign * (0.100+0.0335+0.0510)} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 ${y_sign} 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="4.81" />
     </joint>
@@ -190,17 +190,17 @@
       <parent link="${prefix}_${position}_upper_flex_link" />
       <child link="${prefix}_${position}_lower_top_link" />
       <axis xyz="0.0 0.0 1.0" />
-      <origin xyz="0.05495 ${y_sign * 0.26365} -0.0510" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.05495 ${y_sign * 0.26365} ${y_sign * 0.0510}" rpy="0.0 0.0 0.0" />
         <limit lower="${-M_PI/2}" upper="${2/3 * M_PI}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
     <link name="${prefix}_${position}_lower_top_link" >
       <visual>
         <xacro:if value="${position == 'right'}">
-          <origin xyz="0.0 0.0 0.0510" rpy="${M_PI} 0.0 ${-M_PI/2}" />
+          <origin xyz="0.0 0.0 ${y_sign * -0.0510}" rpy="${M_PI} 0.0 ${-M_PI/2}" />
         </xacro:if>
         <xacro:unless value="${position == 'right'}">
-          <origin xyz="0.0 0.0 0.0510" rpy="0.0 0.0 ${M_PI/2}" />
+          <origin xyz="0.0 0.0 ${-y_sign * 0.0510}" rpy="0.0 0.0 ${M_PI/2}" />
         </xacro:unless>
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_lower_top.stl" scale="0.001 0.001 0.001" />
@@ -227,7 +227,7 @@
       <mimic joint="${prefix}_${position}_lower_top_joint" multiplier="-1" offset="0"/>
       <parent link="${prefix}_${position}_upper_flex_link" />
       <child link="${prefix}_${position}_lower_top_sub_link" />
-      <origin xyz="0.05495 ${y_sign * 0.26365} 0.0510" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.05495 ${y_sign * 0.26365} ${-y_sign * 0.0510}" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 0.0 -1.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
@@ -247,7 +247,7 @@
     <joint name="${prefix}_${position}_lower_bottom_joint" type="revolute" >
       <parent link="${prefix}_${position}_lower_top_link" />
       <child link="${prefix}_${position}_lower_bottom_link" />
-      <origin xyz="0.0 ${y_sign * 0.107} 0.0510" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 ${y_sign * 0.107} ${-y_sign * 0.0510}" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 ${y_sign* 1.0} 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${4.1 * effort_ratio}" velocity="4.81" />
     </joint>
