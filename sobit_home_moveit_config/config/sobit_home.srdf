@@ -1993,4 +1993,36 @@
     <disable_collisions link1="wheel_steer_base_f_r_link" link2="wheel_steer_f_r_link"
         reason="Adjacent" />
     <disable_collisions link1="wheel_steer_f_l_link" link2="wheel_steer_f_r_link" reason="Never" />
+
+    <!-- Exact self-collision pairs detected when two_fingers_close_pose is active -->
+    <disable_collisions link1="hand_right_finger_c_ip_link" link2="hand_right_finger_r_pip_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_c_mcp_link" link2="hand_right_finger_l_dip_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_c_mcp_link" link2="hand_right_finger_r_dip_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_c_ip_link" link2="hand_left_finger_r_pip_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_c_mcp_link" link2="hand_left_finger_l_dip_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_c_mcp_link" link2="hand_left_finger_r_dip_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_l_dip_link" link2="hand_right_finger_c_ip_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_l_dip_link" link2="hand_right_finger_r_dip_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_l_dip_link" link2="hand_right_finger_r_pip_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_l_pip_link" link2="hand_right_finger_r_dip_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_l_pip_link" link2="hand_right_finger_c_ip_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_c_ip_link" link2="hand_right_finger_r_dip_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_l_dip_link" link2="arm_right_wrist_roll_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_l_dip_link" link2="arm_right_wrist_tilt_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_c_ip_link" link2="arm_right_wrist_roll_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_c_ip_link" link2="arm_right_wrist_tilt_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_r_dip_link" link2="arm_right_wrist_roll_link" reason="Never" />
+    <disable_collisions link1="hand_right_finger_r_dip_link" link2="arm_right_wrist_tilt_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_l_dip_link" link2="hand_left_finger_c_ip_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_l_dip_link" link2="hand_left_finger_r_dip_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_l_dip_link" link2="hand_left_finger_r_pip_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_l_pip_link" link2="hand_left_finger_r_dip_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_l_pip_link" link2="hand_left_finger_c_ip_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_c_ip_link" link2="hand_left_finger_r_dip_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_l_dip_link" link2="arm_left_wrist_roll_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_l_dip_link" link2="arm_left_wrist_tilt_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_c_ip_link" link2="arm_left_wrist_roll_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_c_ip_link" link2="arm_left_wrist_tilt_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_r_dip_link" link2="arm_left_wrist_roll_link" reason="Never" />
+    <disable_collisions link1="hand_left_finger_r_dip_link" link2="arm_left_wrist_tilt_link" reason="Never" />
 </robot>
