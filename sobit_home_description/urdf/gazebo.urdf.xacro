@@ -15,7 +15,7 @@
           <topic>${robot_name}/head_camera/color</topic>
 
           <always_on>1</always_on>
-          <visualize>true</visualize>
+          <visualize>false</visualize>
           <update_rate>10</update_rate>
 
           <camera name="head_camera_color">
@@ -51,7 +51,7 @@
           <topic>${robot_name}/head_camera/depth</topic>
 
           <always_on>1</always_on>
-          <visualize>true</visualize>
+          <visualize>false</visualize>
           <update_rate>10</update_rate>
 
           <camera name="head_camera_depth">
@@ -86,7 +86,7 @@
           <topic>${robot_name}/hand_left_camera/color</topic>
 
           <always_on>1</always_on>
-          <visualize>true</visualize>
+          <visualize>false</visualize>
           <update_rate>10</update_rate>
 
           <camera name="hand_left_camera_color">
@@ -117,7 +117,7 @@
           <topic>${robot_name}/hand_right_camera/color</topic>
 
           <always_on>1</always_on>
-          <visualize>true</visualize>
+          <visualize>false</visualize>
           <update_rate>10</update_rate>
 
           <camera name="hand_right_camera_color">
