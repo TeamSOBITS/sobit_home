@@ -59,17 +59,17 @@
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="0.0 ${y_sign * 0.104/2} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
+        <origin xyz="0.0 ${y_sign * 0.075} 0.0" rpy="${M_PI/2} 0.0 0.0" />
         <geometry>
-          <cylinder length="0.104" radius="${0.08/2}" />
+          <cylinder length="0.100" radius="${0.178/2}" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0 ${y_sign * 0.104/2} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
-        <mass value="0.504" />
-        <inertia ixx="${1/12*0.504*(3*0.04**2+0.104**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.504*(3*0.04**2+0.104**2)}" iyz="0.0"
-                 izz="${1/2*0.504*0.04**2}" />
+        <origin xyz="0.0 ${y_sign * 0.075} 0.0" rpy="${M_PI/2} 0.0 0.0" />
+        <mass value="0.600" />
+        <inertia ixx="${1/12*0.600*(3*0.89**2+0.100**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.600*(3*0.89**2+0.100**2)}" iyz="0.0"
+                 izz="${1/2*0.600*0.89**2}" />
       </inertial>
     </link>
 
@@ -78,8 +78,8 @@
     <joint name="${prefix}_${position}_upper_roll_joint" type="revolute" >
       <parent link="${prefix}_${position}_shoulder_tilt_link" />
       <child link="${prefix}_${position}_upper_roll_link" />
-      <origin xyz="${-y_sign * 0.0510} ${y_sign * 0.100} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="1.0 0.0 0.0" />
+        <origin xyz="${-y_sign * 0.0510} ${y_sign * 0.100} 0.0" rpy="0.0 0.0 0.0" />
+      <axis xyz="-1.0 0.0 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
@@ -97,17 +97,18 @@
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="${-y_sign * 0.0563} ${y_sign * 0.13445} 0.0" rpy="0.0 ${y_sign * M_PI/2} ${M_PI/2}" />
+        <origin xyz="${y_sign * 0.0510} ${y_sign * (0.1285)/2 + y_sign * 0.05} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
         <geometry>
-          <cylinder length="0.129" radius="${0.076/2}" />
+          <cylinder length="0.1285" radius="${0.142/2}" />
+          <!-- <cylinder length="0.1285" radius="${0.142/2}" /> -->
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 ${y_sign * 0.13445} 0.0" rpy="0.0 ${y_sign * M_PI/2} ${M_PI/2}" />
-        <mass value="0.595" />
-        <inertia ixx="${1/12*0.595*(3*0.038**2+0.129**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.595*(3*0.038**2+0.129**2)}" iyz="0.0"
-                 izz="${1/2*0.595*0.038**2}" />
+        <origin xyz="${y_sign * 0.0510} ${y_sign * (0.1285)/2 + y_sign * 0.05} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
+        <mass value="1.31" />
+        <inertia ixx="${1/12*1.31*(3*0.0875**2+0.1285**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*1.31*(3*0.0875**2+0.1285**2)}" iyz="0.0"
+                 izz="${1/2*1.31*0.0875**2}" />
       </inertial>
     </link>
 
@@ -117,17 +118,17 @@
       <parent link="${prefix}_${position}_shoulder_tilt_link" />
       <child link="${prefix}_${position}_upper_roll_sub_link" />
       <origin xyz="${y_sign * 0.0510} ${y_sign * 0.100} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="-1.0 0.0 0.0" />
+      <axis xyz="1.0 0.0 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
     <link name="${prefix}_${position}_upper_roll_sub_link" >
       <inertial>
-        <origin xyz="0.0 ${y_sign * 0.13445} 0.0" rpy="0.0 ${y_sign * M_PI/2} ${M_PI/2}" />
-        <mass value="0.595" />
-        <inertia ixx="${1/12*0.595*(3*0.038**2+0.129**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.595*(3*0.038**2+0.129**2)}" iyz="0.0"
-                 izz="${1/2*0.595*0.038**2}" />
+        <origin xyz="${y_sign * 0.0510} ${y_sign * (0.1285)/2 + y_sign * 0.10} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
+        <mass value="1.73" />
+        <inertia ixx="${1/12*1.31*(3*0.0875**2+0.1285**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*1.31*(3*0.0875**2+0.1285**2)}" iyz="0.0"
+                 izz="${1/2*1.31*0.0875**2}" />
       </inertial>
     </link>
   
@@ -136,31 +137,36 @@
     <joint name="${prefix}_${position}_upper_flex_joint" type="revolute" >
       <parent link="${prefix}_${position}_upper_roll_link" />
       <child link="${prefix}_${position}_upper_flex_link" />
-      <origin xyz="${y_sign * 0.0510} ${y_sign * 0.1335} 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="${y_sign * 0.0510} ${y_sign * 0.1135} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 ${y_sign} 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="4.81" />
     </joint>
 
     <link name="${prefix}_${position}_upper_flex_link" >
       <visual>
-          <origin xyz="0.0 ${y_sign * 0.0212} 0.0" rpy="${-y_sign *M_PI/2} 0.0 ${y_sign * M_PI/2}" />
+        <xacro:if value="${position == 'right'}">
+            <origin xyz="0.0 0.00765 0.0" rpy="${-M_PI} 0.0 ${y_sign * M_PI/2}" />
+        </xacro:if>
+        <xacro:unless value="${position == 'right'}">
+            <origin xyz="0.0 -0.00765 0.0" rpy="0.0 0.0 ${y_sign * M_PI/2}" />
+        </xacro:unless>
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_upper_flex.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="0.0 ${y_sign * 0.06943603} 0.0" rpy="0.0 ${y_sign * M_PI/2} ${-M_PI/2}" />
+        <origin xyz="0.0 ${y_sign * 0.170/2 + y_sign * (0.095+0.025)} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
         <geometry>
-          <cylinder length="0.171" radius="${0.076/2}" />
+          <cylinder length="0.170" radius="${0.060/2}" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 ${y_sign * 0.06943603} 0.0" rpy="0.0 ${y_sign * M_PI/2} ${-M_PI/2}" />
-        <mass value="0.778" />
-        <inertia ixx="${1/12*0.778*(3*0.038**2+0.171**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.778*(3*0.038**2+0.171**2)}" iyz="0.0"
-                 izz="${1/2*0.778*0.038**2}" />
+        <origin xyz="0.0 ${y_sign * 0.170/2 + y_sign * (0.095+0.025)} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
+        <mass value="1.006" />
+        <inertia ixx="${1/12*1.006*(3*0.038**2+0.170**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*1.006*(3*0.038**2+0.170**2)}" iyz="0.0"
+                 izz="${1/2*1.006*0.038**2}" />
       </inertial>
     </link>
 
@@ -169,90 +175,95 @@
       <mimic joint="${prefix}_${position}_upper_flex_joint" multiplier="1" offset="0"/>
       <parent link="${prefix}_${position}_upper_roll_link" />
       <child link="${prefix}_${position}_upper_flex_sub_link" />
-      <origin xyz="${y_sign * 0.0510} ${y_sign * (0.100+0.0335+0.0510)} 0.0" rpy="0.0 0.0 0.0" />
+      <origin xyz="${y_sign * 0.0510} ${y_sign * (0.1135+0.0510)} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 ${y_sign} 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="4.81" />
     </joint>
 
     <link name="${prefix}_${position}_upper_flex_sub_link" >
       <inertial>
-        <origin xyz="0.0 ${y_sign * 0.06943603} 0.0" rpy="0.0 ${y_sign * M_PI/2} ${-M_PI/2}" />
-        <mass value="0.778" />
-        <inertia ixx="${1/12*0.778*(3*0.038**2+0.171**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.778*(3*0.038**2+0.171**2)}" iyz="0.0"
-                 izz="${1/2*0.778*0.038**2}" />
+        <origin xyz="0.0 ${y_sign * 0.170/2 + y_sign * (0.095+0.01)} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
+        <mass value="1.006" />
+        <inertia ixx="${1/12*1.006*(3*0.038**2+0.170**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*1.006*(3*0.038**2+0.170**2)}" iyz="0.0"
+                 izz="${1/2*1.006*0.038**2}" />
       </inertial>
     </link>
 
 
-<!-- Lower top joint -->
-    <joint name="${prefix}_${position}_lower_top_joint" type="revolute" >
+<!-- Elbow joint -->
+    <joint name="${prefix}_${position}_elbow_joint" type="revolute" >
       <parent link="${prefix}_${position}_upper_flex_link" />
-      <child link="${prefix}_${position}_lower_top_link" />
+      <child link="${prefix}_${position}_elbow_link" />
       <axis xyz="0.0 0.0 1.0" />
-      <origin xyz="0.05495 ${y_sign * 0.26365} ${y_sign * 0.0510}" rpy="0.0 0.0 0.0" />
-        <limit lower="${-M_PI/2}" upper="${2/3 * M_PI}" effort="${10.6 * effort_ratio}" velocity="3.14" />
+      <origin xyz="0.05495 ${y_sign * (0.28865-0.00765)} ${y_sign * 0.0510}" rpy="0.0 0.0 0.0" />
+      <xacro:if value="${position == 'right'}">
+        <limit lower="0.0" upper="${8/9 * M_PI}" effort="${10.6 * effort_ratio}" velocity="3.14" />
+      </xacro:if>
+      <xacro:unless value="${position == 'right'}">
+        <limit lower="${-8/9 * M_PI}" upper="0.0" effort="${10.6 * effort_ratio}" velocity="3.14" />
+      </xacro:unless>
     </joint>
 
-    <link name="${prefix}_${position}_lower_top_link" >
+    <link name="${prefix}_${position}_elbow_link" >
       <visual>
         <xacro:if value="${position == 'right'}">
-          <origin xyz="0.0 0.0 ${y_sign * -0.0510}" rpy="${M_PI} 0.0 ${-M_PI/2}" />
+          <origin xyz="0.0 0.0 ${-y_sign * 0.0510}" rpy="${M_PI} 0.0 ${-M_PI/2}" />
         </xacro:if>
         <xacro:unless value="${position == 'right'}">
           <origin xyz="0.0 0.0 ${-y_sign * 0.0510}" rpy="0.0 0.0 ${M_PI/2}" />
         </xacro:unless>
         <geometry>
-          <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_lower_top.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_elbow.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 ${y_sign * 0.12/2 + y_sign * 0.09} ${-y_sign * 0.051}" rpy="${y_sign * M_PI/2} 0.0 0.0" />
         <geometry>
-          <cylinder length="0.386" radius="${0.088156/2}" />
+          <cylinder length="0.12" radius="${0.110/2}" />
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 ${y_sign * 0.265} 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
-        <mass value="1.663" /> <!--mass without FR13-H101K -->
-        <inertia ixx="${1/12*1.663*(3*0.044**2+0.386**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*1.663*(3*0.044**2+0.386**2)}" iyz="0.0"
-                 izz="${1/2*1.663*0.044**2}" />
+        <origin xyz="0.0 ${y_sign * 0.12/2 + y_sign * 0.09} ${-y_sign * 0.051}" rpy="${y_sign * M_PI/2} 0.0 0.0" />
+        <mass value="0.466"/>
+        <inertia ixx="${1/12*0.466*(3*0.055**2+0.12**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.466*(3*0.055**2+0.12**2)}" iyz="0.0"
+                 izz="${1/2*0.466*0.055**2}" />
       </inertial>
     </link>
 
 <!-- Lower top sub joint -->
-    <joint name="${prefix}_${position}_lower_top_sub_joint" type="revolute" >
-      <mimic joint="${prefix}_${position}_lower_top_joint" multiplier="-1" offset="0"/>
+    <joint name="${prefix}_${position}_elbow_sub_joint" type="revolute" >
+      <mimic joint="${prefix}_${position}_elbow_joint" multiplier="-1" offset="0"/>
       <parent link="${prefix}_${position}_upper_flex_link" />
-      <child link="${prefix}_${position}_lower_top_sub_link" />
-      <origin xyz="0.05495 ${y_sign * 0.26365} ${-y_sign * 0.0510}" rpy="0.0 0.0 0.0" />
+      <child link="${prefix}_${position}_elbow_sub_link" />
+      <origin xyz="0.05495 ${y_sign * (0.28865-0.00765)} ${-y_sign * 0.0510}" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 0.0 -1.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
-    <link name="${prefix}_${position}_lower_top_sub_link" >
+    <link name="${prefix}_${position}_elbow_sub_link" >
       <inertial>
-        <origin xyz="0.0 ${y_sign * 0.265} 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
-        <mass value="1.663" /> 
-        <inertia ixx="${1/12*1.663*(3*0.044**2+0.386**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*1.663*(3*0.044**2+0.386**2)}" iyz="0.0"
-                 izz="${1/2*1.663*0.044**2}" />
+        <origin xyz="0.0 ${y_sign * 0.12/2 + y_sign * 0.09} ${-y_sign * 0.051}" rpy="${y_sign * M_PI/2} 0.0 0.0" />
+        <mass value="0.466"/>
+        <inertia ixx="${1/12*0.466*(3*0.055**2+0.12**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.466*(3*0.055**2+0.12**2)}" iyz="0.0"
+                 izz="${1/2*0.466*0.055**2}" />
       </inertial>
     </link>
 
 
 <!-- Lower bottom joint -->
-    <joint name="${prefix}_${position}_lower_bottom_joint" type="revolute" >
-      <parent link="${prefix}_${position}_lower_top_link" />
-      <child link="${prefix}_${position}_lower_bottom_link" />
+    <joint name="${prefix}_${position}_lower_flex_joint" type="revolute" >
+      <parent link="${prefix}_${position}_elbow_link" />
+      <child link="${prefix}_${position}_lower_flex_link" />
       <origin xyz="0.0 ${y_sign * 0.107} ${-y_sign * 0.0510}" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 ${y_sign* 1.0} 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${4.1 * effort_ratio}" velocity="4.81" />
     </joint>
 
-    <link name="${prefix}_${position}_lower_bottom_link" >
+    <link name="${prefix}_${position}_lower_flex_link" >
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${y_sign * M_PI/2}" />
         <geometry>
@@ -261,25 +272,24 @@
         <material name="grey" />
       </visual>
       <collision>
-        <origin xyz="0.0 ${y_sign * 0.0462} 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
+        <origin xyz="0.0 ${y_sign * 0.300/2 + y_sign * 0.105} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
         <geometry>
-          <cylinder length="0.0453" radius="${0.08/2}" />
+          <cylinder length="0.300" radius="${0.084/2}"/>
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
-        <mass value="0.341" />
-        <inertia ixx="${1/12*0.341*(3*0.04**2+0.0453**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.341*(3*0.04**2+0.0453**2)}" iyz="0.0"
-                 izz="${1/2*0.341*0.04**2}" />
+        <origin xyz="0.0 ${y_sign * 0.300/2 + y_sign * 0.105} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
+        <mass value="0.585" />
+        <inertia ixx="${1/12*0.585*(3*0.042**2+0.300**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.585*(3*0.042**2+0.300**2)}" iyz="0.0"
+                 izz="${1/2*0.585*0.042**2}" />
       </inertial>
     </link>
 
 
-<!-- TODO -->
 <!-- Wrist tilt joint -->
     <joint name="${prefix}_${position}_wrist_tilt_joint" type="revolute" >
-      <parent link="${prefix}_${position}_lower_bottom_link" />
+      <parent link="${prefix}_${position}_lower_flex_link" />
       <child link="${prefix}_${position}_wrist_tilt_link" />
       <origin xyz="0.0 ${y_sign * 0.443} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 0.0 1.0" />
@@ -292,7 +302,7 @@
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_wrist_tilt.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="grey" />
+        <material name="grey"/>
       </visual>
       <collision>
         <origin xyz="0.0 ${y_sign * 0.0462} 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
@@ -301,11 +311,11 @@
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
-        <mass value="0.341" />
-        <inertia ixx="${1/12*0.341*(3*0.04**2+0.0453**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.341*(3*0.04**2+0.0453**2)}" iyz="0.0"
-                 izz="${1/2*0.341*0.04**2}" />
+        <origin xyz="0.0 ${y_sign * 0.0462} 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
+        <mass value="0.207" />
+        <inertia ixx="${1/12*0.207*(3*0.04**2+0.0453**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.207*(3*0.04**2+0.0453**2)}" iyz="0.0"
+                 izz="${1/2*0.207*0.04**2}" />
       </inertial>
     </link>
 
@@ -334,11 +344,11 @@
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 ${y_sign * M_PI/2} ${y_sign * M_PI/2}" />
-        <mass value="0.016" />
-        <inertia ixx="${1/12*0.016*(0.0645**2+0.0826**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.016*(0.108**2 +0.0645**2)}" iyz="0.0"
-                 izz="${1/12*0.016*(0.108**2+0.0826**2)}" />
+        <origin xyz="0.00852612 ${y_sign * 0.07450 / 2} 0.0" rpy="0.0 ${y_sign * M_PI/2} ${y_sign * M_PI/2}" />
+        <mass value="0.008" />
+        <inertia ixx="${1/12*0.008*(0.0645**2+0.0826**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.008*(0.108**2 +0.0645**2)}" iyz="0.0"
+                 izz="${1/12*0.008*(0.108**2+0.0826**2)}" />
       </inertial>
     </link>
 

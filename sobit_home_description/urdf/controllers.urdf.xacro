@@ -456,8 +456,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI}</param>
-        <param name="max">${M_PI}</param>
+        <param name="min">-${M_PI/2}</param>
+        <param name="max">${M_P/2}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -487,7 +487,7 @@
       <state_interface name="effort"/>
     </joint>
 
-    <joint name="${prefix}_lower_top_joint">
+    <joint name="${prefix}_elbow_joint">
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">36</param>
         <param name="control_mode">0</param>
@@ -495,22 +495,22 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">${-140*M_PI/180}</param>
+        <param name="min">${-8/9 * M_PI}</param>
         <param name="max">0</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
-        <param name="initial_value">-1.571</param>
+        <param name="initial_value">1.571</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
     </joint>
 
-    <joint name="${prefix}_lower_top_sub_joint">
+    <joint name="${prefix}_elbow_sub_joint">
       <xacro:if value="${$(arg enable_gz)}">
         <command_interface name="position">
-        <param name="min">${2/3*M_PI}</param>
-        <param name="max">0</param>
+        <param name="min">0</param>
+        <param name="max">${8/9 * M_PI}</param>
         </command_interface>
       </xacro:if>
       <xacro:unless value="${$(arg enable_gz)}">
@@ -520,7 +520,27 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <state_interface name="position">
-        <param name="initial_value">1.571</param>
+        <param name="initial_value">-1.571</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+
+    <joint name="${prefix}_lower_flex_joint">
+      <xacro:if value="${$(arg enable_gz)}">
+        <command_interface name="position">
+        <param name="min">-${M_PI/2}</param>
+        <param name="max">${M_PI/2}</param>
+        </command_interface>
+      </xacro:if>
+      <xacro:unless value="${$(arg enable_gz)}">
+        <param name="id">37</param>
+        <param name="control_mode">0</param>
+        <param name="interface">rs</param>
+        <param name="Return_Delay_Time">0</param>
+      </xacro:unless>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
@@ -528,7 +548,7 @@
 
     <joint name="${prefix}_wrist_tilt_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">35</param>
+        <param name="id">39</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
@@ -547,7 +567,7 @@
 
     <joint name="${prefix}_wrist_roll_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">36</param>
+        <param name="id">40</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
@@ -613,8 +633,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI}</param>
-        <param name="max">${M_PI}</param>
+        <param name="min">-${M_PI/2}</param>
+        <param name="max">${M_PI/2}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
@@ -644,7 +664,7 @@
       <state_interface name="effort"/>
     </joint>
 
-    <joint name="${prefix}_lower_top_joint">
+    <joint name="${prefix}_elbow_joint">
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">46</param>
         <param name="control_mode">0</param>
@@ -652,21 +672,21 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">${-140*M_PI/180}</param>
-        <param name="max">0</param>
+        <param name="min">0</param>
+        <param name="max">${8/9 * M_PI}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
-        <param name="initial_value">-1.33</param>
+        <param name="initial_value">1.571</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
     </joint>
 
-    <joint name="${prefix}_lower_top_sub_joint">
+    <joint name="${prefix}_elbow_sub_joint">
       <xacro:if value="${$(arg enable_gz)}">
         <command_interface name="position">
-        <param name="min">${-140*M_PI/180}</param>
+        <param name="min">-${8/9 * M_PI}</param>
         <param name="max">0</param>
         </command_interface>
       </xacro:if>
@@ -677,13 +697,13 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <state_interface name="position">
-        <param name="initial_value">-1.33</param>
+        <param name="initial_value">-1.571</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
     </joint>
 
-    <joint name="${prefix}_lower_bottom_joint">
+    <joint name="${prefix}_lower_flex_joint">
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">48</param>
         <param name="control_mode">0</param>
@@ -691,12 +711,12 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">${-M_PI/2}</param>
+        <param name="min">-${M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
       <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
-        <param name="initial_value">-1.33</param>
+        <param name="initial_value">0.0</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
@@ -704,7 +724,7 @@
 
     <joint name="${prefix}_wrist_tilt_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">45</param>
+        <param name="id">49</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
@@ -723,7 +743,7 @@
 
     <joint name="${prefix}_wrist_roll_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">46</param>
+        <param name="id">50</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
