@@ -126,7 +126,7 @@ void MoveitWholeBodyBridge::execute(const std::shared_ptr<GoalHandleFJT> goal_ha
         goal_handle->canceled(result);
         return;
       }
-      rclcpp::sleep_for(std::chrono::milliseconds(5));
+      this->get_clock()->sleep_for(rclcpp::Duration::from_nanoseconds(5'000'000));
     }
 
     // Desired pose from trajectory
