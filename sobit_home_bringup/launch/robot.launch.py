@@ -47,6 +47,7 @@ def generate_launch_description():
     arg_enable_teleop    = DeclareLaunchArgument('enable_teleop', default_value='false')
     arg_enable_rm_motors = DeclareLaunchArgument('enable_rm_motors', default_value='True')
     arg_enable_dxl_pro   = DeclareLaunchArgument('enable_dxl_pro',   default_value='True')
+    arg_enable_moveit    = DeclareLaunchArgument('enable_moveit',    default_value='True')
 
     return LaunchDescription([
         arg_robot_name,
@@ -72,6 +73,7 @@ def generate_launch_description():
         arg_enable_teleop,
         arg_enable_rm_motors,
         arg_enable_dxl_pro,
+        arg_enable_moveit,
         OpaqueFunction(function = launch_gz),
     ])
 
@@ -105,6 +107,7 @@ def launch_gz(context, *args, **kwargs):
     enable_gz                   = LaunchConfiguration('enable_gz').perform(context)
     enable_rm_motors            = LaunchConfiguration('enable_rm_motors').perform(context)
     enable_dxl_pro              = LaunchConfiguration('enable_dxl_pro').perform(context)
+    enable_moveit               = LaunchConfiguration('enable_moveit').perform(context)
 
     # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
     dxl_x_lower_body_port = ''
@@ -475,6 +478,7 @@ def launch_gz(context, *args, **kwargs):
             'robot_name':   robot_name,
             'use_sim_time': 'true' if enable_gz == 'True' else 'false',
             'enable_teleop':   enable_teleop,
+            'enable_moveit':   enable_moveit,
         }.items(),
     )
 

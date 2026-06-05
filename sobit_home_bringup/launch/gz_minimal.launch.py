@@ -37,6 +37,7 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_hand_right_cam_color',default_value='true'),
         DeclareLaunchArgument('enable_lidar',               default_value='true'),
         DeclareLaunchArgument('enable_display',             default_value='false'),
+        DeclareLaunchArgument('enable_moveit',              default_value='true'),
         DeclareLaunchArgument('headless',                   default_value='false',
                               description='Run Gazebo in headless mode (--headless-rendering). '
                                           'Saves GPU memory when the GUI is not needed.'),
@@ -141,6 +142,7 @@ def launch_setup(context, *args, **kwargs):
             'enable_display'              : _bool(LaunchConfiguration('enable_display'), context),
             'enable_teleop'               : _bool(LaunchConfiguration('enable_teleop'), context),
             'enable_gz'                   : _bool(LaunchConfiguration('enable_gz'), context),
+            'enable_moveit'               : _bool(LaunchConfiguration('enable_moveit'), context),
         }.items(),
     )
 

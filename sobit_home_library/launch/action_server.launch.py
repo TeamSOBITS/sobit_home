@@ -13,6 +13,7 @@ def generate_launch_description():
     arg_use_sim_time  = DeclareLaunchArgument('use_sim_time',  default_value='true')
     arg_use_rviz      = DeclareLaunchArgument('use_rviz',      default_value='false')
     arg_enable_teleop = DeclareLaunchArgument('enable_teleop', default_value='false')
+    arg_enable_moveit = DeclareLaunchArgument('enable_moveit', default_value='true')
     arg_linear_kp     = DeclareLaunchArgument('linear_kp',     default_value='0.1')
     arg_linear_kd     = DeclareLaunchArgument('linear_kd',     default_value='0.4')
     arg_linear_ki     = DeclareLaunchArgument('linear_ki',     default_value='0.8')
@@ -25,6 +26,7 @@ def generate_launch_description():
         arg_use_sim_time,
         arg_use_rviz,
         arg_enable_teleop,
+        arg_enable_moveit,
         arg_linear_kp,
         arg_linear_kd,
         arg_linear_ki,
@@ -40,6 +42,7 @@ def launch_setup(context, *args, **kwargs):
     use_sim_time  = LaunchConfiguration('use_sim_time').perform(context)
     use_rviz      = LaunchConfiguration('use_rviz').perform(context)
     enable_teleop = LaunchConfiguration('enable_teleop').perform(context)
+    enable_moveit = LaunchConfiguration('enable_moveit').perform(context)
     linear_kp     = float(LaunchConfiguration('linear_kp').perform(context))
     linear_kd     = float(LaunchConfiguration('linear_kd').perform(context))
     linear_ki     = float(LaunchConfiguration('linear_ki').perform(context))
@@ -107,8 +110,14 @@ def launch_setup(context, *args, **kwargs):
         }.items(),
     )
 
-    return [
+    enable_moveit_bool = enable_moveit.lower() in ('true', '1', 'yes')
+
+    nodes = [
         joint_action_server_node,
         wheel_action_server_node,
-        move_group_launch,
     ]
+
+    if enable_moveit_bool:
+        nodes.append(move_group_launch)
+
+    return nodes
