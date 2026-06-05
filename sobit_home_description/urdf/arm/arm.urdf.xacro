@@ -206,12 +206,6 @@
 
     <link name="${prefix}_${position}_elbow_link" >
       <visual>
-        <!-- <xacro:if value="${position == 'right'}">
-          <origin xyz="0.0 0.0 0.0510" rpy="${M_PI} 0.0 ${-M_PI/2}" />
-        </xacro:if>
-        <xacro:unless value="${position == 'right'}">
-          <origin xyz="0.0 0.0 -0.0510" rpy="0.0 0.0 ${M_PI/2}" />
-        </xacro:unless> -->
         <origin xyz="0.0 0.0 -0.0510" rpy="0.0 0.0 ${y_sign * M_PI/2}" />
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_elbow.stl" scale="0.001 0.001 0.001" />
