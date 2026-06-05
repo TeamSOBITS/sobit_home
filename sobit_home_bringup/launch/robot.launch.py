@@ -557,6 +557,15 @@ def launch_gz(context, *args, **kwargs):
                     ("/" + robot_name + "/hand_right_camera/camera_info", "/" + robot_name + "/hand_right_camera/color/camera_info"),
                     ("/" + robot_name + "/hand_right_camera/color", "/" + robot_name + "/hand_right_camera/color/image_raw"),
                 ],
+        parameters=[{
+            'use_sim_time': True,
+            f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.reliability': 'reliable',
+            f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.depth': 1,
+            f'qos_overrides./{robot_name}/head_camera/depth/image_raw.publisher.reliability': 'reliable',
+            f'qos_overrides./{robot_name}/head_camera/depth/image_raw.publisher.depth': 1,
+            f'qos_overrides./{robot_name}/head_camera/color/image_raw.publisher.reliability': 'reliable',
+            f'qos_overrides./{robot_name}/head_camera/color/image_raw.publisher.depth': 1,
+        }],
         output='screen'
     )
 
