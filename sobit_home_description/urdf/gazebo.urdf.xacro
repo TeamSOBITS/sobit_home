@@ -52,7 +52,7 @@
 
           <always_on>1</always_on>
           <visualize>false</visualize>
-          <update_rate>10</update_rate>
+          <update_rate>1</update_rate>
 
           <camera name="head_camera_depth">
             <horizontal_fov>1.64061</horizontal_fov>
@@ -93,8 +93,8 @@
             <!-- ELP-USBGS1200P01-H120: HFOV 126 deg -->
             <horizontal_fov>2.19911</horizontal_fov>
             <image>
-              <width>1920</width>
-              <height>1200</height>
+              <width>640</width>
+              <height>400</height>
               <format>RGB_INT8</format>
             </image>
             <clip>
@@ -124,8 +124,8 @@
             <!-- ELP-USBGS1200P01-H120: HFOV 126 deg -->
             <horizontal_fov>2.19911</horizontal_fov>
             <image>
-              <width>1920</width>
-              <height>1200</height>
+              <width>640</width>
+              <height>400</height>
               <format>RGB_INT8</format>
             </image>
             <clip>
