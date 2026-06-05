@@ -38,6 +38,7 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_lidar',               default_value='true'),
         DeclareLaunchArgument('enable_display',             default_value='false'),
         DeclareLaunchArgument('enable_moveit',              default_value='true'),
+        DeclareLaunchArgument('enable_tf_prefix',           default_value='false'),
         DeclareLaunchArgument('headless',                   default_value='false',
                               description='Run Gazebo in headless mode (--headless-rendering). '
                                           'Saves GPU memory when the GUI is not needed.'),
@@ -143,6 +144,7 @@ def launch_setup(context, *args, **kwargs):
             'enable_teleop'               : _bool(LaunchConfiguration('enable_teleop'), context),
             'enable_gz'                   : _bool(LaunchConfiguration('enable_gz'), context),
             'enable_moveit'               : _bool(LaunchConfiguration('enable_moveit'), context),
+            'enable_tf_prefix'            : _bool(LaunchConfiguration('enable_tf_prefix'), context),
         }.items(),
     )
 

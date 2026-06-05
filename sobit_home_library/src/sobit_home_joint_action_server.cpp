@@ -204,6 +204,8 @@ namespace sobit_home
     }
 
 
+    this->declare_parameter("enable_tf_prefix", false);
+
     RCLCPP_INFO(this->get_logger(), "JointActionServer has been initialized.");
   }
 
@@ -457,8 +459,8 @@ namespace sobit_home
   {
     geometry_msgs::msg::TransformStamped goal_in_base;
     geometry_msgs::msg::TransformStamped goal_in_lift;
-    std::string base_frame = "base_footprint";
-    std::string lift_frame = "body_lift_link";
+    std::string base_frame = get_tf_frame("base_footprint");
+    std::string lift_frame = get_tf_frame("body_lift_link");
 
     try
     {
@@ -493,8 +495,8 @@ namespace sobit_home
   {
     geometry_msgs::msg::TransformStamped goal_in_base;
     geometry_msgs::msg::TransformStamped goal_in_lift;
-    std::string base_frame = "base_footprint";
-    std::string lift_frame = "body_lift_link";
+    std::string base_frame = get_tf_frame("base_footprint");
+    std::string lift_frame = get_tf_frame("body_lift_link");
 
     try
     {
@@ -538,7 +540,7 @@ namespace sobit_home
     geometry_msgs::msg::TransformStamped goal_head;
     try
     {
-      goal_head = tf_buffer_->transform(request->target_coord, std::string(this->get_namespace()).substr(1) + "/head_base_link", tf2::durationFromSec(1.0));
+      goal_head = tf_buffer_->transform(request->target_coord, get_tf_frame("head_base_link"), tf2::durationFromSec(1.0));
     }
     catch (const std::exception &ex)
     {
@@ -558,7 +560,7 @@ namespace sobit_home
     geometry_msgs::msg::TransformStamped goal_head;
     try
     {
-      goal_head = tf_buffer_->lookupTransform(std::string(this->get_namespace()).substr(1) + "/head_base_link", request->target_frame, tf2::TimePointZero);
+      goal_head = tf_buffer_->lookupTransform(get_tf_frame("head_base_link"), request->target_frame, tf2::TimePointZero);
     }
     catch (const std::exception &ex)
     {
@@ -664,6 +666,21 @@ namespace sobit_home
       }
     }
     return true;
+  }
+
+  std::string JointActionServer::get_tf_frame(const std::string &frame_name)
+  {
+    bool enable_tf_prefix = this->get_parameter("enable_tf_prefix").as_bool();
+    if (enable_tf_prefix) {
+      std::string ns = this->get_namespace();
+      if (!ns.empty() && ns.front() == '/') {
+        ns = ns.substr(1);
+      }
+      if (!ns.empty()) {
+        return ns + "/" + frame_name;
+      }
+    }
+    return frame_name;
   }
 }
 
