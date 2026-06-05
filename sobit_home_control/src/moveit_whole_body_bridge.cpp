@@ -117,11 +117,16 @@ void MoveitWholeBodyBridge::execute(const std::shared_ptr<GoalHandleFJT> goal_ha
 
     const auto & pt = points[i];
 
-    // Sleep until this waypoint's scheduled time
+    // Sleep until this waypoint's scheduled time using sim-time aware wait loop
     auto target_time = start_time + rclcpp::Duration(pt.time_from_start);
-    auto sleep_time = target_time - this->now();
-    if (sleep_time.nanoseconds() > 0) {
-      rclcpp::sleep_for(std::chrono::nanoseconds(sleep_time.nanoseconds()));
+    while (this->now() < target_time) {
+      if (goal_handle->is_canceling()) {
+        publish_zero_twist();
+        result->error_code = FollowJointTrajectory::Result::SUCCESSFUL;
+        goal_handle->canceled(result);
+        return;
+      }
+      rclcpp::sleep_for(std::chrono::milliseconds(5));
     }
 
     // Desired pose from trajectory
