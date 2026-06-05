@@ -64,9 +64,6 @@ private:
   const moveit::core::JointModel*      mobile_base_joint_ = nullptr;
   const moveit::core::JointModelGroup* body_jmg_        = nullptr;  // optional, nullptr if not present
 
-  std::size_t mobile_base_index_ = 0;
-  std::size_t body_index_        = 0;   // index of body_lift_joint variable in the group state vector
-
   double optimal_arm_reach_ = 0.45; // Optimal reach of SOBIT HOME arm from base center [m]
 };
 

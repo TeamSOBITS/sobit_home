@@ -1,5 +1,6 @@
 #include "sobit_home_kinematics_plugin/sobit_home_kinematics_plugin.hpp"
 #include <class_loader/class_loader.hpp>
+#include <unordered_map>
 
 namespace sobit_home_kinematics_plugin
 {
@@ -20,19 +21,32 @@ bool SobitHomeKinematicsPlugin::initialize(const rclcpp::Node::SharedPtr& node,
 
   // --- Identify required sub-groups ---
 
-  // Mobile base: sub-group containing a single PLANAR joint
-  // (also accept the group itself having the PLANAR joint directly — no sub-groups case)
-  auto is_planar_group = [](const moveit::core::JointModelGroup* g) {
-    const auto& joints = g->getJointModels();
-    return joints.size() == 1 && joints[0]->getType() == moveit::core::JointModel::PLANAR;
-  };
+  // Find subgroups by exact name matches first
+  mobile_base_jmg_ = nullptr;
+  arm_jmg_ = nullptr;
+  body_jmg_ = nullptr;
 
-  auto base_it = std::find_if(sub_groups.cbegin(), sub_groups.cend(), is_planar_group);
-  if (base_it == sub_groups.cend()) {
-    // Check if the group itself is the planar base (no sub-groups)
-    if (is_planar_group(joint_model_group_)) {
+  for (const auto* sg : sub_groups) {
+    if (sg->getName() == "mobile_base") {
+      mobile_base_jmg_ = sg;
+    } else if (sg->getName() == "arm_left" || sg->getName() == "arm_right") {
+      arm_jmg_ = sg;
+    } else if (sg->getName() == "body") {
+      body_jmg_ = sg;
+    }
+  }
+
+  // Fallback for mobile base if not found by name
+  if (!mobile_base_jmg_) {
+    auto is_planar_group = [](const moveit::core::JointModelGroup* g) {
+      const auto& joints = g->getJointModels();
+      return joints.size() == 1 && joints[0]->getType() == moveit::core::JointModel::PLANAR;
+    };
+    auto base_it = std::find_if(sub_groups.cbegin(), sub_groups.cend(), is_planar_group);
+    if (base_it != sub_groups.cend()) {
+      mobile_base_jmg_ = *base_it;
+    } else if (is_planar_group(joint_model_group_)) {
       RCLCPP_WARN(LOGGER, "Group '%s' is a standalone mobile base — no IK to solve.", group_name.c_str());
-      // Still initialize minimally so we don't crash, but nothing useful to do
       dimension_ = joint_model_group_->getVariableCount();
       solver_info_.link_names.push_back(base_frame);
       state_.reset(new moveit::core::RobotState(robot_model_));
@@ -41,38 +55,50 @@ bool SobitHomeKinematicsPlugin::initialize(const rclcpp::Node::SharedPtr& node,
       initialized_ = true;
       return true;
     }
+  }
+
+  if (!mobile_base_jmg_) {
     RCLCPP_ERROR(LOGGER, "Group '%s': failed to find mobile base sub-group (single PLANAR joint)", group_name.c_str());
     return false;
   }
-  mobile_base_jmg_   = *base_it;
   mobile_base_joint_ = mobile_base_jmg_->getJointModels()[0];
 
-  // Arm: chain sub-group with the most active joints (distinguishes arm from single-joint body)
-  arm_jmg_ = nullptr;
-  for (const auto* sg : sub_groups) {
-    if (sg == mobile_base_jmg_) continue;
-    if (sg->isChain()) {
-      if (!arm_jmg_ || sg->getActiveJointModels().size() > arm_jmg_->getActiveJointModels().size())
-        arm_jmg_ = sg;
+  // Fallback for arm if not found by name (e.g. mobile_base_body group)
+  if (!arm_jmg_) {
+    if (body_jmg_) {
+      // Treat body group as the arm group since it is the only non-base subgroup
+      arm_jmg_ = body_jmg_;
+      body_jmg_ = nullptr;
+    } else {
+      // General fallback to find a chain subgroup that is not the mobile base
+      for (const auto* sg : sub_groups) {
+        if (sg == mobile_base_jmg_) continue;
+        if (sg->isChain()) {
+          if (!arm_jmg_ || sg->getActiveJointModels().size() > arm_jmg_->getActiveJointModels().size())
+            arm_jmg_ = sg;
+        }
+      }
     }
   }
+
   if (!arm_jmg_) {
     RCLCPP_ERROR(LOGGER, "Group '%s': failed to find arm sub-group (chain)", group_name.c_str());
     return false;
   }
 
-  // Body (optional): first remaining sub-group that has at least one PRISMATIC or REVOLUTE active joint
-  body_jmg_ = nullptr;
-  for (const auto* sg : sub_groups) {
-    if (sg == mobile_base_jmg_ || sg == arm_jmg_) continue;
-    for (const auto* j : sg->getActiveJointModels()) {
-      auto type = j->getType();
-      if (type == moveit::core::JointModel::PRISMATIC || type == moveit::core::JointModel::REVOLUTE) {
-        body_jmg_ = sg;
-        break;
+  // Fallback for body if not found by name
+  if (!body_jmg_) {
+    for (const auto* sg : sub_groups) {
+      if (sg == mobile_base_jmg_ || sg == arm_jmg_) continue;
+      for (const auto* j : sg->getActiveJointModels()) {
+        auto type = j->getType();
+        if (type == moveit::core::JointModel::PRISMATIC || type == moveit::core::JointModel::REVOLUTE) {
+          body_jmg_ = sg;
+          break;
+        }
       }
+      if (body_jmg_) break;
     }
-    if (body_jmg_) break;
   }
 
   // --- Build solver info (joint names + limits) ---
@@ -82,26 +108,15 @@ bool SobitHomeKinematicsPlugin::initialize(const rclcpp::Node::SharedPtr& node,
     solver_info_.limits.insert(solver_info_.limits.end(), bounds.begin(), bounds.end());
   }
 
-  // --- Find variable indices in the group state vector ---
-  auto var_names = joint_model_group_->getVariableNames();
-
-  auto base_var_names = mobile_base_jmg_->getVariableNames();
-  auto base_it2 = std::find(var_names.begin(), var_names.end(), base_var_names[0]);
-  mobile_base_index_ = std::distance(var_names.begin(), base_it2);
-
-  if (body_jmg_) {
-    auto body_var_names = body_jmg_->getVariableNames();
-    auto body_it = std::find(var_names.begin(), var_names.end(), body_var_names[0]);
-    body_index_ = std::distance(var_names.begin(), body_it);
-  }
-
   dimension_ = joint_model_group_->getVariableCount();
   solver_info_.link_names.push_back(getTipFrame());
   state_.reset(new moveit::core::RobotState(robot_model_));
 
   initialized_ = true;
-  RCLCPP_INFO(LOGGER, "SOBIT HOME Whole-Body Kinematics Plugin initialized for group '%s' (body sub-group: %s).",
-              group_name.c_str(), body_jmg_ ? body_jmg_->getName().c_str() : "none");
+  RCLCPP_INFO(LOGGER, "SOBIT HOME Whole-Body Kinematics Plugin initialized for group '%s'. Resolved arm: '%s', body: '%s'.",
+              group_name.c_str(),
+              arm_jmg_ ? arm_jmg_->getName().c_str() : "none",
+              body_jmg_ ? body_jmg_->getName().c_str() : "none");
   return true;
 }
 
@@ -121,12 +136,17 @@ bool SobitHomeKinematicsPlugin::searchPositionIK(const geometry_msgs::msg::Pose&
     return false;
   }
 
-  solution = ik_seed_state;
+  auto var_names = joint_model_group_->getVariableNames();
+  std::unordered_map<std::string, double> seed_map;
+  for (size_t i = 0; i < var_names.size(); ++i) {
+    seed_map[var_names[i]] = ik_seed_state[i];
+  }
 
   // Extract seed base pose
-  double base_x   = ik_seed_state[mobile_base_index_];
-  double base_y   = ik_seed_state[mobile_base_index_ + 1];
-  double base_yaw = ik_seed_state[mobile_base_index_ + 2];
+  auto base_vars = mobile_base_jmg_->getVariableNames();
+  double base_x   = seed_map.at(base_vars.at(0));
+  double base_y   = seed_map.at(base_vars.at(1));
+  double base_yaw = seed_map.at(base_vars.at(2));
 
   Eigen::Isometry3d target_pose;
   tf2::fromMsg(ik_pose, target_pose);
@@ -144,12 +164,13 @@ bool SobitHomeKinematicsPlugin::searchPositionIK(const geometry_msgs::msg::Pose&
     base_y   = target_y - optimal_arm_reach_ * std::sin(angle_to_target);
     base_yaw = angle_to_target;
   }
-  solution[mobile_base_index_]     = base_x;
-  solution[mobile_base_index_ + 1] = base_y;
-  solution[mobile_base_index_ + 2] = base_yaw;
+  seed_map[base_vars.at(0)] = base_x;
+  seed_map[base_vars.at(1)] = base_y;
+  seed_map[base_vars.at(2)] = base_yaw;
 
   // Apply base position to robot state
-  state_->setJointGroupPositions(mobile_base_jmg_, &solution[mobile_base_index_]);
+  std::vector<double> base_values = {base_x, base_y, base_yaw};
+  state_->setJointGroupPositions(mobile_base_jmg_, base_values);
   state_->updateLinkTransforms();
 
   // --- BODY HEURISTIC (if present): set lift height to match target z ---
@@ -160,8 +181,9 @@ bool SobitHomeKinematicsPlugin::searchPositionIK(const geometry_msgs::msg::Pose&
       double target_z = target_pose.translation().z();
       const auto& body_bounds = body_jmg_->getJointModels()[0]->getVariableBounds()[0];
       double body_height = std::clamp(target_z, body_bounds.min_position_, body_bounds.max_position_);
-      solution[body_index_] = body_height;
-      state_->setJointGroupPositions(body_jmg_, &solution[body_index_]);
+      auto body_vars = body_jmg_->getVariableNames();
+      seed_map[body_vars.at(0)] = body_height;
+      state_->setJointGroupPositions(body_jmg_, &body_height);
       state_->updateLinkTransforms();
     }
   }
@@ -174,13 +196,11 @@ bool SobitHomeKinematicsPlugin::searchPositionIK(const geometry_msgs::msg::Pose&
     return false;
   }
 
-  // Build arm-only seed state (strip base and body variables)
+  // Build arm-only seed state
   std::vector<double> arm_seed;
-  for (size_t i = 0; i < ik_seed_state.size(); ++i) {
-    bool is_base = (i >= mobile_base_index_ && i <= mobile_base_index_ + 2);
-    bool is_body = body_jmg_ && (i == body_index_);
-    if (!is_base && !is_body)
-      arm_seed.push_back(ik_seed_state[i]);
+  auto arm_vars = arm_jmg_->getVariableNames();
+  for (const auto& var : arm_vars) {
+    arm_seed.push_back(seed_map.at(var));
   }
 
   // Transform target into arm's base frame
@@ -190,32 +210,47 @@ bool SobitHomeKinematicsPlugin::searchPositionIK(const geometry_msgs::msg::Pose&
   // Wrap callback to re-embed arm solution into full solution
   IKCallbackFn arm_callback;
   if (solution_callback) {
-    arm_callback = [&solution_callback, &solution, this](
+    arm_callback = [&solution_callback, &var_names, &arm_vars, seed_map, this](
         const geometry_msgs::msg::Pose& pose, const std::vector<double>& arm_sol,
         moveit_msgs::msg::MoveItErrorCodes& err) {
-      std::vector<double> full_sol = solution;
-      size_t arm_idx = 0;
-      for (size_t i = 0; i < full_sol.size(); ++i) {
-        bool is_base = (i >= mobile_base_index_ && i <= mobile_base_index_ + 2);
-        bool is_body = body_jmg_ && (i == body_index_);
-        if (!is_base && !is_body)
-          full_sol[i] = arm_sol[arm_idx++];
+      auto local_seed_map = seed_map;
+      for (size_t i = 0; i < arm_vars.size(); ++i) {
+        local_seed_map[arm_vars[i]] = arm_sol[i];
+      }
+      std::vector<double> full_sol;
+      for (const auto& var : var_names) {
+        full_sol.push_back(local_seed_map.at(var));
       }
       solution_callback(pose, full_sol, err);
     };
   }
 
+  std::vector<double> arm_consistency_limits;
+  if (!consistency_limits.empty()) {
+    std::unordered_map<std::string, double> consistency_map;
+    for (size_t i = 0; i < var_names.size(); ++i) {
+      if (i < consistency_limits.size()) {
+        consistency_map[var_names[i]] = consistency_limits[i];
+      }
+    }
+    for (const auto& var : arm_vars) {
+      if (consistency_map.count(var)) {
+        arm_consistency_limits.push_back(consistency_map.at(var));
+      }
+    }
+  }
+
   std::vector<double> arm_solution;
   bool ik_valid = arm_ik_solver->searchPositionIK(arm_local_pose, arm_seed, timeout,
-                                                  consistency_limits, arm_solution,
+                                                  arm_consistency_limits, arm_solution,
                                                   arm_callback, error_code, options);
   if (ik_valid) {
-    size_t arm_idx = 0;
-    for (size_t i = 0; i < solution.size(); ++i) {
-      bool is_base = (i >= mobile_base_index_ && i <= mobile_base_index_ + 2);
-      bool is_body = body_jmg_ && (i == body_index_);
-      if (!is_base && !is_body)
-        solution[i] = arm_solution[arm_idx++];
+    for (size_t i = 0; i < arm_vars.size(); ++i) {
+      seed_map[arm_vars[i]] = arm_solution[i];
+    }
+    solution.clear();
+    for (const auto& var : var_names) {
+      solution.push_back(seed_map.at(var));
     }
     error_code.val = moveit_msgs::msg::MoveItErrorCodes::SUCCESS;
     return true;

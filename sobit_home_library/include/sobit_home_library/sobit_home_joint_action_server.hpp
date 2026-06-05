@@ -245,6 +245,7 @@ namespace sobit_home
     void load_joint_limits();
     bool parse_urdf_limits(const std::string &urdf_xml);
     void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg);
+    std::string get_tf_frame(const std::string &frame_name);
   };
 
 } // namespace sobit_home

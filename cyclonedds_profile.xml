@@ -1,6 +1,7 @@
 <CycloneDDS>
   <Domain>
     <General>
+      <NetworkInterfaceAddress>UPDATE_INTERFACE_NAME</NetworkInterfaceAddress>
       <AllowMulticast>false</AllowMulticast>
       <EnableMulticastLoopback>false</EnableMulticastLoopback>
     </General>

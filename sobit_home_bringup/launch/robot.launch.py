@@ -13,29 +13,34 @@ from launch_ros.actions import Node, SetRemap
 
 import xacro
 
+def _bool(val):
+    """Normalize CLI true/True/1 → True, false/False/0 → False."""
+    return val.lower() in ('true', '1', 'yes')
+
+
 def generate_launch_description():
     arg_robot_name = DeclareLaunchArgument('robot_name', default_value='sobit_home')
 
-    arg_enable_lidar = DeclareLaunchArgument('enable_lidar', default_value='True')
+    arg_enable_lidar = DeclareLaunchArgument('enable_lidar', default_value='true')
 
     arg_robot_coords_x = DeclareLaunchArgument('robot_coords_x', default_value='0')
     arg_robot_coords_y = DeclareLaunchArgument('robot_coords_y', default_value='0')
     arg_robot_coords_z = DeclareLaunchArgument('robot_coords_z', default_value='0')
     arg_robot_coords_Y = DeclareLaunchArgument('robot_coords_Y', default_value='0')
 
-    arg_enable_gz                   = DeclareLaunchArgument('enable_gz', default_value='True')
-    arg_enable_display              = DeclareLaunchArgument('enable_display', default_value='True')
-    arg_enable_mobile_base          = DeclareLaunchArgument('enable_mobile_base', default_value='True')
-    arg_enable_arm_left             = DeclareLaunchArgument('enable_arm_left', default_value='True')
-    arg_enable_arm_right            = DeclareLaunchArgument('enable_arm_right', default_value='True')
-    arg_enable_hand_left            = DeclareLaunchArgument('enable_hand_left', default_value='True')
-    arg_enable_hand_right           = DeclareLaunchArgument('enable_hand_right', default_value='True')
-    arg_enable_head                 = DeclareLaunchArgument('enable_head', default_value='True')
-    arg_enable_body                 = DeclareLaunchArgument('enable_body', default_value='True')
-    arg_enable_head_cam_color       = DeclareLaunchArgument('enable_head_cam_color', default_value='True')
-    arg_enable_head_cam_depth       = DeclareLaunchArgument('enable_head_cam_depth', default_value='True')
-    arg_enable_hand_left_cam_color  = DeclareLaunchArgument('enable_hand_left_cam_color', default_value='True')
-    arg_enable_hand_right_cam_color = DeclareLaunchArgument('enable_hand_right_cam_color', default_value='True')
+    arg_enable_gz                   = DeclareLaunchArgument('enable_gz', default_value='true')
+    arg_enable_display              = DeclareLaunchArgument('enable_display', default_value='true')
+    arg_enable_mobile_base          = DeclareLaunchArgument('enable_mobile_base', default_value='true')
+    arg_enable_arm_left             = DeclareLaunchArgument('enable_arm_left', default_value='true')
+    arg_enable_arm_right            = DeclareLaunchArgument('enable_arm_right', default_value='true')
+    arg_enable_hand_left            = DeclareLaunchArgument('enable_hand_left', default_value='true')
+    arg_enable_hand_right           = DeclareLaunchArgument('enable_hand_right', default_value='true')
+    arg_enable_head                 = DeclareLaunchArgument('enable_head', default_value='true')
+    arg_enable_body                 = DeclareLaunchArgument('enable_body', default_value='true')
+    arg_enable_head_cam_color       = DeclareLaunchArgument('enable_head_cam_color', default_value='true')
+    arg_enable_head_cam_depth       = DeclareLaunchArgument('enable_head_cam_depth', default_value='true')
+    arg_enable_hand_left_cam_color  = DeclareLaunchArgument('enable_hand_left_cam_color', default_value='true')
+    arg_enable_hand_right_cam_color = DeclareLaunchArgument('enable_hand_right_cam_color', default_value='true')
     arg_head_cam_config_file        = DeclareLaunchArgument(
         'head_cam_config_file',
         default_value=os.path.join(
@@ -44,7 +49,11 @@ def generate_launch_description():
             'head_camera_orbbec.yaml',
         ),
     )
-    arg_enable_teleop = DeclareLaunchArgument('enable_teleop', default_value='false')
+    arg_enable_teleop    = DeclareLaunchArgument('enable_teleop', default_value='false')
+    arg_enable_rm_motors = DeclareLaunchArgument('enable_rm_motors', default_value='true')
+    arg_enable_dxl_pro   = DeclareLaunchArgument('enable_dxl_pro',   default_value='true')
+    arg_enable_moveit    = DeclareLaunchArgument('enable_moveit',    default_value='true')
+    arg_enable_tf_prefix = DeclareLaunchArgument('enable_tf_prefix', default_value='false')
 
     return LaunchDescription([
         arg_robot_name,
@@ -68,6 +77,10 @@ def generate_launch_description():
         arg_enable_hand_right_cam_color,
         arg_head_cam_config_file,
         arg_enable_teleop,
+        arg_enable_rm_motors,
+        arg_enable_dxl_pro,
+        arg_enable_moveit,
+        arg_enable_tf_prefix,
         OpaqueFunction(function = launch_gz),
     ])
 
@@ -76,53 +89,59 @@ def launch_gz(context, *args, **kwargs):
     robot_name = LaunchConfiguration('robot_name').perform(context)
     bringup_package = 'sobit_home_bringup'
 
-    enable_lidar = LaunchConfiguration('enable_lidar').perform(context)
+    enable_lidar = _bool(LaunchConfiguration('enable_lidar').perform(context))
 
     robot_coords_x = LaunchConfiguration('robot_coords_x').perform(context)
     robot_coords_y = LaunchConfiguration('robot_coords_y').perform(context)
     robot_coords_z = LaunchConfiguration('robot_coords_z').perform(context)
     robot_coords_Y = LaunchConfiguration('robot_coords_Y').perform(context)
 
-    enable_mobile_base          = LaunchConfiguration('enable_mobile_base').perform(context)
-    enable_body                 = LaunchConfiguration('enable_body').perform(context)
-    enable_arm_left             = LaunchConfiguration('enable_arm_left').perform(context)
-    enable_arm_right            = LaunchConfiguration('enable_arm_right').perform(context)
-    enable_hand_left            = LaunchConfiguration('enable_hand_left').perform(context)
-    enable_hand_right           = LaunchConfiguration('enable_hand_right').perform(context)
-    enable_head                 = LaunchConfiguration('enable_head').perform(context)
-    enable_body                 = LaunchConfiguration('enable_body').perform(context)
-    enable_head_cam_color       = LaunchConfiguration('enable_head_cam_color').perform(context)
-    enable_head_cam_depth       = LaunchConfiguration('enable_head_cam_depth').perform(context)
-    enable_hand_left_cam_color  = LaunchConfiguration('enable_hand_left_cam_color').perform(context)
-    enable_hand_right_cam_color = LaunchConfiguration('enable_hand_right_cam_color').perform(context)
+    enable_mobile_base          = _bool(LaunchConfiguration('enable_mobile_base').perform(context))
+    enable_body                 = _bool(LaunchConfiguration('enable_body').perform(context))
+    enable_arm_left             = _bool(LaunchConfiguration('enable_arm_left').perform(context))
+    enable_arm_right            = _bool(LaunchConfiguration('enable_arm_right').perform(context))
+    enable_hand_left            = _bool(LaunchConfiguration('enable_hand_left').perform(context))
+    enable_hand_right           = _bool(LaunchConfiguration('enable_hand_right').perform(context))
+    enable_head                 = _bool(LaunchConfiguration('enable_head').perform(context))
+    enable_head_cam_color       = _bool(LaunchConfiguration('enable_head_cam_color').perform(context))
+    enable_head_cam_depth       = _bool(LaunchConfiguration('enable_head_cam_depth').perform(context))
+    enable_hand_left_cam_color  = _bool(LaunchConfiguration('enable_hand_left_cam_color').perform(context))
+    enable_hand_right_cam_color = _bool(LaunchConfiguration('enable_hand_right_cam_color').perform(context))
     head_cam_config_file        = LaunchConfiguration('head_cam_config_file').perform(context)
-    enable_display              = LaunchConfiguration('enable_display').perform(context)
-    enable_teleop               = LaunchConfiguration('enable_teleop').perform(context)
-    enable_gz                   = LaunchConfiguration('enable_gz').perform(context)
+    enable_display              = _bool(LaunchConfiguration('enable_display').perform(context))
+    enable_teleop               = _bool(LaunchConfiguration('enable_teleop').perform(context))
+    enable_gz                   = _bool(LaunchConfiguration('enable_gz').perform(context))
+    enable_rm_motors            = _bool(LaunchConfiguration('enable_rm_motors').perform(context))
+    enable_dxl_pro              = _bool(LaunchConfiguration('enable_dxl_pro').perform(context))
+    enable_moveit               = _bool(LaunchConfiguration('enable_moveit').perform(context))
+    enable_tf_prefix            = _bool(LaunchConfiguration('enable_tf_prefix').perform(context))
 
     # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
     dxl_x_lower_body_port = ''
     dxl_x_upper_body_port = ''
     dxl_p_upper_body_port = ''
+    dxl_x_hand_port = ''
     um_body_port = ''
     um_body_id = ''
     # Find USB Cam port name from HOME_CAM_LEFT_PORT/HOME_CAM_RIGHT_PORT environment variable
     cam_left_port = ''
     cam_right_port = ''
-    if enable_gz == 'False':
+    if not enable_gz:
         dxl_x_lower_body_port = str(os.environ.get('DXL_X_LOWER_PORT'))
         dxl_x_upper_body_port = str(os.environ.get('DXL_X_UPPER_PORT'))
         dxl_p_upper_body_port = str(os.environ.get('DXL_P_UPPER_PORT'))
-        
+        dxl_x_hand_port       = str(os.environ.get('DXL_X_HAND_PORT'))
+
         um_body_port = str(os.environ.get('UM_PORT'))
         um_body_id = str(os.environ.get('UM_ID', '5'))
         print('Dynamixel Lower Body Port : ' + dxl_x_lower_body_port)
         print('Dynamixel Upper Body Port : ' + dxl_x_upper_body_port)
-        print('Dynamixel Upper Body Port : ' + dxl_p_upper_body_port)
+        print('Dynamixel PRO Upper Port  : ' + dxl_p_upper_body_port)
+        print('Dynamixel Hand Port       : ' + dxl_x_hand_port)
         print('Uirobot Gateway Port : ' + um_body_port)
         print('Uirobot Body Node ID : ' + um_body_id)
 
-        if enable_mobile_base == 'True':
+        if enable_mobile_base and enable_rm_motors:
             fail_flag = False
             fail_flag = os.system('sudo ip link set can0 down')
             fail_flag = os.system('sudo ip link set can0 type can bitrate 1000000')
@@ -158,37 +177,43 @@ def launch_gz(context, *args, **kwargs):
         robot_description,
         mappings={
             'robot_namespace': robot_name,
-            'enable_gz' : enable_gz,
-            'enable_mobile_base': enable_mobile_base,
-            'enable_body': enable_body,
-            'enable_arm_left': enable_arm_left,
-            'enable_arm_right': enable_arm_right,
-            'enable_hand_left': enable_hand_left,
-            'enable_hand_right': enable_hand_right,
-            'enable_head': enable_head,
-            'enable_head_cam_color' : enable_head_cam_color,
-            'enable_head_cam_depth' : enable_head_cam_depth,
-            'enable_hand_left_cam_color' : enable_hand_left_cam_color,
-            'enable_hand_right_cam_color' : enable_hand_right_cam_color,
+            'enable_gz' : 'True' if enable_gz else 'False',
+            'enable_mobile_base': 'True' if enable_mobile_base else 'False',
+            'enable_body': 'True' if enable_body else 'False',
+            'enable_arm_left': 'True' if enable_arm_left else 'False',
+            'enable_arm_right': 'True' if enable_arm_right else 'False',
+            'enable_hand_left': 'True' if enable_hand_left else 'False',
+            'enable_hand_right': 'True' if enable_hand_right else 'False',
+            'enable_head': 'True' if enable_head else 'False',
+            'enable_head_cam_color' : 'True' if enable_head_cam_color else 'False',
+            'enable_head_cam_depth' : 'True' if enable_head_cam_depth else 'False',
+            'enable_hand_left_cam_color' : 'True' if enable_hand_left_cam_color else 'False',
+            'enable_hand_right_cam_color' : 'True' if enable_hand_right_cam_color else 'False',
+            'enable_rm_motors': 'True' if enable_rm_motors else 'False',
+            'enable_dxl_pro': 'True' if enable_dxl_pro else 'False',
             'dxl_x_lower_body_port': dxl_x_lower_body_port,
             'dxl_x_upper_body_port': dxl_x_upper_body_port,
             'dxl_p_upper_body_port': dxl_p_upper_body_port,
+            'dxl_x_hand_port': dxl_x_hand_port,
             'um_body_port': um_body_port,
             'um_body_id': um_body_id,
         })
 
+
+    robot_state_publisher_params = [
+        {"robot_description": robot_description_config.toxml()},
+        {"use_sim_time": enable_gz},
+        {"publish_frequency": 50.0},
+    ]
+    if enable_tf_prefix:
+        robot_state_publisher_params.append({"frame_prefix": robot_name + '/'})
 
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
         name="robot_state_publisher",
         namespace=robot_name,
-        parameters=[
-            # {"frame_prefix": robot_name + '/'},
-            {"robot_description": robot_description_config.toxml()},
-            {"use_sim_time": True if enable_gz == 'True' else False},
-            {"publish_frequency": 50.0},
-        ],
+        parameters=robot_state_publisher_params,
         output="screen",
     )
 
@@ -204,7 +229,7 @@ def launch_gz(context, *args, **kwargs):
             'robot_type': 'sobit_home',
             'namespace': robot_name,
         }.items(),
-        condition=IfCondition(enable_display),
+        condition=IfCondition('true' if enable_display else 'false'),
     )
 
     controllers = []
@@ -223,15 +248,16 @@ def launch_gz(context, *args, **kwargs):
         namespace=robot_name,
         parameters=[
             controller_config,
-            {"use_sim_time": True if enable_gz == 'True' else False},
+            {"use_sim_time": enable_gz},
         ],
         remappings=[
             ("controller_manager/robot_description", "robot_description"),
         ],
+        # prefix='chrt -f 80',
         output="both",
     )
 
-    if (enable_gz == 'False' and enable_lidar == 'True'):
+    if (not enable_gz and enable_lidar):
         urg_node = IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 PathJoinSubstitution([
@@ -251,7 +277,7 @@ def launch_gz(context, *args, **kwargs):
         )
         controllers.append(urg_node)
 
-    if (enable_lidar == 'True'):
+    if enable_lidar:
         merge_lidar_node = IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 PathJoinSubstitution([
@@ -268,7 +294,7 @@ def launch_gz(context, *args, **kwargs):
         )
         controllers.append(merge_lidar_node)
 
-    if enable_mobile_base == 'True':
+    if enable_mobile_base:
         wheel_steer_position_controller = Node(
             package='controller_manager',
             executable='spawner',
@@ -279,31 +305,32 @@ def launch_gz(context, *args, **kwargs):
                 '-c', 'controller_manager', '--activate'
                 ],
         )
-        wheel_drive_velocity_controller = Node(
-            package='controller_manager',
-            executable='spawner',
-            name='wheel_drive_velocity_controller',
-            namespace=robot_name,
-            arguments=[
-                'wheel_drive_velocity_controller',
-                '-c', 'controller_manager', '--activate'
-                ],
-        )
         swerve_controller = Node(
             package='sobit_home_control',
             executable='swerve_controller_node',
             name='swerve_controller',
             namespace=robot_name,
             parameters=[
-                {'use_sim_time': True if enable_gz == 'True' else False},
+                {'use_sim_time': enable_gz},
                 swerve_config,
             ],
             output='screen',
         )
         controllers.append(wheel_steer_position_controller)
-        controllers.append(wheel_drive_velocity_controller)
+        if enable_rm_motors:
+            wheel_drive_velocity_controller = Node(
+                package='controller_manager',
+                executable='spawner',
+                name='wheel_drive_velocity_controller',
+                namespace=robot_name,
+                arguments=[
+                    'wheel_drive_velocity_controller',
+                    '-c', 'controller_manager', '--activate'
+                    ],
+            )
+            controllers.append(wheel_drive_velocity_controller)
 
-    if enable_arm_left == 'True':
+    if enable_arm_left:
         arm_left_position_controller = Node(
             package='controller_manager',
             executable='spawner',
@@ -316,7 +343,7 @@ def launch_gz(context, *args, **kwargs):
         )
         controllers.append(arm_left_position_controller)
 
-    if enable_arm_right == 'True':
+    if enable_arm_right:
         arm_right_position_controller = Node(
             package='controller_manager',
             executable='spawner',
@@ -329,7 +356,7 @@ def launch_gz(context, *args, **kwargs):
         )
         controllers.append(arm_right_position_controller)
 
-    if enable_hand_left == 'True':
+    if enable_hand_left:
         hand_left_position_controller = Node(
             package='controller_manager',
             executable='spawner',
@@ -342,7 +369,7 @@ def launch_gz(context, *args, **kwargs):
         )
         controllers.append(hand_left_position_controller)
 
-    if enable_hand_right == 'True':
+    if enable_hand_right:
         hand_right_position_controller = Node(
             package='controller_manager',
             executable='spawner',
@@ -355,7 +382,7 @@ def launch_gz(context, *args, **kwargs):
         )
         controllers.append(hand_right_position_controller)
 
-    if enable_head == 'True':
+    if enable_head:
         head_position_controller = Node(
             package='controller_manager',
             executable='spawner',
@@ -368,7 +395,7 @@ def launch_gz(context, *args, **kwargs):
         )
         controllers.append(head_position_controller)
 
-    if enable_body == 'True':
+    if enable_body:
         body_position_controller = Node(
             package='controller_manager',
             executable='spawner',
@@ -381,7 +408,7 @@ def launch_gz(context, *args, **kwargs):
         )
         controllers.append(body_position_controller)
 
-        if enable_gz == 'False': # release the brake before launching the robot bringup only when not using Gazebo, as Gazebo won't affect the real hardware
+        if not enable_gz: # release the brake before launching the robot bringup only when not using Gazebo, as Gazebo won't affect the real hardware
             # release the brake before launching the robot bringup
             # TODO: add into uirobot_hardware 
             um_port = os.environ.get('UM_PORT', '')
@@ -440,7 +467,7 @@ def launch_gz(context, *args, **kwargs):
         )
     )
 
-    if enable_mobile_base == 'True':
+    if enable_mobile_base:
         delayed_swerve_controller = RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=controllers[-1],
@@ -458,13 +485,15 @@ def launch_gz(context, *args, **kwargs):
             ])
         ]),
         launch_arguments={
-            'robot_name':   robot_name,
-            'use_sim_time': 'true' if enable_gz == 'True' else 'false',
-            'enable_teleop':   enable_teleop,
+            'robot_name'   : robot_name,
+            'use_sim_time' : 'true' if enable_gz else 'false',
+            'enable_teleop': 'true' if enable_teleop else 'false',
+            'enable_moveit': 'true' if enable_moveit else 'false',
+            'enable_tf_prefix': 'true' if enable_tf_prefix else 'false',
         }.items(),
     )
 
-    if enable_gz == 'False' and (enable_head_cam_color == 'True' or enable_head_cam_depth == 'True'):
+    if not enable_gz and (enable_head_cam_color or enable_head_cam_depth):
         head_cam_launch = IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 PathJoinSubstitution([
@@ -528,11 +557,20 @@ def launch_gz(context, *args, **kwargs):
                     ("/" + robot_name + "/hand_right_camera/camera_info", "/" + robot_name + "/hand_right_camera/color/camera_info"),
                     ("/" + robot_name + "/hand_right_camera/color", "/" + robot_name + "/hand_right_camera/color/image_raw"),
                 ],
+        parameters=[{
+            'use_sim_time': True,
+            f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.reliability': 'reliable',
+            f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.depth': 1,
+            f'qos_overrides./{robot_name}/head_camera/depth/image_raw.publisher.reliability': 'reliable',
+            f'qos_overrides./{robot_name}/head_camera/depth/image_raw.publisher.depth': 1,
+            f'qos_overrides./{robot_name}/head_camera/color/image_raw.publisher.reliability': 'reliable',
+            f'qos_overrides./{robot_name}/head_camera/color/image_raw.publisher.depth': 1,
+        }],
         output='screen'
     )
 
     # Real hardware: ELP wrist cameras via usb_cam
-    if enable_gz == 'False':
+    if not enable_gz:
         hand_left_cam_node = Node(
             package='usb_cam',
             executable='usb_cam_node_exe',
@@ -574,7 +612,7 @@ def launch_gz(context, *args, **kwargs):
         )
 
     # action_server_launch is delayed until the drive stack is ready
-    if enable_mobile_base == 'True':
+    if enable_mobile_base:
         delayed_action_server = RegisterEventHandler(
             event_handler=OnProcessStart(
                 target_action=swerve_controller,
@@ -591,12 +629,26 @@ def launch_gz(context, *args, **kwargs):
     else:
         delayed_action_server = action_server_launch
 
-    if enable_gz == 'True':
+    if enable_gz:
         nodes.append(gz_bridge_node)
         nodes.append(gz_spawn_entity_node)
         nodes.append(delayed_joint_state_broadcaster)
         nodes.append(delayed_controllers)
         nodes.append(delayed_action_server)
+
+        # Relay color/camera_info → depth/camera_info for MoveIt octomap updater
+        if enable_head_cam_depth:
+            nodes.append(Node(
+                package='topic_tools',
+                executable='relay',
+                name='head_camera_depth_camera_info_relay',
+                parameters=[
+                    {'input_topic':  '/' + robot_name + '/head_camera/color/camera_info'},
+                    {'output_topic': '/' + robot_name + '/head_camera/depth/camera_info'},
+                    {'use_sim_time': True},
+                ],
+                output='log',
+            ))
 
         # Republish raw images as compressed for each camera in Gazebo
         for cam_name, enabled in [
@@ -604,7 +656,7 @@ def launch_gz(context, *args, **kwargs):
             ('hand_left_camera',  enable_hand_left_cam_color),
             ('hand_right_camera', enable_hand_right_cam_color),
         ]:
-            if enabled == 'True':
+            if enabled:
                 nodes.append(Node(
                     package='image_transport',
                     executable='republish',
@@ -623,9 +675,9 @@ def launch_gz(context, *args, **kwargs):
         nodes.append(control_node)
         nodes.extend(controllers)
         nodes.append(delayed_action_server)
-        if enable_hand_left_cam_color == 'True':
+        if enable_hand_left_cam_color:
             nodes.append(hand_left_cam_node)
-        if enable_hand_right_cam_color == 'True':
+        if enable_hand_right_cam_color:
             nodes.append(hand_right_cam_node)
     nodes.append(robot_state_publisher_node)
     nodes.append(sobits_display_launch)

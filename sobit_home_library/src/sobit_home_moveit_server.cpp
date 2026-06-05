@@ -46,17 +46,17 @@ MoveitServer::MoveitServer(const rclcpp::NodeOptions & options)
               "MoveitServer starting (clock_type=%d)",
               static_cast<int>(this->get_clock()->get_clock_type()));
 
-  // MoveGroupInterface constructor blocks until /move_action is available
-  init_thread_ = std::thread([this]() {
-    this->init_move_groups();
-  });
+  // Fire init_move_groups() on the executor thread after the constructor returns,
+  // so shared_from_this() is guaranteed valid when MoveGroupInterface is built.
+  init_timer_ = this->create_wall_timer(
+    std::chrono::milliseconds(0),
+    [this]() {
+      init_timer_->cancel();
+      this->init_move_groups();
+    });
 }
 
-MoveitServer::~MoveitServer() {
-  if (init_thread_.joinable()) {
-    init_thread_.join();
-  }
-}
+MoveitServer::~MoveitServer() {}
 
 void MoveitServer::init_move_groups()
 {

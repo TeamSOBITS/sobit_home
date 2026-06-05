@@ -14,7 +14,7 @@ head_camera_pointcloud:
 
 head_camera_depth:
   sensor_plugin: occupancy_map_monitor/DepthImageOctomapUpdater
-  image_topic: head_camera/depth
+  image_topic: head_camera/depth/image_raw
   queue_size: 5
   near_clipping_plane_distance: 0.3
   far_clipping_plane_distance: 5.0

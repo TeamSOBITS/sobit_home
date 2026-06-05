@@ -15,8 +15,8 @@
           <topic>${robot_name}/head_camera/color</topic>
 
           <always_on>1</always_on>
-          <visualize>true</visualize>
-          <update_rate>30</update_rate>
+          <visualize>false</visualize>
+          <update_rate>10</update_rate>
 
           <camera name="head_camera_color">
             <horizontal_fov>1.64061</horizontal_fov>
@@ -51,8 +51,8 @@
           <topic>${robot_name}/head_camera/depth</topic>
 
           <always_on>1</always_on>
-          <visualize>true</visualize>
-          <update_rate>30</update_rate>
+          <visualize>false</visualize>
+          <update_rate>1</update_rate>
 
           <camera name="head_camera_depth">
             <horizontal_fov>1.64061</horizontal_fov>
@@ -86,15 +86,15 @@
           <topic>${robot_name}/hand_left_camera/color</topic>
 
           <always_on>1</always_on>
-          <visualize>true</visualize>
-          <update_rate>30</update_rate>
+          <visualize>false</visualize>
+          <update_rate>10</update_rate>
 
           <camera name="hand_left_camera_color">
             <!-- ELP-USBGS1200P01-H120: HFOV 126 deg -->
             <horizontal_fov>2.19911</horizontal_fov>
             <image>
-              <width>1920</width>
-              <height>1200</height>
+              <width>640</width>
+              <height>400</height>
               <format>RGB_INT8</format>
             </image>
             <clip>
@@ -117,15 +117,15 @@
           <topic>${robot_name}/hand_right_camera/color</topic>
 
           <always_on>1</always_on>
-          <visualize>true</visualize>
-          <update_rate>30</update_rate>
+          <visualize>false</visualize>
+          <update_rate>10</update_rate>
 
           <camera name="hand_right_camera_color">
             <!-- ELP-USBGS1200P01-H120: HFOV 126 deg -->
             <horizontal_fov>2.19911</horizontal_fov>
             <image>
-              <width>1920</width>
-              <height>1200</height>
+              <width>640</width>
+              <height>400</height>
               <format>RGB_INT8</format>
             </image>
             <clip>
