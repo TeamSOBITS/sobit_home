@@ -6,23 +6,25 @@
   <name>sobit_home</name>
   <version>0.0.0</version>
   <description>
-    ROS packages for SOBIT PRO (meta package).
+    ROS packages for SOBIT HOME (meta package).
   </description>
   <maintainer email="simjiahao9@gmail.com">Sim Jiahao</maintainer>
 
   <license>BSD</license>
 
   <url type="website">https://home.soka.ac.jp/~choi/index.html</url>
-  <url type="repository">https://github.com/TeamSOBITS/sobit_pro</url>
-  <url type="bugtracker">https://github.com/TeamSOBITS/sobit_pro/issues</url>
+  <url type="repository">https://github.com/TeamSOBITS/sobit_home</url>
+  <url type="bugtracker">https://github.com/TeamSOBITS/sobit_home/issues</url>
   <author email="choi.7f@gmail.com">Team SOBITS</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   
-  <!-- <exec_depend>sobit_pro_bringup</exec_depend> -->
-  <!-- <exec_depend>sobit_pro_control</exec_depend> -->
   <exec_depend>sobit_home_description</exec_depend>
-  <!-- <exec_depend>sobit_pro_library</exec_depend> -->
+  <exec_depend>sobit_home_bringup</exec_depend>
+  <exec_depend>sobit_home_control</exec_depend>
+  <exec_depend>sobit_home_library</exec_depend>
+  <exec_depend>sobit_home_kinematics_plugin</exec_depend>
+  <exec_depend>sobit_home_moveit_config</exec_depend>
   
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
