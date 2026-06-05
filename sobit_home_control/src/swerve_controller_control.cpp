@@ -1,5 +1,8 @@
 #include "sobit_home_control/swerve_controller_control.hpp"
 
+// Returns the sign of val, treating zero as positive (no-flip).
+static inline double safe_sign(double val) { return (val >= 0.0) ? 1.0 : -1.0; }
+
 void SobitHomeControl::twist_callback(const geometry_msgs::msg::Twist::SharedPtr vel_twist)
 {
   // Translational
@@ -56,7 +59,7 @@ void SobitHomeControl::twist_callback(const geometry_msgs::msg::Twist::SharedPtr
       goal_steer_pos[3] = atan2(-WHEEL_Y_DISTANCE/2., -WHEEL_X_DISTANCE/2.) + M_PI/2.;
 
       // Velocity of wheel
-      if (fabsf(vel_rads) > DRIVE_MAX_VEL) vel_rads = DRIVE_MAX_VEL * (vel_rads/fabsf(vel_rads));
+      if (fabsf(vel_rads) > DRIVE_MAX_VEL) vel_rads = DRIVE_MAX_VEL * safe_sign(vel_rads);
       
       goal_drive_vel[0] = goal_drive_vel[1] = goal_drive_vel[2] = goal_drive_vel[3] = vel_rads;
       break;
@@ -105,15 +108,15 @@ void SobitHomeControl::twist_callback(const geometry_msgs::msg::Twist::SharedPtr
 
   // Wrap angles to [-π, π]
   for (int i=0; i<4; i++) {
-    if (M_PI < fabsf(goal_steer_pos[i])) 
-      goal_steer_pos[i] -= 2*M_PI*goal_steer_pos[i]/fabsf(goal_steer_pos[i]);
+    if (M_PI < fabsf(goal_steer_pos[i]))
+      goal_steer_pos[i] -= 2*M_PI*safe_sign(goal_steer_pos[i]);
   }
 
   for (int i=0; i<4; i++) {
     // Steering movable in [-π, π]
-    if ((fabsf(goal_steer_pos[i] - M_PI*goal_steer_pos[i]/fabsf(goal_steer_pos[i]) - current_steer_pos[i]) < fabsf(goal_steer_pos[i] - current_steer_pos[i])) && 
-        (fabsf(goal_steer_pos[i] - M_PI*goal_steer_pos[i]/fabsf(goal_steer_pos[i]) - current_steer_pos[i]) < M_PI)) {
-      goal_steer_pos[i] -= M_PI*goal_steer_pos[i]/fabsf(goal_steer_pos[i]);
+    if ((fabsf(goal_steer_pos[i] - M_PI*safe_sign(goal_steer_pos[i]) - current_steer_pos[i]) < fabsf(goal_steer_pos[i] - current_steer_pos[i])) &&
+        (fabsf(goal_steer_pos[i] - M_PI*safe_sign(goal_steer_pos[i]) - current_steer_pos[i]) < M_PI)) {
+      goal_steer_pos[i] -= M_PI*safe_sign(goal_steer_pos[i]);
       goal_drive_vel[i] *= -1;
     }
     // Steering movable in [-π/2, π/2]
