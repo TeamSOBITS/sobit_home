@@ -83,6 +83,7 @@ def _launch_setup(context, *args, **kwargs):
             octomap_config,
             {'use_sim_time': use_sim_time},
             {'trajectory_execution.control_multi_dof_joint_variables': True},
+            {'planning_scene_monitor.transform_buffer_duration': 20.0},
             # {'robot_description_planning.frame_prefix': robot_name + '/'},
         ],
         remappings=[
