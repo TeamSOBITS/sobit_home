@@ -13,29 +13,34 @@ from launch_ros.actions import Node, SetRemap
 
 import xacro
 
+def _bool_str(val):
+    """Normalize CLI true/True/1 → 'True', false/False/0 → 'False' for xacro + python logic."""
+    return 'True' if val.lower() in ('true', '1', 'yes') else 'False'
+
+
 def generate_launch_description():
     arg_robot_name = DeclareLaunchArgument('robot_name', default_value='sobit_home')
 
-    arg_enable_lidar = DeclareLaunchArgument('enable_lidar', default_value='True')
+    arg_enable_lidar = DeclareLaunchArgument('enable_lidar', default_value='true')
 
     arg_robot_coords_x = DeclareLaunchArgument('robot_coords_x', default_value='0')
     arg_robot_coords_y = DeclareLaunchArgument('robot_coords_y', default_value='0')
     arg_robot_coords_z = DeclareLaunchArgument('robot_coords_z', default_value='0')
     arg_robot_coords_Y = DeclareLaunchArgument('robot_coords_Y', default_value='0')
 
-    arg_enable_gz                   = DeclareLaunchArgument('enable_gz', default_value='True')
-    arg_enable_display              = DeclareLaunchArgument('enable_display', default_value='True')
-    arg_enable_mobile_base          = DeclareLaunchArgument('enable_mobile_base', default_value='True')
-    arg_enable_arm_left             = DeclareLaunchArgument('enable_arm_left', default_value='True')
-    arg_enable_arm_right            = DeclareLaunchArgument('enable_arm_right', default_value='True')
-    arg_enable_hand_left            = DeclareLaunchArgument('enable_hand_left', default_value='True')
-    arg_enable_hand_right           = DeclareLaunchArgument('enable_hand_right', default_value='True')
-    arg_enable_head                 = DeclareLaunchArgument('enable_head', default_value='True')
-    arg_enable_body                 = DeclareLaunchArgument('enable_body', default_value='True')
-    arg_enable_head_cam_color       = DeclareLaunchArgument('enable_head_cam_color', default_value='True')
-    arg_enable_head_cam_depth       = DeclareLaunchArgument('enable_head_cam_depth', default_value='True')
-    arg_enable_hand_left_cam_color  = DeclareLaunchArgument('enable_hand_left_cam_color', default_value='True')
-    arg_enable_hand_right_cam_color = DeclareLaunchArgument('enable_hand_right_cam_color', default_value='True')
+    arg_enable_gz                   = DeclareLaunchArgument('enable_gz', default_value='true')
+    arg_enable_display              = DeclareLaunchArgument('enable_display', default_value='true')
+    arg_enable_mobile_base          = DeclareLaunchArgument('enable_mobile_base', default_value='true')
+    arg_enable_arm_left             = DeclareLaunchArgument('enable_arm_left', default_value='true')
+    arg_enable_arm_right            = DeclareLaunchArgument('enable_arm_right', default_value='true')
+    arg_enable_hand_left            = DeclareLaunchArgument('enable_hand_left', default_value='true')
+    arg_enable_hand_right           = DeclareLaunchArgument('enable_hand_right', default_value='true')
+    arg_enable_head                 = DeclareLaunchArgument('enable_head', default_value='true')
+    arg_enable_body                 = DeclareLaunchArgument('enable_body', default_value='true')
+    arg_enable_head_cam_color       = DeclareLaunchArgument('enable_head_cam_color', default_value='true')
+    arg_enable_head_cam_depth       = DeclareLaunchArgument('enable_head_cam_depth', default_value='true')
+    arg_enable_hand_left_cam_color  = DeclareLaunchArgument('enable_hand_left_cam_color', default_value='true')
+    arg_enable_hand_right_cam_color = DeclareLaunchArgument('enable_hand_right_cam_color', default_value='true')
     arg_head_cam_config_file        = DeclareLaunchArgument(
         'head_cam_config_file',
         default_value=os.path.join(
@@ -45,9 +50,9 @@ def generate_launch_description():
         ),
     )
     arg_enable_teleop    = DeclareLaunchArgument('enable_teleop', default_value='false')
-    arg_enable_rm_motors = DeclareLaunchArgument('enable_rm_motors', default_value='True')
-    arg_enable_dxl_pro   = DeclareLaunchArgument('enable_dxl_pro',   default_value='True')
-    arg_enable_moveit    = DeclareLaunchArgument('enable_moveit',    default_value='True')
+    arg_enable_rm_motors = DeclareLaunchArgument('enable_rm_motors', default_value='true')
+    arg_enable_dxl_pro   = DeclareLaunchArgument('enable_dxl_pro',   default_value='true')
+    arg_enable_moveit    = DeclareLaunchArgument('enable_moveit',    default_value='true')
 
     return LaunchDescription([
         arg_robot_name,
@@ -82,32 +87,31 @@ def launch_gz(context, *args, **kwargs):
     robot_name = LaunchConfiguration('robot_name').perform(context)
     bringup_package = 'sobit_home_bringup'
 
-    enable_lidar = LaunchConfiguration('enable_lidar').perform(context)
+    enable_lidar = _bool_str(LaunchConfiguration('enable_lidar').perform(context))
 
     robot_coords_x = LaunchConfiguration('robot_coords_x').perform(context)
     robot_coords_y = LaunchConfiguration('robot_coords_y').perform(context)
     robot_coords_z = LaunchConfiguration('robot_coords_z').perform(context)
     robot_coords_Y = LaunchConfiguration('robot_coords_Y').perform(context)
 
-    enable_mobile_base          = LaunchConfiguration('enable_mobile_base').perform(context)
-    enable_body                 = LaunchConfiguration('enable_body').perform(context)
-    enable_arm_left             = LaunchConfiguration('enable_arm_left').perform(context)
-    enable_arm_right            = LaunchConfiguration('enable_arm_right').perform(context)
-    enable_hand_left            = LaunchConfiguration('enable_hand_left').perform(context)
-    enable_hand_right           = LaunchConfiguration('enable_hand_right').perform(context)
-    enable_head                 = LaunchConfiguration('enable_head').perform(context)
-    enable_body                 = LaunchConfiguration('enable_body').perform(context)
-    enable_head_cam_color       = LaunchConfiguration('enable_head_cam_color').perform(context)
-    enable_head_cam_depth       = LaunchConfiguration('enable_head_cam_depth').perform(context)
-    enable_hand_left_cam_color  = LaunchConfiguration('enable_hand_left_cam_color').perform(context)
-    enable_hand_right_cam_color = LaunchConfiguration('enable_hand_right_cam_color').perform(context)
+    enable_mobile_base          = _bool_str(LaunchConfiguration('enable_mobile_base').perform(context))
+    enable_body                 = _bool_str(LaunchConfiguration('enable_body').perform(context))
+    enable_arm_left             = _bool_str(LaunchConfiguration('enable_arm_left').perform(context))
+    enable_arm_right            = _bool_str(LaunchConfiguration('enable_arm_right').perform(context))
+    enable_hand_left            = _bool_str(LaunchConfiguration('enable_hand_left').perform(context))
+    enable_hand_right           = _bool_str(LaunchConfiguration('enable_hand_right').perform(context))
+    enable_head                 = _bool_str(LaunchConfiguration('enable_head').perform(context))
+    enable_head_cam_color       = _bool_str(LaunchConfiguration('enable_head_cam_color').perform(context))
+    enable_head_cam_depth       = _bool_str(LaunchConfiguration('enable_head_cam_depth').perform(context))
+    enable_hand_left_cam_color  = _bool_str(LaunchConfiguration('enable_hand_left_cam_color').perform(context))
+    enable_hand_right_cam_color = _bool_str(LaunchConfiguration('enable_hand_right_cam_color').perform(context))
     head_cam_config_file        = LaunchConfiguration('head_cam_config_file').perform(context)
-    enable_display              = LaunchConfiguration('enable_display').perform(context)
-    enable_teleop               = LaunchConfiguration('enable_teleop').perform(context)
-    enable_gz                   = LaunchConfiguration('enable_gz').perform(context)
-    enable_rm_motors            = LaunchConfiguration('enable_rm_motors').perform(context)
-    enable_dxl_pro              = LaunchConfiguration('enable_dxl_pro').perform(context)
-    enable_moveit               = LaunchConfiguration('enable_moveit').perform(context)
+    enable_display              = _bool_str(LaunchConfiguration('enable_display').perform(context))
+    enable_teleop               = _bool_str(LaunchConfiguration('enable_teleop').perform(context))
+    enable_gz                   = _bool_str(LaunchConfiguration('enable_gz').perform(context))
+    enable_rm_motors            = _bool_str(LaunchConfiguration('enable_rm_motors').perform(context))
+    enable_dxl_pro              = _bool_str(LaunchConfiguration('enable_dxl_pro').perform(context))
+    enable_moveit               = _bool_str(LaunchConfiguration('enable_moveit').perform(context))
 
     # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
     dxl_x_lower_body_port = ''
