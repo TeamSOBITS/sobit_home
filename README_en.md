@@ -126,6 +126,26 @@ If you did not succeed in connecting to the real robot, check the following poin
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
+<!-- CONTROL NOTES -->
+## Control Notes
+
+### Wheel Controller
+
+`move_wheel_linear` drives the robot straight by a target distance (metres). `move_wheel_rotate` turns in place by a target angle (radians). Both actions use closed-loop PID feedback from odometry and clamp velocity near the goal for smooth stopping. Gains can be tuned at runtime via ROS parameters — no recompile needed.
+
+### Swerve Drive
+
+The four-wheel independent steering controller computes per-wheel steer angle and drive velocity from any combination of `cmd_vel` components (x, y, θ). It automatically picks the shortest steering path for each wheel, reversing the drive direction when that is faster than a full rotation.
+
+### MoveIt Integration
+
+`plan_to_pose` plans a trajectory for the given planning group (`arm_left`, `arm_right`, `arm_left_body`, `arm_right_body`) and caches it. `execute_plan` replays the cached trajectory. For whole-body groups (`arm_left_body`, `arm_right_body`), the base is moved in parallel with the arm via the `MoveItWholeBodyBridge`, which tracks the planned base waypoints using odometry feedback.
+
+All MoveIt interfaces work correctly in both real-hardware and Gazebo simulation modes, including when the simulator is paused.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
 ### Visualize on Rviz2
 
 As a preliminary step to running the actual machine, SOBIT HOME can be visualized on Rviz to display the robot's configuration.
