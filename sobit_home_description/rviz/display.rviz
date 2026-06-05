@@ -1,24 +1,28 @@
 Panels:
   - Class: rviz_common/Displays
-    Help Height: 78
+    Help Height: 0
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /TF1/Tree1
+        - /Global Options1
+        - /TF1
       Splitter Ratio: 0.5905882120132446
-    Tree Height: 365
+    Tree Height: 1232
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
     Expanded:
+      - /2D Pose Estimate1
+      - /2D Goal Pose1
       - /Publish Point1
     Name: Tool Properties
     Splitter Ratio: 0.5886790156364441
   - Class: rviz_common/Views
     Expanded:
       - /Current View1
+      - /Current View1/Focal Point1
     Name: Views
-    Splitter Ratio: 0.5
+    Splitter Ratio: 0.49476438760757446
 Visualization Manager:
   Class: ""
   Displays:
@@ -26,7 +30,7 @@ Visualization Manager:
       Cell Size: 1
       Class: rviz_default_plugins/Grid
       Color: 160; 160; 160
-      Enabled: false
+      Enabled: true
       Line Style:
         Line Width: 0.029999999329447746
         Value: Lines
@@ -39,7 +43,7 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
-      Value: false
+      Value: true
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
@@ -146,6 +150,20 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        hand_left_camera_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_left_camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_left_camera_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         hand_left_cmc_link:
           Alpha: 1
           Show Axes: false
@@ -196,6 +214,20 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        hand_right_camera_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_right_camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_right_camera_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         hand_right_cmc_link:
           Alpha: 1
           Show Axes: false
@@ -343,6 +375,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        lidar_merged_laser:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         mic_base_link:
           Alpha: 1
           Show Axes: false
@@ -354,6 +390,11 @@ Visualization Manager:
           Show Trail: false
           Value: true
         plate_bottom_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        plate_cover_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -432,30 +473,306 @@ Visualization Manager:
         Inertia: false
         Mass: false
       Name: RobotModel
-      TF Prefix: sobit_home
+      TF Prefix: ""
       Update Interval: 0
       Value: true
       Visual Enabled: true
     - Class: rviz_default_plugins/TF
-      Enabled: false
+      Enabled: true
       Filter (blacklist): ""
       Filter (whitelist): ""
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        arm_left_base_link:
+          Value: true
+        arm_left_elbow_link:
+          Value: true
+        arm_left_shoulder_tilt_link:
+          Value: true
+        arm_left_upper_flex_link:
+          Value: true
+        arm_left_upper_roll_link:
+          Value: true
+        arm_left_wrist_roll_link:
+          Value: true
+        arm_left_wrist_tilt_link:
+          Value: true
+        arm_right_base_link:
+          Value: true
+        arm_right_elbow_link:
+          Value: true
+        arm_right_shoulder_tilt_link:
+          Value: true
+        arm_right_upper_flex_link:
+          Value: true
+        arm_right_upper_roll_link:
+          Value: true
+        arm_right_wrist_roll_link:
+          Value: true
+        arm_right_wrist_tilt_link:
+          Value: true
+        base_footprint:
+          Value: true
+        base_link:
+          Value: true
+        body_lift_link:
+          Value: true
+        body_link:
+          Value: true
+        hand_left_camera_base_link:
+          Value: true
+        hand_left_camera_link:
+          Value: true
+        hand_left_camera_optical_frame:
+          Value: true
+        hand_left_cmc_link:
+          Value: true
+        hand_left_end_effector_link:
+          Value: true
+        hand_left_finger_c_ip_link:
+          Value: true
+        hand_left_finger_c_mcp_link:
+          Value: true
+        hand_left_finger_l_dip_link:
+          Value: true
+        hand_left_finger_l_mcp_link:
+          Value: true
+        hand_left_finger_l_pip_link:
+          Value: true
+        hand_left_finger_r_dip_link:
+          Value: true
+        hand_left_finger_r_mcp_link:
+          Value: true
+        hand_left_finger_r_pip_link:
+          Value: true
+        hand_right_camera_base_link:
+          Value: true
+        hand_right_camera_link:
+          Value: true
+        hand_right_camera_optical_frame:
+          Value: true
+        hand_right_cmc_link:
+          Value: true
+        hand_right_end_effector_link:
+          Value: true
+        hand_right_finger_c_ip_link:
+          Value: true
+        hand_right_finger_c_mcp_link:
+          Value: true
+        hand_right_finger_l_dip_link:
+          Value: true
+        hand_right_finger_l_mcp_link:
+          Value: true
+        hand_right_finger_l_pip_link:
+          Value: true
+        hand_right_finger_r_dip_link:
+          Value: true
+        hand_right_finger_r_mcp_link:
+          Value: true
+        hand_right_finger_r_pip_link:
+          Value: true
+        head_base_link:
+          Value: true
+        head_camera_base_link:
+          Value: true
+        head_camera_bottom_screw_frame:
+          Value: true
+        head_camera_color_frame:
+          Value: true
+        head_camera_color_optical_frame:
+          Value: true
+        head_camera_depth_frame:
+          Value: true
+        head_camera_depth_optical_frame:
+          Value: true
+        head_camera_infra2_frame:
+          Value: true
+        head_camera_infra2_optical_frame:
+          Value: true
+        head_camera_infra_1_frame:
+          Value: true
+        head_camera_infra_1_optical_frame:
+          Value: true
+        head_pan_link:
+          Value: true
+        head_plug_base_link:
+          Value: true
+        head_tilt_link:
+          Value: true
+        lidar_back_base_link:
+          Value: true
+        lidar_back_laser:
+          Value: true
+        lidar_back_laser_mount:
+          Value: true
+        lidar_front_base_link:
+          Value: true
+        lidar_front_laser:
+          Value: true
+        lidar_front_laser_mount:
+          Value: true
+        lidar_merged_laser:
+          Value: true
+        mic_base_link:
+          Value: true
+        mic_link:
+          Value: true
+        plate_bottom_link:
+          Value: true
+        plate_cover_link:
+          Value: true
+        plate_middle_link:
+          Value: true
+        plate_top_link:
+          Value: true
+        wheel_drive_b_l_link:
+          Value: true
+        wheel_drive_b_r_link:
+          Value: true
+        wheel_drive_f_l_link:
+          Value: true
+        wheel_drive_f_r_link:
+          Value: true
+        wheel_steer_b_l_link:
+          Value: true
+        wheel_steer_b_r_link:
+          Value: true
+        wheel_steer_base_b_l_link:
+          Value: true
+        wheel_steer_base_b_r_link:
+          Value: true
+        wheel_steer_base_f_l_link:
+          Value: true
+        wheel_steer_base_f_r_link:
+          Value: true
+        wheel_steer_f_l_link:
+          Value: true
+        wheel_steer_f_r_link:
+          Value: true
       Marker Scale: 0.15000000596046448
       Name: TF
       Show Arrows: false
       Show Axes: true
       Show Names: false
       Tree:
-        {}
+        base_footprint:
+          base_link:
+            plate_middle_link:
+              lidar_back_base_link:
+                lidar_back_laser_mount:
+                  lidar_back_laser:
+                    {}
+              lidar_front_base_link:
+                lidar_front_laser_mount:
+                  lidar_front_laser:
+                    {}
+              plate_bottom_link:
+                {}
+              plate_top_link:
+                body_link:
+                  body_lift_link:
+                    arm_left_base_link:
+                      arm_left_shoulder_tilt_link:
+                        arm_left_upper_roll_link:
+                          arm_left_upper_flex_link:
+                            arm_left_elbow_link:
+                              arm_left_wrist_tilt_link:
+                                arm_left_wrist_roll_link:
+                                  hand_left_camera_base_link:
+                                    hand_left_camera_link:
+                                      hand_left_camera_optical_frame:
+                                        {}
+                                  hand_left_cmc_link:
+                                    hand_left_finger_c_mcp_link:
+                                      hand_left_finger_c_ip_link:
+                                        {}
+                                    hand_left_finger_l_mcp_link:
+                                      hand_left_finger_l_pip_link:
+                                        hand_left_finger_l_dip_link:
+                                          {}
+                                    hand_left_finger_r_mcp_link:
+                                      hand_left_finger_r_pip_link:
+                                        hand_left_finger_r_dip_link:
+                                          {}
+                                  hand_left_end_effector_link:
+                                    {}
+                    arm_right_base_link:
+                      arm_right_shoulder_tilt_link:
+                        arm_right_upper_roll_link:
+                          arm_right_upper_flex_link:
+                            arm_right_elbow_link:
+                              arm_right_wrist_tilt_link:
+                                arm_right_wrist_roll_link:
+                                  hand_right_camera_base_link:
+                                    hand_right_camera_link:
+                                      hand_right_camera_optical_frame:
+                                        {}
+                                  hand_right_cmc_link:
+                                    hand_right_finger_c_mcp_link:
+                                      hand_right_finger_c_ip_link:
+                                        {}
+                                    hand_right_finger_l_mcp_link:
+                                      hand_right_finger_l_pip_link:
+                                        hand_right_finger_l_dip_link:
+                                          {}
+                                    hand_right_finger_r_mcp_link:
+                                      hand_right_finger_r_pip_link:
+                                        hand_right_finger_r_dip_link:
+                                          {}
+                                  hand_right_end_effector_link:
+                                    {}
+                    head_base_link:
+                      head_pan_link:
+                        head_tilt_link:
+                          head_camera_base_link:
+                            head_plug_base_link:
+                              head_camera_bottom_screw_frame:
+                                head_camera_color_frame:
+                                  {}
+                                head_camera_color_optical_frame:
+                                  {}
+                                head_camera_depth_frame:
+                                  {}
+                                head_camera_depth_optical_frame:
+                                  {}
+                                head_camera_infra2_frame:
+                                  {}
+                                head_camera_infra2_optical_frame:
+                                  {}
+                                head_camera_infra_1_frame:
+                                  {}
+                                head_camera_infra_1_optical_frame:
+                                  {}
+                          mic_base_link:
+                            mic_link:
+                              {}
+              wheel_steer_base_b_l_link:
+                wheel_steer_b_l_link:
+                  wheel_drive_b_l_link:
+                    {}
+              wheel_steer_base_b_r_link:
+                wheel_steer_b_r_link:
+                  wheel_drive_b_r_link:
+                    {}
+              wheel_steer_base_f_l_link:
+                wheel_steer_f_l_link:
+                  wheel_drive_f_l_link:
+                    {}
+              wheel_steer_base_f_r_link:
+                wheel_steer_f_r_link:
+                  wheel_drive_f_r_link:
+                    {}
+          lidar_merged_laser:
+            {}
+          plate_cover_link:
+            {}
       Update Interval: 0
-      Value: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 225; 225; 225
-    Fixed Frame: sobit_home/base_footprint
+    Fixed Frame: base_footprint
     Frame Rate: 30
   Name: root
   Tools:
@@ -473,14 +790,14 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /initialpose
+        Value: /sobit_home/initialpose
     - Class: rviz_default_plugins/SetGoal
       Topic:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /move_base_simple/goal
+        Value: /sobit_home/move_base_simple/goal
     - Class: rviz_default_plugins/PublishPoint
       Single click: true
       Topic:
@@ -488,7 +805,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /clicked_point
+        Value: /sobit_home/clicked_point
   Transformation:
     Current:
       Class: rviz_default_plugins/TF
@@ -496,39 +813,39 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 3.3745992183685303
+      Distance: 3
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.02329348959028721
-        Y: -0.007086479105055332
-        Z: 1.1527212858200073
+        X: 0
+        Y: 0
+        Z: 1
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
       Pitch: 0
-      Target Frame: sobit_home/base_footprint
+      Target Frame: base_footprint
       Value: Orbit (rviz_default_plugins)
-      Yaw: 1.5700000524520874
+      Yaw: 0
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1531
+  Height: 1371
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001ab000003bdfc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000007800000043800000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073000000003b000003bd000000c700fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c000002610000000100000180000005a5fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000003b000005a5000000a000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004420000003efc0100000002fb0000000800540069006d00650100000000000004420000000000000000fb0000000800540069006d006501000000000000045000000000000000000000037a000005a500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001ab00000509fc0200000007fb0000001200530065006c0065006300740069006f006e0000000039000002e00000005c00fffffffb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003900000509000000c500fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000018000000509fc0200000004fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007301000000390000040c0000009d00fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073010000044b000000f70000005c00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004420000003efc0100000002fb0000000800540069006d00650100000000000004420000000000000000fb0000000800540069006d00650100000000000004500000000000000000000006870000050900000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Tool Properties:
     collapsed: false
   Views:
     collapsed: false
-  Width: 1280
-  X: 3200
-  Y: 1112
+  Width: 2494
+  X: 66
+  Y: 32
