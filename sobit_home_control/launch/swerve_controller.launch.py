@@ -8,7 +8,7 @@ from launch.substitutions.launch_configuration import LaunchConfiguration
 
 def generate_launch_description():
     arg_namespace    = DeclareLaunchArgument('namespace', default_value='')
-    arg_use_sim_time = DeclareLaunchArgument('use_sim_time', default_value='False')
+    arg_use_sim_time = DeclareLaunchArgument('use_sim_time', default_value='false')
     arg_config_file  = DeclareLaunchArgument('config_file', 
         default_value=os.path.join(get_package_share_directory('sobit_home_bringup'), 'config', "swerve_config.yaml"
     ))
