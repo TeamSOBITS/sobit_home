@@ -154,10 +154,13 @@ namespace sobit_home
     double goal_dist = std::sqrt(std::pow(goal->target_point.x, 2) + std::pow(goal->target_point.y, 2));
     double curt_dist = 0.0;
 
-    double vel_diff = wheel_linear_kp_ * goal_dist;
+    // PID state
+    double prev_error = goal_dist;
+    double error_integral = 0.0;
 
     // Set current time
     auto start_time = this->now();
+    auto prev_time = start_time;
     this->init_odom_ = this->curt_odom_;
     rclcpp::Rate loop_rate(10);
 
@@ -178,24 +181,23 @@ namespace sobit_home
         return;
       }
 
-      // Get the current time
+      // Get the current time and compute dt
       auto curt_time = this->now();
-
-      // Calculate the elapsed time
-      rclcpp::Duration dur_elapsed_time = curt_time - start_time;
-      double elapsed_time = dur_elapsed_time.nanoseconds() / 1e9;
+      double dt = (curt_time - prev_time).nanoseconds() / 1e9;
+      if (dt <= 0.0) dt = 0.1;  // guard against zero on first tick
+      prev_time = curt_time;
 
       double vel_linear = 0.0;
 
-      // PID
-      if (goal_dist <= 0.1)
-      {
-        vel_linear = wheel_linear_kp_ * (goal_dist + 0.001 - curt_dist) - wheel_linear_kd_ * vel_diff + wheel_linear_ki_ * (goal_dist + 0.001 - curt_dist) * std::pow(elapsed_time, 2);
-      }
-      else
-      {
-        vel_linear = wheel_linear_kp_ * (goal_dist + 0.001 - curt_dist) - wheel_linear_kd_ * vel_diff + wheel_linear_ki_ * (goal_dist + 0.001 - curt_dist) * std::pow(elapsed_time, 2) / 8.0 * goal_dist;
-      }
+      // Standard discrete PID
+      double error = goal_dist - curt_dist;
+      error_integral += error * dt;
+      double error_derivative = (error - prev_error) / dt;
+      prev_error = error;
+
+      vel_linear = wheel_linear_kp_ * error
+                 + wheel_linear_ki_ * error_integral
+                 + wheel_linear_kd_ * error_derivative;
 
       // Calculate the output velocity
       out_vel.linear.x = vel_linear * std::cos(std::atan2(goal->target_point.y, goal->target_point.x));
@@ -252,14 +254,15 @@ namespace sobit_home
     geometry_msgs::msg::Twist zero_vel;
     double moved_angle = 0.0;
     double goal_angle = std::abs(goal->target_yaw);
-    double goal_angle_deg = goal_angle * 180.0 / M_PI;
-    ;
 
-    double vel_diff = wheel_rotate_kp_ * goal->target_yaw;
+    // PID state
+    double prev_error_rot = goal_angle;
+    double error_integral_rot = 0.0;
     double max_angular_speed = 0.7;
 
     // Set current time
     auto start_time = this->now();
+    auto prev_time_rot = start_time;
     rclcpp::Rate loop_rate(10);
 
     while (moved_angle < goal_angle)
@@ -279,28 +282,25 @@ namespace sobit_home
         return;
       }
 
-      // Get the current time
+      // Get the current time and compute dt
       auto curt_time = this->now();
+      double dt_rot = (curt_time - prev_time_rot).nanoseconds() / 1e9;
+      if (dt_rot <= 0.0) dt_rot = 0.1;
+      prev_time_rot = curt_time;
 
-      // Calculate the elapsed time
-      rclcpp::Duration dur_elapsed_time = curt_time - start_time;
-      double elapsed_time = dur_elapsed_time.nanoseconds() / 1e9;
+      // Standard discrete PID
+      double error_rot = goal_angle - moved_angle;
+      error_integral_rot += error_rot * dt_rot;
+      double error_derivative_rot = (error_rot - prev_error_rot) / dt_rot;
+      prev_error_rot = error_rot;
 
-      double vel_angular = 0.0;
-
-      if (goal_angle_deg < 30)
-      {
-        vel_angular = wheel_rotate_kp_ * (goal_angle + 0.001 - moved_angle) - wheel_rotate_kd_ * vel_diff + wheel_rotate_ki_ * (goal_angle + 0.001 - moved_angle) * pow(elapsed_time, 2);
-      }
-      else
-      {
-        vel_angular = wheel_rotate_kp_ * (goal_angle + 0.001 - moved_angle) - wheel_rotate_kd_ * vel_diff + wheel_rotate_ki_ * (goal_angle + 0.001 - moved_angle) * pow(elapsed_time, 2) * (22.5 / goal_angle);
-      }
+      double vel_angular = wheel_rotate_kp_ * error_rot
+                         + wheel_rotate_ki_ * error_integral_rot
+                         + wheel_rotate_kd_ * error_derivative_rot;
 
       // Apply the maximum speed limit
       vel_angular = (goal->target_yaw > 0) ? std::min(vel_angular, max_angular_speed) : -std::min(std::abs(vel_angular), max_angular_speed);
       out_vel.angular.z = vel_angular;
-      vel_diff = vel_angular;
 
       // Publish the velocity
       this->pub_cmd_vel_->publish(out_vel);
