@@ -158,12 +158,17 @@ namespace sobit_home
     double prev_error = goal_dist;
     double error_integral = 0.0;
 
+    // Max drive speed (m/s) and integral windup clamp
+    const double MAX_LINEAR_VEL = 0.4;
+    const double MAX_INTEGRAL   = 0.5;
+
     // Set current time
     auto start_time = this->now();
     auto prev_time = start_time;
     this->init_odom_ = this->curt_odom_;
     rclcpp::Rate loop_rate(10);
 
+    // Drive phase: run PID until odom reaches the goal
     while (curt_dist < goal_dist)
     {
       // Check if the goal has been canceled
@@ -184,46 +189,52 @@ namespace sobit_home
       // Get the current time and compute dt
       auto curt_time = this->now();
       double dt = (curt_time - prev_time).nanoseconds() / 1e9;
-      if (dt <= 0.0) dt = 0.1;  // guard against zero on first tick
+      if (dt <= 0.0) dt = 0.1;
       prev_time = curt_time;
-
-      double vel_linear = 0.0;
 
       // Standard discrete PID
       double error = goal_dist - curt_dist;
-      error_integral += error * dt;
+      error_integral = std::clamp(error_integral + error * dt, -MAX_INTEGRAL, MAX_INTEGRAL);
       double error_derivative = (error - prev_error) / dt;
       prev_error = error;
 
-      vel_linear = wheel_linear_kp_ * error
-                 + wheel_linear_ki_ * error_integral
-                 + wheel_linear_kd_ * error_derivative;
+      double vel_linear = wheel_linear_kp_ * error
+                        + wheel_linear_ki_ * error_integral
+                        + wheel_linear_kd_ * error_derivative;
+
+      // Clamp output to [-MAX_LINEAR_VEL, MAX_LINEAR_VEL]
+      vel_linear = std::clamp(vel_linear, -MAX_LINEAR_VEL, MAX_LINEAR_VEL);
+
+      // Scale down linearly when within the last 20 cm (braking zone)
+      const double BRAKE_DIST = 0.20;
+      if (error < BRAKE_DIST && error > 0.0)
+        vel_linear *= (error / BRAKE_DIST);
 
       // Calculate the output velocity
-      out_vel.linear.x = vel_linear * std::cos(std::atan2(goal->target_point.y, goal->target_point.x));
-      out_vel.linear.y = vel_linear * std::sin(std::atan2(goal->target_point.y, goal->target_point.x));
+      double heading = std::atan2(goal->target_point.y, goal->target_point.x);
+      out_vel.linear.x = vel_linear * std::cos(heading);
+      out_vel.linear.y = vel_linear * std::sin(heading);
 
       // Publish the velocity
       this->pub_cmd_vel_->publish(out_vel);
 
-      // Update the previous error
+      // Update current distance from odometry
       curt_dist = std::sqrt(
           std::pow(this->curt_odom_.pose.pose.position.x - this->init_odom_.pose.pose.position.x, 2) +
           std::pow(this->curt_odom_.pose.pose.position.y - this->init_odom_.pose.pose.position.y, 2));
 
       // Publish feedback
       auto feedback = std::make_shared<MoveWheelLinear::Feedback>();
-      feedback->current_point.x = curt_dist * std::cos(std::atan2(goal->target_point.y, goal->target_point.x));
-      feedback->current_point.y = curt_dist * std::sin(std::atan2(goal->target_point.y, goal->target_point.x));
+      feedback->current_point.x = curt_dist * std::cos(heading);
+      feedback->current_point.y = curt_dist * std::sin(heading);
       feedback->move_time.sec = (this->now() - start_time).seconds();
       feedback->move_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
       goal_handle->publish_feedback(feedback);
 
-      //
       loop_rate.sleep();
     }
 
-    // Stop the robot
+    // Hard stop
     this->pub_cmd_vel_->publish(init_vel);
 
     // Publish the result
@@ -258,7 +269,9 @@ namespace sobit_home
     // PID state
     double prev_error_rot = goal_angle;
     double error_integral_rot = 0.0;
-    double max_angular_speed = 0.7;
+    const double MAX_ANGULAR_VEL  = 0.7;
+    const double MAX_INTEGRAL_ROT = 0.5;
+    const double BRAKE_ANGLE      = 0.35; // rad (~20 deg) braking zone
 
     // Set current time
     auto start_time = this->now();
@@ -288,9 +301,10 @@ namespace sobit_home
       if (dt_rot <= 0.0) dt_rot = 0.1;
       prev_time_rot = curt_time;
 
-      // Standard discrete PID
+      // Standard discrete PID with integral windup clamp
       double error_rot = goal_angle - moved_angle;
-      error_integral_rot += error_rot * dt_rot;
+      error_integral_rot = std::clamp(error_integral_rot + error_rot * dt_rot,
+                                      -MAX_INTEGRAL_ROT, MAX_INTEGRAL_ROT);
       double error_derivative_rot = (error_rot - prev_error_rot) / dt_rot;
       prev_error_rot = error_rot;
 
@@ -298,8 +312,13 @@ namespace sobit_home
                          + wheel_rotate_ki_ * error_integral_rot
                          + wheel_rotate_kd_ * error_derivative_rot;
 
-      // Apply the maximum speed limit
-      vel_angular = (goal->target_yaw > 0) ? std::min(vel_angular, max_angular_speed) : -std::min(std::abs(vel_angular), max_angular_speed);
+      // Scale down in the braking zone
+      if (error_rot < BRAKE_ANGLE && error_rot > 0.0)
+        vel_angular *= (error_rot / BRAKE_ANGLE);
+
+      // Clamp magnitude and apply direction
+      vel_angular = std::clamp(std::abs(vel_angular), 0.0, MAX_ANGULAR_VEL)
+                    * (goal->target_yaw > 0 ? 1.0 : -1.0);
       out_vel.angular.z = vel_angular;
 
       // Publish the velocity
