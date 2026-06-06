@@ -255,7 +255,6 @@
         <param name="min">-${M_PI}</param>
         <param name="max">${M_PI}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -274,7 +273,6 @@
         <param name="min">-${M_PI}</param>
         <param name="max">${M_PI}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -293,7 +291,6 @@
         <param name="min">-${M_PI}</param>
         <param name="max">${M_PI}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -312,7 +309,6 @@
         <param name="min">-${M_PI}</param>
         <param name="max">${M_PI}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -334,7 +330,6 @@
         <param name="min">-${M_PI/4}</param>
         <param name="max">${M_PI/4}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -353,7 +348,6 @@
         <param name="min">-${M_PI/4}</param>
         <param name="max">${M_PI/6}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -375,7 +369,6 @@
         <param name="min">-${M_PI}</param>
         <param name="max">${M_PI}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.55</param>
       </state_interface>
@@ -397,7 +390,6 @@
         <param name="min">-${M_PI}</param>
         <param name="max">${M_PI}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">-0.55</param>
       </state_interface>
@@ -420,7 +412,6 @@
         <param name="min">-${M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">1.5</param>
       </state_interface>
@@ -459,7 +450,6 @@
         <param name="min">-${M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -498,7 +488,6 @@
         <param name="min">${-8/9 * M_PI}</param>
         <param name="max">0</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">-1.571</param>
       </state_interface>
@@ -507,12 +496,6 @@
     </joint>
 
     <joint name="${prefix}_elbow_sub_joint">
-      <!-- <xacro:if value="${$(arg enable_gz)}">
-        <command_interface name="position">
-        <param name="min">0</param>
-        <param name="max">${8/9 * M_PI}</param>
-        </command_interface>
-      </xacro:if> -->
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">37</param>
         <param name="control_mode">0</param>
@@ -527,18 +510,16 @@
     </joint>
 
     <joint name="${prefix}_lower_flex_joint">
-      <xacro:if value="${$(arg enable_gz)}">
-        <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
-        <param name="max">${M_PI/2}</param>
-        </command_interface>
-      </xacro:if>
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">37</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
+      <command_interface name="position">
+        <param name="min">-${M_PI/2}</param>
+        <param name="max">${M_PI/2}</param>
+      </command_interface>
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -557,7 +538,6 @@
         <param name="min">-${M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -576,7 +556,6 @@
         <param name="min">-${M_PI}</param>
         <param name="max">${M_PI}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -597,7 +576,6 @@
         <param name="min">-${M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">-1.5</param>
       </state_interface>
@@ -636,7 +614,6 @@
         <param name="min">-${M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -675,7 +652,6 @@
         <param name="min">0</param>
         <param name="max">${8/9 * M_PI}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">1.571</param>
       </state_interface>
@@ -714,7 +690,6 @@
         <param name="min">-${M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -733,7 +708,6 @@
         <param name="min">-${M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -752,7 +726,6 @@
         <param name="min">-${M_PI}</param>
         <param name="max">${M_PI}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -775,7 +748,6 @@
         <param name="min">${-M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -805,7 +777,6 @@
         <param name="min">${-M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -825,7 +796,6 @@
         <param name="min">${-M_PI/2}</param>
         <param name="max">${M_PI/6}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -845,7 +815,6 @@
         <param name="min">${-M_PI/2}</param>
         <param name="max">${M_PI/6}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -865,7 +834,6 @@
         <param name="min">${-M_PI/6}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -885,7 +853,6 @@
         <param name="min">${-M_PI/2}</param>
         <param name="max">${M_PI/6}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -905,7 +872,6 @@
         <param name="min">${-M_PI/6}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -928,7 +894,6 @@
         <param name="min">${-M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -958,7 +923,6 @@
         <param name="min">${-M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -978,7 +942,6 @@
         <param name="min">${-M_PI/2}</param>
         <param name="max">${M_PI/6}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -998,7 +961,6 @@
         <param name="min">${-M_PI/6}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -1018,7 +980,6 @@
         <param name="min">${-M_PI/2}</param>
         <param name="max">${M_PI/6}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -1038,7 +999,6 @@
         <param name="min">${-M_PI/2}</param>
         <param name="max">${M_PI/6}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -1058,7 +1018,6 @@
         <param name="min">${-M_PI/6}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -1083,7 +1042,6 @@
         <param name="min">0.0</param>
         <param name="max">0.6</param>
       </command_interface>
-      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.50</param>
       </state_interface>
