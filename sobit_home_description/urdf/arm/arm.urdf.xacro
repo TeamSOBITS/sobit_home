@@ -23,7 +23,7 @@
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_scapula.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="grey" />
+        <material name="black" />
       </visual>
       <collision>
         <origin xyz="0.0 ${y_sign * 0.124/2} 0.0" rpy="0.0 0.0 0.0" />
@@ -56,7 +56,7 @@
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_shoulder.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="grey" />
+        <material name="black" />
       </visual>
       <collision>
         <origin xyz="0.0 ${y_sign * 0.075} 0.0" rpy="${M_PI/2} 0.0 0.0" />
@@ -94,7 +94,7 @@
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_upper_roll.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="grey" />
+        <material name="black" />
       </visual>
       <collision>
         <origin xyz="-0.0510 ${y_sign * (0.1285)/2 + y_sign * 0.05} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
@@ -152,7 +152,7 @@
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_upper_flex.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="grey" />
+        <material name="black" />
       </visual>
       <collision>
         <origin xyz="0.0 ${y_sign * 0.170/2 + y_sign * (0.095+0.025)} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
@@ -210,7 +210,7 @@
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_elbow.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="grey" />
+        <material name="black" />
       </visual>
       <collision>
         <origin xyz="0.0 ${y_sign * 0.12/2 + y_sign * 0.09} -0.0510" rpy="${y_sign * M_PI/2} 0.0 0.0" />
@@ -263,7 +263,7 @@
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_lower_bottom.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="grey" />
+        <material name="black" />
       </visual>
       <collision>
         <origin xyz="0.0 ${y_sign * 0.300/2 + y_sign * 0.105} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
@@ -296,7 +296,7 @@
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_wrist_tilt.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="grey"/>
+        <material name="black"/>
       </visual>
       <collision>
         <origin xyz="0.0 ${y_sign * 0.0462} 0.0" rpy="0.0 ${-y_sign * M_PI/2} ${M_PI/2}" />
@@ -329,7 +329,7 @@
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/arm/arm_wrist_roll.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <material name="grey" />
+        <material name="black" />
       </visual>
       <collision>
         <origin xyz="0.00852612 ${y_sign * 0.07450 / 2} 0.0" rpy="0.0 ${y_sign * M_PI/2} ${y_sign * M_PI/2}" />

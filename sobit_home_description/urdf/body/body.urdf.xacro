@@ -54,7 +54,6 @@
         <geometry>
           <mesh filename="file://$(find sobit_home_description)/meshes/body/body_cover.dae"/>
         </geometry>
-        <!-- <material name="grey" /> -->
       </visual>
       <collision>
         <origin xyz="0.178 0.0 0.0" rpy="0.0 0.0 0.0" />
