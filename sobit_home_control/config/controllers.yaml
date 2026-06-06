@@ -50,6 +50,7 @@
       - arm_left_upper_roll_joint
       - arm_left_upper_flex_joint
       - arm_left_elbow_joint
+      - arm_left_lower_flex_joint
       - arm_left_wrist_tilt_joint
       - arm_left_wrist_roll_joint
     command_interfaces:
@@ -66,6 +67,7 @@
       - arm_right_upper_roll_joint
       - arm_right_upper_flex_joint
       - arm_right_elbow_joint
+      - arm_right_lower_flex_joint
       - arm_right_wrist_tilt_joint
       - arm_right_wrist_roll_joint
     command_interfaces:
