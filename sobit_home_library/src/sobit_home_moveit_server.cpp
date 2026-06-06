@@ -8,51 +8,53 @@ namespace sobit_home
 MoveitServer::MoveitServer(const rclcpp::NodeOptions & options)
 : Node("moveit_server", rclcpp::NodeOptions(options).automatically_declare_parameters_from_overrides(true))
 {
-  tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+  tf_buffer_   = std::make_shared<tf2_ros::Buffer>(get_clock());
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
-  // Use a dedicated reentrant callback group for the plan service so its
-  // blocking plan() call does not deadlock the node's main executor.
-  plan_service_cb_group_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-  action_cb_group_       = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  plan_service_cb_group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  action_cb_group_       = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
   // Service
-  plan_service_ = this->create_service<PlanToPose>(
-      "plan_to_pose",
-      std::bind(&MoveitServer::handle_plan_request, this, std::placeholders::_1, std::placeholders::_2),
-      rclcpp::ServicesQoS(),
-      plan_service_cb_group_);
+  plan_service_ = create_service<PlanToPose>(
+    "plan_to_pose",
+    [this](
+      const std::shared_ptr<PlanToPose::Request> req,
+      std::shared_ptr<PlanToPose::Response> res) {
+      handle_plan_request(req, res);
+    },
+    rclcpp::ServicesQoS(),
+    plan_service_cb_group_);
 
-  // Action
   execute_action_server_ = rclcpp_action::create_server<ExecutePlan>(
-      this, "execute_plan",
-      std::bind(&MoveitServer::handle_exec_goal, this, std::placeholders::_1, std::placeholders::_2),
-      std::bind(&MoveitServer::handle_exec_cancel, this, std::placeholders::_1),
-      std::bind(&MoveitServer::handle_exec_accepted, this, std::placeholders::_1),
-      rcl_action_server_get_default_options(),
-      action_cb_group_);
+    this, "execute_plan",
+    [this](const rclcpp_action::GoalUUID &, std::shared_ptr<const ExecutePlan::Goal> goal) {
+      return handle_exec_goal({}, goal);
+    },
+    [this](const std::shared_ptr<GoalHandleExecutePlan> goal_handle) {
+      return handle_exec_cancel(goal_handle);
+    },
+    [this](const std::shared_ptr<GoalHandleExecutePlan> goal_handle) {
+      handle_exec_accepted(goal_handle);
+    },
+    rcl_action_server_get_default_options(),
+    action_cb_group_);
 
-  // Cleanup timer
-  cleanup_timer_ = this->create_wall_timer(
-      std::chrono::seconds(10),
-      std::bind(&MoveitServer::purge_stale_plans, this));
+  cleanup_timer_ = create_wall_timer(
+    std::chrono::seconds(10),
+    [this]() { purge_stale_plans(); });
 
-  // Declare with default only if not already provided via launch/overrides
-  if (!this->has_parameter("active_planning_groups")) {
-    this->declare_parameter("active_planning_groups", std::vector<std::string>{"arm_left", "arm_right"});
+  if (!has_parameter("active_planning_groups")) {
+    declare_parameter("active_planning_groups", std::vector<std::string>{"arm_left", "arm_right"});
   }
 
-  RCLCPP_INFO(this->get_logger(),
-              "MoveitServer starting (clock_type=%d)",
-              static_cast<int>(this->get_clock()->get_clock_type()));
+  RCLCPP_INFO(get_logger(), "MoveitServer starting (clock_type=%d)",
+    static_cast<int>(get_clock()->get_clock_type()));
 
-  // Fire init_move_groups() on the executor thread after the constructor returns,
-  // so shared_from_this() is guaranteed valid when MoveGroupInterface is built.
-  init_timer_ = this->create_wall_timer(
+  init_timer_ = create_wall_timer(
     std::chrono::milliseconds(0),
     [this]() {
       init_timer_->cancel();
-      this->init_move_groups();
+      init_move_groups();
     });
 }
 
@@ -60,34 +62,30 @@ MoveitServer::~MoveitServer() {}
 
 void MoveitServer::init_move_groups()
 {
-  auto groups = this->get_parameter("active_planning_groups").as_string_array();
+  const auto groups = get_parameter("active_planning_groups").as_string_array();
 
-  // Derive the namespace string without leading slash.
-  std::string ns = this->get_namespace();
+  std::string ns = get_namespace();
   if (!ns.empty() && ns.front() == '/') {
     ns = ns.substr(1);
   }
 
-  // MoveGroupInterface needs robot_description on the node it's given (this node).
-  // Fetch it from move_group's parameter server and declare it here once.
-  if (!this->has_parameter("robot_description")) {
-    RCLCPP_INFO(this->get_logger(), "Fetching robot_description from /%s/move_group ...", ns.c_str());
-    auto tmp_node = std::make_shared<rclcpp::Node>("moveit_server_param_fetch", this->get_namespace());
+  if (!has_parameter("robot_description")) {
+    RCLCPP_INFO(get_logger(), "Fetching robot_description from /%s/move_group ...", ns.c_str());
+    auto tmp_node = std::make_shared<rclcpp::Node>("moveit_server_param_fetch", get_namespace());
     auto param_client = std::make_shared<rclcpp::SyncParametersClient>(
-        tmp_node, "/" + ns + "/move_group");
+      tmp_node, "/" + ns + "/move_group");
     if (!param_client->wait_for_service(std::chrono::seconds(15))) {
-      RCLCPP_ERROR(this->get_logger(), "move_group parameter service not available — aborting init");
+      RCLCPP_ERROR(get_logger(), "move_group parameter service not available — aborting init");
       return;
     }
-    auto params = param_client->get_parameters({"robot_description", "robot_description_semantic"});
+    const auto params = param_client->get_parameters({"robot_description", "robot_description_semantic"});
     if (params.size() >= 2 && !params[0].as_string().empty()) {
-      this->declare_parameter("robot_description", params[0].as_string());
-      this->declare_parameter("robot_description_semantic", params[1].as_string());
-      RCLCPP_INFO(this->get_logger(),
-                  "robot_description declared on this node (%zu chars), SRDF (%zu chars)",
-                  params[0].as_string().size(), params[1].as_string().size());
+      declare_parameter("robot_description", params[0].as_string());
+      declare_parameter("robot_description_semantic", params[1].as_string());
+      RCLCPP_INFO(get_logger(), "robot_description declared on this node (%zu chars), SRDF (%zu chars)",
+        params[0].as_string().size(), params[1].as_string().size());
     } else {
-      RCLCPP_ERROR(this->get_logger(), "robot_description is empty — aborting init");
+      RCLCPP_ERROR(get_logger(), "robot_description is empty — aborting init");
       return;
     }
   }
@@ -163,105 +161,94 @@ void MoveitServer::handle_plan_request(
     move_group = it->second;
   }
 
-  RCLCPP_INFO(this->get_logger(), "Received planning request for group: %s", request->planning_group.c_str());
+  RCLCPP_INFO(get_logger(), "Received planning request for group: %s", request->planning_group.c_str());
 
-  // Log current status
   try {
-      RCLCPP_INFO(this->get_logger(), "Planning Frame: %s, Pose Frame: %s", 
-                  move_group->getPlanningFrame().c_str(), request->target.header.frame_id.c_str());
-      auto current_pose = move_group->getCurrentPose();
-      RCLCPP_INFO(this->get_logger(), "Current Pose: x:%.2f, y:%.2f, z:%.2f", 
-                  current_pose.pose.position.x, current_pose.pose.position.y, current_pose.pose.position.z);
+    RCLCPP_INFO(get_logger(), "Planning Frame: %s, Pose Frame: %s",
+      move_group->getPlanningFrame().c_str(), request->target.header.frame_id.c_str());
+    const auto current_pose = move_group->getCurrentPose();
+    RCLCPP_INFO(get_logger(), "Current Pose: x:%.2f, y:%.2f, z:%.2f",
+      current_pose.pose.position.x, current_pose.pose.position.y, current_pose.pose.position.z);
   } catch (const std::exception & e) {
-      RCLCPP_WARN(this->get_logger(), "Could not retrieve current pose: %s", e.what());
+    RCLCPP_WARN(get_logger(), "Could not retrieve current pose: %s", e.what());
   }
 
-  // Set a hard limit on planning time so the service NEVER hangs
   move_group->setPlanningTime(10.0);
   move_group->setNumPlanningAttempts(10);
-  
-  // Set a large workspace to prevent OMPL sampling failures
   move_group->setWorkspace(-5.0, -5.0, 0.0, 5.0, 5.0, 5.0);
-  
-  // Ensure the solver starts from a fresh current state seed
   move_group->setStartStateToCurrentState();
-  
+
   if (request->target.header.frame_id.empty()) {
-      request->target.header.frame_id = move_group->getPlanningFrame();
-      RCLCPP_WARN(this->get_logger(), "Target frame_id was empty, using planning frame: %s", request->target.header.frame_id.c_str());
+    request->target.header.frame_id = move_group->getPlanningFrame();
+    RCLCPP_WARN(get_logger(), "Target frame_id was empty, using planning frame: %s",
+      request->target.header.frame_id.c_str());
   }
 
-  RCLCPP_INFO(this->get_logger(), "Setting Pose Target: x:%.2f, y:%.2f, z:%.2f", 
-              request->target.pose.position.x, request->target.pose.position.y, request->target.pose.position.z);
-  
+  RCLCPP_INFO(get_logger(), "Setting Pose Target: x:%.2f, y:%.2f, z:%.2f",
+    request->target.pose.position.x, request->target.pose.position.y, request->target.pose.position.z);
+
   if (!move_group->setPoseTarget(request->target)) {
-      RCLCPP_ERROR(this->get_logger(), "Failed to set pose target (invalid pose?)");
-      response->success = false;
-      response->message = "Failed to set pose target.";
-      return;
+    RCLCPP_ERROR(get_logger(), "Failed to set pose target (invalid pose?)");
+    response->success = false;
+    response->message = "Failed to set pose target.";
+    return;
   }
 
-  RCLCPP_INFO(this->get_logger(), "Starting OMPL planning...");
+  RCLCPP_INFO(get_logger(), "Starting OMPL planning...");
   moveit::planning_interface::MoveGroupInterface::Plan my_plan;
   moveit::core::MoveItErrorCode plan_result = move_group->plan(my_plan);
-  
+
   if (plan_result != moveit::core::MoveItErrorCode::SUCCESS) {
-      RCLCPP_WARN(this->get_logger(), "Initial Pose planning failed (%i). Relaxing tolerance...", (int)plan_result.val);
-      move_group->setGoalOrientationTolerance(0.1); // Relax to ~5.7 degrees
+    RCLCPP_WARN(get_logger(), "Initial Pose planning failed (%i). Relaxing tolerance...",
+      static_cast<int>(plan_result.val));
+    move_group->setGoalOrientationTolerance(0.1);
+    plan_result = move_group->plan(my_plan);
+  }
+
+  if (plan_result != moveit::core::MoveItErrorCode::SUCCESS) {
+    RCLCPP_WARN(get_logger(), "Relaxed Pose planning failed (%i). Attempting Position-Only fallback...",
+      static_cast<int>(plan_result.val));
+    move_group->clearPoseTargets();
+    if (move_group->setPositionTarget(
+        request->target.pose.position.x,
+        request->target.pose.position.y,
+        request->target.pose.position.z)) {
       plan_result = move_group->plan(my_plan);
+      RCLCPP_INFO(get_logger(), "Position-Only planning finished with code: %i",
+        static_cast<int>(plan_result.val));
+    } else {
+      RCLCPP_ERROR(get_logger(), "Failed to set Position target even in fallback.");
+    }
   }
 
-  if (plan_result != moveit::core::MoveItErrorCode::SUCCESS) {
-      RCLCPP_WARN(this->get_logger(), "Relaxed Pose planning failed (%i). Attempting Position-Only fallback...", (int)plan_result.val);
-      
-      // Clear targets first
-      move_group->clearPoseTargets();
-      if (move_group->setPositionTarget(request->target.pose.position.x, 
-                                        request->target.pose.position.y, 
-                                        request->target.pose.position.z)) 
-      {
-          plan_result = move_group->plan(my_plan);
-          RCLCPP_INFO(this->get_logger(), "Position-Only planning finished with code: %i", (int)plan_result.val);
-      } else {
-          RCLCPP_ERROR(this->get_logger(), "Failed to set Position target even in fallback.");
-      }
-  }
-
-  RCLCPP_INFO(this->get_logger(), "Final planning result code: %i", (int)plan_result.val);
+  RCLCPP_INFO(get_logger(), "Final planning result code: %i", static_cast<int>(plan_result.val));
 
   if (plan_result == moveit::core::MoveItErrorCode::SUCCESS) {
-    // Generate a simple ID without external libuuid dependency
-    std::string plan_id = "plan_" + std::to_string(this->now().nanoseconds());
-
+    const std::string plan_id = "plan_" + std::to_string(now().nanoseconds());
     {
       std::lock_guard<std::mutex> lock(plan_cache_mutex_);
       CachedPlan cp;
-      cp.plan = my_plan;
-      cp.timestamp = this->now();
+      cp.plan           = my_plan;
+      cp.timestamp      = now();
       cp.planning_group = request->planning_group;
       plan_cache_[plan_id] = cp;
     }
 
-    response->success = true;
-    response->plan_id = plan_id;
-    response->trajectory = my_plan.trajectory;
-    
     double duration = 0.0;
     if (!my_plan.trajectory.joint_trajectory.points.empty()) {
-      auto pts = my_plan.trajectory.joint_trajectory.points;
+      const auto & pts = my_plan.trajectory.joint_trajectory.points;
       duration = pts.back().time_from_start.sec + pts.back().time_from_start.nanosec * 1e-9;
     }
+    response->success        = true;
+    response->plan_id        = plan_id;
+    response->trajectory     = my_plan.trajectory;
     response->estimated_time = duration;
-    response->message = "Plan generated with ID: " + plan_id;
+    response->message        = "Plan generated with ID: " + plan_id;
   } else {
     response->success = false;
     response->message = "MoveIt planning failed for both Pose and Position-Only strategies.";
-    
-    // Diagnostic: Check if start state is in collision
-    auto start_state = move_group->getCurrentState();
-    if (start_state) {
-        RCLCPP_INFO(this->get_logger(), "Hint: If planning fails with code 99999, check for self-collisions in the URDF/SRDF.");
-    }
+    RCLCPP_INFO(get_logger(),
+      "Hint: If planning fails with code 99999, check for self-collisions in the URDF/SRDF.");
   }
 }
 
@@ -270,13 +257,13 @@ rclcpp_action::GoalResponse MoveitServer::handle_exec_goal(
   std::shared_ptr<const ExecutePlan::Goal> goal)
 {
   (void)uuid;
-  RCLCPP_INFO(this->get_logger(), "handle_exec_goal called for plan_id: %s", goal->plan_id.c_str());
+  RCLCPP_INFO(get_logger(), "handle_exec_goal called for plan_id: %s", goal->plan_id.c_str());
   std::lock_guard<std::mutex> lock(plan_cache_mutex_);
   if (plan_cache_.find(goal->plan_id) == plan_cache_.end()) {
-    RCLCPP_ERROR(this->get_logger(), "Plan ID not found or expired: %s", goal->plan_id.c_str());
+    RCLCPP_ERROR(get_logger(), "Plan ID not found or expired: %s", goal->plan_id.c_str());
     return rclcpp_action::GoalResponse::REJECT;
   }
-  RCLCPP_INFO(this->get_logger(), "Goal ACCEPTED for plan_id: %s", goal->plan_id.c_str());
+  RCLCPP_INFO(get_logger(), "Goal ACCEPTED for plan_id: %s", goal->plan_id.c_str());
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
@@ -284,14 +271,15 @@ rclcpp_action::CancelResponse MoveitServer::handle_exec_cancel(
   const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
 {
   (void)goal_handle;
-  RCLCPP_INFO(this->get_logger(), "Received request to cancel execution");
-  
+  RCLCPP_INFO(get_logger(), "Received request to cancel execution");
+
   std::string group_to_stop;
   {
     std::lock_guard<std::mutex> lock(plan_cache_mutex_);
-    std::string plan_id = goal_handle->get_goal()->plan_id; 
-    if (active_executions_.find(plan_id) != active_executions_.end()) {
-        group_to_stop = active_executions_[plan_id];
+    const std::string plan_id = goal_handle->get_goal()->plan_id;
+    auto it = active_executions_.find(plan_id);
+    if (it != active_executions_.end()) {
+      group_to_stop = it->second;
     }
   }
 
@@ -313,7 +301,7 @@ rclcpp_action::CancelResponse MoveitServer::handle_exec_cancel(
 
 void MoveitServer::handle_exec_accepted(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
 {
-  std::thread{std::bind(&MoveitServer::execute_plan_thread, this, std::placeholders::_1), goal_handle}.detach();
+  std::thread{[this, goal_handle]() { execute_plan_thread(goal_handle); }}.detach();
 }
 
 void MoveitServer::execute_plan_thread(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
@@ -389,7 +377,7 @@ void MoveitServer::execute_plan_thread(const std::shared_ptr<GoalHandleExecutePl
   try {
     exec_result = move_group->execute(cached_plan.plan);
   } catch (const std::exception & e) {
-    RCLCPP_ERROR(this->get_logger(), "Exception during execute: %s", e.what());
+    RCLCPP_ERROR(get_logger(), "Exception during execute: %s", e.what());
     exec_result = moveit::core::MoveItErrorCode::FAILURE;
   }
   
@@ -427,10 +415,10 @@ void MoveitServer::execute_plan_thread(const std::shared_ptr<GoalHandleExecutePl
 void MoveitServer::purge_stale_plans()
 {
   std::lock_guard<std::mutex> lock(plan_cache_mutex_);
-  auto now = this->now();
+  const auto now = this->now();
   for (auto it = plan_cache_.begin(); it != plan_cache_.end();) {
     if ((now - it->second.timestamp).seconds() > 60.0) {
-      RCLCPP_WARN(this->get_logger(), "Purging expired plan_id: %s", it->first.c_str());
+      RCLCPP_WARN(get_logger(), "Purging expired plan_id: %s", it->first.c_str());
       it = plan_cache_.erase(it);
     } else {
       ++it;

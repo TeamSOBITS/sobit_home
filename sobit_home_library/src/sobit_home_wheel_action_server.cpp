@@ -3,380 +3,261 @@
 namespace sobit_home
 {
 
-  WheelActionServer::WheelActionServer(const rclcpp::NodeOptions &options = rclcpp::NodeOptions())
+  WheelActionServer::WheelActionServer(const rclcpp::NodeOptions & options)
       : Node("wheel_action_server", options)
   {
-    // Configure the QoS profile
-    rclcpp::QoS qos_profile(1); // depth = 1
-    // qos_profile.reliability(RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT);
-    // qos_profile.history(RMW_QOS_POLICY_HISTORY_KEEP_LAST);
-    // qos_profile.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
+    rclcpp::QoS qos_profile(1);
 
-    // Declare parameters (PID values)
-    this->declare_parameter("wheel_linear_kp", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter("wheel_linear_ki", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter("wheel_linear_kd", rclcpp::PARAMETER_DOUBLE);
+    declare_parameter("wheel_linear_kp", rclcpp::PARAMETER_DOUBLE);
+    declare_parameter("wheel_linear_ki", rclcpp::PARAMETER_DOUBLE);
+    declare_parameter("wheel_linear_kd", rclcpp::PARAMETER_DOUBLE);
+    declare_parameter("wheel_rotate_kp", rclcpp::PARAMETER_DOUBLE);
+    declare_parameter("wheel_rotate_ki", rclcpp::PARAMETER_DOUBLE);
+    declare_parameter("wheel_rotate_kd", rclcpp::PARAMETER_DOUBLE);
 
-    this->declare_parameter("wheel_rotate_kp", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter("wheel_rotate_ki", rclcpp::PARAMETER_DOUBLE);
-    this->declare_parameter("wheel_rotate_kd", rclcpp::PARAMETER_DOUBLE);
+    wheel_linear_kp_ = get_parameter("wheel_linear_kp").as_double();
+    wheel_linear_ki_ = get_parameter("wheel_linear_ki").as_double();
+    wheel_linear_kd_ = get_parameter("wheel_linear_kd").as_double();
+    wheel_rotate_kp_ = get_parameter("wheel_rotate_kp").as_double();
+    wheel_rotate_ki_ = get_parameter("wheel_rotate_ki").as_double();
+    wheel_rotate_kd_ = get_parameter("wheel_rotate_kd").as_double();
 
-    // Retrieve parameters (PID values)
-    wheel_linear_kp_ = this->get_parameter("wheel_linear_kp").as_double();
-    wheel_linear_ki_ = this->get_parameter("wheel_linear_ki").as_double();
-    wheel_linear_kd_ = this->get_parameter("wheel_linear_kd").as_double();
+    RCLCPP_INFO(get_logger(), "Wheel Linear PID parameters:");
+    RCLCPP_INFO(get_logger(), "  Kp: %f", wheel_linear_kp_);
+    RCLCPP_INFO(get_logger(), "  Ki: %f", wheel_linear_ki_);
+    RCLCPP_INFO(get_logger(), "  Kd: %f", wheel_linear_kd_);
+    RCLCPP_INFO(get_logger(), "Wheel Rotate PID parameters:");
+    RCLCPP_INFO(get_logger(), "  Kp: %f", wheel_rotate_kp_);
+    RCLCPP_INFO(get_logger(), "  Ki: %f", wheel_rotate_ki_);
+    RCLCPP_INFO(get_logger(), "  Kd: %f", wheel_rotate_kd_);
 
-    wheel_rotate_kp_ = this->get_parameter("wheel_rotate_kp").as_double();
-    wheel_rotate_ki_ = this->get_parameter("wheel_rotate_ki").as_double();
-    wheel_rotate_kd_ = this->get_parameter("wheel_rotate_kd").as_double();
+    action_server_move_wheel_linear_ = rclcpp_action::create_server<MoveWheelLinear>(
+      this, "move_wheel_linear",
+      [this](const rclcpp_action::GoalUUID &, std::shared_ptr<const MoveWheelLinear::Goal>) {
+        RCLCPP_INFO(get_logger(), "Received move_wheel_linear goal request");
+        return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+      },
+      [this](const std::shared_ptr<GoalHandleMoveWheelLinear>) {
+        RCLCPP_INFO(get_logger(), "Received move_wheel_linear cancel request");
+        return rclcpp_action::CancelResponse::ACCEPT;
+      },
+      [this](const std::shared_ptr<GoalHandleMoveWheelLinear> goal_handle) {
+        std::thread{[this, goal_handle]() { exe_move_wheel_linear(goal_handle); }}.detach();
+      });
 
-    // Log the parameters
-    RCLCPP_INFO(this->get_logger(), "Wheel Linear PID parameters:");
-    RCLCPP_INFO(this->get_logger(), "  Kp: %f", wheel_linear_kp_);
-    RCLCPP_INFO(this->get_logger(), "  Ki: %f", wheel_linear_ki_);
-    RCLCPP_INFO(this->get_logger(), "  Kd: %f", wheel_linear_kd_);
+    action_server_move_wheel_rotate_ = rclcpp_action::create_server<MoveWheelRotate>(
+      this, "move_wheel_rotate",
+      [this](const rclcpp_action::GoalUUID &, std::shared_ptr<const MoveWheelRotate::Goal>) {
+        RCLCPP_INFO(get_logger(), "Received move_wheel_rotate goal request");
+        return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+      },
+      [this](const std::shared_ptr<GoalHandleMoveWheelRotate>) {
+        RCLCPP_INFO(get_logger(), "Received move_wheel_rotate cancel request");
+        return rclcpp_action::CancelResponse::ACCEPT;
+      },
+      [this](const std::shared_ptr<GoalHandleMoveWheelRotate> goal_handle) {
+        std::thread{[this, goal_handle]() { exe_move_wheel_rotate(goal_handle); }}.detach();
+      });
 
-    RCLCPP_INFO(this->get_logger(), "Wheel Rotate PID parameters:");
-    RCLCPP_INFO(this->get_logger(), "  Kp: %f", wheel_rotate_kp_);
-    RCLCPP_INFO(this->get_logger(), "  Ki: %f", wheel_rotate_ki_);
-    RCLCPP_INFO(this->get_logger(), "  Kd: %f", wheel_rotate_kd_);
+    pub_cmd_vel_ = create_publisher<geometry_msgs::msg::Twist>("cmd_vel", qos_profile);
+    sub_odom_ = create_subscription<nav_msgs::msg::Odometry>(
+      "odom", qos_profile,
+      [this](const nav_msgs::msg::Odometry::SharedPtr msg) { odom_callback(msg); });
 
-    // Action Servers
-    this->action_server_move_wheel_linear_ = rclcpp_action::create_server<MoveWheelLinear>(
-        this,
-        "move_wheel_linear",
-        std::bind(&WheelActionServer::handle_move_wheel_linear_goal, this, std::placeholders::_1, std::placeholders::_2),
-        std::bind(&WheelActionServer::handle_move_wheel_linear_cancel, this, std::placeholders::_1),
-        std::bind(&WheelActionServer::handle_move_wheel_linear_accepted, this, std::placeholders::_1));
-    this->action_server_move_wheel_rotate_ = rclcpp_action::create_server<MoveWheelRotate>(
-        this,
-        "move_wheel_rotate",
-        std::bind(&WheelActionServer::handle_move_wheel_rotate_goal, this, std::placeholders::_1, std::placeholders::_2),
-        std::bind(&WheelActionServer::handle_move_wheel_rotate_cancel, this, std::placeholders::_1),
-        std::bind(&WheelActionServer::handle_move_wheel_rotate_accepted, this, std::placeholders::_1));
-
-    // Publisher and Subscriber
-    this->pub_cmd_vel_ = this->create_publisher<geometry_msgs::msg::Twist>(
-        "cmd_vel", qos_profile);
-    this->sub_odom_ = this->create_subscription<nav_msgs::msg::Odometry>(
-        "odom", qos_profile, std::bind(&WheelActionServer::odom_callback, this, std::placeholders::_1));
-
-    RCLCPP_INFO(this->get_logger(), "WheelActionServer has been initialized.");
+    RCLCPP_INFO(get_logger(), "WheelActionServer has been initialized.");
   }
+
   WheelActionServer::~WheelActionServer()
   {
-    this->action_server_move_wheel_linear_.reset();
-    this->action_server_move_wheel_rotate_.reset();
-
-    this->pub_cmd_vel_.reset();
-    this->sub_odom_.reset();
-
-    RCLCPP_INFO(this->get_logger(), "WheelActionServer has been terminated.");
+    action_server_move_wheel_linear_.reset();
+    action_server_move_wheel_rotate_.reset();
+    pub_cmd_vel_.reset();
+    sub_odom_.reset();
+    RCLCPP_INFO(get_logger(), "WheelActionServer has been terminated.");
   }
 
-  rclcpp_action::GoalResponse WheelActionServer::handle_move_wheel_linear_goal(
-      const rclcpp_action::GoalUUID &uuid,
-      std::shared_ptr<const MoveWheelLinear::Goal> goal)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received goal request");
-    (void)uuid;
-    (void)goal;
-    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-  }
-  rclcpp_action::GoalResponse WheelActionServer::handle_move_wheel_rotate_goal(
-      const rclcpp_action::GoalUUID &uuid,
-      std::shared_ptr<const MoveWheelRotate::Goal> goal)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received goal request");
-    (void)uuid;
-    (void)goal;
-    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-  }
-
-  rclcpp_action::CancelResponse WheelActionServer::handle_move_wheel_linear_cancel(
-      const std::shared_ptr<GoalHandleMoveWheelLinear> goal_handle)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received cancel request");
-    (void)goal_handle;
-    return rclcpp_action::CancelResponse::ACCEPT;
-  }
-  rclcpp_action::CancelResponse WheelActionServer::handle_move_wheel_rotate_cancel(
-      const std::shared_ptr<GoalHandleMoveWheelRotate> goal_handle)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received cancel request");
-    (void)goal_handle;
-    return rclcpp_action::CancelResponse::ACCEPT;
-  }
-
-  void WheelActionServer::handle_move_wheel_linear_accepted(
-      const std::shared_ptr<GoalHandleMoveWheelLinear> goal_handle)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received goal request");
-    (void)goal_handle;
-    std::thread{std::bind(&WheelActionServer::exe_move_wheel_linear, this, std::placeholders::_1), goal_handle}.detach();
-  }
-  void WheelActionServer::handle_move_wheel_rotate_accepted(
-      const std::shared_ptr<GoalHandleMoveWheelRotate> goal_handle)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received goal request");
-    (void)goal_handle;
-    std::thread{std::bind(&WheelActionServer::exe_move_wheel_rotate, this, std::placeholders::_1), goal_handle}.detach();
-  }
-
-  // TODO: goal time allowance is not considered
   void WheelActionServer::exe_move_wheel_linear(
       const std::shared_ptr<GoalHandleMoveWheelLinear> goal_handle)
   {
-    RCLCPP_INFO(this->get_logger(), "Executing goal");
+    RCLCPP_INFO(get_logger(), "Executing move_wheel_linear goal");
 
     const auto goal = goal_handle->get_goal();
     auto result = std::make_shared<MoveWheelLinear::Result>();
 
-    // Check if the odometry is updated
-    // while (this->curt_odom_.header.stamp == this->init_odom_.header.stamp) {
-    //   RCLCPP_INFO(this->get_logger(), "Waiting for the odometry to be updated");
-    //   rclcpp::spin_some(this->get_node_base_interface());
-    // }
-
-    // Check if the target point is valid (only x is considered)
-    if (goal->target_point.z != 0.0)
-    {
-      RCLCPP_ERROR(this->get_logger(), "Invalid target point: (%f, %f, %f)",
-                   goal->target_point.x, goal->target_point.y, goal->target_point.z);
+    if (goal->target_point.z != 0.0) {
+      RCLCPP_ERROR(get_logger(), "Invalid target point: (%f, %f, %f)",
+        goal->target_point.x, goal->target_point.y, goal->target_point.z);
       result->success = false;
       result->message = "[FAIL] Invalid target point";
       goal_handle->abort(result);
       return;
     }
 
-    // Initialize values
-    geometry_msgs::msg::Twist init_vel, out_vel;
-    double goal_dist = std::sqrt(std::pow(goal->target_point.x, 2) + std::pow(goal->target_point.y, 2));
+    geometry_msgs::msg::Twist zero_vel;
+    const double goal_dist = std::sqrt(
+      std::pow(goal->target_point.x, 2) + std::pow(goal->target_point.y, 2));
     double curt_dist = 0.0;
 
-    // PID state
     double prev_error = goal_dist;
     double error_integral = 0.0;
-
-    // Max drive speed (m/s) and integral windup clamp
     const double MAX_LINEAR_VEL = 0.4;
     const double MAX_INTEGRAL   = 0.5;
+    const double BRAKE_DIST     = 0.20;
 
-    // Set current time
-    auto start_time = this->now();
-    auto prev_time = start_time;
-    this->init_odom_ = this->curt_odom_;
+    auto start_time = now();
+    auto prev_time  = start_time;
+    init_odom_ = curt_odom_;
     rclcpp::Rate loop_rate(10);
 
-    // Drive phase: run PID until odom reaches the goal
-    while (curt_dist < goal_dist)
-    {
-      // Check if the goal has been canceled
-      if (goal_handle->is_canceling())
-      {
-        RCLCPP_INFO(this->get_logger(), "Goal has been canceled");
-        this->pub_cmd_vel_->publish(init_vel);
-
+    while (curt_dist < goal_dist) {
+      if (goal_handle->is_canceling()) {
+        RCLCPP_INFO(get_logger(), "move_wheel_linear goal canceled");
+        pub_cmd_vel_->publish(zero_vel);
         result->success = false;
         result->message = "[FAIL] Goal has been canceled";
-        result->total_elapsed_time.sec = (this->now() - start_time).seconds();
-        result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
-
+        result->total_elapsed_time.sec    = (now() - start_time).seconds();
+        result->total_elapsed_time.nanosec = (now() - start_time).nanoseconds() % static_cast<int64_t>(1e9);
         goal_handle->canceled(result);
         return;
       }
 
-      // Get the current time and compute dt
-      auto curt_time = this->now();
+      auto curt_time = now();
       double dt = (curt_time - prev_time).nanoseconds() / 1e9;
-      if (dt <= 0.0) dt = 0.1;
+      if (dt <= 0.0) { dt = 0.1; }
       prev_time = curt_time;
 
-      // Standard discrete PID
-      double error = goal_dist - curt_dist;
+      const double error = goal_dist - curt_dist;
       error_integral = std::clamp(error_integral + error * dt, -MAX_INTEGRAL, MAX_INTEGRAL);
-      double error_derivative = (error - prev_error) / dt;
+      const double error_derivative = (error - prev_error) / dt;
       prev_error = error;
 
       double vel_linear = wheel_linear_kp_ * error
                         + wheel_linear_ki_ * error_integral
                         + wheel_linear_kd_ * error_derivative;
-
-      // Clamp output to [-MAX_LINEAR_VEL, MAX_LINEAR_VEL]
       vel_linear = std::clamp(vel_linear, -MAX_LINEAR_VEL, MAX_LINEAR_VEL);
 
-      // Scale down linearly when within the last 20 cm (braking zone)
-      const double BRAKE_DIST = 0.20;
-      if (error < BRAKE_DIST && error > 0.0)
-        vel_linear *= (error / BRAKE_DIST);
+      if (error > 0.0 && error < BRAKE_DIST) {
+        vel_linear *= error / BRAKE_DIST;
+      }
 
-      // Calculate the output velocity
-      double heading = std::atan2(goal->target_point.y, goal->target_point.x);
+      const double heading = std::atan2(goal->target_point.y, goal->target_point.x);
+      geometry_msgs::msg::Twist out_vel;
       out_vel.linear.x = vel_linear * std::cos(heading);
       out_vel.linear.y = vel_linear * std::sin(heading);
+      pub_cmd_vel_->publish(out_vel);
 
-      // Publish the velocity
-      this->pub_cmd_vel_->publish(out_vel);
-
-      // Update current distance from odometry
       curt_dist = std::sqrt(
-          std::pow(this->curt_odom_.pose.pose.position.x - this->init_odom_.pose.pose.position.x, 2) +
-          std::pow(this->curt_odom_.pose.pose.position.y - this->init_odom_.pose.pose.position.y, 2));
+        std::pow(curt_odom_.pose.pose.position.x - init_odom_.pose.pose.position.x, 2) +
+        std::pow(curt_odom_.pose.pose.position.y - init_odom_.pose.pose.position.y, 2));
 
-      // Publish feedback
       auto feedback = std::make_shared<MoveWheelLinear::Feedback>();
-      feedback->current_point.x = curt_dist * std::cos(heading);
-      feedback->current_point.y = curt_dist * std::sin(heading);
-      feedback->move_time.sec = (this->now() - start_time).seconds();
-      feedback->move_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
+      feedback->current_point.x  = curt_dist * std::cos(heading);
+      feedback->current_point.y  = curt_dist * std::sin(heading);
+      feedback->move_time.sec    = (now() - start_time).seconds();
+      feedback->move_time.nanosec = (now() - start_time).nanoseconds() % static_cast<int64_t>(1e9);
       goal_handle->publish_feedback(feedback);
 
       loop_rate.sleep();
     }
 
-    // Hard stop
-    this->pub_cmd_vel_->publish(init_vel);
-
-    // Publish the result
+    pub_cmd_vel_->publish(zero_vel);
     result->success = true;
     result->message = "Goal has been succeeded";
-    result->total_elapsed_time.sec = (this->now() - start_time).seconds();
-    result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
-
+    result->total_elapsed_time.sec    = (now() - start_time).seconds();
+    result->total_elapsed_time.nanosec = (now() - start_time).nanoseconds() % static_cast<int64_t>(1e9);
     goal_handle->succeed(result);
   }
 
-  // TODO: goal time allowance is not considered
   void WheelActionServer::exe_move_wheel_rotate(
       const std::shared_ptr<GoalHandleMoveWheelRotate> goal_handle)
   {
-    RCLCPP_INFO(this->get_logger(), "Executing goal");
+    RCLCPP_INFO(get_logger(), "Executing move_wheel_rotate goal");
 
     const auto goal = goal_handle->get_goal();
     auto result = std::make_shared<MoveWheelRotate::Result>();
 
-    // Initialize values
-    this->init_odom_ = this->curt_odom_;
-    double init_real_angle = this->get_euler_from_quat(this->init_odom_.pose.pose.orientation).z;
-    double curt_real_angle = this->get_euler_from_quat(this->curt_odom_.pose.pose.orientation).z;
+    init_odom_ = curt_odom_;
+    const double init_real_angle = get_euler_from_quat(init_odom_.pose.pose.orientation).z;
     double prev_real_angle = init_real_angle;
+    double moved_angle     = 0.0;
+    const double goal_angle = std::abs(goal->target_yaw);
 
-    geometry_msgs::msg::Twist out_vel;
-    geometry_msgs::msg::Twist zero_vel;
-    double moved_angle = 0.0;
-    double goal_angle = std::abs(goal->target_yaw);
-
-    // PID state
-    double prev_error_rot = goal_angle;
+    double prev_error_rot    = goal_angle;
     double error_integral_rot = 0.0;
     const double MAX_ANGULAR_VEL  = 0.7;
     const double MAX_INTEGRAL_ROT = 0.5;
-    const double BRAKE_ANGLE      = 0.35; // rad (~20 deg) braking zone
+    const double BRAKE_ANGLE      = 0.35;
 
-    // Set current time
-    auto start_time = this->now();
+    auto start_time    = now();
     auto prev_time_rot = start_time;
     rclcpp::Rate loop_rate(10);
+    geometry_msgs::msg::Twist zero_vel;
 
-    while (moved_angle < goal_angle)
-    {
-      // Check if the goal has been canceled
-      if (goal_handle->is_canceling())
-      {
-        RCLCPP_INFO(this->get_logger(), "Goal has been canceled");
-        this->pub_cmd_vel_->publish(zero_vel);
-
+    while (moved_angle < goal_angle) {
+      if (goal_handle->is_canceling()) {
+        RCLCPP_INFO(get_logger(), "move_wheel_rotate goal canceled");
+        pub_cmd_vel_->publish(zero_vel);
         result->success = false;
         result->message = "[FAIL] Goal has been canceled";
-        result->total_elapsed_time.sec = (this->now() - start_time).seconds();
-        result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
+        result->total_elapsed_time.sec    = (now() - start_time).seconds();
+        result->total_elapsed_time.nanosec = (now() - start_time).nanoseconds() % static_cast<int64_t>(1e9);
         goal_handle->canceled(result);
-
         return;
       }
 
-      // Get the current time and compute dt
-      auto curt_time = this->now();
+      auto curt_time = now();
       double dt_rot = (curt_time - prev_time_rot).nanoseconds() / 1e9;
-      if (dt_rot <= 0.0) dt_rot = 0.1;
+      if (dt_rot <= 0.0) { dt_rot = 0.1; }
       prev_time_rot = curt_time;
 
-      // Standard discrete PID with integral windup clamp
-      double error_rot = goal_angle - moved_angle;
-      error_integral_rot = std::clamp(error_integral_rot + error_rot * dt_rot,
-                                      -MAX_INTEGRAL_ROT, MAX_INTEGRAL_ROT);
-      double error_derivative_rot = (error_rot - prev_error_rot) / dt_rot;
+      const double error_rot = goal_angle - moved_angle;
+      error_integral_rot = std::clamp(
+        error_integral_rot + error_rot * dt_rot, -MAX_INTEGRAL_ROT, MAX_INTEGRAL_ROT);
+      const double error_derivative_rot = (error_rot - prev_error_rot) / dt_rot;
       prev_error_rot = error_rot;
 
       double vel_angular = wheel_rotate_kp_ * error_rot
                          + wheel_rotate_ki_ * error_integral_rot
                          + wheel_rotate_kd_ * error_derivative_rot;
 
-      // Scale down in the braking zone
-      if (error_rot < BRAKE_ANGLE && error_rot > 0.0)
-        vel_angular *= (error_rot / BRAKE_ANGLE);
+      if (error_rot > 0.0 && error_rot < BRAKE_ANGLE) {
+        vel_angular *= error_rot / BRAKE_ANGLE;
+      }
 
-      // Clamp magnitude and apply direction
       vel_angular = std::clamp(std::abs(vel_angular), 0.0, MAX_ANGULAR_VEL)
                     * (goal->target_yaw > 0 ? 1.0 : -1.0);
+
+      geometry_msgs::msg::Twist out_vel;
       out_vel.angular.z = vel_angular;
+      pub_cmd_vel_->publish(out_vel);
 
-      // Publish the velocity
-      this->pub_cmd_vel_->publish(out_vel);
-
-      // Calculate the moved distance
-      curt_real_angle = this->get_euler_from_quat(this->curt_odom_.pose.pose.orientation).z;
-
+      const double curt_real_angle = get_euler_from_quat(curt_odom_.pose.pose.orientation).z;
       double delta_angle = curt_real_angle - prev_real_angle;
-
-      if (delta_angle > M_PI)
-        delta_angle -= 2 * M_PI;
-      else if (delta_angle < -M_PI)
-        delta_angle += 2 * M_PI;
-
+      if (delta_angle >  M_PI) { delta_angle -= 2.0 * M_PI; }
+      if (delta_angle < -M_PI) { delta_angle += 2.0 * M_PI; }
       moved_angle += std::abs(delta_angle);
       prev_real_angle = curt_real_angle;
 
-      // Publish feedback
       auto feedback = std::make_shared<MoveWheelRotate::Feedback>();
-      feedback->current_yaw = moved_angle * (goal->target_yaw / std::abs(goal->target_yaw));
-      feedback->move_time.sec = (this->now() - start_time).seconds();
-      feedback->move_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
+      feedback->current_yaw   = moved_angle * (goal->target_yaw / std::abs(goal->target_yaw));
+      feedback->move_time.sec = (now() - start_time).seconds();
+      feedback->move_time.nanosec = (now() - start_time).nanoseconds() % static_cast<int64_t>(1e9);
       goal_handle->publish_feedback(feedback);
 
-      // Spin the node
-      // rclcpp::spin_some(this->get_node_base_interface());
       loop_rate.sleep();
     }
 
-    this->pub_cmd_vel_->publish(zero_vel);
-
-    // Publish the result
+    pub_cmd_vel_->publish(zero_vel);
     result->success = true;
     result->message = "Goal has been succeeded";
-    result->total_elapsed_time.sec = (this->now() - start_time).seconds();
-    result->total_elapsed_time.nanosec = (this->now() - start_time).nanoseconds() % int(10E9);
-
+    result->total_elapsed_time.sec    = (now() - start_time).seconds();
+    result->total_elapsed_time.nanosec = (now() - start_time).nanoseconds() % static_cast<int64_t>(1e9);
     goal_handle->succeed(result);
   }
 
-  void WheelActionServer::odom_callback(
-      const nav_msgs::msg::Odometry::SharedPtr msg)
+  void WheelActionServer::odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
   {
-    RCLCPP_DEBUG(this->get_logger(), "Received odometry");
-
-    this->curt_odom_ = *msg;
-
-    RCLCPP_DEBUG(this->get_logger(), "Current odometry:");
-    RCLCPP_DEBUG(this->get_logger(), "  Position: (%f, %f, %f)",
-                 this->curt_odom_.pose.pose.position.x,
-                 this->curt_odom_.pose.pose.position.y,
-                 this->curt_odom_.pose.pose.position.z);
-    RCLCPP_DEBUG(this->get_logger(), "  Orientation: (%f, %f, %f, %f)",
-                 this->curt_odom_.pose.pose.orientation.x,
-                 this->curt_odom_.pose.pose.orientation.y,
-                 this->curt_odom_.pose.pose.orientation.z,
-                 this->curt_odom_.pose.pose.orientation.w);
+    curt_odom_ = *msg;
   }
 
 } // namespace sobit_home
