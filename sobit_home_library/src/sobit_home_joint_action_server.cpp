@@ -327,9 +327,7 @@ namespace sobit_home
     };
 
     add(JointNamesArmRight, {it->arm_right_shoulder_tilt, it->arm_right_upper_roll, it->arm_right_upper_flex, it->arm_right_elbow, it->arm_right_wrist_tilt, it->arm_right_wrist_roll});
-    add(JointNamesHandRight, {it->hand_right_finger_l_mcp, it->hand_right_finger_l_pip, it->hand_right_finger_l_dip, it->hand_right_finger_c_mcp, it->hand_right_finger_c_ip, it->hand_right_finger_r_pip, it->hand_right_finger_r_dip});
     add(JointNamesArmLeft, {it->arm_left_shoulder_tilt, it->arm_left_upper_roll, it->arm_left_upper_flex, it->arm_left_elbow, it->arm_left_wrist_tilt, it->arm_left_wrist_roll});
-    add(JointNamesHandLeft, {it->hand_left_finger_l_mcp, it->hand_left_finger_l_pip, it->hand_left_finger_l_dip, it->hand_left_finger_c_mcp, it->hand_left_finger_c_ip, it->hand_left_finger_r_pip, it->hand_left_finger_r_dip});
     add(JointNamesBody, {it->body_lift});
     add(JointNamesHead, {it->head_pan, it->head_tilt});
 
@@ -342,8 +340,6 @@ namespace sobit_home
 
     publish_group(pub_left_arm_joint_control_, "arm_left");
     publish_group(pub_right_arm_joint_control_, "arm_right");
-    publish_group(pub_left_hand_joint_control_, "hand_left");
-    publish_group(pub_right_hand_joint_control_, "hand_right");
     publish_group(pub_body_joint_control_, "body");
     publish_group(pub_head_joint_control_, "head");
 
