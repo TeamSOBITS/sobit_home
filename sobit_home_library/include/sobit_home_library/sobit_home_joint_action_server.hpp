@@ -123,14 +123,14 @@ namespace sobit_home
     using GoalHandleMoveJoints = rclcpp_action::ServerGoalHandle<sobits_interfaces::action::MoveJoint>;
     using GoalHandleMoveToPose = rclcpp_action::ServerGoalHandle<sobits_interfaces::action::MoveToPose>;
 
-    explicit JointActionServer(const rclcpp::NodeOptions &options);
+    explicit JointActionServer(const rclcpp::NodeOptions & options);
     ~JointActionServer();
 
     trajectory_msgs::msg::JointTrajectory set_joints(
-        const std::vector<std::string> &target_joint_names,
-        const std::vector<double> &target_joint_rad,
-        const builtin_interfaces::msg::Duration &time_allowance,
-        const std::string &group_name);
+      const std::vector<std::string> & target_joint_names,
+      const std::vector<double> & target_joint_rad,
+      const builtin_interfaces::msg::Duration & time_allowance,
+      const std::string & group_name);
 
   private:
     const std::vector<std::string> JointNamesArmRight = {
@@ -194,31 +194,28 @@ namespace sobit_home
     rclcpp::Service<GetHandToTargetTF>::SharedPtr service_get_head_to_tf_;
     rclcpp::Service<GetFingerAngle>::SharedPtr service_server_get_finger_angle_;
 
-    rclcpp_action::GoalResponse handle_move_joints_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const MoveJoint::Goal> goal);
-    rclcpp_action::GoalResponse handle_move_to_pose_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const MoveToPose::Goal> goal);
-    rclcpp_action::GoalResponse handle_move_right_hand_to_pose_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const MoveToPose::Goal> goal);
-    rclcpp_action::GoalResponse handle_move_left_hand_to_pose_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const MoveToPose::Goal> goal);
-
-    rclcpp_action::CancelResponse handle_move_joints_cancel(const std::shared_ptr<GoalHandleMoveJoints> goal_handle);
-    rclcpp_action::CancelResponse handle_move_to_pose_cancel(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
-    rclcpp_action::CancelResponse handle_move_right_hand_to_pose_cancel(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
-    rclcpp_action::CancelResponse handle_move_left_hand_to_pose_cancel(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
-
-    void handle_move_joints_accepted(const std::shared_ptr<GoalHandleMoveJoints> goal_handle);
-    void handle_move_to_pose_accepted(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
-    void handle_move_right_hand_to_pose_accepted(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
-    void handle_move_left_hand_to_pose_accepted(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
-
     void exe_move_joints(const std::shared_ptr<GoalHandleMoveJoints> goal_handle);
     void exe_move_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
     void exe_move_right_hand_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
     void exe_move_left_hand_to_pose(const std::shared_ptr<GoalHandleMoveToPose> goal_handle);
 
-    void get_pos_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response, bool is_right);
-    void get_pos_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response, bool is_right);
-    void get_head_to_coord(const std::shared_ptr<GetHandToTargetCoord::Request> request, std::shared_ptr<GetHandToTargetCoord::Response> response);
-    void get_head_to_tf(const std::shared_ptr<GetHandToTargetTF::Request> request, std::shared_ptr<GetHandToTargetTF::Response> response);
-    void serve_get_finger_angle(const std::shared_ptr<GetFingerAngle::Request> request, std::shared_ptr<GetFingerAngle::Response> response);
+    void get_pos_to_coord(
+      const std::shared_ptr<GetHandToTargetCoord::Request> request,
+      std::shared_ptr<GetHandToTargetCoord::Response> response,
+      bool is_right);
+    void get_pos_to_tf(
+      const std::shared_ptr<GetHandToTargetTF::Request> request,
+      std::shared_ptr<GetHandToTargetTF::Response> response,
+      bool is_right);
+    void get_head_to_coord(
+      const std::shared_ptr<GetHandToTargetCoord::Request> request,
+      std::shared_ptr<GetHandToTargetCoord::Response> response);
+    void get_head_to_tf(
+      const std::shared_ptr<GetHandToTargetTF::Request> request,
+      std::shared_ptr<GetHandToTargetTF::Response> response);
+    void serve_get_finger_angle(
+      const std::shared_ptr<GetFingerAngle::Request> request,
+      std::shared_ptr<GetFingerAngle::Response> response);
 
     rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_left_arm_joint_control_;
     rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_right_arm_joint_control_;
@@ -243,9 +240,9 @@ namespace sobit_home
     std::unordered_map<std::string, Limit> joint_limits_;
 
     void load_joint_limits();
-    bool parse_urdf_limits(const std::string &urdf_xml);
+    bool parse_urdf_limits(const std::string & urdf_xml);
     void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg);
-    std::string get_tf_frame(const std::string &frame_name);
+    std::string get_tf_frame(const std::string & frame_name);
   };
 
 } // namespace sobit_home
