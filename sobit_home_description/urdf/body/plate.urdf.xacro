@@ -107,20 +107,48 @@
         </geometry>
         <material name="black" />
       </visual>
-      <!-- TODO -->
-      <!-- <collision>
+      <!-- top -->
+      <collision>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
         <geometry>
-          <box size="0.47 0.47 0.02" />
+          <box size="0.575 0.575 0.01" />
         </geometry>
-      </collision> -->
-      <!-- <inertial>
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+      </collision>
+      <!-- front -->
+      <collision>
+        <origin xyz="${0.575/2 - 0.01/2} 0.0 ${-0.470/2}" rpy="0.0 0.0 0.0" />
+        <geometry>
+          <box size="0.01 0.575 0.470" />
+        </geometry>
+      </collision>
+      <!-- back -->
+      <collision>
+        <origin xyz="${-(0.575/2 - 0.01/2)} 0.0 ${-0.470/2}" rpy="0.0 0.0 0.0" />
+        <geometry>
+          <box size="0.01 0.575 0.470" />
+        </geometry>
+      </collision>
+      <!-- left -->
+      <collision>
+        <origin xyz="0.0 ${0.575/2 - 0.01/2} ${-0.470/2}" rpy="0.0 0.0 0.0" />
+        <geometry>
+          <box size="0.575 0.01 0.470" />
+        </geometry>
+      </collision>
+      <!-- right -->
+      <collision>
+        <origin xyz="0.0 ${-(0.575/2 - 0.01/2)} ${-0.470/2}" rpy="0.0 0.0 0.0" />
+        <geometry>
+          <box size="0.575 0.01 0.470" />
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.0 0.0 ${0.150/2 - 0.0485 - (0.421258 + 0.150/2)/2}" rpy="0.0 0.0 0.0" />
         <mass value="1.5" />
-        <inertia ixx="${1/12*1.5*(0.47**2+0.02**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*1.5*(0.02**2+0.47**2)}" iyz="0.0"
-                 izz="${1/12*1.5*(0.47**2+0.47**2)}" />
-      </inertial> -->
+        <inertia ixx="${1/12*1.5*(0.575**2+0.470**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*1.5*(0.470**2+0.575**2)}" iyz="0.0"
+                 izz="${1/12*1.5*(0.575**2+0.575**2)}" />
+      </inertial>
     </link>
 
   </xacro:macro>
