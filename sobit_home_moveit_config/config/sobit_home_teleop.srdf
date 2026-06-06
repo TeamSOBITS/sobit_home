@@ -226,17 +226,15 @@
     <disable_collisions link1="arm_left_base_link" link2="body_lift_link" reason="Adjacent"/>
     <disable_collisions link1="arm_left_base_link" link2="body_link" reason="Never"/>
     <disable_collisions link1="arm_left_base_link" link2="head_base_link" reason="Never"/>
-    <disable_collisions link1="arm_left_base_link" link2="head_camera_bottom_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_left_base_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="arm_left_base_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_left_base_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_base_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_base_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_base_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_base_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_base_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_base_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_base_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_base_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_base_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_left_base_link" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="arm_left_base_link" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="arm_left_base_link" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_left_base_link" link2="head_tilt_link" reason="Never"/>
     <disable_collisions link1="arm_left_base_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="arm_left_base_link" link2="lidar_front_base_link" reason="Never"/>
@@ -275,15 +273,13 @@
     <disable_collisions link1="arm_left_elbow_link" link2="hand_left_finger_r_dip_link" reason="Never"/>
     <disable_collisions link1="arm_left_elbow_link" link2="hand_left_finger_r_pip_link" reason="Never"/>
     <disable_collisions link1="arm_left_elbow_link" link2="head_base_link" reason="Never"/>
-    <disable_collisions link1="arm_left_elbow_link" link2="head_camera_bottom_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_left_elbow_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="arm_left_elbow_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_left_elbow_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_elbow_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_elbow_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_elbow_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_elbow_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_elbow_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_elbow_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_elbow_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_elbow_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_elbow_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_left_elbow_link" link2="head_pan_link" reason="Never"/>
     <disable_collisions link1="arm_left_elbow_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="arm_left_elbow_link" link2="wheel_drive_b_r_link" reason="Never"/>
@@ -328,17 +324,15 @@
     <disable_collisions link1="arm_left_shoulder_tilt_link" link2="hand_left_finger_r_dip_link" reason="User"/>
     <disable_collisions link1="arm_left_shoulder_tilt_link" link2="hand_left_finger_r_pip_link" reason="Never"/>
     <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_base_link" reason="Never"/>
-    <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_bottom_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_left_shoulder_tilt_link" link2="head_tilt_link" reason="Never"/>
     <disable_collisions link1="arm_left_shoulder_tilt_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="arm_left_shoulder_tilt_link" link2="lidar_front_base_link" reason="Never"/>
@@ -381,17 +375,15 @@
     <disable_collisions link1="arm_left_upper_flex_link" link2="hand_right_finger_l_pip_link" reason="Never"/>
     <disable_collisions link1="arm_left_upper_flex_link" link2="hand_right_finger_r_pip_link" reason="Never"/>
     <disable_collisions link1="arm_left_upper_flex_link" link2="head_base_link" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_bottom_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_left_upper_flex_link" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_flex_link" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="arm_left_upper_flex_link" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_left_upper_flex_link" link2="head_tilt_link" reason="Never"/>
     <disable_collisions link1="arm_left_upper_flex_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="arm_left_upper_flex_link" link2="lidar_front_base_link" reason="Never"/>
@@ -428,17 +420,15 @@
     <disable_collisions link1="arm_left_upper_roll_link" link2="hand_left_finger_r_dip_link" reason="Never"/>
     <disable_collisions link1="arm_left_upper_roll_link" link2="hand_left_finger_r_pip_link" reason="Never"/>
     <disable_collisions link1="arm_left_upper_roll_link" link2="head_base_link" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_bottom_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_left_upper_roll_link" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="arm_left_upper_roll_link" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="arm_left_upper_roll_link" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_left_upper_roll_link" link2="head_tilt_link" reason="Never"/>
     <disable_collisions link1="arm_left_upper_roll_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="arm_left_upper_roll_link" link2="lidar_front_base_link" reason="Never"/>
@@ -485,17 +475,15 @@
     <disable_collisions link1="arm_right_base_link" link2="body_lift_link" reason="Adjacent"/>
     <disable_collisions link1="arm_right_base_link" link2="body_link" reason="Never"/>
     <disable_collisions link1="arm_right_base_link" link2="head_base_link" reason="Never"/>
-    <disable_collisions link1="arm_right_base_link" link2="head_camera_bottom_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_right_base_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="arm_right_base_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_right_base_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_base_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_base_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_base_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_base_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_base_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_base_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_base_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_base_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_base_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_right_base_link" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="arm_right_base_link" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="arm_right_base_link" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_right_base_link" link2="head_tilt_link" reason="Never"/>
     <disable_collisions link1="arm_right_base_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="arm_right_base_link" link2="lidar_front_base_link" reason="Never"/>
@@ -534,11 +522,10 @@
     <disable_collisions link1="arm_right_elbow_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="arm_right_elbow_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_right_elbow_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_elbow_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_elbow_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_elbow_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_elbow_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_elbow_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_elbow_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_elbow_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_elbow_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_elbow_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_right_elbow_link" link2="head_pan_link" reason="Never"/>
     <disable_collisions link1="arm_right_elbow_link" link2="lidar_front_base_link" reason="Never"/>
     <disable_collisions link1="arm_right_elbow_link" link2="wheel_drive_b_l_link" reason="Never"/>
@@ -575,17 +562,15 @@
     <disable_collisions link1="arm_right_shoulder_tilt_link" link2="hand_right_finger_l_pip_link" reason="Never"/>
     <disable_collisions link1="arm_right_shoulder_tilt_link" link2="hand_right_finger_r_pip_link" reason="Never"/>
     <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_base_link" reason="Never"/>
-    <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_bottom_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_right_shoulder_tilt_link" link2="head_tilt_link" reason="Never"/>
     <disable_collisions link1="arm_right_shoulder_tilt_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="arm_right_shoulder_tilt_link" link2="lidar_front_base_link" reason="Never"/>
@@ -621,17 +606,15 @@
     <disable_collisions link1="arm_right_upper_flex_link" link2="hand_right_finger_r_dip_link" reason="Never"/>
     <disable_collisions link1="arm_right_upper_flex_link" link2="hand_right_finger_r_pip_link" reason="Never"/>
     <disable_collisions link1="arm_right_upper_flex_link" link2="head_base_link" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_bottom_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_right_upper_flex_link" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_flex_link" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="arm_right_upper_flex_link" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_right_upper_flex_link" link2="head_tilt_link" reason="Never"/>
     <disable_collisions link1="arm_right_upper_flex_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="arm_right_upper_flex_link" link2="lidar_front_base_link" reason="Never"/>
@@ -663,17 +646,15 @@
     <disable_collisions link1="arm_right_upper_roll_link" link2="hand_right_finger_r_dip_link" reason="Never"/>
     <disable_collisions link1="arm_right_upper_roll_link" link2="hand_right_finger_r_pip_link" reason="Never"/>
     <disable_collisions link1="arm_right_upper_roll_link" link2="head_base_link" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_bottom_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="arm_right_upper_roll_link" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="arm_right_upper_roll_link" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="arm_right_upper_roll_link" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="arm_right_upper_roll_link" link2="head_tilt_link" reason="Never"/>
     <disable_collisions link1="arm_right_upper_roll_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="arm_right_upper_roll_link" link2="lidar_front_base_link" reason="Never"/>
@@ -726,17 +707,15 @@
     <disable_collisions link1="arm_right_wrist_tilt_link" link2="hand_right_finger_r_pip_link" reason="Never"/>
     <disable_collisions link1="body_lift_link" link2="body_link" reason="Adjacent"/>
     <disable_collisions link1="body_lift_link" link2="head_base_link" reason="Adjacent"/>
-    <disable_collisions link1="body_lift_link" link2="head_camera_bottom_screw_frame" reason="Never"/>
     <disable_collisions link1="body_lift_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="body_lift_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="body_lift_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="body_lift_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="body_lift_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="body_lift_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="body_lift_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="body_lift_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="body_lift_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="body_lift_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="body_lift_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="body_lift_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="body_lift_link" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="body_lift_link" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="body_lift_link" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="body_lift_link" link2="head_tilt_link" reason="Never"/>
     <disable_collisions link1="body_lift_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="body_lift_link" link2="lidar_front_base_link" reason="Never"/>
@@ -757,17 +736,15 @@
     <disable_collisions link1="body_lift_link" link2="wheel_steer_f_l_link" reason="Never"/>
     <disable_collisions link1="body_lift_link" link2="wheel_steer_f_r_link" reason="Never"/>
     <disable_collisions link1="body_link" link2="head_base_link" reason="Never"/>
-    <disable_collisions link1="body_link" link2="head_camera_bottom_screw_frame" reason="Never"/>
     <disable_collisions link1="body_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="body_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="body_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="body_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="body_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="body_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="body_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="body_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="body_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="body_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="body_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="body_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="body_link" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="body_link" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="body_link" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="body_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="body_link" link2="lidar_front_base_link" reason="Never"/>
     <disable_collisions link1="body_link" link2="plate_bottom_link" reason="Never"/>
@@ -894,17 +871,15 @@
     <disable_collisions link1="hand_right_finger_l_pip_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="hand_right_finger_l_pip_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="hand_right_finger_r_dip_link" link2="hand_right_finger_r_pip_link" reason="Adjacent"/>
-    <disable_collisions link1="head_base_link" link2="head_camera_bottom_screw_frame" reason="Never"/>
     <disable_collisions link1="head_base_link" link2="head_camera_color_frame" reason="Never"/>
     <disable_collisions link1="head_base_link" link2="head_camera_color_optical_frame" reason="Never"/>
     <disable_collisions link1="head_base_link" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="head_base_link" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="head_base_link" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="head_base_link" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="head_base_link" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="head_base_link" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="head_base_link" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="head_base_link" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="head_base_link" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="head_base_link" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="head_base_link" link2="head_pan_link" reason="Adjacent"/>
-    <disable_collisions link1="head_base_link" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="head_base_link" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="head_base_link" link2="head_tilt_link" reason="Never"/>
     <disable_collisions link1="head_base_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="head_base_link" link2="lidar_front_base_link" reason="Never"/>
@@ -924,44 +899,14 @@
     <disable_collisions link1="head_base_link" link2="wheel_steer_base_f_r_link" reason="Never"/>
     <disable_collisions link1="head_base_link" link2="wheel_steer_f_l_link" reason="Never"/>
     <disable_collisions link1="head_base_link" link2="wheel_steer_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="head_camera_color_frame" reason="Adjacent"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="head_camera_color_optical_frame" reason="Adjacent"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="head_camera_depth_frame" reason="Adjacent"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="head_camera_depth_optical_frame" reason="Adjacent"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="head_camera_infra2_frame" reason="Adjacent"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="head_camera_infra2_optical_frame" reason="Adjacent"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="head_camera_infra_1_frame" reason="Adjacent"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="head_camera_infra_1_optical_frame" reason="Adjacent"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="head_plug_base_link" reason="Adjacent"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="head_tilt_link" reason="Default"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="lidar_back_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="lidar_front_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="plate_bottom_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="plate_cover_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="plate_middle_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="plate_top_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="wheel_drive_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="wheel_drive_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="wheel_drive_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="wheel_drive_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="wheel_steer_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="wheel_steer_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="wheel_steer_base_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="wheel_steer_base_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="wheel_steer_base_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="wheel_steer_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_bottom_screw_frame" link2="wheel_steer_f_r_link" reason="Never"/>
     <disable_collisions link1="head_camera_color_frame" link2="head_camera_color_optical_frame" reason="Default"/>
     <disable_collisions link1="head_camera_color_frame" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_color_frame" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_color_frame" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_color_frame" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_color_frame" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_color_frame" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_color_frame" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_color_frame" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_color_frame" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_color_frame" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="head_camera_color_frame" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="head_camera_color_frame" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_frame" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="head_camera_color_frame" link2="head_tilt_link" reason="Default"/>
     <disable_collisions link1="head_camera_color_frame" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="head_camera_color_frame" link2="lidar_front_base_link" reason="Never"/>
@@ -982,13 +927,12 @@
     <disable_collisions link1="head_camera_color_frame" link2="wheel_steer_f_l_link" reason="Never"/>
     <disable_collisions link1="head_camera_color_frame" link2="wheel_steer_f_r_link" reason="Never"/>
     <disable_collisions link1="head_camera_color_optical_frame" link2="head_camera_depth_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_color_optical_frame" link2="head_camera_depth_optical_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_color_optical_frame" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_color_optical_frame" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_color_optical_frame" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_color_optical_frame" link2="head_camera_infra_1_optical_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_color_optical_frame" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_color_optical_frame" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_color_optical_frame" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_color_optical_frame" link2="head_camera_left_ir_optical_frame" reason="Never"/>
     <disable_collisions link1="head_camera_color_optical_frame" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="head_camera_color_optical_frame" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_optical_frame" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="head_camera_color_optical_frame" link2="head_tilt_link" reason="Default"/>
     <disable_collisions link1="head_camera_color_optical_frame" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="head_camera_color_optical_frame" link2="lidar_front_base_link" reason="Never"/>
@@ -1008,13 +952,12 @@
     <disable_collisions link1="head_camera_color_optical_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
     <disable_collisions link1="head_camera_color_optical_frame" link2="wheel_steer_f_l_link" reason="Never"/>
     <disable_collisions link1="head_camera_color_optical_frame" link2="wheel_steer_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_frame" link2="head_camera_depth_optical_frame" reason="Default"/>
-    <disable_collisions link1="head_camera_depth_frame" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_frame" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_frame" link2="head_camera_infra_1_frame" reason="Default"/>
-    <disable_collisions link1="head_camera_depth_frame" link2="head_camera_infra_1_optical_frame" reason="Default"/>
+    <disable_collisions link1="head_camera_depth_frame" link2="head_camera_right_ir_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_depth_frame" link2="head_camera_right_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_depth_frame" link2="head_camera_left_ir_frame" reason="Default"/>
+    <disable_collisions link1="head_camera_depth_frame" link2="head_camera_left_ir_optical_frame" reason="Default"/>
     <disable_collisions link1="head_camera_depth_frame" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_frame" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_depth_frame" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="head_camera_depth_frame" link2="head_tilt_link" reason="Default"/>
     <disable_collisions link1="head_camera_depth_frame" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="head_camera_depth_frame" link2="lidar_front_base_link" reason="Never"/>
@@ -1034,122 +977,97 @@
     <disable_collisions link1="head_camera_depth_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
     <disable_collisions link1="head_camera_depth_frame" link2="wheel_steer_f_l_link" reason="Never"/>
     <disable_collisions link1="head_camera_depth_frame" link2="wheel_steer_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="head_camera_infra2_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="head_camera_infra2_optical_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="head_camera_infra_1_frame" reason="Default"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="head_camera_infra_1_optical_frame" reason="Default"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="head_plug_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="head_tilt_link" reason="Default"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="lidar_back_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="lidar_front_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="plate_bottom_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="plate_cover_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="plate_middle_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="plate_top_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="wheel_drive_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="wheel_drive_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="wheel_drive_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="wheel_drive_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="wheel_steer_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="wheel_steer_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="wheel_steer_base_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="wheel_steer_base_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="wheel_steer_base_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="wheel_steer_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_depth_optical_frame" link2="wheel_steer_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="head_camera_infra2_optical_frame" reason="Default"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="head_camera_infra_1_optical_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="head_plug_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="head_tilt_link" reason="Default"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="lidar_back_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="lidar_front_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="plate_bottom_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="plate_cover_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="plate_middle_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="plate_top_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="wheel_drive_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="wheel_drive_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="wheel_drive_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="wheel_drive_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="wheel_steer_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="wheel_steer_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="wheel_steer_base_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="wheel_steer_base_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="wheel_steer_base_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="wheel_steer_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_frame" link2="wheel_steer_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="head_camera_infra_1_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="head_camera_infra_1_optical_frame" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="head_plug_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="head_tilt_link" reason="Default"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="lidar_back_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="lidar_front_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="plate_bottom_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="plate_cover_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="plate_middle_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="plate_top_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="wheel_drive_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="wheel_drive_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="wheel_drive_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="wheel_drive_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="wheel_steer_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="wheel_steer_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="wheel_steer_base_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="wheel_steer_base_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="wheel_steer_base_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="wheel_steer_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra2_optical_frame" link2="wheel_steer_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="head_camera_infra_1_optical_frame" reason="Default"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="head_plug_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="head_tilt_link" reason="Default"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="lidar_back_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="lidar_front_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="plate_bottom_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="plate_cover_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="plate_middle_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="plate_top_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="wheel_drive_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="wheel_drive_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="wheel_drive_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="wheel_drive_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="wheel_steer_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="wheel_steer_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="wheel_steer_base_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="wheel_steer_base_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="wheel_steer_base_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="wheel_steer_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_frame" link2="wheel_steer_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="head_pan_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="head_plug_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="head_tilt_link" reason="Default"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="lidar_back_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="lidar_front_base_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="plate_bottom_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="plate_cover_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="plate_middle_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="plate_top_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="wheel_drive_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="wheel_drive_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="wheel_drive_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="wheel_drive_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="wheel_steer_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="wheel_steer_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="wheel_steer_base_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="wheel_steer_base_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="wheel_steer_base_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="wheel_steer_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_camera_infra_1_optical_frame" link2="wheel_steer_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_pan_link" link2="head_plug_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="head_camera_right_ir_optical_frame" reason="Default"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="head_camera_left_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="head_pan_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="head_camera_color_screw_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="head_tilt_link" reason="Default"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="lidar_back_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="lidar_front_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="plate_bottom_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="plate_cover_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="plate_middle_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="plate_top_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="wheel_drive_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="wheel_drive_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="wheel_drive_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="wheel_drive_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="wheel_steer_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="wheel_steer_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="wheel_steer_base_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="wheel_steer_base_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="wheel_steer_base_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="wheel_steer_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_frame" link2="wheel_steer_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="head_camera_left_ir_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="head_camera_left_ir_optical_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="head_pan_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="head_camera_color_screw_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="head_tilt_link" reason="Default"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="lidar_back_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="lidar_front_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="plate_bottom_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="plate_cover_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="plate_middle_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="plate_top_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="wheel_drive_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="wheel_drive_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="wheel_drive_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="wheel_drive_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="wheel_steer_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="wheel_steer_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="wheel_steer_base_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="wheel_steer_base_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="wheel_steer_base_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="wheel_steer_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_right_ir_optical_frame" link2="wheel_steer_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="head_camera_left_ir_optical_frame" reason="Default"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="head_pan_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="head_camera_color_screw_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="head_tilt_link" reason="Default"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="lidar_back_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="lidar_front_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="plate_bottom_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="plate_cover_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="plate_middle_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="plate_top_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="wheel_drive_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="wheel_drive_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="wheel_drive_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="wheel_drive_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="wheel_steer_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="wheel_steer_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="wheel_steer_base_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="wheel_steer_base_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="wheel_steer_base_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="wheel_steer_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_frame" link2="wheel_steer_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="head_pan_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="head_camera_color_screw_frame" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="head_tilt_link" reason="Default"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="lidar_back_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="lidar_front_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="plate_bottom_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="plate_cover_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="plate_middle_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="plate_top_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="wheel_drive_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="wheel_drive_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="wheel_drive_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="wheel_drive_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="wheel_steer_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="wheel_steer_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="wheel_steer_base_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="wheel_steer_base_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="wheel_steer_base_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="wheel_steer_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_left_ir_optical_frame" link2="wheel_steer_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_pan_link" link2="head_camera_color_screw_frame" reason="Never"/>
     <disable_collisions link1="head_pan_link" link2="head_tilt_link" reason="Adjacent"/>
     <disable_collisions link1="head_pan_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="head_pan_link" link2="lidar_front_base_link" reason="Never"/>
@@ -1169,25 +1087,25 @@
     <disable_collisions link1="head_pan_link" link2="wheel_steer_base_f_r_link" reason="Never"/>
     <disable_collisions link1="head_pan_link" link2="wheel_steer_f_l_link" reason="Never"/>
     <disable_collisions link1="head_pan_link" link2="wheel_steer_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="head_tilt_link" reason="Adjacent"/>
-    <disable_collisions link1="head_plug_base_link" link2="lidar_back_base_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="lidar_front_base_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="plate_bottom_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="plate_cover_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="plate_middle_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="plate_top_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="wheel_drive_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="wheel_drive_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="wheel_drive_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="wheel_drive_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="wheel_steer_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="wheel_steer_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="wheel_steer_base_b_l_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="wheel_steer_base_b_r_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="wheel_steer_base_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="wheel_steer_base_f_r_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="wheel_steer_f_l_link" reason="Never"/>
-    <disable_collisions link1="head_plug_base_link" link2="wheel_steer_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="head_tilt_link" reason="Adjacent"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="lidar_back_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="lidar_front_base_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="plate_bottom_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="plate_cover_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="plate_middle_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="plate_top_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="wheel_drive_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="wheel_drive_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="wheel_drive_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="wheel_drive_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="wheel_steer_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="wheel_steer_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="wheel_steer_base_b_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="wheel_steer_base_b_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="wheel_steer_base_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="wheel_steer_base_f_r_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="wheel_steer_f_l_link" reason="Never"/>
+    <disable_collisions link1="head_camera_color_screw_frame" link2="wheel_steer_f_r_link" reason="Never"/>
     <disable_collisions link1="head_tilt_link" link2="lidar_back_base_link" reason="Never"/>
     <disable_collisions link1="head_tilt_link" link2="lidar_front_base_link" reason="Never"/>
     <disable_collisions link1="head_tilt_link" link2="plate_bottom_link" reason="Never"/>
