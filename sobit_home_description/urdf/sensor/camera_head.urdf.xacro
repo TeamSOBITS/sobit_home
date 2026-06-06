@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <robot name="sobit_home"
        xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:include filename="$(find orbbec_description)/urdf/gemini_336.urdf.xacro" />
+  <!-- <xacro:include filename="$(find orbbec_description)/urdf/gemini_336.urdf.xacro" /> -->
+  <xacro:include filename="$(find orbbec_description)/urdf/gemini_335_L_336_L_macro.urdf.xacro" />
   <xacro:macro name="camera_head" params="prefix parent">
 
     <joint name="${prefix}_camera_base_joint" type="fixed">
@@ -12,9 +13,12 @@
 
     <link name="${prefix}_camera_base_link"/>
 
-    <xacro:gemini_336 parent="${prefix}_camera_base_link" tf_prefix="${prefix}_">
+    <!-- <xacro:gemini_336 parent="${prefix}_camera_base_link" tf_prefix="${prefix}_">
       <origin xyz="0.01 0 -0.0125" rpy="0 0 0"/>
-    </xacro:gemini_336>
+    </xacro:gemini_336> -->
+    <xacro:gemini_335_L_336_L parent="${prefix}_camera_base_link" tf_prefix="${prefix}_">
+      <origin xyz="0.01120544 0.0 -0.01411253" rpy="0 0 0"/>
+    </xacro:gemini_335_L_336_L>
 
   </xacro:macro>
 </robot>

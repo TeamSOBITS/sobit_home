@@ -39,6 +39,7 @@ namespace sobit_home
     ARM_R_UPPER_ROLL,
     ARM_R_UPPER_FLEX,
     ARM_R_ELBOW,
+    ARM_R_LOWER_FLEX,
     ARM_R_WRIST_TILT,
     ARM_R_WRIST_ROLL,
 
@@ -54,6 +55,7 @@ namespace sobit_home
     ARM_L_UPPER_ROLL,
     ARM_L_UPPER_FLEX,
     ARM_L_ELBOW,
+    ARM_L_LOWER_FLEX,
     ARM_L_WRIST_TILT,
     ARM_L_WRIST_ROLL,
 
@@ -79,6 +81,7 @@ namespace sobit_home
     double arm_right_upper_roll;
     double arm_right_upper_flex;
     double arm_right_elbow;
+    double arm_right_lower_flex;
     double arm_right_wrist_tilt;
     double arm_right_wrist_roll;
 
@@ -94,6 +97,7 @@ namespace sobit_home
     double arm_left_upper_roll;
     double arm_left_upper_flex;
     double arm_left_elbow;
+    double arm_left_lower_flex;
     double arm_left_wrist_tilt;
     double arm_left_wrist_roll;
 
@@ -138,6 +142,7 @@ namespace sobit_home
         "arm_right_upper_roll_joint",
         "arm_right_upper_flex_joint",
         "arm_right_elbow_joint",
+        "arm_right_lower_flex_joint",
         "arm_right_wrist_tilt_joint",
         "arm_right_wrist_roll_joint"};
 
@@ -155,6 +160,7 @@ namespace sobit_home
         "arm_left_upper_roll_joint",
         "arm_left_upper_flex_joint",
         "arm_left_elbow_joint",
+        "arm_left_lower_flex_joint",
         "arm_left_wrist_tilt_joint",
         "arm_left_wrist_roll_joint"};
 
