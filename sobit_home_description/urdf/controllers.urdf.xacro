@@ -420,12 +420,6 @@
     </joint>
 
     <joint name="${prefix}_upper_roll_sub_joint">
-      <!-- <xacro:if value="${$(arg enable_gz)}">
-        <command_interface name="position">
-          <param name="min">-${M_PI/2}</param>
-          <param name="max">${M_PI/2}</param>
-        </command_interface>      
-      </xacro:if> -->
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">33</param>
         <param name="control_mode">0</param>
@@ -458,12 +452,6 @@
     </joint>
 
     <joint name="${prefix}_upper_flex_sub_joint">
-      <!-- <xacro:if value="${$(arg enable_gz)}">
-        <command_interface name="position">
-          <param name="min">-${M_PI/2}</param>
-          <param name="max">${M_PI/2}</param>
-        </command_interface>      
-      </xacro:if> -->
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">35</param>
         <param name="control_mode">0</param>
@@ -511,7 +499,7 @@
 
     <joint name="${prefix}_lower_flex_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">37</param>
+        <param name="id">38</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
@@ -584,12 +572,6 @@
     </joint>
 
     <joint name="${prefix}_upper_roll_sub_joint">
-      <!-- <xacro:if value="${$(arg enable_gz)}">
-        <command_interface name="position">
-          <param name="min">-${M_PI/2}</param>
-          <param name="max">${M_PI/2}</param>
-        </command_interface>      
-      </xacro:if> -->
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">43</param>
         <param name="control_mode">0</param>
@@ -622,12 +604,6 @@
     </joint>
 
     <joint name="${prefix}_upper_flex_sub_joint">
-      <!-- <xacro:if value="${$(arg enable_gz)}">
-        <command_interface name="position">
-          <param name="min">-${M_PI/2}</param>
-          <param name="max">${M_PI/2}</param>
-        </command_interface>      
-      </xacro:if> -->
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">45</param>
         <param name="control_mode">0</param>
@@ -660,12 +636,6 @@
     </joint>
 
     <joint name="${prefix}_elbow_sub_joint">
-      <!-- <xacro:if value="${$(arg enable_gz)}">
-        <command_interface name="position">
-        <param name="min">-${8/9 * M_PI}</param>
-        <param name="max">0</param>
-        </command_interface>
-      </xacro:if> -->
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">47</param>
         <param name="control_mode">0</param>
