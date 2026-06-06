@@ -87,6 +87,7 @@ namespace sobit_home
       this->declare_parameter(pose_name + ".arm_right_upper_roll", 0.0);
       this->declare_parameter(pose_name + ".arm_right_upper_flex", 0.0);
       this->declare_parameter(pose_name + ".arm_right_elbow", 0.0);
+      this->declare_parameter(pose_name + ".arm_right_lower_flex", 0.0);
       this->declare_parameter(pose_name + ".arm_right_wrist_tilt", 0.0);
       this->declare_parameter(pose_name + ".arm_right_wrist_roll", 0.0);
 
@@ -102,6 +103,7 @@ namespace sobit_home
       this->declare_parameter(pose_name + ".arm_left_upper_roll", 0.0);
       this->declare_parameter(pose_name + ".arm_left_upper_flex", 0.0);
       this->declare_parameter(pose_name + ".arm_left_elbow", 0.0);
+      this->declare_parameter(pose_name + ".arm_left_lower_flex", 0.0);
       this->declare_parameter(pose_name + ".arm_left_wrist_tilt", 0.0);
       this->declare_parameter(pose_name + ".arm_left_wrist_roll", 0.0);
 
@@ -124,6 +126,7 @@ namespace sobit_home
       p.arm_right_upper_roll = this->get_parameter(pose_name + ".arm_right_upper_roll").as_double();
       p.arm_right_upper_flex = this->get_parameter(pose_name + ".arm_right_upper_flex").as_double();
       p.arm_right_elbow = this->get_parameter(pose_name + ".arm_right_elbow").as_double();
+      p.arm_right_lower_flex = this->get_parameter(pose_name + ".arm_right_lower_flex").as_double();
       p.arm_right_wrist_tilt = this->get_parameter(pose_name + ".arm_right_wrist_tilt").as_double();
       p.arm_right_wrist_roll = this->get_parameter(pose_name + ".arm_right_wrist_roll").as_double();
 
@@ -139,6 +142,7 @@ namespace sobit_home
       p.arm_left_upper_roll = this->get_parameter(pose_name + ".arm_left_upper_roll").as_double();
       p.arm_left_upper_flex = this->get_parameter(pose_name + ".arm_left_upper_flex").as_double();
       p.arm_left_elbow = this->get_parameter(pose_name + ".arm_left_elbow").as_double();
+      p.arm_left_lower_flex = this->get_parameter(pose_name + ".arm_left_lower_flex").as_double();
       p.arm_left_wrist_tilt = this->get_parameter(pose_name + ".arm_left_wrist_tilt").as_double();
       p.arm_left_wrist_roll = this->get_parameter(pose_name + ".arm_left_wrist_roll").as_double();
 
@@ -324,9 +328,9 @@ namespace sobit_home
       rads.insert(rads.end(), r.begin(), r.end());
     };
 
-    add(JointNamesArmRight, {it->arm_right_shoulder_tilt, it->arm_right_upper_roll, it->arm_right_upper_flex, it->arm_right_elbow, it->arm_right_wrist_tilt, it->arm_right_wrist_roll});
+    add(JointNamesArmRight, {it->arm_right_shoulder_tilt, it->arm_right_upper_roll, it->arm_right_upper_flex, it->arm_right_elbow, it->arm_right_lower_flex, it->arm_right_wrist_tilt, it->arm_right_wrist_roll});
     add(JointNamesHandRight, {it->hand_right_finger_l_mcp, it->hand_right_finger_l_pip, it->hand_right_finger_l_dip, it->hand_right_finger_c_mcp, it->hand_right_finger_c_ip, it->hand_right_finger_r_pip, it->hand_right_finger_r_dip});
-    add(JointNamesArmLeft, {it->arm_left_shoulder_tilt, it->arm_left_upper_roll, it->arm_left_upper_flex, it->arm_left_elbow, it->arm_left_wrist_tilt, it->arm_left_wrist_roll});
+    add(JointNamesArmLeft, {it->arm_left_shoulder_tilt, it->arm_left_upper_roll, it->arm_left_upper_flex, it->arm_left_elbow, it->arm_left_lower_flex, it->arm_left_wrist_tilt, it->arm_left_wrist_roll});
     add(JointNamesHandLeft, {it->hand_left_finger_l_mcp, it->hand_left_finger_l_pip, it->hand_left_finger_l_dip, it->hand_left_finger_c_mcp, it->hand_left_finger_c_ip, it->hand_left_finger_r_pip, it->hand_left_finger_r_dip});
     add(JointNamesBody, {it->body_lift});
     add(JointNamesHead, {it->head_pan, it->head_tilt});
