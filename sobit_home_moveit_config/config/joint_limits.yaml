@@ -1,4 +1,123 @@
 default_velocity_scaling_factor: 0.1
 default_acceleration_scaling_factor: 0.1
 
-joint_limits: {}
+joint_limits:
+  # PH54-200-S500-R
+  arm_left_shoulder_tilt_joint:
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  arm_right_shoulder_tilt_joint:
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+
+  # XM540-W270 — 30 RPM @ 12V = 3.14 rad/s
+  arm_left_upper_roll_joint:
+    has_acceleration_limits: true
+    max_acceleration: 3.14
+  arm_left_upper_flex_joint:
+    has_acceleration_limits: true
+    max_acceleration: 3.14
+  arm_left_elbow_joint:
+    has_acceleration_limits: true
+    max_acceleration: 3.14
+  arm_left_lower_flex_joint:
+    has_acceleration_limits: true
+    max_acceleration: 3.14
+  arm_right_upper_roll_joint:
+    has_acceleration_limits: true
+    max_acceleration: 3.14
+  arm_right_upper_flex_joint:
+    has_acceleration_limits: true
+    max_acceleration: 3.14
+  arm_right_elbow_joint:
+    has_acceleration_limits: true
+    max_acceleration: 3.14
+  arm_right_lower_flex_joint:
+    has_acceleration_limits: true
+    max_acceleration: 3.14
+
+  # XM430-W350 — 46 RPM @ 12V = 4.82 rad/s
+  arm_left_wrist_tilt_joint:
+    has_acceleration_limits: true
+    max_acceleration: 4.82
+  arm_left_wrist_roll_joint:
+    has_acceleration_limits: true
+    max_acceleration: 4.82
+  arm_right_wrist_tilt_joint:
+    has_acceleration_limits: true
+    max_acceleration: 4.82
+  arm_right_wrist_roll_joint:
+    has_acceleration_limits: true
+    max_acceleration: 4.82
+  head_pan_joint:
+    has_acceleration_limits: true
+    max_acceleration: 4.82
+  head_tilt_joint:
+    has_acceleration_limits: true
+    max_acceleration: 4.82
+
+  # XL330-M288-T
+  hand_left_finger_c_mcp_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_left_finger_c_ip_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_left_finger_l_mcp_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_left_finger_l_pip_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_left_finger_l_dip_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_left_finger_r_pip_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_left_finger_r_dip_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_right_finger_c_mcp_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_right_finger_c_ip_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_right_finger_l_mcp_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_right_finger_l_pip_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_right_finger_l_dip_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_right_finger_r_pip_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+  hand_right_finger_r_dip_joint:
+    has_acceleration_limits: true
+    max_acceleration: 11.031
+
+  # virtual_base_joint (planar) — drive: 50.5 rad/s * 0.075m wheel = ~3.8 m/s, theta bounded by steer
+  virtual_base_joint/x:
+    has_velocity_limits: true
+    max_velocity: 3.8
+    has_acceleration_limits: true
+    max_acceleration: 3.8
+  virtual_base_joint/y:
+    has_velocity_limits: true
+    max_velocity: 3.8
+    has_acceleration_limits: true
+    max_acceleration: 3.8
+  virtual_base_joint/theta:
+    has_velocity_limits: true
+    max_velocity: 3.14
+    has_acceleration_limits: true
+    max_acceleration: 3.14
+
+  # UIM8696CAB
+  body_lift_joint:
+    has_acceleration_limits: true
+    max_acceleration: 0.5
