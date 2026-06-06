@@ -38,7 +38,7 @@
       <parent link="${prefix}_link" />
       <child link="${prefix}_lift_link" />
       <axis xyz="0.0 0.0 1.0" />
-      <limit lower="0" upper="0.69" effort="${150.0 * effort_ratio}" velocity="0.85" />
+      <limit lower="0" upper="0.69" effort="${6.5 * effort_ratio}" velocity="0.5" />
     </joint>
 
     <link name="${prefix}_lift_link" >
