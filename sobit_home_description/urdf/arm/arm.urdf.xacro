@@ -320,7 +320,7 @@
       <child link="${prefix}_${position}_wrist_roll_link" />
       <origin xyz="0.0 ${y_sign * 0.06648202} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 ${y_sign} 0.0" />
-      <limit lower="${-M_PI}" upper="${M_PI}" effort="${10.6 * effort_ratio}" velocity="11.031179004" />
+      <limit lower="${-M_PI}" upper="${M_PI}" effort="${4.1 * effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix}_${position}_wrist_roll_link" >
