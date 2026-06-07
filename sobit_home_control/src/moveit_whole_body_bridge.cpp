@@ -12,29 +12,37 @@ namespace sobit_home
 MoveitWholeBodyBridge::MoveitWholeBodyBridge(const rclcpp::NodeOptions & options)
 : Node("moveit_whole_body_bridge", options)
 {
-  this->declare_parameter("kp_xy", 1.5);
-  this->declare_parameter("kp_theta", 2.0);
-  this->declare_parameter("max_v_xy", 0.3);
-  this->declare_parameter("max_omega", 1.0);
+  declare_parameter("kp_xy",     1.5);
+  declare_parameter("kp_theta",  2.0);
+  declare_parameter("max_v_xy",  0.3);
+  declare_parameter("max_omega", 1.0);
 
-  kp_xy_    = this->get_parameter("kp_xy").as_double();
-  kp_theta_ = this->get_parameter("kp_theta").as_double();
-  max_v_xy_  = this->get_parameter("max_v_xy").as_double();
-  max_omega_ = this->get_parameter("max_omega").as_double();
+  kp_xy_    = get_parameter("kp_xy").as_double();
+  kp_theta_ = get_parameter("kp_theta").as_double();
+  max_v_xy_ = get_parameter("max_v_xy").as_double();
+  max_omega_ = get_parameter("max_omega").as_double();
 
-  cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
+  cmd_vel_pub_ = create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
 
-  odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
+  odom_sub_ = create_subscription<nav_msgs::msg::Odometry>(
     "odom", 10,
-    std::bind(&MoveitWholeBodyBridge::odom_callback, this, std::placeholders::_1));
+    [this](const nav_msgs::msg::Odometry::SharedPtr msg) { odom_callback(msg); });
 
   base_server_ = rclcpp_action::create_server<FollowJointTrajectory>(
     this, "mobile_base_controller/follow_joint_trajectory",
-    std::bind(&MoveitWholeBodyBridge::handle_goal, this, std::placeholders::_1, std::placeholders::_2),
-    std::bind(&MoveitWholeBodyBridge::handle_cancel, this, std::placeholders::_1),
-    std::bind(&MoveitWholeBodyBridge::handle_accepted, this, std::placeholders::_1));
+    [this](const rclcpp_action::GoalUUID &, std::shared_ptr<const FollowJointTrajectory::Goal>) {
+      return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+    },
+    [this](const std::shared_ptr<GoalHandleFJT> goal_handle) {
+      RCLCPP_INFO(get_logger(), "Received request to cancel base trajectory");
+      (void)goal_handle;
+      return rclcpp_action::CancelResponse::ACCEPT;
+    },
+    [this](const std::shared_ptr<GoalHandleFJT> goal_handle) {
+      std::thread{[this, goal_handle]() { execute(goal_handle); }}.detach();
+    });
 
-  RCLCPP_INFO(this->get_logger(), "MoveIt Mobile Base Bridge Component initialized.");
+  RCLCPP_INFO(get_logger(), "MoveIt Mobile Base Bridge Component initialized.");
 }
 
 void MoveitWholeBodyBridge::odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
@@ -55,31 +63,9 @@ double MoveitWholeBodyBridge::yaw_from_odom(const nav_msgs::msg::Odometry & odom
   return yaw;
 }
 
-rclcpp_action::GoalResponse MoveitWholeBodyBridge::handle_goal(
-  const rclcpp_action::GoalUUID & uuid,
-  std::shared_ptr<const FollowJointTrajectory::Goal> goal)
-{
-  (void)uuid;
-  (void)goal;
-  return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-}
-
-rclcpp_action::CancelResponse MoveitWholeBodyBridge::handle_cancel(
-  const std::shared_ptr<GoalHandleFJT> goal_handle)
-{
-  RCLCPP_INFO(this->get_logger(), "Received request to cancel base trajectory");
-  (void)goal_handle;
-  return rclcpp_action::CancelResponse::ACCEPT;
-}
-
-void MoveitWholeBodyBridge::handle_accepted(const std::shared_ptr<GoalHandleFJT> goal_handle)
-{
-  std::thread{std::bind(&MoveitWholeBodyBridge::execute, this, std::placeholders::_1), goal_handle}.detach();
-}
-
 void MoveitWholeBodyBridge::execute(const std::shared_ptr<GoalHandleFJT> goal_handle)
 {
-  RCLCPP_INFO(this->get_logger(), "Executing base trajectory via cmd_vel...");
+  RCLCPP_INFO(get_logger(), "Executing base trajectory via cmd_vel...");
   auto result = std::make_shared<FollowJointTrajectory::Result>();
   const auto goal = goal_handle->get_goal();
   const auto & points = goal->trajectory.points;
@@ -99,13 +85,13 @@ void MoveitWholeBodyBridge::execute(const std::shared_ptr<GoalHandleFJT> goal_ha
   }
 
   if (idx_x == -1 || idx_y == -1 || idx_theta == -1) {
-    RCLCPP_WARN(this->get_logger(), "Base joint indices not found in trajectory, skipping.");
+    RCLCPP_WARN(get_logger(), "Base joint indices not found in trajectory, skipping.");
     result->error_code = FollowJointTrajectory::Result::SUCCESSFUL;
     goal_handle->succeed(result);
     return;
   }
 
-  auto start_time = this->now();
+  auto start_time = now();
 
   for (size_t i = 0; i < points.size(); ++i) {
     if (goal_handle->is_canceling()) {
@@ -117,11 +103,16 @@ void MoveitWholeBodyBridge::execute(const std::shared_ptr<GoalHandleFJT> goal_ha
 
     const auto & pt = points[i];
 
-    // Sleep until this waypoint's scheduled time
+    // Sleep until this waypoint's scheduled time using sim-time aware wait loop
     auto target_time = start_time + rclcpp::Duration(pt.time_from_start);
-    auto sleep_time = target_time - this->now();
-    if (sleep_time.nanoseconds() > 0) {
-      rclcpp::sleep_for(std::chrono::nanoseconds(sleep_time.nanoseconds()));
+    while (now() < target_time) {
+      if (goal_handle->is_canceling()) {
+        publish_zero_twist();
+        result->error_code = FollowJointTrajectory::Result::SUCCESSFUL;
+        goal_handle->canceled(result);
+        return;
+      }
+      get_clock()->sleep_for(rclcpp::Duration::from_nanoseconds(5'000'000));
     }
 
     // Desired pose from trajectory
@@ -195,7 +186,7 @@ void MoveitWholeBodyBridge::execute(const std::shared_ptr<GoalHandleFJT> goal_ha
   if (rclcpp::ok()) {
     result->error_code = FollowJointTrajectory::Result::SUCCESSFUL;
     goal_handle->succeed(result);
-    RCLCPP_INFO(this->get_logger(), "Base trajectory succeeded.");
+    RCLCPP_INFO(get_logger(), "Base trajectory succeeded.");
   }
 }
 

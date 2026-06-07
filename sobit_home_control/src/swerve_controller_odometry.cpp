@@ -1,6 +1,8 @@
 #include "sobit_home_control/swerve_controller_control.hpp"
 #include "sobit_home_control/swerve_controller_odometry.hpp"
 
+static inline double safe_sign(double val) { return (val >= 0.0) ? 1.0 : -1.0; }
+
 // Calculate Odometry
 void SobitHomeOdometry::update_odom()
 {
@@ -124,7 +126,7 @@ void SobitHomeOdometry::update_odom()
 
 // Distance calculation
 double SobitHomeOdometry::distance_calculation(double wheel_delta_pos) {
-  if (M_PI < fabsf(wheel_delta_pos)) wheel_delta_pos -= 2 * M_PI * wheel_delta_pos / fabsf(wheel_delta_pos);
+  if (M_PI < fabsf(wheel_delta_pos)) wheel_delta_pos -= 2 * M_PI * safe_sign(wheel_delta_pos);
   return WHEEL_RADIUS * wheel_delta_pos;
 }
 

@@ -29,6 +29,7 @@
   <depend>joint_trajectory_controller</depend>
   <depend>velocity_controllers</depend>
   <depend>position_controllers</depend>
+  <depend>ament_index_cpp</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

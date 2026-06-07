@@ -348,7 +348,7 @@ namespace sobit_home
   // -----------------------------------------------------------------------
 
   std::vector<double> Kinematics::look_at(
-      const geometry_msgs::msg::TransformStamped &target_tf)
+    const geometry_msgs::msg::TransformStamped & target_tf)
   {
     const double tx = target_tf.transform.translation.x;
     const double ty = target_tf.transform.translation.y;

@@ -1,6 +1,6 @@
 <a name="readme-top"></a>
 
-[JA](README.md) | [EN](README_en.md)
+[JA](README_ja.md) | [EN](README.md)
 
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
@@ -11,30 +11,30 @@
 # SOBIT HOME
 
 
-<!-- 概要 -->
-## 概要
+<!-- INTRODUCTION -->
+## Introduction
 
 ![SOBIT HOME](sobit_home/docs/img/sobit_home.png)
 
-4輪独立ステアリング移動機構・昇降機構・2椀・パンチルト機構を組み合わせたSOBITS自作モバイルマニピュレータを動かすためのパッケージです．
+This package is for operating the SOBITS custom mobile manipulator, which combines a four-wheel independent steering drive mechanism, a lift mechanism, dual arms, and a pan-tilt mechanism.
 
 > [!CAUTION]
-> 初心者の場合，実機のロボットを扱う際に，先輩方に付き添ってもらいながらロボットを動かしましょう．
+> If you have no previous experience controlling this robot, please have a senior colleague accompany you while you want to use this robot.
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
-
-
-<!-- セットアップ -->
-## セットアップ
-
-ここで，本レポジトリのセットアップ方法について説明します．
-
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-### 環境条件
+<!-- GETTING STARTED -->
+## Getting Started
 
-まず，以下の環境を整えてから，次のインストール段階に進んでください．
+This section describes how to set up this repository.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+### Prerequisites
+
+First, please set up the following environment before proceeding to the next installation stage.
 
 | System  | Version |
 | --- | --- |
@@ -44,34 +44,34 @@
 | Docker | latest |
 
 > [!NOTE]
-> `Ubuntu`や`ROS`のインストール方法に関しては，[SOBITS Manual](https://github.com/TeamSOBITS/sobits_manual#%E9%96%8B%E7%99%BA%E7%92%B0%E5%A2%83%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)に参照してください．
+> If you need to install `Ubuntu` or `ROS`, please check our [SOBITS Manual](https://github.com/TeamSOBITS/sobits_manual#%E9%96%8B%E7%99%BA%E7%92%B0%E5%A2%83%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6).
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-### インストール方法
+### Installation
 
-1. ROSの`src`フォルダに移動します．
+1. Go to the `src` folder of ROS.
     ```sh
     $ cd ~/colcon_ws/src/
     ```
 
-2. 本レポジトリをcloneします．
+2. Clone this repository.
     ```sh
     $ git clone https://github.com/TeamSOBITS/sobit_home
     ```
 
-3. レポジトリの中へ移動します．
+3. Navigate into the repository.
     ```sh
     $ cd sobit_home/
     ```
 
-4. 依存パッケージをインストールします．
+4. Install the dependent packages.
     ```sh
     $ bash install.sh
     ```
 
-5. コンパイルする前に，`rm_motors_ros`のため，RUSTをセットアップしてください．
+5. Setup Rust for `rm_motors_ros` before compiliing.
     ```sh
     source $HOME/.bashrc
 
@@ -80,96 +80,115 @@
     cargo build --release
     ```
 
-6. パッケージをコンパイルします．
+6. Compile the package.
     ```sh
     $ cd ~/colcon_ws/
     $ colcon build --symlink-install
     $ source ~/colcon_ws/install/setup.sh
     ```
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-<!-- 実行・操作方法 -->
-## 実行・操作方法
+<!-- LAUNCH AND USAGE EXAMPLES -->
+## Launch and Usage
 
-1. まず，[real_minimal.launch.py](sobit_home_bringup/launch/real_minimal.launch.py)を実行します．
-  ```sh
-  $ ros2 launch sobit_home_bringup real_minimal.launch.py
-  ```
+1. Select features with launch arguments and execute [real_minimal.launch.py](sobit_home_bringup/launch/real_minimal.launch.py) in your **development environment**.
+    ```sh
+    $ ros2 launch sobit_home_bringup real_minimal.launch.py
+    ```
 
-2. 起動機能はlaunch引数で有効/無効を切り替えることを推奨します．
-  ```sh
-  $ ros2 launch sobit_home_bringup real_minimal.launch.py \
-    enable_mobile_base:=true \
-    enable_body:=true \
-    enable_arm_left:=true \
-    enable_arm_right:=false \
-    enable_head:=true \
-    enable_lidar:=true \
-    use_rviz:=true
-  ```
+2. You can enable/disable modules directly from CLI (recommended).
+    ```sh
+    $ ros2 launch sobit_home_bringup real_minimal.launch.py \
+      enable_mobile_base:=true \
+      enable_body:=true \
+      enable_arm_left:=true \
+      enable_arm_right:=false \
+      enable_head:=true \
+      enable_lidar:=true \
+      use_rviz:=true
+    ```
 
-3. 実機では，起動前に`.bashrc`を読み込み，SOBIT HOME用のドメインに切り替えてください．
-  ```sh
-  $ source ~/.bashrc
-  $ sobit_home_mode
-  ```
+3. For real hardware mode, load `.bashrc` and set SOBIT HOME domain before launch.
+    ```sh
+    $ source ~/.bashrc
+    $ sobit_home_mode
+    ```
 
-実機接続に失敗する場合は，以下を確認してください．
+If you did not succeed in connecting to the real robot, check the following points:
+- Ensure the emergency stop button is not pressed.
+- Verify the battery is sufficiently charged.
+- Confirm the USB hub is connected to the computer.
+- Verify that required environment variables are set in your shell (`DXL_X_LOWER_PORT`, `DXL_X_UPPER_PORT`, `DXL_P_UPPER_PORT`, `UM_PORT`, `HOME_CAM_LEFT_PORT`, `HOME_CAM_RIGHT_PORT`).
+- Verify CAN is available (`can0`) when `enable_mobile_base:=true`.
 
-- 非常停止ボタンが押されていないか．
-- バッテリー残量が十分か．
-- USBハブがPCに接続されているか．
-- 必要な環境変数が設定されているか（`DXL_X_LOWER_PORT`，`DXL_X_UPPER_PORT`，`DXL_P_UPPER_PORT`，`UM_PORT`，`HOME_CAM_LEFT_PORT`，`HOME_CAM_RIGHT_PORT`）．
-- `enable_mobile_base:=true`時に`can0`が利用可能か．
-
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-### Rviz2上の可視化
+<!-- CONTROL NOTES -->
+## Control Notes
 
-実機を動かす前段階として，Rviz2上でSOBIT HOMEを可視化し，ロボットの構成を表示することができます．
+### Wheel Controller
+
+`move_wheel_linear` drives the robot straight by a target distance (metres). `move_wheel_rotate` turns in place by a target angle (radians). Both actions use closed-loop PID feedback from odometry and clamp velocity near the goal for smooth stopping. Gains can be tuned at runtime via ROS parameters — no recompile needed.
+
+### Swerve Drive
+
+The four-wheel independent steering controller computes per-wheel steer angle and drive velocity from any combination of `cmd_vel` components (x, y, θ). It automatically picks the shortest steering path for each wheel, reversing the drive direction when that is faster than a full rotation.
+
+### MoveIt Integration
+
+`plan_to_pose` plans a trajectory for the given planning group (`arm_left`, `arm_right`, `arm_left_body`, `arm_right_body`) and caches it. `execute_plan` replays the cached trajectory. For whole-body groups (`arm_left_body`, `arm_right_body`), the base is moved in parallel with the arm via the `MoveItWholeBodyBridge`, which tracks the planned base waypoints using odometry feedback.
+
+All MoveIt interfaces work correctly in both real-hardware and Gazebo simulation modes, including when the simulator is paused.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+### Visualize on Rviz2
+
+As a preliminary step to running the actual machine, SOBIT HOME can be visualized on Rviz to display the robot's configuration.
 
 ```sh
 $ ros2 launch sobit_home_description display.launch.py
 ```
 
-<!-- 正常に動作した場合は，次のようなRviz画面が表示されます．
+<!-- If it works correctly, Rviz will be displayed as follows.
 ![SOBIT HOME Display with Rviz](sobit_home/docs/img/sobit_home_rviz.png) -->
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### シミュレータの実行方法
 
-SOBIT HOMEにはGazebo Harmonicのシミュレーション環境が用意されておりますので，実機がなくても，動作確認が可能です．
+### Run on Gazebo Sim
+
+SOBIT HOME has a simulation environment with Gazebo Harmonic, allowing you to verify operations even without the actual machine.
 
 ```sh
 $ ros2 launch sobit_home_bringup gz_minimal.launch.py
 ```
 
-現時点では，これらの仮想環境が用意されています．
+At present, the following virtual environments are available.
 
-| World Name | 説明 |
-| --- | --- |
-| `empty`      | 家具などのない環境を出現． |
-| `wrs`        | WRS2020に実施されたTidy Up環境を出現． |
-| `small_house` | AWSが開発した小型部屋のレイアウトを出現．|
-| `rcjo2025_arena` | RCJ Open 2025向けのアリーナ環境を出現．|
-| `rcjo2026_arena` | RCJ Open 2026向けのアリーナ環境を出現（デフォルト）．|
+| World Name   | Description |
+| ------------ | ----------- |
+| `empty`        | Spawns an environment without furniture or obstacles. |
+| `wrs`          | Spawns the Tidy Up environment used in WRS2020. |
+| `small_house`  | Spawns a small house layout developed by AWS. |
+| `rcjo2025_arena` | Spawns the RCJ Open 2025 arena world. |
+| `rcjo2026_arena` | Spawns the RCJ Open 2026 arena world (default). |
 
-環境を変更するために，`world_model`を[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py)で変更してください．
+To change the environment, modify the `world_model` parameter in [gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py).
 
 ```sh
 $ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
 ```
 
-
-<!-- 正常に動作した場合は，次のようなGazeboの画面が表示されます．
+<!-- If it works correctly, the following Gazebo screen will be displayed.
 ![SOBIT HOME Gazebo Harmonic](sobit_home/docs/img/sobit_home_gz_sim.png) -->
 
 > [!TIP]
-> 実機と同じようなセンサも搭載されていますので，パソコンによって処理が重くなる可能性がありますので，必要なセンサだけを[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py)で選択してください．
+> Since it is equipped with sensors similar to the actual machine, the processing may become heavy depending on the computer. Please select only the necessary sensors in [gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py).
 
 ```python
 'enable_head_cam_color'       : 'true',
@@ -179,8 +198,7 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
 'enable_lidar'                : 'true',
 ```
 
-また，複数のSOBIT HOMEを同じシミュレーション環境でも出現できます．
-`robot_id`と出現座標を変えて起動してください．
+Additionally, multiple SOBIT HOMEs can be spawned in the same simulation environment by launching additional instances with different `robot_id` and spawn coordinates.
 
 ```sh
 # Robot 1
@@ -192,44 +210,44 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
   robot_name:=sobit_home robot_id:=2 robot_coords_x:=0.0 robot_coords_y:=2.0 robot_coords_Y:=0.0
 ```
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-## ソフトウェア
+## Software
 
-### パッケージ概要
+### Package Overview
 
-| パッケージ | 役割 | 主なエントリポイント |
+| Package | Role | Main Entry Points |
 | --- | --- | --- |
-| `sobit_home_bringup` | 実機/シミュレータ起動を統合したbringup | `launch/real_minimal.launch.py`, `launch/gz_minimal.launch.py`, `launch/robot.launch.py` |
-| `sobit_home_control` | スワーブ移動制御とMoveIt全身追従ブリッジ | `swerve_controller_node`, `moveit_whole_body_bridge_node` |
-| `sobit_home_library` | 関節/移動/MoveItの高レベルAction・Service群 | `launch/action_server.launch.py`, `joint_action_server`, `wheel_action_server`, `moveit_action_server` |
-| `sobit_home_description` | URDF/Xacroモデル，RViz設定，基本ワールド | `launch/display.launch.py`, `robots/sobit_home_robot.urdf.xacro` |
-| `sobit_home_moveit_config` | MoveItの計画設定と起動 | `launch/move_group.launch.py` |
-| `sobit_home_kinematics_plugin` | SOBIT HOME向けMoveIt運動学プラグイン | `sobit_home_kinematics_plugin_description.xml` |
+| `sobit_home_bringup` | Integrated startup for real robot and Gazebo | `launch/real_minimal.launch.py`, `launch/gz_minimal.launch.py`, `launch/robot.launch.py` |
+| `sobit_home_control` | Swerve base control and MoveIt whole-body bridge | `swerve_controller_node`, `moveit_whole_body_bridge_node` |
+| `sobit_home_library` | High-level action/service servers (joint, wheel, MoveIt) | `launch/action_server.launch.py`, `joint_action_server`, `wheel_action_server`, `moveit_action_server` |
+| `sobit_home_description` | URDF/Xacro model, RViz config, and base world file | `launch/display.launch.py`, `robots/sobit_home_robot.urdf.xacro` |
+| `sobit_home_moveit_config` | MoveIt planning configuration and launch | `launch/move_group.launch.py` |
+| `sobit_home_kinematics_plugin` | MoveIt kinematics plugin for SOBIT HOME | `sobit_home_kinematics_plugin_description.xml` |
 
 <details>
-<summary>SOBIT HOMEと関わるソフトの情報まとめ</summary>
+<summary>Summary of information on SOBIT HOME and related software</summary>
 
 
-### ジョイントコントローラ
+### Joint Controller
 
-SOBIT HOMEのパンチルト機構と昇降機構とマニピュレータを動かすための情報まとめです．
+This is a summary of information for moving the joints (pan-tilt mechanism, linear mechanism and manipulator) of SOBIT HOME.
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-#### 動作方法
+#### Movement Methods
 
-`sobit_home_library`で現在実装されているインターフェースは以下です．
+Implemented interfaces in `sobit_home_library`:
 
-1. Action
+1. Actions
    - `move_joint`
    - `move_to_pose`
    - `move_right_hand_to_pose`
    - `move_left_hand_to_pose`
 
-2. Service
+2. Services
    - `get_hand_to_coord/left`
    - `get_hand_to_coord/right`
    - `get_hand_to_tf/left`
@@ -238,18 +256,18 @@ SOBIT HOMEのパンチルト機構と昇降機構とマニピュレータを動�
    - `get_head_to_tf`
    - `get_finger_angle`
 
-3. MoveIt連携（`action_server.launch.py`で起動）
+3. MoveIt interfaces (launched from `action_server.launch.py`)
    - Service: `plan_to_pose`
    - Action: `execute_plan`
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-#### ジョイント名
+#### Joints name
 
-SOBIT HOMEのジョイント名とその定数名を以下の通りです．
+The joint names of SOBIT HOME and their constants are listed below.
 
-| ジョイント番号 | ジョイント名 | ジョイント定数名 |
+| Joint Number | Joint Name | Joint Constant Name |
 | :---: | --- | --- |
 |  0 | head_pan_joint                | - |
 |  1 | head_tilt_joint               | - |
@@ -289,12 +307,12 @@ SOBIT HOMEのジョイント名とその定数名を以下の通りです．
 | 35 | wheel_drive_b_l_joint         | - |
 | 36 | wheel_drive_b_r_joint         | - |
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-#### ポーズの設定方法
+#### How to set new poses
 
-[pose_list.yaml](sobit_home_library/config/pose_list.yaml)というファイルでポーズの追加・編集ができます．以下のようなフォーマットになります．
+Poses can be added and edited in the file [pose_list.yaml](sobit_home_library/config/pose_list.yaml). The format is as follows:
 
 ```yaml
 /**:
@@ -322,165 +340,165 @@ SOBIT HOMEのジョイント名とその定数名を以下の通りです．
 ...
 ```  
 
-定義したいポース名を`poses`に追加し，その後ポース名の下に各ジョイントの角度を設定します．
+Add the desired pose name to `poses`, and then set the angles for each joint under the pose name.
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
-
-
-### ホイールコントローラ
-
-SOBIT HOMEの移動機構を動かすための情報まとめです．
-
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-#### 動作方法
+### Wheel Controller
 
-`sobit_home_library`で現在実装されている移動系Actionは以下です．
+This is a summary of information for moving the SOBIT HOME moving mechanism.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+#### Moving Methods
+
+Implemented action interfaces in `sobit_home_library`:
 
 1. `move_wheel_linear`
 2. `move_wheel_rotate`
 
-ホイールActionサーバは`cmd_vel`を出力し，`odom`をフィードバックとして利用します．
+The wheel action server publishes velocity commands to `cmd_vel` and uses `odom` for feedback.
 
 </details>
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-## ハードウェア
-SOBIT HOMEはオープンソースハードウェアとして[OnShape](https://cad.onshape.com/documents/e17931db96792e39eba48d39/w/a81eeb68b7f4ed981ce8878a/e/42d5107e3af255ccdf5ca7e7?renderMode=0&uiState=69ee43ae00a7b5401b55d390)にて公開しております．
+## Hardware
+
+SOBIT HOME is available as open hardware at [OnShape](https://cad.onshape.com/documents/e17931db96792e39eba48d39/w/a81eeb68b7f4ed981ce8878a/e/42d5107e3af255ccdf5ca7e7?renderMode=0&uiState=69ee43ae00a7b5401b55d390).
 
 ![SOBIT HOME in OnShape](sobit_home/docs/img/sobit_home_onshape.png)
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 <details>
-<summary>ハードウェアの詳細についてはこちらを確認してください．</summary>
+<summary>For more information on hardware, please click here.</summary>
 
-### パーツのダウンロード方法
+### How to download 3D parts
 
-1. Onshapeにアクセスしましょう．
+1. Access Onshape.
 
 > [!NOTE]
-> ファイルをダウンロードするために，`OnShape`のアカウントを作成する必要はありません．ただし，本ドキュメント全体をコピーする場合，アカウントの作成を推薦します．
+> You do not need to create an `OnShape` account to download files. However, if you wish to copy the entire document, we recommend that you create an account.
 
-2. `Instances`の中にパーツを右クリックで選択します．
-3. 一覧が表示され，`Export`ボタンを押してください．
-4. 表示されたウィンドウの中に，`Format`という項目があります．`STEP`を選択してください．
-5. 最後に，青色の`Export`ボタンを押してダウンロードが開始されます．
+2. Select the part in `Instances` by right-clicking on it.
+3. A list will be displayed, press the `Export` button.
+4. In the window that appears, there is a `Format` item. Select `STEP`.
+5. Finally, press the blue `Export` button to start the download.
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-### 電子回路図
+### Electronic Circuit Diagram
 
 ![SOBIT HOME Circuit](sobit_home/docs/img/sobit_home_circuit.png)
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-<!-- ### ロボットの組み立て
+<!-- ### Robot Assembly
 
 TBD
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p> -->
+<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 
-### ロボットの特徴
+### Features
 
-<!-- | 項目 | 詳細 |
+TBD
+
+<!-- | Item | Details |
 | --- | --- |
-| 最大直線速度 | 0.8[m/s] |
-| 最大回転速度 | 0.229[rad/s] |
-| ベース最大積載量 | 20[kg] |
-| マニピュレータ最大積載量 | 1.0[kg] |
-| サイズ (LxWxH) | 400 x 450 x 1000[mm] |
-| 重量 | 16.0[kg] |
-| リモートコントローラー | PS4 |
-| LiDAR | 不明 |
-| RGB-D | RealSense D415（ヘッド）、RealSense D405（ハンド） |
-| スピーカー | Jabra Speak 710 |
-| マイク | MKE 400 |
-| アクチュエータ（アーム） | XM540-W150 ×4、XM430-W320 ×6 |
-| 電源 | マキタ 6.0Ah 18V |
-| PC接続 | USB + 無線（カチャカ） | -->
+| Maximum linear velocity | 0.8[m/s] |
+| Maximum Rotational Speed | 0.229[rad/s] |
+| Base Maximum Payload | 20[kg] |
+| Manipulator Maximum Payload | 1.0[kg] |
+| Size (LxWxH) | 400 x 450 x 1000[mm] |
+| Weight | 16.0[kg] |
+| Remote Controller | PS4 |
+| LiDAR | unk |
+| RGB-D | RealSense D415 (head), RealSense D405 (hand) |
+| Speaker | Jabra Speak 710 |
+| Microphone | MKE 400 |
+| Actuator (Arm) | 4 x XM540-W150, 6 x XM430-W320 |
+| Power Supply | Makita 6.0Ah 18V |
+| PC Connection | USB + Wireless (Kachaka) | -->
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-### 部品リスト（BOM）
+### Bill of Materials (BOM)
 
 TBD
 
-<!-- > [!NOTE]
-> 日本のサイト・値段(円)に更新していく予定です． -->
-
-<!-- | 部品 | 型番 | 数量 | おおよその単価 | 購入先 |
+<!-- | Part | Model Number | Quantity | Approx. Unit Cost | Where to Buy |
 | --- | --- | --- | --- | --- |
-| カチャカ | B1A01 | 1 | ¥245,000 | [リンク](https://store.kachaka.life/products/detail/50) |
-| カチャカベース | ksh0003 | 1 | ¥13,500 | [リンク](https://store.kachaka.life/products/detail/57) |
-| マキタバッテリー | BL1860B | 1 | ¥28,300 | [リンク](https://www.makitatools.com/products/details/BL1860B) |
-| マキタアダプター | B0D6R6XSPX | 1 | ¥4,000 | [リンク](https://www.amazon.co.jp/dp/B0D6R6XSPX) |
-| ダイナミクセルアクチュエータ | XM430-W350-R | 6 | ¥49,600 | [リンク](https://www.robotis.us/dynamixel-xm430-w350-r/) |
-| ダイナミクセルアクチュエータ | XM540-W150-R | 4 | ¥73,600 | [リンク](https://www.robotis.us/dynamixel-xm540-w150-r/) |
-| ダイナミクセルフレーム | FR12-S102K セット | 2 | ¥3,200 | [リンク](https://www.robotis.us/fr12-s102k-set) |
-| ダイナミクセルフレーム | FR12-H101K セット | 1 | ¥6,900 | [リンク](https://www.robotis.us/fr12-h101k-set/) |
-| ダイナミクセルフレーム | FR12-H104K セット | 1 | ¥6,500 | [リンク](https://www.robotis.us/fr12-h104k-set/) |
-| ダイナミクセルフレーム | FR13-H101K セット | 1 | ¥11,400 | [リンク](https://www.robotis.us/fr13-h101k-set/) |
-| ダイナミクセル U2D2 | 8809052930103 | 1 | ¥5,500 | [リンク](https://www.robotis.us/u2d2/) |
-| ダイナミクセル パワーハブ | 8809052930530 | 1 | ¥5,500 | [リンク](https://www.robotis.us/u2d2-power-hub-board-set/) |
-| (オプション) USBハブ | B0D1XVNTHJ | 1 | ¥3,700 | [リンク](https://www.amazon.co.jp/dp/B0D1XVNTHJ) |
-| (オプション) スピーカー | Jabra Speak 710 | 1 | ¥36,000 | [リンク](https://www.jabra.com/business/speakerphones/jabra-speak-series/jabra-speak-710/) |
-| (オプション) マイク | MKE 400 | 1 | ¥30,300 | [リンク](https://www.sennheiser.com/en-ae/catalog/products/microphones/mke-400/mke-400-508898) |
-| RealSense | D415 | 1 | ¥42,000 | [リンク](https://www.amazon.co.jp/dp/B07JVGRQZT) |
-| (オプション) RealSense | D405 | 1 | ¥42,800 | [リンク](https://www.amazon.co.jp/dp/B09JBBHVTY) |
-| (オプション) 非常停止ボタン | HW1B-X411R-MAU | 1 | ¥13,600 | [リンク](https://jp.misumi-ec.com/vona2/detail/222000393180/?HissuCode=HW1B-X411R-MAU) |
-| (オプション) M5Stack Basic V2.7 | K001-V27 | 1 | ¥6,200 | [リンク](https://shop.m5stack.com/products/esp32-basic-core-lot-development-kit-v2-7) |
-| (オプション) ESP32 DevKitC-1-N16R8 | B0DWWY5KTZ | 1 | ¥1,500 | [リンク](https://www.amazon.co.jp/dp/B0DWWY5KTZ) |
-| (オプション) ディスプレイ | B01CZL6QIQ | 2 | ¥2,200 | [リンク](https://www.amazon.co.jp/dp/B01CZL6QIQ) |
-| スラストローラーベアリング | AXK1104 | 2 | ¥1,800 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000058345/?HissuCode=AXK1106) |
-| スラストローラーベアリング | AXK1106 | 1 | ¥1,400 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000058345/?HissuCode=AXK1106) |
-| アルミフレーム | HFS5-2020-600 | 1 | ¥1,500 | [リンク](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-600) |
-| アルミフレーム | HFS5-2020-100 | 6 | ¥750 | [リンク](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-100) |
-| アルミフレーム | HFS5-2020-110 | 1 | ¥750 | [リンク](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-110) |
-| ブラケット | HBLFSNK6 | 3 | ¥270 | [リンク](https://jp.misumi-ec.com/vona2/detail/110300442520/?HissuCode=HBLFSNK6) |
-| 六角穴付ボルト | CSH-ST-M2-4 | 16 | ¥190 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M2-4) |
-| 六角穴付ボルト | CSH-ST-M2.5-5 | 54 | ¥60 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M2.5-5) |
-| 六角穴付ボルト | CSH-ST-M2.5-6 | 16 | ¥180 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M2.5-6) |
-| 六角穴付ボルト | CSH-ST-M2.5-8 | 34 | ¥110 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M2.5-8) |
-| 六角穴付ボルト | CSH-ST-M2.5-10 | 10 | ¥180 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M2.5-10) |
-| 六角穴付ボルト | CSH-ST-M2.5-12 | 16 | ¥180 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M2.5-12) |
-| 六角穴付ボルト | CSH-ST-M3-5 | 4 | ¥400 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M3-5) |
-| 六角穴付ボルト | CSH-ST-M4-15 | 16 | ¥180 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M4-15) |
-| 六角穴付ボルト | CSH-ST-M5-8 | 50 | ¥40 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M5-8) |
-| 六角穴付ボルト | CSH-ST-M5-12 | 12 | ¥40 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M5-12) |
-| 六角穴付ボルト | CSH-ST-M5-15 | 8 | ¥350 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M5-15) |
-| 六角穴付ボルト | CSH-ST-M5-20 | 4 | ¥580 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M5-20) |
-| 六角穴付ボルト | CSH-ST-M5-32 | 2 | ¥590 | [リンク](https://jp.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M5-32) |
-| ナット | LBNR2.5 | 24 | ¥25 | [リンク](https://jp.misumi-ec.com/vona2/detail/110300250540/?HissuCode=LBNR2.5) |
-| ナット | LBNR4 | 16 | ¥80 | [リンク](https://jp.misumi-ec.com/vona2/detail/110300250540/?HissuCode=LBNR4) |
-| ナット | LBNR5 | 26 | ¥80 | [リンク](https://jp.misumi-ec.com/vona2/detail/110300250540/?HissuCode=LBNR5) |
-| 5シリーズ用ナット | HNTT5-5 | 44 | ¥100 | [リンク](https://jp.misumi-ec.com/vona2/detail/110302246150/?HissuCode=HNTT5-5) |
-| 電源アダプタプラグジャック | B0BV8XCTC9 | 2 | ¥950 | [リンク](https://www.amazon.co.jp/dp/B0BV8XCTC9) |
-| eSUN 黒フィラメント | ePLA+HS175B1KG-2SPOOL-US | 1 | ¥5,200 | [リンク](https://www.amazon.co.jp/dp/B0D7Q1JYZM) |
-| (オプション) eSUN 青フィラメント | ePLA+HS175U1KG-US | 1 | ¥2,800 | [リンク](https://www.amazon.co.jp/dp/B0CQT8VKF7) |
+| Kachaka | B1A01 | 1 | $1,569.45 | [link](https://store.kachaka.life/products/detail/50) |
+| Kachaka Base | ksh0003 | 1 | $86.20 | [link](https://store.kachaka.life/products/detail/57) |
+| Makita Battery | BL1860B | 1 | $181.58 | [link](https://www.makitatools.com/products/details/BL1860B) |
+| Makita Adapter | B0D6R6XSPX | 1 | $25.90 | [link](https://www.amazon.com/dp/B0D6R6XSPX) |
+| Dynamixel Actuators | XM430-W350-R | 6 | $318.89 | [link](https://www.robotis.us/dynamixel-xm430-w350-r/) |
+| Dynamixel Actuators | XM540-W150-R | 4 | $472.89 | [link](https://www.robotis.us/dynamixel-xm540-w150-r/) |
+| Dynamixel Frame | FR12-S102K Set | 2 | $20.90 | [link](https://www.robotis.us/fr12-s102k-set) |
+| Dynamixel Frame | FR12-H101K Set | 1 |  $44.66 | [link](https://www.robotis.us/fr12-h101k-set/) |
+| Dynamixel Frame | FR12-H104K Set | 1 | $41.91 | [link](https://www.robotis.us/fr12-h104k-set/) |
+| Dynamixel Frame | FR13-H101K Set | 1 | $73.37 | [link](https://www.robotis.us/fr13-h101k-set/) |
+| Dynamixel U2D2 | 8809052930103 | 1 | $35.31 | [link](https://www.robotis.us/u2d2/) |
+| Dynamixel Power Hub | 8809052930530 | 1 | $35.31 | [link](https://www.robotis.us/u2d2-power-hub-board-set/) |
+| (Optional) USB Hub | B0D1XVNTHJ | 1 | $23.99 | [link](https://www.amazon.com/dp/B0D1XVNTHJ) |
+| (Optional) Speaker | Jabra Speak 710 | 1 | $233.90 | [link](https://www.jabra.com/business/speakerphones/jabra-speak-series/jabra-speak-710/) |
+| (Optional) Microphone | MKE 400 | 1 | $196.87 | [link](https://www.sennheiser.com/en-ae/catalog/products/microphones/mke-400/mke-400-508898) |
+| RealSense | D415 | 1 | $273.34 | [link](https://www.amazon.com/dp/B07JVGRQZT) |
+| (Optional) RealSense | D405 | 1 | $278.12 | [link](https://www.amazon.com/dp/B09JBBHVTY) |
+| (Optional) Stop Button | HW1B-X411R-MAU | 1 | $88.19 | [link](https://us.misumi-ec.com/vona2/detail/222000393180/?HissuCode=HW1B-X411R-MAU) |
+| (Optional) M5Stack Basic V2.7 | K001-V27 | 1 | $39.90 | [link](https://shop.m5stack.com/products/esp32-basic-core-lot-development-kit-v2-7) |
+| (Optional) ESP32 DevKitC-1-N16R8 | B0DWWY5KTZ | 1 | $9.99 | [link](https://www.amazon.com/dp/B0DWWY5KTZ) |
+| (Optional) Display | B01CZL6QIQ | 2 | $14.49 | [link](https://www.amazon.com/dp/B01CZL6QIQ) |
+| Thrust Roller Bearing | AXK1104 | 2 | $11.49 | [link](https://us.misumi-ec.com/vona2/detail/221000058345/?HissuCode=AXK1106) |
+| Thrust Roller Bearing | AXK1106 | 1 | $9.08 | [link](https://us.misumi-ec.com/vona2/detail/221000058345/?HissuCode=AXK1106) |
+| Aluminium Frame | HFS5-2020-600 | 1 | $9.42 | [link](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-600) |
+| Aluminium Frame | HFS5-2020-100 | 6 | $4.66 | [link](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-100) |
+| Aluminium Frame | HFS5-2020-110 | 1 | $4.66 | [link](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-110) |
+| Brackets | HBLFSNK6 | 3 | $1.68 | [link](https://us.misumi-ec.com/vona2/detail/110300442520/?HissuCode=HBLFSNK6) |
+| Socket Head Cap Screws | CSH-ST-M2-4 | 16 | $1.19 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M2-4) |
+| Socket Head Cap Screws | CSH-ST-M2.5-5 | 54 | $0.39 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M2.5-5) |
+| Socket Head Cap Screws | CSH-ST-M2.5-6 | 16 | $1.17 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M2.5-6) |
+| Socket Head Cap Screws | CSH-ST-M2.5-8 | 34 | $0.73 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M2.5-8) |
+| Socket Head Cap Screws | CSH-ST-M2.5-10 | 10 | $1.17 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M2.5-10) |
+| Socket Head Cap Screws | CSH-ST-M2.5-12 | 16 | $1.17 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M2.5-12) |
+| Socket Head Cap Screws | CSH-ST-M3-5 | 4 | $2.60 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M3-5) |
+| Socket Head Cap Screws | CSH-ST-M4-15 | 16 | $1.16 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M4-15) |
+| Socket Head Cap Screws | CSH-ST-M5-8 | 50 | $0.28 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M5-8) |
+| Socket Head Cap Screws | CSH-ST-M5-12 | 12 | $0.29 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M5-12) |
+| Socket Head Cap Screws | CSH-ST-M5-15 | 8 | $2.28 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M5-15) |
+| Socket Head Cap Screws | CSH-ST-M5-20 | 4 | $3.77 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M5-20) |
+| Socket Head Cap Screws | CSH-ST-M5-32 | 2 | $3.83 | [link](https://us.misumi-ec.com/vona2/detail/221000551286/?HissuCode=CSH-ST-M5-32) |
+| Nut | LBNR2.5 | 24 | $0.16 | [link](https://us.misumi-ec.com/vona2/detail/110300250540/?HissuCode=LBNR2.5) |
+| Nut | LBNR4 | 16 | $0.51 | [link](https://us.misumi-ec.com/vona2/detail/110300250540/?HissuCode=LBNR4) |
+| Nut | LBNR5 | 26 | $0.51 | [link](https://us.misumi-ec.com/vona2/detail/110300250540/?HissuCode=LBNR5) |
+| Nuts for 5 Series | HNTT5-5 | 44 | 0.63 | [link](https://us.misumi-ec.com/vona2/detail/110302246150/?HissuCode=HNTT5-5) |
+| Power Adapter Plug Jack | B0BV8XCTC9 | 2 | $5.99 | [link](https://www.amazon.com/dp/B0BV8XCTC9) |
+| eSUN Black Filament | ePLA+HS175B1KG-2SPOOL-US | 1 | $33.23 | [link](https://www.amazon.com/dp/B0D7Q1JYZM) |
+| (Optional) eSUN Blue Filament |  ePLA+HS175U1KG-US  | 1 | $17.99 | [link](https://www.amazon.com/dp/B0CQT8VKF7) |
 
-おおよその合計金額（オプション含む）: **¥1,175,000**
+Total Approx. Cost (w/ Optional Items): **$7,510.47**
 
-おおよその合計金額（オプション除く）: **¥1,030,000** -->
+Total Approx. Cost (w/o Optional Items): **$6,592.54** -->
 
 <!-- > [!IMPORTANT]
-> 販売店によって価格は変動します．最新の価格は各リンク先でご確認ください．
+> Prices may vary depending on the retailer. Please check each link for the latest prices.
 
 </details> -->
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-<!-- 参考文献 -->
-## 参考文献
+<!-- ACKNOWLEDGMENTS -->
+## References
 
 * [RM Motors HW](https://github.com/mjforan/rm_motors_ros)
 * [Dynamixel Hardware](https://github.com/dynamixel-community/dynamixel_hardware)
@@ -488,7 +506,7 @@ TBD
 * [ROS2 Control](https://control.ros.org/jazzy/index.html)
 * [ROS2 Control Gazebo](https://github.com/ros-controls/gz_ros2_control)
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 

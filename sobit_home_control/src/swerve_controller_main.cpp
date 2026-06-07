@@ -1,39 +1,37 @@
 #include "sobit_home_control/swerve_controller_main.hpp"
 
-namespace sobit_home{
+namespace sobit_home
+{
 
-SwerveController::SwerveController(const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
+SwerveController::SwerveController(const rclcpp::NodeOptions & options)
 : Node("swerve_controller", options)
 {
-  // declare parameters
-  this->declare_parameter("robot_base_frame", "base_footprint");
-  this->declare_parameter("twist_topic", "cmd_vel");
-  this->declare_parameter("position_controller_name", "wheel_steer_position_controller");
-  this->declare_parameter("velocity_controller_name", "wheel_drive_velocity_controller");
-  this->declare_parameter("cycle_fequency", 10);
-  this->declare_parameter("steering_joints", std::vector<std::string>({"wheel_steer_f_l_joint", "wheel_steer_f_r_joint", "wheel_steer_b_l_joint", "wheel_steer_b_r_joint"}));
-  this->declare_parameter("drive_joints",    std::vector<std::string>({"wheel_drive_f_l_joint", "wheel_drive_f_r_joint", "wheel_drive_b_l_joint", "wheel_drive_b_r_joint"}));
-  this->declare_parameter("mobile_base.wheel_radius", 0.075);
-  // this->declare_parameter("mobile_base.wheel_width" , 0.035);
-  this->declare_parameter("mobile_base.wheel_x_distance", 0.35355339);
-  this->declare_parameter("mobile_base.wheel_y_distance", 0.35355339);
-  this->declare_parameter("mobile_base.steer_max_vel", 10.0);
-  // this->declare_parameter("mobile_base.steer_min_acc", 0.5);
-  // this->declare_parameter("mobile_base.steer_max_acc", 1.0);
-  this->declare_parameter("mobile_base.drive_max_vel", 10.0);
-  // this->declare_parameter("mobile_base.drive_min_acc", 0.5);
-  // this->declare_parameter("mobile_base.drive_max_acc", 1.0);
-  this->declare_parameter("driving_status_threshold", 0.26);
+  declare_parameter("robot_base_frame", "base_footprint");
+  declare_parameter("twist_topic", "cmd_vel");
+  declare_parameter("position_controller_name", "wheel_steer_position_controller");
+  declare_parameter("velocity_controller_name", "wheel_drive_velocity_controller");
+  declare_parameter("cycle_fequency", 10);
+  declare_parameter("steering_joints", std::vector<std::string>{
+    "wheel_steer_f_l_joint", "wheel_steer_f_r_joint",
+    "wheel_steer_b_l_joint", "wheel_steer_b_r_joint"});
+  declare_parameter("drive_joints", std::vector<std::string>{
+    "wheel_drive_f_l_joint", "wheel_drive_f_r_joint",
+    "wheel_drive_b_l_joint", "wheel_drive_b_r_joint"});
+  declare_parameter("mobile_base.wheel_radius",      0.075);
+  declare_parameter("mobile_base.wheel_x_distance",  0.35355339);
+  declare_parameter("mobile_base.wheel_y_distance",  0.35355339);
+  declare_parameter("mobile_base.steer_max_vel",     10.0);
+  declare_parameter("mobile_base.drive_max_vel",     10.0);
+  declare_parameter("driving_status_threshold",      0.26);
 
-
-  steering_joints_names = this->get_parameter("steering_joints").as_string_array();
-  drive_joints_names    = this->get_parameter("drive_joints").as_string_array();
+  steering_joints_names = get_parameter("steering_joints").as_string_array();
+  drive_joints_names    = get_parameter("drive_joints").as_string_array();
 
   if ((steering_joints_names.size() != 4) || (drive_joints_names.size() != 4)) return;
 
-  CYCLE_FEQUENCY = this->get_parameter("cycle_fequency").as_int();
-  STEER_MAX_VEL = this->get_parameter("mobile_base.steer_max_vel").as_double();
-  DRIVING_STATUS_THRESHOLD = this->get_parameter("driving_status_threshold").as_double();
+  CYCLE_FEQUENCY           = get_parameter("cycle_fequency").as_int();
+  STEER_MAX_VEL            = get_parameter("mobile_base.steer_max_vel").as_double();
+  DRIVING_STATUS_THRESHOLD = get_parameter("driving_status_threshold").as_double();
 
   // Initialize the control and odometry classes
   sobit_home_control_ = std::make_unique<SobitHomeControl>(this);
@@ -46,21 +44,23 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options = rclcpp:
   qos_profile.history(RMW_QOS_POLICY_HISTORY_KEEP_LAST);
   qos_profile.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
 
-  this->sub_vel_ = this->create_subscription<geometry_msgs::msg::Twist>(
-      this->get_parameter("twist_topic").as_string(), qos_profile, std::bind(&SobitHomeControl::twist_callback, sobit_home_control_.get(), std::placeholders::_1));
-  this->sub_joint_info_ = this->create_subscription<sensor_msgs::msg::JointState>(
-      "joint_states", qos_profile, std::bind(&SwerveController::joint_callback, this, std::placeholders::_1));
+  sub_vel_ = create_subscription<geometry_msgs::msg::Twist>(
+    get_parameter("twist_topic").as_string(), qos_profile,
+    [this](const geometry_msgs::msg::Twist::SharedPtr msg) {
+      sobit_home_control_->twist_callback(msg);
+    });
+  sub_joint_info_ = create_subscription<sensor_msgs::msg::JointState>(
+    "joint_states", qos_profile,
+    [this](const sensor_msgs::msg::JointState::SharedPtr msg) { joint_callback(msg); });
 
-  this->pub_odometry_ = this->create_publisher<nav_msgs::msg::Odometry>(
-      "odom", qos_profile);
-  this->pub_steer_joint_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
-      this->get_parameter("position_controller_name").as_string() + "/commands", qos_profile);
-  this->pub_wheel_joint_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
-      this->get_parameter("velocity_controller_name").as_string() + "/commands", qos_profile);
+  pub_odometry_    = create_publisher<nav_msgs::msg::Odometry>("odom", qos_profile);
+  pub_steer_joint_ = create_publisher<std_msgs::msg::Float64MultiArray>(
+    get_parameter("position_controller_name").as_string() + "/commands", qos_profile);
+  pub_wheel_joint_ = create_publisher<std_msgs::msg::Float64MultiArray>(
+    get_parameter("velocity_controller_name").as_string() + "/commands", qos_profile);
 
-  // Set the initial position of the wheel
   joints_pos.clear();
-  while (joints_pos.empty()) rclcpp::spin_some(this->get_node_base_interface());
+  while (joints_pos.empty()) { rclcpp::spin_some(get_node_base_interface()); }
 
   for (size_t i=0; i < drive_joints_names.size(); i++) {
     sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = sobit_home_control_->goal_steer_pos[i] = joints_pos[steering_joints_names[i]];
@@ -68,22 +68,13 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options = rclcpp:
     sobit_home_odometry_->prev_drive_pos[i] = sobit_home_odometry_->current_drive_pos[i] = joints_pos[drive_joints_names[i]];
   }
 
-  // create looped function of 50hz
-  this->control_timer_ = this->create_wall_timer(
-      std::chrono::milliseconds((int)(1000. / CYCLE_FEQUENCY)),
-      std::bind(&SwerveController::control_callback, this));
+  control_timer_ = create_wall_timer(
+    std::chrono::milliseconds(static_cast<int>(1000.0 / CYCLE_FEQUENCY)),
+    [this]() { control_callback(); });
 
-  // Get the robot namespace
-  std::string robot_name = (std::strcmp(this->get_namespace(), "/") != 0)
-                          ? std::string(this->get_namespace()).substr(1) + "/"
-                          : "";
-
-  std::string base_frame_name_ = this->get_parameter("robot_base_frame").as_string();
-  
-  // Initilize Odometry
-  sobit_home_odometry_->odom_.header.stamp    = this->get_clock()->now();
+  sobit_home_odometry_->odom_.header.stamp    = get_clock()->now();
   sobit_home_odometry_->odom_.header.frame_id = "odom";
-  sobit_home_odometry_->odom_.child_frame_id  = this->get_parameter("robot_base_frame").as_string();
+  sobit_home_odometry_->odom_.child_frame_id  = get_parameter("robot_base_frame").as_string();
 
   // Start up sound
   play_sound(true);

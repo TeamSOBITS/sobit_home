@@ -57,8 +57,9 @@ private:
   void init_move_groups();
 
 
-  // Background thread for blocking MoveGroupInterface construction
-  std::thread init_thread_;
+  // One-shot timer that fires init_move_groups() after the constructor returns,
+  // guaranteeing shared_from_this() is valid when MoveGroupInterface is built.
+  rclcpp::TimerBase::SharedPtr init_timer_;
 
   // Core map mapping string -> MoveGroupInterface
   // Both active_groups_ and active_executions_ are guarded by their respective mutexes.

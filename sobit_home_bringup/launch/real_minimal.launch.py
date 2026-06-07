@@ -33,6 +33,8 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_teleop',               default_value='false'),
         DeclareLaunchArgument('enable_rm_motors',            default_value='true'),
         DeclareLaunchArgument('enable_dxl_pro',              default_value='true'),
+        DeclareLaunchArgument('enable_moveit',               default_value='true'),
+        DeclareLaunchArgument('enable_tf_prefix',            default_value='false'),
         OpaqueFunction(function=launch_setup),
     ])
 
@@ -78,6 +80,8 @@ def launch_setup(context, *args, **kwargs):
             'enable_rm_motors'            : _bool(LaunchConfiguration('enable_rm_motors'), context),
             'enable_dxl_pro'              : _bool(LaunchConfiguration('enable_dxl_pro'), context),
             'enable_gz'                   : 'False',  # never Gazebo on real hardware
+            'enable_moveit'               : _bool(LaunchConfiguration('enable_moveit'), context),
+            'enable_tf_prefix'            : _bool(LaunchConfiguration('enable_tf_prefix'), context),
         }.items(),
     )
 

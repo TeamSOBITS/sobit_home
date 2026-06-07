@@ -41,15 +41,6 @@ private:
   double max_v_xy_  = 0.0;
   double max_omega_ = 0.0;
 
-  rclcpp_action::GoalResponse handle_goal(
-    const rclcpp_action::GoalUUID & uuid,
-    std::shared_ptr<const FollowJointTrajectory::Goal> goal);
-
-  rclcpp_action::CancelResponse handle_cancel(
-    const std::shared_ptr<GoalHandleFJT> goal_handle);
-
-  void handle_accepted(const std::shared_ptr<GoalHandleFJT> goal_handle);
-
   void execute(const std::shared_ptr<GoalHandleFJT> goal_handle);
 
   void odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg);

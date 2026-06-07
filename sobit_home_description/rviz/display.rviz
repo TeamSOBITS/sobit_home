@@ -1,6 +1,6 @@
 Panels:
   - Class: rviz_common/Displays
-    Help Height: 78
+    Help Height: 0
     Name: Displays
     Property Tree Widget:
       Expanded:
@@ -13,14 +13,17 @@ Panels:
     Name: Selection
   - Class: rviz_common/Tool Properties
     Expanded:
+      - /2D Pose Estimate1
+      - /2D Goal Pose1
       - /Publish Point1
     Name: Tool Properties
     Splitter Ratio: 0.5886790156364441
   - Class: rviz_common/Views
     Expanded:
       - /Current View1
+      - /Current View1/Focal Point1
     Name: Views
-    Splitter Ratio: 0.5
+    Splitter Ratio: 0.49476438760757446
 Visualization Manager:
   Class: ""
   Displays:
@@ -182,6 +185,20 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        hand_left_camera_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_left_camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_left_camera_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         hand_left_cmc_link:
           Alpha: 1
           Show Axes: false
@@ -232,6 +249,20 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        hand_right_camera_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_right_camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_right_camera_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         hand_right_cmc_link:
           Alpha: 1
           Show Axes: false
@@ -804,14 +835,14 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /initialpose
+        Value: /sobit_home/initialpose
     - Class: rviz_default_plugins/SetGoal
       Topic:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /move_base_simple/goal
+        Value: /sobit_home/move_base_simple/goal
     - Class: rviz_default_plugins/PublishPoint
       Single click: true
       Topic:
@@ -819,7 +850,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /clicked_point
+        Value: /sobit_home/clicked_point
   Transformation:
     Current:
       Class: rviz_default_plugins/TF
