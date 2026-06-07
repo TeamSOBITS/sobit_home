@@ -250,13 +250,22 @@ SOBIT HOMEのパンチルト機構と昇降機構とマニピュレータを動�
    - `move_left_hand_to_pose`
 
 2. Service
-   - `get_hand_to_coord/left`
-   - `get_hand_to_coord/right`
+   - `get_hand_to_coord/left` — 左アームの解析的IK．任意のTFフレームで指定した目標姿勢を受け取り，関節角度・成功フラグ・到達ヒントを返します．
+   - `get_hand_to_coord/right` — 右アームの解析的IK．左と同じインターフェースです．
    - `get_hand_to_tf/left`
    - `get_hand_to_tf/right`
    - `get_head_to_coord`
    - `get_head_to_tf`
    - `get_finger_angle`
+
+   **到達ヒント（`move_pose`）：** 目標がアームのワークスペース外にある場合，サービスは`success=false`を返しますが，`move_pose`に目標を到達可能にするための最小調整量を格納して返します．
+
+   | フィールド | 意味 |
+   | --- | --- |
+   | `position.x` | ベースの前後移動量（m）；正=前進，負=後退 |
+   | `position.y` | 将来の横移動用に予約済み（常に0.0） |
+   | `position.z` | ボディリフトの調整量（m）；正=上昇，負=下降 |
+   | `orientation` | 目標方向へのヨー角 |
 
 3. MoveIt連携（`action_server.launch.py`で起動）
    - Service: `plan_to_pose`
@@ -277,37 +286,39 @@ SOBIT HOMEのジョイント名とその定数名を以下の通りです．
 |  3 | arm_left_upper_roll_joint     | - |
 |  4 | arm_left_upper_flex_joint     | - |
 |  5 | arm_left_elbow_joint          | - |
-|  6 | arm_left_wrist_tilt_joint     | - |
-|  7 | arm_left_wrist_roll_joint     | - |
-|  8 | arm_right_shoulder_tilt_joint | - |
-|  9 | arm_right_upper_roll_joint    | - |
-| 10 | arm_right_upper_flex_joint    | - |
-| 11 | arm_right_elbow_joint         | - |
-| 12 | arm_right_wrist_tilt_joint    | - |
-| 13 | arm_right_wrist_roll_joint    | - |
-| 14 | hand_left_finger_l_mcp_joint  | - |
-| 15 | hand_left_finger_l_pip_joint  | - |
-| 16 | hand_left_finger_l_dip_joint  | - |
-| 17 | hand_left_finger_c_mcp_joint  | - |
-| 18 | hand_left_finger_c_ip_joint   | - |
-| 19 | hand_left_finger_r_pip_joint  | - |
-| 20 | hand_left_finger_r_dip_joint  | - |
-| 21 | hand_right_finger_l_mcp_joint | - |
-| 22 | hand_right_finger_l_pip_joint | - |
-| 23 | hand_right_finger_l_dip_joint | - |
-| 24 | hand_right_finger_c_mcp_joint | - |
-| 25 | hand_right_finger_c_ip_joint  | - |
-| 26 | hand_right_finger_r_pip_joint | - |
-| 27 | hand_right_finger_r_dip_joint | - |
-| 28 | body_lift_joint               | - |
-| 29 | wheel_steer_f_l_joint         | - |
-| 30 | wheel_steer_f_r_joint         | - |
-| 31 | wheel_steer_b_l_joint         | - |
-| 32 | wheel_steer_b_r_joint         | - |
-| 33 | wheel_drive_f_l_joint         | - |
-| 34 | wheel_drive_f_r_joint         | - |
-| 35 | wheel_drive_b_l_joint         | - |
-| 36 | wheel_drive_b_r_joint         | - |
+|  6 | arm_left_lower_flex_joint     | - |
+|  7 | arm_left_wrist_tilt_joint     | - |
+|  8 | arm_left_wrist_roll_joint     | - |
+|  9 | arm_right_shoulder_tilt_joint | - |
+| 10 | arm_right_upper_roll_joint    | - |
+| 11 | arm_right_upper_flex_joint    | - |
+| 12 | arm_right_elbow_joint         | - |
+| 13 | arm_right_lower_flex_joint    | - |
+| 14 | arm_right_wrist_tilt_joint    | - |
+| 15 | arm_right_wrist_roll_joint    | - |
+| 16 | hand_left_finger_l_mcp_joint  | - |
+| 17 | hand_left_finger_l_pip_joint  | - |
+| 18 | hand_left_finger_l_dip_joint  | - |
+| 19 | hand_left_finger_c_mcp_joint  | - |
+| 20 | hand_left_finger_c_ip_joint   | - |
+| 21 | hand_left_finger_r_pip_joint  | - |
+| 22 | hand_left_finger_r_dip_joint  | - |
+| 23 | hand_right_finger_l_mcp_joint | - |
+| 24 | hand_right_finger_l_pip_joint | - |
+| 25 | hand_right_finger_l_dip_joint | - |
+| 26 | hand_right_finger_c_mcp_joint | - |
+| 27 | hand_right_finger_c_ip_joint  | - |
+| 28 | hand_right_finger_r_pip_joint | - |
+| 29 | hand_right_finger_r_dip_joint | - |
+| 30 | body_lift_joint               | - |
+| 31 | wheel_steer_f_l_joint         | - |
+| 32 | wheel_steer_f_r_joint         | - |
+| 33 | wheel_steer_b_l_joint         | - |
+| 34 | wheel_steer_b_r_joint         | - |
+| 35 | wheel_drive_f_l_joint         | - |
+| 36 | wheel_drive_f_r_joint         | - |
+| 37 | wheel_drive_b_l_joint         | - |
+| 38 | wheel_drive_b_r_joint         | - |
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -331,12 +342,14 @@ SOBIT HOMEのジョイント名とその定数名を以下の通りです．
       arm_left_upper_roll     : 0.0
       arm_left_upper_flex     : 0.0
       arm_left_elbow          : 0.0
+      arm_left_lower_flex     : 0.0
       arm_left_wrist_tilt     : 0.0
       arm_left_wrist_roll     : 0.0
       arm_right_shoulder_tilt : 0.0
       arm_right_upper_roll    : 0.0
       arm_right_upper_flex    : 0.0
       arm_right_elbow         : 0.0
+      arm_right_lower_flex    : 0.0
       arm_right_wrist_tilt    : 0.0
       arm_right_wrist_roll    : 0.0
 ...
