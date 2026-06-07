@@ -19,8 +19,8 @@
     <joint name="${prefix_hand}_${position}_cmc_joint" type="fixed" >
       <parent link="${parent}" />
       <child link="${prefix_hand}_${position}_cmc_link" />
-      <origin xyz="0.0 ${y_sign * 0.025375} 0.0" rpy="0.0 0.0 0.0" />
-      <!-- <origin xyz="0.0 ${y_sign * 0.025375} 0.0" rpy="0.0 ${M_PI/2} 0.0" /> -->
+      <!-- <origin xyz="0.0 ${y_sign * 0.025375} 0.0" rpy="0.0 0.0 0.0" /> -->
+      <origin xyz="0.0 ${y_sign * 0.025375} 0.0" rpy="0.0 ${M_PI/2} 0.0" />
     </joint>
 
     <link name="${prefix_hand}_${position}_cmc_link" >
@@ -91,7 +91,8 @@
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
+        <origin xyz="0.01445 ${y_sign * 0.030375} 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
+        <!-- <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" /> -->
         <!-- <mass value="0.036103135757000006" /> -->
         <mass value="0.0361" />
         <inertia ixx="${1/12*0.0361*(0.031**2+0.030**2)}" ixy="0.0" ixz="0.0"
@@ -124,7 +125,8 @@
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
+        <origin xyz="0.01445 ${y_sign * 0.032375} ${-y_sign * 0.001}" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
+        <!-- <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" /> -->
         <!-- <mass value="0.0371972081495" /> -->
         <mass value="0.0372" />
         <inertia ixx="${1/12*0.0372*(0.035**2+0.031**2)}" ixy="0.0" ixz="0.0"
@@ -185,12 +187,13 @@
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${-y_sign * M_PI/2} 0.0" />
+        <origin xyz="0.01445 ${y_sign * 0.030375} 0.0" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
+        <!-- <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${-y_sign * M_PI/2} 0.0" /> -->
         <!-- <mass value="0.0361032786215" /> -->
         <mass value="0.0361" />
-        <inertia ixx="${1/12*0.0361*(0.0031**2+0.030**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.0361*(0.01445**2+0.0031**2)}" iyz="0.0"
-                 izz="${1/12*0.0361*(0.01445**2+0.030**2)}" />
+        <inertia ixx="${1/12*0.0361*(0.031**2+0.030**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.0361*(0.022**2+0.030**2)}" iyz="0.0"
+                 izz="${1/12*0.0361*(0.022**2+0.031**2)}" />
       </inertial>
     </link>
 
@@ -217,7 +220,8 @@
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${-y_sign * M_PI/2} 0.0" />
+        <origin xyz="0.01445 ${y_sign * 0.032375} ${y_sign * 0.001}" rpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
+        <!-- <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} ${-y_sign * M_PI/2} 0.0" /> -->
         <!-- <mass value="0.0371997477059" /> -->
         <mass value="0.0372" />
         <inertia ixx="${1/12*0.0372*(0.035**2+0.031**2)}" ixy="0.0" ixz="0.0"
@@ -256,7 +260,8 @@
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} 0.0 0.0" />
+        <origin xyz="-0.001 ${y_sign * 0.032375} ${-y_sign * 0.01445}" rpy="0.0 0.0 0.0" />
+        <!-- <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} 0.0 0.0" /> -->
         <!-- <mass value="0.0377428526807" /> -->
         <mass value="0.0377" />
         <inertia ixx="${1/12*0.0377*(0.034**2+0.031**2)}" ixy="0.0" ixz="0.0"
@@ -293,7 +298,8 @@
         </geometry>
       </collision>
       <inertial>
-        <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} 0.0 0.0" />
+        <origin xyz="-0.001 ${y_sign * 0.034375} ${-y_sign * 0.01445}" rrpy="${-y_sign * M_PI/2} ${y_sign * M_PI/2} 0.0" />
+        <!-- <origin xyz="0.0 0.0 0.0" rpy="${-y_sign * M_PI/2} 0.0 0.0" /> -->
         <!-- <mass value="0.017059696584599996" /> -->
         <mass value="0.0171" />
         <inertia ixx="${1/12*0.0171*(0.0334**2+0.031**2)}" ixy="0.0" ixz="0.0"
@@ -311,40 +317,24 @@
 
     <!-- Link: End Effector -->
     <link name="${prefix_hand}_${position}_end_effector_link">
-      <visual>
+      <!-- <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
         <geometry>
           <box size="0.01 0.01 0.01" />
         </geometry>
         <material name="red"/>
-      </visual>
+      </visual> -->
 
-      <inertial>
+      <!-- <inertial>
         <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
         <mass value="0.0001" />
         <inertia  ixx="${1/12*0.0001*(0.01**2+0.01**2)}" ixy="0.0" ixz="0.0"
                   iyy="${1/12*0.0001*(0.01**2+0.01**2)}" iyz="0.0"
                   izz="${1/12*0.0001*(0.01**2+0.01**2)}" />
-      </inertial>
+      </inertial> -->
     </link>
 
   <xacro:hand_transmission prefix_hand="${prefix_hand}" position="${position}" prefix_finger="${prefix_finger}"/>
 
   </xacro:macro>
 </robot>
-
-
-<!-- 
-
-<<tsukada no memo>> =============================================================================
-
-この順序はパーツのvisualやcollisionのオリジンが回転することに依存しない...らしい？？？
-ただし、.stlをインポートする際の原点に対するパーツの軸方向が影響している可能性があるような気が...
-
-<box size = "w"  "d"  "h" >
-  w: x方向の大きさ(幅)
-  d: y方向の大きさ（奥行き）
-  h: z方向の大きさ（高さ）
-
-======================================================================================
--->

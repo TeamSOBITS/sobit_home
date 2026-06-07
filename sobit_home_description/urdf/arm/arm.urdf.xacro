@@ -46,7 +46,7 @@
       <parent link="${prefix}_${position}_base_link" />
       <child link="${prefix}_${position}_shoulder_tilt_link" />
       <origin xyz="0.0 ${y_sign * 0.126} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 ${y_sign} 0.0" />
+      <axis xyz="0.0 -1.0 0.0" />
       <limit lower="${-M_PI}" upper="${M_PI}" effort="${44.7 * effort_ratio}" velocity="3.0" />
     </joint>
 
@@ -67,9 +67,9 @@
       <inertial>
         <origin xyz="0.0 ${y_sign * 0.075} 0.0" rpy="${M_PI/2} 0.0 0.0" />
         <mass value="0.600" />
-        <inertia ixx="${1/12*0.600*(3*0.89**2+0.100**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.600*(3*0.89**2+0.100**2)}" iyz="0.0"
-                 izz="${1/2*0.600*0.89**2}" />
+        <inertia ixx="${1/12*0.600*(3*0.089**2+0.100**2)}" ixy="0.0" ixz="0.0"
+                 iyy="${1/12*0.600*(3*0.089**2+0.100**2)}" iyz="0.0"
+                 izz="${1/2*0.600*0.089**2}" />
       </inertial>
     </link>
 
@@ -79,7 +79,7 @@
       <parent link="${prefix}_${position}_shoulder_tilt_link" />
       <child link="${prefix}_${position}_upper_roll_link" />
         <origin xyz="0.0510 ${y_sign * 0.100} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="-1.0 0.0 0.0" />
+      <axis xyz="${y_sign} 0.0 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
@@ -117,14 +117,14 @@
       <parent link="${prefix}_${position}_shoulder_tilt_link" />
       <child link="${prefix}_${position}_upper_roll_sub_link" />
       <origin xyz="-0.0510 ${y_sign * 0.100} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="1.0 0.0 0.0" />
+      <axis xyz="${y_sign * -1} 0.0 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
     <link name="${prefix}_${position}_upper_roll_sub_link" >
       <inertial>
         <origin xyz="${y_sign * 0.0510} ${y_sign * (0.1285)/2 + y_sign * 0.10} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
-        <mass value="1.73" />
+        <mass value="1.31" />
         <inertia ixx="${1/12*1.31*(3*0.0875**2+0.1285**2)}" ixy="0.0" ixz="0.0"
                  iyy="${1/12*1.31*(3*0.0875**2+0.1285**2)}" iyz="0.0"
                  izz="${1/2*1.31*0.0875**2}" />
@@ -137,7 +137,7 @@
       <parent link="${prefix}_${position}_upper_roll_link" />
       <child link="${prefix}_${position}_upper_flex_link" />
       <origin xyz="-0.0510 ${y_sign * 0.1135} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 ${y_sign} 0.0" />
+      <axis xyz="0.0 -1.0 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
@@ -175,7 +175,7 @@
       <parent link="${prefix}_${position}_upper_roll_link" />
       <child link="${prefix}_${position}_upper_flex_sub_link" />
       <origin xyz="-0.0510 ${y_sign * (0.1135+0.0510)} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 ${y_sign} 0.0" />
+      <axis xyz="0.0 -1.0 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
@@ -194,14 +194,9 @@
     <joint name="${prefix}_${position}_elbow_joint" type="revolute" >
       <parent link="${prefix}_${position}_upper_flex_link" />
       <child link="${prefix}_${position}_elbow_link" />
-      <axis xyz="0.0 0.0 1.0" />
+      <axis xyz="0.0 0.0 ${y_sign * -1}" />
       <origin xyz="0.05495 ${y_sign * (0.28865-0.00765)} 0.0510" rpy="0.0 0.0 0.0" />
-      <xacro:if value="${position == 'right'}">
-        <limit lower="0.0" upper="${8/9 * M_PI}" effort="${10.6 * effort_ratio}" velocity="3.14" />
-      </xacro:if>
-      <xacro:unless value="${position == 'right'}">
-        <limit lower="${-8/9 * M_PI}" upper="0.0" effort="${10.6 * effort_ratio}" velocity="3.14" />
-      </xacro:unless>
+      <limit lower="0.0" upper="${8/9 * M_PI}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
     <link name="${prefix}_${position}_elbow_link" >
@@ -233,7 +228,7 @@
       <parent link="${prefix}_${position}_upper_flex_link" />
       <child link="${prefix}_${position}_elbow_sub_link" />
       <origin xyz="0.05495 ${y_sign * (0.28865-0.00765)} -0.0510" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 0.0 -1.0" />
+      <axis xyz="0.0 0.0 ${y_sign}" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
@@ -253,7 +248,7 @@
       <parent link="${prefix}_${position}_elbow_link" />
       <child link="${prefix}_${position}_lower_flex_link" />
       <origin xyz="0.0 ${y_sign * 0.107} -0.0510" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 ${y_sign* 1.0} 0.0" />
+      <axis xyz="0.0 -1.0 0.0" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
@@ -286,7 +281,7 @@
       <parent link="${prefix}_${position}_lower_flex_link" />
       <child link="${prefix}_${position}_wrist_tilt_link" />
       <origin xyz="0.0 ${y_sign * 0.443} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 0.0 1.0" />
+      <axis xyz="0.0 0.0 ${y_sign * -1}" />
       <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${4.1 * effort_ratio}" velocity="4.82" />
     </joint>
 
@@ -319,7 +314,7 @@
       <parent link="${prefix}_${position}_wrist_tilt_link" />
       <child link="${prefix}_${position}_wrist_roll_link" />
       <origin xyz="0.0 ${y_sign * 0.06648202} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 ${y_sign} 0.0" />
+      <axis xyz="0.0 -1.0 0.0" />
       <limit lower="${-M_PI}" upper="${M_PI}" effort="${4.1 * effort_ratio}" velocity="4.82" />
     </joint>
 
