@@ -248,13 +248,22 @@ Implemented interfaces in `sobit_home_library`:
    - `move_left_hand_to_pose`
 
 2. Services
-   - `get_hand_to_coord/left`
-   - `get_hand_to_coord/right`
+   - `get_hand_to_coord/left` — Analytical IK for the left arm. Accepts a target pose in any TF frame and returns joint angles, a success flag, and reachability hints.
+   - `get_hand_to_coord/right` — Analytical IK for the right arm. Same interface as left.
    - `get_hand_to_tf/left`
    - `get_hand_to_tf/right`
    - `get_head_to_coord`
    - `get_head_to_tf`
    - `get_finger_angle`
+
+   **Reachability hints (`move_pose`):** When the target is outside the arm workspace, the service returns `success=false` but still populates `move_pose` with the minimum robot adjustments needed to bring the target into reach:
+
+   | Field | Meaning |
+   | --- | --- |
+   | `position.x` | Base forward/backward shift (m); positive = drive forward |
+   | `position.y` | Reserved for future lateral base movement (always 0.0) |
+   | `position.z` | Body lift delta (m); positive = lift up, negative = lift down |
+   | `orientation` | Yaw to face the target |
 
 3. MoveIt interfaces (launched from `action_server.launch.py`)
    - Service: `plan_to_pose`
@@ -275,37 +284,39 @@ The joint names of SOBIT HOME and their constants are listed below.
 |  3 | arm_left_upper_roll_joint     | - |
 |  4 | arm_left_upper_flex_joint     | - |
 |  5 | arm_left_elbow_joint          | - |
-|  6 | arm_left_wrist_tilt_joint     | - |
-|  7 | arm_left_wrist_roll_joint     | - |
-|  8 | arm_right_shoulder_tilt_joint | - |
-|  9 | arm_right_upper_roll_joint    | - |
-| 10 | arm_right_upper_flex_joint    | - |
-| 11 | arm_right_elbow_joint         | - |
-| 12 | arm_right_wrist_tilt_joint    | - |
-| 13 | arm_right_wrist_roll_joint    | - |
-| 14 | hand_left_finger_l_mcp_joint  | - |
-| 15 | hand_left_finger_l_pip_joint  | - |
-| 16 | hand_left_finger_l_dip_joint  | - |
-| 17 | hand_left_finger_c_mcp_joint  | - |
-| 18 | hand_left_finger_c_ip_joint   | - |
-| 19 | hand_left_finger_r_pip_joint  | - |
-| 20 | hand_left_finger_r_dip_joint  | - |
-| 21 | hand_right_finger_l_mcp_joint | - |
-| 22 | hand_right_finger_l_pip_joint | - |
-| 23 | hand_right_finger_l_dip_joint | - |
-| 24 | hand_right_finger_c_mcp_joint | - |
-| 25 | hand_right_finger_c_ip_joint  | - |
-| 26 | hand_right_finger_r_pip_joint | - |
-| 27 | hand_right_finger_r_dip_joint | - |
-| 28 | body_lift_joint               | - |
-| 29 | wheel_steer_f_l_joint         | - |
-| 30 | wheel_steer_f_r_joint         | - |
-| 31 | wheel_steer_b_l_joint         | - |
-| 32 | wheel_steer_b_r_joint         | - |
-| 33 | wheel_drive_f_l_joint         | - |
-| 34 | wheel_drive_f_r_joint         | - |
-| 35 | wheel_drive_b_l_joint         | - |
-| 36 | wheel_drive_b_r_joint         | - |
+|  6 | arm_left_lower_flex_joint     | - |
+|  7 | arm_left_wrist_tilt_joint     | - |
+|  8 | arm_left_wrist_roll_joint     | - |
+|  9 | arm_right_shoulder_tilt_joint | - |
+| 10 | arm_right_upper_roll_joint    | - |
+| 11 | arm_right_upper_flex_joint    | - |
+| 12 | arm_right_elbow_joint         | - |
+| 13 | arm_right_lower_flex_joint    | - |
+| 14 | arm_right_wrist_tilt_joint    | - |
+| 15 | arm_right_wrist_roll_joint    | - |
+| 16 | hand_left_finger_l_mcp_joint  | - |
+| 17 | hand_left_finger_l_pip_joint  | - |
+| 18 | hand_left_finger_l_dip_joint  | - |
+| 19 | hand_left_finger_c_mcp_joint  | - |
+| 20 | hand_left_finger_c_ip_joint   | - |
+| 21 | hand_left_finger_r_pip_joint  | - |
+| 22 | hand_left_finger_r_dip_joint  | - |
+| 23 | hand_right_finger_l_mcp_joint | - |
+| 24 | hand_right_finger_l_pip_joint | - |
+| 25 | hand_right_finger_l_dip_joint | - |
+| 26 | hand_right_finger_c_mcp_joint | - |
+| 27 | hand_right_finger_c_ip_joint  | - |
+| 28 | hand_right_finger_r_pip_joint | - |
+| 29 | hand_right_finger_r_dip_joint | - |
+| 30 | body_lift_joint               | - |
+| 31 | wheel_steer_f_l_joint         | - |
+| 32 | wheel_steer_f_r_joint         | - |
+| 33 | wheel_steer_b_l_joint         | - |
+| 34 | wheel_steer_b_r_joint         | - |
+| 35 | wheel_drive_f_l_joint         | - |
+| 36 | wheel_drive_f_r_joint         | - |
+| 37 | wheel_drive_b_l_joint         | - |
+| 38 | wheel_drive_b_r_joint         | - |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -329,12 +340,14 @@ Poses can be added and edited in the file [pose_list.yaml](sobit_home_library/co
       arm_left_upper_roll     : 0.0
       arm_left_upper_flex     : 0.0
       arm_left_elbow          : 0.0
+      arm_left_lower_flex     : 0.0
       arm_left_wrist_tilt     : 0.0
       arm_left_wrist_roll     : 0.0
       arm_right_shoulder_tilt : 0.0
       arm_right_upper_roll    : 0.0
       arm_right_upper_flex    : 0.0
       arm_right_elbow         : 0.0
+      arm_right_lower_flex    : 0.0
       arm_right_wrist_tilt    : 0.0
       arm_right_wrist_roll    : 0.0
 ...
