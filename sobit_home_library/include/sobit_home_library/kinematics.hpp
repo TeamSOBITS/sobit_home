@@ -52,8 +52,9 @@ namespace sobit_home
     static constexpr double ZR   =  0.9465;
     static constexpr double ZPhi = -1.5117;
 
-    // Workspace x bounds (absolute, from FK sampling at joint limits)
-    static constexpr double WS_X_MIN = 0.326;
+    // Workspace x bounds (IK-solver reachable, with wrist-forward constraint)
+    // Probed minimum across all z: ~0.58 at z=+0.2. Use 0.56 as lower bound with margin.
+    static constexpr double WS_X_MIN = 0.560;
     static constexpr double WS_X_MAX = 1.323;
 
     // Workspace z bounds (absolute, from FK sampling at joint limits)
