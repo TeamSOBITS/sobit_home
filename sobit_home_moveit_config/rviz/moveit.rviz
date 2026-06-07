@@ -60,11 +60,19 @@ Visualization Manager:
           Value: false
         arm_left_elbow_link:
           Value: false
+        arm_left_elbow_sub_link:
+          Value: false
+        arm_left_lower_flex_link:
+          Value: false
         arm_left_shoulder_tilt_link:
           Value: false
         arm_left_upper_flex_link:
           Value: false
+        arm_left_upper_flex_sub_link:
+          Value: false
         arm_left_upper_roll_link:
+          Value: false
+        arm_left_upper_roll_sub_link:
           Value: false
         arm_left_wrist_roll_link:
           Value: false
@@ -74,11 +82,19 @@ Visualization Manager:
           Value: false
         arm_right_elbow_link:
           Value: false
+        arm_right_elbow_sub_link:
+          Value: false
+        arm_right_lower_flex_link:
+          Value: false
         arm_right_shoulder_tilt_link:
           Value: false
         arm_right_upper_flex_link:
           Value: false
+        arm_right_upper_flex_sub_link:
+          Value: false
         arm_right_upper_roll_link:
+          Value: false
+        arm_right_upper_roll_sub_link:
           Value: false
         arm_right_wrist_roll_link:
           Value: false
@@ -146,42 +162,32 @@ Visualization Manager:
           Value: false
         head_base_link:
           Value: false
-        head_camera_base_link:
+        head_camera_IMU_frame:
           Value: false
-        head_camera_bottom_screw_frame:
+        head_camera_base_link:
           Value: false
         head_camera_color_frame:
           Value: false
         head_camera_color_optical_frame:
           Value: true
+        head_camera_color_screw_frame:
+          Value: false
         head_camera_depth_frame:
           Value: false
-        head_camera_depth_optical_frame:
-          Value: true
-        head_camera_infra2_frame:
+        head_camera_left_ir_frame:
           Value: false
-        head_camera_infra2_optical_frame:
+        head_camera_left_ir_optical_frame:
           Value: false
-        head_camera_infra_1_frame:
+        head_camera_link:
           Value: false
-        head_camera_infra_1_optical_frame:
+        head_camera_right_ir_frame:
+          Value: false
+        head_camera_right_ir_optical_frame:
           Value: false
         head_pan_link:
           Value: false
-        head_plug_base_link:
-          Value: false
         head_tilt_link:
           Value: false
-        hmd_link:
-          Value: true
-        hmd_odom:
-          Value: true
-        left_controller_link:
-          Value: true
-        left_controller_odom:
-          Value: true
-        left_target_link:
-          Value: true
         lidar_back_base_link:
           Value: false
         lidar_back_laser:
@@ -210,12 +216,6 @@ Visualization Manager:
           Value: false
         plate_top_link:
           Value: false
-        right_controller_link:
-          Value: true
-        right_controller_odom:
-          Value: true
-        right_target_link:
-          Value: true
         wheel_drive_b_l_link:
           Value: false
         wheel_drive_b_r_link:
@@ -246,135 +246,128 @@ Visualization Manager:
       Show Axes: true
       Show Names: false
       Tree:
-        base_footprint:
-          base_link:
-            plate_middle_link:
-              lidar_back_base_link:
-                lidar_back_laser_mount:
-                  lidar_back_laser:
-                    {}
-              lidar_front_base_link:
-                lidar_front_laser_mount:
-                  lidar_front_laser:
-                    {}
-              plate_bottom_link:
-                {}
-              plate_top_link:
-                body_link:
-                  body_lift_link:
-                    arm_left_base_link:
-                      arm_left_shoulder_tilt_link:
-                        arm_left_upper_roll_link:
-                          arm_left_upper_flex_link:
-                            arm_left_elbow_link:
-                              arm_left_wrist_tilt_link:
-                                arm_left_wrist_roll_link:
-                                  hand_left_camera_base_link:
-                                    hand_left_camera_link:
-                                      hand_left_camera_optical_frame:
-                                        {}
-                                  hand_left_cmc_link:
-                                    hand_left_finger_c_mcp_link:
-                                      hand_left_finger_c_ip_link:
-                                        {}
-                                    hand_left_finger_l_mcp_link:
-                                      hand_left_finger_l_pip_link:
-                                        hand_left_finger_l_dip_link:
-                                          {}
-                                    hand_left_finger_r_mcp_link:
-                                      hand_left_finger_r_pip_link:
-                                        hand_left_finger_r_dip_link:
-                                          {}
-                                  hand_left_end_effector_link:
-                                    {}
-                    arm_right_base_link:
-                      arm_right_shoulder_tilt_link:
-                        arm_right_upper_roll_link:
-                          arm_right_upper_flex_link:
-                            arm_right_elbow_link:
-                              arm_right_wrist_tilt_link:
-                                arm_right_wrist_roll_link:
-                                  hand_right_camera_base_link:
-                                    hand_right_camera_link:
-                                      hand_right_camera_optical_frame:
-                                        {}
-                                  hand_right_cmc_link:
-                                    hand_right_finger_c_mcp_link:
-                                      hand_right_finger_c_ip_link:
-                                        {}
-                                    hand_right_finger_l_mcp_link:
-                                      hand_right_finger_l_pip_link:
-                                        hand_right_finger_l_dip_link:
-                                          {}
-                                    hand_right_finger_r_mcp_link:
-                                      hand_right_finger_r_pip_link:
-                                        hand_right_finger_r_dip_link:
-                                          {}
-                                  hand_right_end_effector_link:
-                                    {}
-                    head_base_link:
-                      head_pan_link:
-                        head_tilt_link:
-                          head_camera_base_link:
-                            head_plug_base_link:
-                              head_camera_bottom_screw_frame:
-                                head_camera_color_frame:
-                                  {}
-                                head_camera_color_optical_frame:
-                                  {}
-                                head_camera_depth_frame:
-                                  {}
-                                head_camera_depth_optical_frame:
-                                  {}
-                                head_camera_infra2_frame:
-                                  {}
-                                head_camera_infra2_optical_frame:
-                                  {}
-                                head_camera_infra_1_frame:
-                                  {}
-                                head_camera_infra_1_optical_frame:
-                                  {}
-                          mic_base_link:
-                            mic_link:
-                              {}
-              wheel_steer_base_b_l_link:
-                wheel_steer_b_l_link:
-                  wheel_drive_b_l_link:
-                    {}
-              wheel_steer_base_b_r_link:
-                wheel_steer_b_r_link:
-                  wheel_drive_b_r_link:
-                    {}
-              wheel_steer_base_f_l_link:
-                wheel_steer_f_l_link:
-                  wheel_drive_f_l_link:
-                    {}
-              wheel_steer_base_f_r_link:
-                wheel_steer_f_r_link:
-                  wheel_drive_f_r_link:
-                    {}
-          hmd_link:
-            {}
-          hmd_odom:
-            {}
-          left_controller_link:
-            {}
-          left_controller_odom:
-            {}
-          left_target_link:
-            {}
-          lidar_merged_laser:
-            {}
-          plate_cover_link:
-            {}
-          right_controller_link:
-            {}
-          right_controller_odom:
-            {}
-          right_target_link:
-            {}
         odom:
-          {}
+          base_footprint:
+            base_link:
+              plate_middle_link:
+                lidar_back_base_link:
+                  lidar_back_laser_mount:
+                    lidar_back_laser:
+                      {}
+                lidar_front_base_link:
+                  lidar_front_laser_mount:
+                    lidar_front_laser:
+                      {}
+                plate_bottom_link:
+                  {}
+                plate_top_link:
+                  body_link:
+                    body_lift_link:
+                      arm_left_base_link:
+                        arm_left_shoulder_tilt_link:
+                          arm_left_upper_roll_link:
+                            arm_left_upper_flex_link:
+                              arm_left_elbow_link:
+                                arm_left_lower_flex_link:
+                                  arm_left_wrist_tilt_link:
+                                    arm_left_wrist_roll_link:
+                                      hand_left_camera_base_link:
+                                        hand_left_camera_link:
+                                          hand_left_camera_optical_frame:
+                                            {}
+                                      hand_left_cmc_link:
+                                        hand_left_finger_c_mcp_link:
+                                          hand_left_finger_c_ip_link:
+                                            {}
+                                        hand_left_finger_l_mcp_link:
+                                          hand_left_finger_l_pip_link:
+                                            hand_left_finger_l_dip_link:
+                                              {}
+                                        hand_left_finger_r_mcp_link:
+                                          hand_left_finger_r_pip_link:
+                                            hand_left_finger_r_dip_link:
+                                              {}
+                                      hand_left_end_effector_link:
+                                        {}
+                              arm_left_elbow_sub_link:
+                                {}
+                            arm_left_upper_flex_sub_link:
+                              {}
+                          arm_left_upper_roll_sub_link:
+                            {}
+                      arm_right_base_link:
+                        arm_right_shoulder_tilt_link:
+                          arm_right_upper_roll_link:
+                            arm_right_upper_flex_link:
+                              arm_right_elbow_link:
+                                arm_right_lower_flex_link:
+                                  arm_right_wrist_tilt_link:
+                                    arm_right_wrist_roll_link:
+                                      hand_right_camera_base_link:
+                                        hand_right_camera_link:
+                                          hand_right_camera_optical_frame:
+                                            {}
+                                      hand_right_cmc_link:
+                                        hand_right_finger_c_mcp_link:
+                                          hand_right_finger_c_ip_link:
+                                            {}
+                                        hand_right_finger_l_mcp_link:
+                                          hand_right_finger_l_pip_link:
+                                            hand_right_finger_l_dip_link:
+                                              {}
+                                        hand_right_finger_r_mcp_link:
+                                          hand_right_finger_r_pip_link:
+                                            hand_right_finger_r_dip_link:
+                                              {}
+                                      hand_right_end_effector_link:
+                                        {}
+                              arm_right_elbow_sub_link:
+                                {}
+                            arm_right_upper_flex_sub_link:
+                              {}
+                          arm_right_upper_roll_sub_link:
+                            {}
+                      head_base_link:
+                        head_pan_link:
+                          head_tilt_link:
+                            head_camera_base_link:
+                              head_camera_color_screw_frame:
+                                head_camera_link:
+                                  head_camera_depth_frame:
+                                    head_camera_IMU_frame:
+                                      {}
+                                    head_camera_color_frame:
+                                      head_camera_color_optical_frame:
+                                        {}
+                                    head_camera_left_ir_frame:
+                                      head_camera_left_ir_optical_frame:
+                                        {}
+                                    head_camera_right_ir_frame:
+                                      head_camera_right_ir_optical_frame:
+                                        {}
+                            mic_base_link:
+                              mic_link:
+                                {}
+                wheel_steer_base_b_l_link:
+                  wheel_steer_b_l_link:
+                    wheel_drive_b_l_link:
+                      {}
+                wheel_steer_base_b_r_link:
+                  wheel_steer_b_r_link:
+                    wheel_drive_b_r_link:
+                      {}
+                wheel_steer_base_f_l_link:
+                  wheel_steer_f_l_link:
+                    wheel_drive_f_l_link:
+                      {}
+                wheel_steer_base_f_r_link:
+                  wheel_steer_f_r_link:
+                    wheel_drive_f_r_link:
+                      {}
+            lidar_merged_laser:
+              {}
+            plate_cover_link:
+              {}
       Update Interval: 0
       Value: true
     - Acceleration_Scaling_Factor: 0.1
@@ -418,6 +411,15 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          arm_left_elbow_sub_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          arm_left_lower_flex_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           arm_left_shoulder_tilt_link:
             Alpha: 1
             Show Axes: false
@@ -428,11 +430,19 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          arm_left_upper_flex_sub_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           arm_left_upper_roll_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
+          arm_left_upper_roll_sub_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           arm_left_wrist_roll_link:
             Alpha: 1
             Show Axes: false
@@ -453,6 +463,15 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          arm_right_elbow_sub_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          arm_right_lower_flex_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           arm_right_shoulder_tilt_link:
             Alpha: 1
             Show Axes: false
@@ -463,11 +482,19 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          arm_right_upper_flex_sub_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           arm_right_upper_roll_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
+          arm_right_upper_roll_sub_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           arm_right_wrist_roll_link:
             Alpha: 1
             Show Axes: false
@@ -519,7 +546,6 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
           hand_left_finger_c_ip_link:
             Alpha: 1
             Show Axes: false
@@ -583,7 +609,6 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
           hand_right_finger_c_ip_link:
             Alpha: 1
             Show Axes: false
@@ -629,21 +654,23 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          head_camera_IMU_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           head_camera_base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          head_camera_bottom_screw_frame:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           head_camera_color_frame:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
           head_camera_color_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          head_camera_color_screw_frame:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -652,38 +679,28 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
-          head_camera_depth_optical_frame:
+          head_camera_left_ir_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          head_camera_left_ir_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          head_camera_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          head_camera_infra2_frame:
+          head_camera_right_ir_frame:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
-          head_camera_infra2_optical_frame:
+          head_camera_right_ir_optical_frame:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
-          head_camera_infra_1_frame:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          head_camera_infra_1_optical_frame:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           head_pan_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          head_plug_base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -871,6 +888,15 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          arm_left_elbow_sub_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          arm_left_lower_flex_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           arm_left_shoulder_tilt_link:
             Alpha: 1
             Show Axes: false
@@ -881,11 +907,19 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          arm_left_upper_flex_sub_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           arm_left_upper_roll_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
+          arm_left_upper_roll_sub_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           arm_left_wrist_roll_link:
             Alpha: 1
             Show Axes: false
@@ -906,6 +940,15 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          arm_right_elbow_sub_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          arm_right_lower_flex_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           arm_right_shoulder_tilt_link:
             Alpha: 1
             Show Axes: false
@@ -916,11 +959,19 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          arm_right_upper_flex_sub_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           arm_right_upper_roll_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
+          arm_right_upper_roll_sub_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           arm_right_wrist_roll_link:
             Alpha: 1
             Show Axes: false
@@ -972,7 +1023,6 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
           hand_left_finger_c_ip_link:
             Alpha: 1
             Show Axes: false
@@ -1036,7 +1086,6 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
           hand_right_finger_c_ip_link:
             Alpha: 1
             Show Axes: false
@@ -1082,21 +1131,23 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          head_camera_IMU_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           head_camera_base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          head_camera_bottom_screw_frame:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           head_camera_color_frame:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
           head_camera_color_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          head_camera_color_screw_frame:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -1105,38 +1156,28 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
-          head_camera_depth_optical_frame:
+          head_camera_left_ir_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          head_camera_left_ir_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          head_camera_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          head_camera_infra2_frame:
+          head_camera_right_ir_frame:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
-          head_camera_infra2_optical_frame:
+          head_camera_right_ir_optical_frame:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
-          head_camera_infra_1_frame:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          head_camera_infra_1_optical_frame:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           head_pan_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          head_plug_base_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false

@@ -12,15 +12,6 @@ moveit_simple_controller_manager:
     - body_position_controller
     - mobile_base_controller
 
-  mobile_base_controller:
-    type: FollowJointTrajectory
-    joints:
-      - virtual_base_joint/x
-      - virtual_base_joint/y
-      - virtual_base_joint/theta
-    action_ns: follow_joint_trajectory
-    default: true
-
   head_position_controller:
     type: FollowJointTrajectory
     joints:
@@ -28,7 +19,6 @@ moveit_simple_controller_manager:
       - head_tilt_joint
     action_ns: follow_joint_trajectory
     default: true
-
   arm_left_position_controller:
     type: FollowJointTrajectory
     joints:
@@ -36,11 +26,11 @@ moveit_simple_controller_manager:
       - arm_left_upper_roll_joint
       - arm_left_upper_flex_joint
       - arm_left_elbow_joint
+      - arm_left_lower_flex_joint
       - arm_left_wrist_tilt_joint
       - arm_left_wrist_roll_joint
     action_ns: follow_joint_trajectory
     default: true
-
   arm_right_position_controller:
     type: FollowJointTrajectory
     joints:
@@ -48,11 +38,11 @@ moveit_simple_controller_manager:
       - arm_right_upper_roll_joint
       - arm_right_upper_flex_joint
       - arm_right_elbow_joint
+      - arm_right_lower_flex_joint
       - arm_right_wrist_tilt_joint
       - arm_right_wrist_roll_joint
     action_ns: follow_joint_trajectory
     default: true
-
   hand_left_position_controller:
     type: FollowJointTrajectory
     joints:
@@ -65,7 +55,6 @@ moveit_simple_controller_manager:
       - hand_left_finger_r_dip_joint
     action_ns: follow_joint_trajectory
     default: true
-
   hand_right_position_controller:
     type: FollowJointTrajectory
     joints:
@@ -78,10 +67,17 @@ moveit_simple_controller_manager:
       - hand_right_finger_r_dip_joint
     action_ns: follow_joint_trajectory
     default: true
-
   body_position_controller:
     type: FollowJointTrajectory
     joints:
       - body_lift_joint
+    action_ns: follow_joint_trajectory
+    default: true
+  mobile_base_controller:
+    type: FollowJointTrajectory
+    joints:
+      - virtual_base_joint/x
+      - virtual_base_joint/y
+      - virtual_base_joint/theta
     action_ns: follow_joint_trajectory
     default: true

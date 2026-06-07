@@ -158,6 +158,7 @@ namespace sobit_home
       declare_parameter(pose_name + ".arm_right_upper_roll", 0.0);
       declare_parameter(pose_name + ".arm_right_upper_flex", 0.0);
       declare_parameter(pose_name + ".arm_right_elbow", 0.0);
+      declare_parameter(pose_name + ".arm_right_lower_flex", 0.0);
       declare_parameter(pose_name + ".arm_right_wrist_tilt", 0.0);
       declare_parameter(pose_name + ".arm_right_wrist_roll", 0.0);
 
@@ -173,6 +174,7 @@ namespace sobit_home
       declare_parameter(pose_name + ".arm_left_upper_roll", 0.0);
       declare_parameter(pose_name + ".arm_left_upper_flex", 0.0);
       declare_parameter(pose_name + ".arm_left_elbow", 0.0);
+      declare_parameter(pose_name + ".arm_left_lower_flex", 0.0);
       declare_parameter(pose_name + ".arm_left_wrist_tilt", 0.0);
       declare_parameter(pose_name + ".arm_left_wrist_roll", 0.0);
 
@@ -199,6 +201,7 @@ namespace sobit_home
       p.arm_right_upper_roll    = get("arm_right_upper_roll");
       p.arm_right_upper_flex    = get("arm_right_upper_flex");
       p.arm_right_elbow         = get("arm_right_elbow");
+      p.arm_right_lower_flex    = get("arm_right_lower_flex");
       p.arm_right_wrist_tilt    = get("arm_right_wrist_tilt");
       p.arm_right_wrist_roll    = get("arm_right_wrist_roll");
 
@@ -214,6 +217,7 @@ namespace sobit_home
       p.arm_left_upper_roll    = get("arm_left_upper_roll");
       p.arm_left_upper_flex    = get("arm_left_upper_flex");
       p.arm_left_elbow         = get("arm_left_elbow");
+      p.arm_left_lower_flex    = get("arm_left_lower_flex");
       p.arm_left_wrist_tilt    = get("arm_left_wrist_tilt");
       p.arm_left_wrist_roll    = get("arm_left_wrist_roll");
 
@@ -364,8 +368,8 @@ namespace sobit_home
       rads.insert(rads.end(), r.begin(), r.end());
     };
 
-    add(JointNamesArmRight, {it->arm_right_shoulder_tilt, it->arm_right_upper_roll, it->arm_right_upper_flex, it->arm_right_elbow, it->arm_right_wrist_tilt, it->arm_right_wrist_roll});
-    add(JointNamesArmLeft,  {it->arm_left_shoulder_tilt,  it->arm_left_upper_roll,  it->arm_left_upper_flex,  it->arm_left_elbow,  it->arm_left_wrist_tilt,  it->arm_left_wrist_roll});
+    add(JointNamesArmRight, {it->arm_right_shoulder_tilt, it->arm_right_upper_roll, it->arm_right_upper_flex, it->arm_right_elbow, it->arm_right_lower_flex, it->arm_right_wrist_tilt, it->arm_right_wrist_roll});
+    add(JointNamesArmLeft,  {it->arm_left_shoulder_tilt,  it->arm_left_upper_roll,  it->arm_left_upper_flex,  it->arm_left_elbow, it->arm_left_lower_flex,  it->arm_left_wrist_tilt,  it->arm_left_wrist_roll});
     add(JointNamesBody,     {it->body_lift});
     add(JointNamesHead,     {it->head_pan, it->head_tilt});
 
@@ -501,14 +505,29 @@ namespace sobit_home
       return;
     }
 
-    const auto rads = kinematics_->inverse_kinematics(goal_in_lift, is_right);
-    if (rads.empty()) {
+    auto rads = kinematics_->inverse_kinematics(goal_in_lift, is_right);
+
+    // Always compute move_pose: base shift needed to reach (or already at) target
+    response->move_pose = kinematics_->forward_kinematics(rads, goal_in_base, goal_in_lift, is_right);
+
+    if (rads.empty())
+    {
       response->success = false;
-      response->message = "Target unreachable.";
+      const double dx = response->move_pose.position.x;
+      const double dz = response->move_pose.position.z;
+      std::string msg = "Target unreachable:";
+      if (std::abs(dz) > 0.001)
+        msg += " adjust lift " + std::to_string(std::abs(dz)) + " m " +
+               (dz > 0 ? "up" : "down") + ";";
+      if (std::abs(dx) > 0.001)
+        msg += " drive base " + std::to_string(std::abs(dx)) + " m " +
+               (dx > 0 ? "forward" : "backward") + ";";
+      if (std::abs(dx) < 0.001 && std::abs(dz) < 0.001)
+        msg += " out of workspace.";
+      response->message = msg;
       return;
     }
 
-    response->move_pose          = kinematics_->forward_kinematics(rads, goal_in_base, is_right);
     response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
     response->target_joint_rad   = rads;
     response->success            = true;
@@ -550,7 +569,7 @@ namespace sobit_home
       return;
     }
 
-    response->move_pose          = kinematics_->forward_kinematics(rads, goal_in_base, is_right);
+    response->move_pose          = kinematics_->forward_kinematics(rads, goal_in_base, goal_in_lift, is_right);
     response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
     response->target_joint_rad   = rads;
     response->success            = true;

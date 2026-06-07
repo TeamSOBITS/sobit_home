@@ -17,7 +17,7 @@ def generate_launch_description():
         DeclareLaunchArgument('robot_id',                   default_value='0'),
         DeclareLaunchArgument('world_model',                default_value='rcjo2026_arena',
                               description='empty | wrs | small_house | rcjo2025_arena | rcjo2026_arena | simple_data_collection'),
-        DeclareLaunchArgument('robot_coords_x',             default_value='-5.5'),
+        DeclareLaunchArgument('robot_coords_x',             default_value='-6.0'),
         DeclareLaunchArgument('robot_coords_y',             default_value='1.5'),
         DeclareLaunchArgument('robot_coords_z',             default_value='0.0'),
         DeclareLaunchArgument('robot_coords_Y',             default_value='0.0'),
