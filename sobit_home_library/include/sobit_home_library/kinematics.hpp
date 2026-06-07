@@ -5,6 +5,7 @@
 #include <string>
 #include <cmath>
 #include <algorithm>
+#include <limits>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <tf2/LinearMath/Quaternion.h>
@@ -20,6 +21,7 @@ namespace sobit_home
     geometry_msgs::msg::Pose forward_kinematics(
         const std::vector<double> &joint_angles_rad,
         const geometry_msgs::msg::TransformStamped &base_target_tf,
+        const geometry_msgs::msg::TransformStamped &lift_target_tf,
         const bool is_right);
 
     std::vector<double> inverse_kinematics(
@@ -50,6 +52,18 @@ namespace sobit_home
     static constexpr double ZR   =  0.9465;
     static constexpr double ZPhi = -1.5117;
 
+    // Workspace x bounds (absolute, from FK sampling at joint limits)
+    static constexpr double WS_X_MIN = 0.326;
+    static constexpr double WS_X_MAX = 1.323;
+
+    // Workspace z bounds (absolute, from FK sampling at joint limits)
+    static constexpr double WS_Z_MIN = -0.944;
+    static constexpr double WS_Z_MAX =  0.948;
+
+    // Body lift joint range [m]
+    static constexpr double LIFT_MIN = 0.0;
+    static constexpr double LIFT_MAX = 0.69;
+
     // Forward kinematics (XZ only): returns (EE_x, EE_z) in body_lift_link.
     // wrist_tilt is implicitly π/2 - st - el.
     static void fk_xz(double st, double el, double &x_out, double &z_out);
@@ -62,6 +76,10 @@ namespace sobit_home
 
     // Multi-seed 2-DOF IK solver.
     static bool ik_solve(double tx, double tz, double &st_out, double &el_out);
+
+    // Returns minimum base x-shift (dx) to bring (tx,tz) into IK workspace.
+    // Positive dx = drive forward. Returns false if tz is out of z range.
+    static bool base_shift_for_reachability(double tx, double tz, double &dx_out);
   };
 }
 #endif

@@ -479,14 +479,27 @@ namespace sobit_home
 
     auto rads = kinematics_->inverse_kinematics(goal_in_lift, is_right);
 
+    // Always compute move_pose: base shift needed to reach (or already at) target
+    response->move_pose = kinematics_->forward_kinematics(rads, goal_in_base, goal_in_lift, is_right);
+
     if (rads.empty())
     {
       response->success = false;
-      response->message = "Target unreachable.";
+      const double dx = response->move_pose.position.x;
+      const double dz = response->move_pose.position.z;
+      std::string msg = "Target unreachable:";
+      if (std::abs(dz) > 0.001)
+        msg += " adjust lift " + std::to_string(std::abs(dz)) + " m " +
+               (dz > 0 ? "up" : "down") + ";";
+      if (std::abs(dx) > 0.001)
+        msg += " drive base " + std::to_string(std::abs(dx)) + " m " +
+               (dx > 0 ? "forward" : "backward") + ";";
+      if (std::abs(dx) < 0.001 && std::abs(dz) < 0.001)
+        msg += " out of workspace.";
+      response->message = msg;
       return;
     }
 
-    response->move_pose = kinematics_->forward_kinematics(rads, goal_in_base, is_right);
     response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
     response->target_joint_rad = rads;
     response->success = true;
@@ -530,7 +543,7 @@ namespace sobit_home
       return;
     }
 
-    response->move_pose = kinematics_->forward_kinematics(rads, goal_in_base, is_right);
+    response->move_pose = kinematics_->forward_kinematics(rads, goal_in_base, goal_in_lift, is_right);
     response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
     response->target_joint_rad = rads;
     response->success = true;
