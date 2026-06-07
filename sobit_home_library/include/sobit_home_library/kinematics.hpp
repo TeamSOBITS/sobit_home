@@ -29,10 +29,23 @@ namespace sobit_home
     std::vector<double> look_at(const geometry_msgs::msg::TransformStamped &target_tf);
 
   private:
-    static constexpr double BaseToShoulderDY = 0.278;
-    static constexpr double LengthShoulderElbow = 0.398;
-    static constexpr double LengthElbowWrist = 0.566;
-    static constexpr double LengthHand = 0.18;
+    // Y-offset from body_lift_link origin to the right-arm shoulder pivot.
+    static constexpr double BaseToShoulderDY = 0.205;
+
+    // X-reach of the arm when upper_roll=-π/2 and shoulder_tilt=π/2 (arm straight forward).
+    static constexpr double ArmReachX = 1.319;
+
+    // Empirical EE_z model: EE_z = ZA + ZB*sin(st) + ZC*cos(st)
+    // Fit from 9-point Gazebo sweep. Both arms use upper_roll=-π/2 and positive
+    // shoulder_tilt. Constants are nearly identical for both arms.
+    // ZR = sqrt(ZB²+ZC²), ZPhi = atan2(ZC,ZB)  →  EE_z = ZA + ZR*sin(st + ZPhi)
+    // Invert: st = arcsin((tz - ZA) / ZR) - ZPhi
+    // wrist_tilt = π/2 - st keeps hand_*_end_effector_link local X = body +X.
+    static constexpr double ZA   = -0.0006;
+    static constexpr double ZB   =  0.0559;
+    static constexpr double ZC   = -0.9448;
+    static constexpr double ZR   =  0.9465;
+    static constexpr double ZPhi = -1.5117;
   };
 }
 #endif

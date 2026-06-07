@@ -5,97 +5,70 @@ namespace sobit_home
 
   Kinematics::Kinematics() {}
 
+  // Returns the wheel-drive pose (forward distance + yaw) needed for the mobile base.
+  // joint_angles_rad layout: [shoulder_tilt, upper_roll, upper_flex, elbow,
+  //                            lower_flex, wrist_tilt, wrist_roll]
   geometry_msgs::msg::Pose Kinematics::forward_kinematics(
-      const std::vector<double> &joint_angles_rad,
+      const std::vector<double> & /*joint_angles_rad*/,
       const geometry_msgs::msg::TransformStamped &base_target_tf,
       const bool is_right)
   {
-
     geometry_msgs::msg::Pose diff_pose;
-    const double side_sign = is_right ? 1.0 : -1.0;
-    const double shoulder_y = side_sign * -BaseToShoulderDY;
-
-    const double s_tilt = joint_angles_rad.at(0) * side_sign;
-    const double e_flex = joint_angles_rad.at(3) * side_sign;
-    const double w_tilt = joint_angles_rad.at(4);
-
-    const double arm_reach_x = LengthShoulderElbow * std::sin(s_tilt)
-                            + LengthElbowWrist    * std::sin(s_tilt + e_flex)
-                            + LengthHand          * std::sin(s_tilt + e_flex + w_tilt);
+    const double side_sign  = is_right ? 1.0 : -1.0;
+    const double shoulder_y = side_sign * BaseToShoulderDY;
 
     const double tx = base_target_tf.transform.translation.x;
     const double ty = base_target_tf.transform.translation.y;
 
-    const double diff_yaw = std::atan2(ty - shoulder_y, tx);
+    // Yaw robot to face the target, then drive until arm reach aligns.
+    const double diff_yaw       = std::atan2(ty - shoulder_y, tx);
     const double dist_to_target = std::hypot(tx, ty - shoulder_y);
-    const double forward_dist = dist_to_target - arm_reach_x;
+    const double forward_dist   = dist_to_target - ArmReachX;
 
     tf2::Quaternion q;
     q.setRPY(0.0, 0.0, diff_yaw);
 
     diff_pose.orientation = tf2::toMsg(q);
-    diff_pose.position.x = forward_dist;
-    diff_pose.position.y = 0.0;
-    diff_pose.position.z = base_target_tf.transform.translation.z;
+    diff_pose.position.x  = forward_dist;
+    diff_pose.position.y  = 0.0;
+    diff_pose.position.z  = base_target_tf.transform.translation.z;
 
     return diff_pose;
   }
 
+  // Inverse kinematics for right or left arm.
+  //
+  // Both arms use upper_roll=-π/2 and positive shoulder_tilt to sweep the EE in
+  // the body X-Z plane (y fixed at ±0.305). The EE_z model is identical for both arms:
+  //   EE_z = ZA + ZB*sin(st) + ZC*cos(st)
+  // Invert: st = arcsin((tz - ZA) / ZR) - ZPhi
+  // wrist_tilt = π/2 - st keeps hand_*_end_effector_link local X = body +X.
+  //
+  // Returns [shoulder_tilt, upper_roll, upper_flex, elbow, lower_flex, wrist_tilt, wrist_roll]
   std::vector<double> Kinematics::inverse_kinematics(
       const geometry_msgs::msg::TransformStamped &lift_target_tf,
-      const bool is_right)
+      const bool /*is_right*/)
   {
+    const double tz = lift_target_tf.transform.translation.z;
 
-    const double target_z = lift_target_tf.transform.translation.z;
-    const double side_sign = is_right ? 1.0 : -1.0;
-    const double upper_arm_roll = M_PI_2 * side_sign;
-
-    if (target_z > LengthElbowWrist || target_z < -(LengthShoulderElbow + LengthElbowWrist))
-    {
+    const double arg = (tz - ZA) / ZR;
+    if (std::abs(arg) > 1.0)
       return {};
-    }
 
-    double s_tilt = 0.0;
-    double e_flex = 0.0;
+    const double shoulder_tilt = std::asin(arg) - ZPhi;   // always positive
+    const double upper_roll    = -M_PI_2;                  // same for both arms
+    const double wrist_tilt    = M_PI_2 - shoulder_tilt;  // keeps EE local X = body +X
 
-    if (target_z >= 0.0)
-    {
-      s_tilt = M_PI_2 * side_sign;
-      e_flex = std::asin(target_z / LengthElbowWrist) * side_sign;
-    }
-    else
-    {
-      const double L1 = LengthShoulderElbow;
-      const double L2 = LengthElbowWrist;
-      const double horiz_dist = LengthElbowWrist + LengthHand;
-      const double vert_dist = target_z;
-
-      const double dist_sq = std::pow(horiz_dist, 2) + std::pow(vert_dist, 2);
-      const double dist = std::sqrt(dist_sq);
-
-      const double cos_v = (dist_sq + std::pow(L1, 2) - std::pow(L2, 2)) / (2.0 * L1 * dist);
-      const double theta1 = -std::acos(std::clamp(cos_v, -1.0, 1.0)) + std::atan2(vert_dist, horiz_dist);
-      const double theta2 = std::atan2(vert_dist - L1 * std::sin(theta1), horiz_dist - L1 * std::cos(theta1)) - theta1;
-
-      s_tilt = (theta1 + M_PI_2) * side_sign;
-      e_flex = theta2 * side_sign;
-    }
-
-    const double w_tilt = -(s_tilt + e_flex) + (M_PI_2 * side_sign);
-
-    return {s_tilt, upper_arm_roll, 0.0, e_flex, w_tilt, 0.0};
+    return {shoulder_tilt, upper_roll, 0.0, 0.0, 0.0, wrist_tilt, 0.0};
   }
 
   std::vector<double> Kinematics::look_at(
       const geometry_msgs::msg::TransformStamped &target_tf)
   {
-
     const double tx = target_tf.transform.translation.x;
     const double ty = target_tf.transform.translation.y;
     const double tz = target_tf.transform.translation.z;
-
-    const double ground_dist = std::hypot(tx, ty);
-
-    return {std::atan2(ty, tx), std::atan2(tz, ground_dist)};
+    return {std::atan2(ty, tx), std::atan2(tz, std::hypot(tx, ty))};
   }
-}
+
+} // namespace sobit_home
