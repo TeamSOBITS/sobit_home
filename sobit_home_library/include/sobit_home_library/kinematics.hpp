@@ -35,17 +35,33 @@ namespace sobit_home
     // X-reach of the arm when upper_roll=-π/2 and shoulder_tilt=π/2 (arm straight forward).
     static constexpr double ArmReachX = 1.319;
 
-    // Empirical EE_z model: EE_z = ZA + ZB*sin(st) + ZC*cos(st)
-    // Fit from 9-point Gazebo sweep. Both arms use upper_roll=-π/2 and positive
-    // shoulder_tilt. Constants are nearly identical for both arms.
-    // ZR = sqrt(ZB²+ZC²), ZPhi = atan2(ZC,ZB)  →  EE_z = ZA + ZR*sin(st + ZPhi)
-    // Invert: st = arcsin((tz - ZA) / ZR) - ZPhi
-    // wrist_tilt = π/2 - st keeps hand_*_end_effector_link local X = body +X.
+    // Analytical planar FK constants (derived from URDF, right arm, upper_roll=-π/2):
+    //   EE_x = C0 + L1*cos(st + Phi0) + Lf*sin(st + el)
+    //   EE_z =      L1*sin(st + Phi0) - Lf*cos(st + el)
+    // where wrist_tilt = π/2 - st - el (keeps EE pointing +X).
+    // Both arms are symmetric in XZ, so constants are arm-independent.
+    static constexpr double IK_L1   =  0.39830861;  // shoulder pivot to elbow joint
+    static constexpr double IK_Phi0 = -1.43239657;  // structural angle offset (rad)
+    static constexpr double IK_C0   =  0.37448200;  // x-offset constant
+    static constexpr double IK_Lf   =  0.55000000;  // elbow-to-EE forearm length
+
+    // Z-seed model constants (used for initial guess only)
     static constexpr double ZA   = -0.0006;
-    static constexpr double ZB   =  0.0559;
-    static constexpr double ZC   = -0.9448;
     static constexpr double ZR   =  0.9465;
     static constexpr double ZPhi = -1.5117;
+
+    // Forward kinematics (XZ only): returns (EE_x, EE_z) in body_lift_link.
+    // wrist_tilt is implicitly π/2 - st - el.
+    static void fk_xz(double st, double el, double &x_out, double &z_out);
+
+    // One Newton-Raphson solve attempt from initial guess (st0, el0).
+    // Returns true and fills (st_out, el_out) if converged to a valid solution.
+    static bool newton_solve(double tx, double tz,
+                             double st0, double el0,
+                             double &st_out, double &el_out);
+
+    // Multi-seed 2-DOF IK solver.
+    static bool ik_solve(double tx, double tz, double &st_out, double &el_out);
   };
 }
 #endif
