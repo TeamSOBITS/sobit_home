@@ -1,6 +1,6 @@
 /**/controller_manager:
   ros__parameters:
-    update_rate: 200  # Hz
+    update_rate: 50  # Hz
 
     head_position_controller:
       type: joint_trajectory_controller/JointTrajectoryController
@@ -17,8 +17,11 @@
     hand_right_position_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
-    body_position_controller:
+    body_position_controller: #JOGモード
       type: joint_trajectory_controller/JointTrajectoryController
+    
+    # body_position_controller: #PTPモード
+    #   type: position_controllers/JointGroupPositionController
 
     wheel_steer_position_controller:
       type: position_controllers/JointGroupPositionController
