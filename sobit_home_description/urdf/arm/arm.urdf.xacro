@@ -138,7 +138,7 @@
       <child link="${prefix}_${position}_upper_flex_link" />
       <origin xyz="-0.0510 ${y_sign * 0.1135} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 -1.0 0.0" />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
+      <limit lower="${-M_PI}" upper="0" effort="${10.6 * effort_ratio}" velocity="3.14" />
     </joint>
 
     <link name="${prefix}_${position}_upper_flex_link" >

@@ -146,7 +146,7 @@
             <xacro:property name="um_body_port" value="$(arg um_body_port)"/>
             <plugin>uirobot_hardware/UirobotHardware</plugin>
             <param name="port_name">${um_body_port}</param>
-            <param name="baud_rate">57600</param>
+            <param name="baud_rate">115200</param>
             <param name="toggle_torque_on_configure">false</param>
             <param name="enable_torque_before_motion">false</param>
           </xacro:unless>
@@ -364,6 +364,7 @@
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
+        <param name="Drive_Mode">1</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI}</param>
@@ -407,6 +408,7 @@
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
+        <param name="drive_mode">1</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -441,6 +443,7 @@
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
+        <param name="Drive_Mode">1</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -455,7 +458,7 @@
 
     <joint name="${prefix}_upper_flex_sub_joint">
       <param name="mimic">${prefix}_upper_flex_joint</param>
-      <param name="multiplier">-1</param>
+      <param name="multiplier">1</param>
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">35</param>
         <param name="control_mode">0</param>
@@ -475,6 +478,7 @@
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
+        <param name="Drive_Mode">1</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">${-8/9 * M_PI}</param>
@@ -509,6 +513,7 @@
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
+        <param name="Drive_Mode">1</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -527,6 +532,7 @@
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
+        <param name="Drive_Mode">1</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI/2}</param>
@@ -545,6 +551,7 @@
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
+        <param name="Drive_Mode">1</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI}</param>
@@ -601,8 +608,8 @@
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
       <command_interface name="position">
-        <param name="min">-${M_PI/2}</param>
-        <param name="max">${M_PI/2}</param>
+        <param name="min">-${M_PI}</param>
+        <param name="max">0</param>
       </command_interface>
       <state_interface name="position">
         <param name="initial_value">0.0</param>
@@ -613,7 +620,7 @@
 
     <joint name="${prefix}_upper_flex_sub_joint">
       <param name="mimic">${prefix}_upper_flex_joint</param>
-      <param name="multiplier">-1</param>
+      <param name="multiplier">1</param>
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">45</param>
         <param name="control_mode">0</param>
@@ -720,9 +727,9 @@
   <xacro:macro name="dxl_hand_left_controllers"    params="prefix enable_gz:=False">
     <joint name="${prefix}_finger_l_mcp_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">50</param>
+        <param name="id">51</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">300</param>
+        <param name="Goal_Current">100</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -749,9 +756,9 @@
 
     <joint name="${prefix}_finger_l_pip_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">51</param>
+        <param name="id">52</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">150</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -768,9 +775,9 @@
 
     <joint name="${prefix}_finger_l_dip_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">52</param>
+        <param name="id">53</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">100</param>
+        <param name="Goal_Current">55</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -787,9 +794,9 @@
 
     <joint name="${prefix}_finger_c_mcp_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">53</param>
+        <param name="id">54</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">225</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -806,9 +813,9 @@
 
     <joint name="${prefix}_finger_c_ip_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">54</param>
+        <param name="id">55</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">150</param>
+        <param name="Goal_Current">55</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -825,9 +832,9 @@
 
     <joint name="${prefix}_finger_r_pip_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">55</param>
+        <param name="id">56</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">150</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -844,9 +851,9 @@
 
     <joint name="${prefix}_finger_r_dip_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">56</param>
+        <param name="id">57</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">100</param>
+        <param name="Goal_Current">55</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -866,9 +873,9 @@
   <xacro:macro name="dxl_hand_right_controllers"   params="prefix enable_gz:=False">
     <joint name="${prefix}_finger_l_mcp_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">60</param>
+        <param name="id">61</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">300</param>
+        <param name="Goal_Current">100</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -895,9 +902,9 @@
 
     <joint name="${prefix}_finger_l_pip_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">61</param>
+        <param name="id">62</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">200</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -914,9 +921,9 @@
 
     <joint name="${prefix}_finger_l_dip_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">62</param>
+        <param name="id">63</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">50</param>
+        <param name="Goal_Current">55</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -933,7 +940,7 @@
 
     <joint name="${prefix}_finger_c_mcp_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">63</param>
+        <param name="id">64</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
@@ -952,9 +959,9 @@
 
     <joint name="${prefix}_finger_c_ip_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">64</param>
+        <param name="id">65</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">50</param>
+        <param name="Goal_Current">55</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -971,7 +978,7 @@
 
     <joint name="${prefix}_finger_r_pip_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">65</param>
+        <param name="id">66</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
@@ -990,9 +997,9 @@
 
     <joint name="${prefix}_finger_r_dip_joint">
       <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">66</param>
+        <param name="id">67</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">50</param>
+        <param name="Goal_Current">55</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -1016,14 +1023,16 @@
         <param name="id">$(arg um_body_id)</param>
         <param name="gear_ratio">${200*M_PI}</param>
         <param name="position_kp">0.7</param>
-        <param name="stop_threshold">0.005</param>
+        <param name="stop_threshold">0.00005</param>
         <param name="min_velocity">0.01</param> <!-- [m/s], 1 cm in 1 s is smooth; slower tends to stall -->
-        <param name="max_velocity">0.025</param> <!-- [m/s] -->
+        <param name="max_velocity">0.03</param> <!-- [m/s] -->
+        <param name="mode">JOG</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">0.0</param>
         <param name="max">0.6</param>
       </command_interface>
+      <!-- <command_interface name="velocity"/> -->
       <state_interface name="position">
         <param name="initial_value">0.50</param>
       </state_interface>
