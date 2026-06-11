@@ -1277,4 +1277,31 @@
     <disable_collisions link1="wheel_steer_base_f_r_link" link2="wheel_steer_f_l_link" reason="Never"/>
     <disable_collisions link1="wheel_steer_base_f_r_link" link2="wheel_steer_f_r_link" reason="Adjacent"/>
     <disable_collisions link1="wheel_steer_f_l_link" link2="wheel_steer_f_r_link" reason="Never"/>
+    <!-- Allow arm/hand links to touch the body plate cover during teleop (manually added) -->
+    <disable_collisions link1="arm_left_upper_flex_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="arm_left_elbow_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="arm_left_lower_flex_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="arm_left_wrist_tilt_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="arm_left_wrist_roll_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="arm_right_upper_flex_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="arm_right_elbow_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="arm_right_lower_flex_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="arm_right_wrist_tilt_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="arm_right_wrist_roll_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_left_camera_base_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_left_camera_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_left_finger_c_mcp_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_left_finger_c_ip_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_left_finger_l_pip_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_left_finger_l_dip_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_left_finger_r_pip_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_left_finger_r_dip_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_right_camera_base_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_right_camera_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_right_finger_c_mcp_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_right_finger_c_ip_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_right_finger_l_pip_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_right_finger_l_dip_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_right_finger_r_pip_link" link2="plate_cover_link" reason="User"/>
+    <disable_collisions link1="hand_right_finger_r_dip_link" link2="plate_cover_link" reason="User"/>
 </robot>
