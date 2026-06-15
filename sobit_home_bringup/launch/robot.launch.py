@@ -1,6 +1,6 @@
 import os
 import subprocess
-from ament_index_python.packages import get_package_share_directory
+from ament_index_python.packages import get_package_share_directory, PackageNotFoundError
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction, IncludeLaunchDescription, RegisterEventHandler, TimerAction, GroupAction
@@ -49,11 +49,36 @@ def generate_launch_description():
             'head_camera_orbbec.yaml',
         ),
     )
-    arg_enable_teleop    = DeclareLaunchArgument('enable_teleop', default_value='false')
-    arg_enable_rm_motors = DeclareLaunchArgument('enable_rm_motors', default_value='true')
-    arg_enable_dxl_pro   = DeclareLaunchArgument('enable_dxl_pro',   default_value='true')
-    arg_enable_moveit    = DeclareLaunchArgument('enable_moveit',    default_value='true')
-    arg_enable_tf_prefix = DeclareLaunchArgument('enable_tf_prefix', default_value='false')
+    arg_enable_teleop          = DeclareLaunchArgument('enable_teleop',          default_value='false')
+    arg_enable_rm_motors       = DeclareLaunchArgument('enable_rm_motors',       default_value='true')
+    arg_enable_dxl_pro         = DeclareLaunchArgument('enable_dxl_pro',         default_value='true')
+    arg_enable_moveit          = DeclareLaunchArgument('enable_moveit',          default_value='true')
+    arg_enable_tf_prefix       = DeclareLaunchArgument('enable_tf_prefix',       default_value='false')
+    arg_enable_action_server   = DeclareLaunchArgument(
+        'enable_action_server', default_value='true',
+        description='Set false when the action server (with pose config) is started externally, e.g. from doinglaundry.launch.py on the dev PC.')
+
+    # Pose config: prefer rc_doinglaundry override if the package is installed, else library default.
+    _lib_config = os.path.join(get_package_share_directory('sobit_home_library'), 'config')
+    try:
+        _rc_config = get_package_share_directory('rc_doinglaundry')
+        _default_pose_config            = os.path.join(_rc_config, 'config', 'pose_list.yaml')
+        _default_right_hand_pose_config = os.path.join(_lib_config, 'right_hand_pose_list.yaml')
+        _default_left_hand_pose_config  = os.path.join(_lib_config, 'left_hand_pose_list.yaml')
+    except PackageNotFoundError:
+        _default_pose_config            = os.path.join(_lib_config, 'pose_list.yaml')
+        _default_right_hand_pose_config = os.path.join(_lib_config, 'right_hand_pose_list.yaml')
+        _default_left_hand_pose_config  = os.path.join(_lib_config, 'left_hand_pose_list.yaml')
+
+    arg_pose_config            = DeclareLaunchArgument(
+        'pose_config', default_value=_default_pose_config,
+        description='Path to whole-body pose YAML (overridable).')
+    arg_right_hand_pose_config = DeclareLaunchArgument(
+        'right_hand_pose_config', default_value=_default_right_hand_pose_config,
+        description='Path to right-hand pose YAML (overridable).')
+    arg_left_hand_pose_config  = DeclareLaunchArgument(
+        'left_hand_pose_config', default_value=_default_left_hand_pose_config,
+        description='Path to left-hand pose YAML (overridable).')
 
     return LaunchDescription([
         arg_robot_name,
@@ -81,6 +106,10 @@ def generate_launch_description():
         arg_enable_dxl_pro,
         arg_enable_moveit,
         arg_enable_tf_prefix,
+        arg_enable_action_server,
+        arg_pose_config,
+        arg_right_hand_pose_config,
+        arg_left_hand_pose_config,
         OpaqueFunction(function = launch_gz),
     ])
 
@@ -115,6 +144,10 @@ def launch_gz(context, *args, **kwargs):
     enable_dxl_pro              = _bool(LaunchConfiguration('enable_dxl_pro').perform(context))
     enable_moveit               = _bool(LaunchConfiguration('enable_moveit').perform(context))
     enable_tf_prefix            = _bool(LaunchConfiguration('enable_tf_prefix').perform(context))
+    enable_action_server        = _bool(LaunchConfiguration('enable_action_server').perform(context))
+    pose_config                 = LaunchConfiguration('pose_config').perform(context)
+    right_hand_pose_config      = LaunchConfiguration('right_hand_pose_config').perform(context)
+    left_hand_pose_config       = LaunchConfiguration('left_hand_pose_config').perform(context)
 
     # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
     dxl_x_lower_body_port = ''
@@ -468,11 +501,14 @@ def launch_gz(context, *args, **kwargs):
             ])
         ]),
         launch_arguments={
-            'robot_name'   : robot_name,
-            'use_sim_time' : 'true' if enable_gz else 'false',
-            'enable_teleop': 'true' if enable_teleop else 'false',
-            'enable_moveit': 'true' if enable_moveit else 'false',
-            'enable_tf_prefix': 'true' if enable_tf_prefix else 'false',
+            'robot_name'             : robot_name,
+            'use_sim_time'           : 'true' if enable_gz else 'false',
+            'enable_teleop'          : 'true' if enable_teleop else 'false',
+            'enable_moveit'          : 'true' if enable_moveit else 'false',
+            'enable_tf_prefix'       : 'true' if enable_tf_prefix else 'false',
+            'pose_config'            : pose_config,
+            'right_hand_pose_config' : right_hand_pose_config,
+            'left_hand_pose_config'  : left_hand_pose_config,
         }.items(),
     )
 
@@ -595,29 +631,31 @@ def launch_gz(context, *args, **kwargs):
         )
 
     # action_server_launch is delayed until the drive stack is ready
-    if enable_mobile_base:
-        delayed_action_server = RegisterEventHandler(
-            event_handler=OnProcessStart(
-                target_action=swerve_controller,
-                on_start=[action_server_launch],
+    if enable_action_server:
+        if enable_mobile_base:
+            delayed_action_server = RegisterEventHandler(
+                event_handler=OnProcessStart(
+                    target_action=swerve_controller,
+                    on_start=[action_server_launch],
+                )
             )
-        )
-    elif controllers:
-        delayed_action_server = RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=controllers[-1],
-                on_exit=[action_server_launch],
+        elif controllers:
+            delayed_action_server = RegisterEventHandler(
+                event_handler=OnProcessExit(
+                    target_action=controllers[-1],
+                    on_exit=[action_server_launch],
+                )
             )
-        )
-    else:
-        delayed_action_server = action_server_launch
+        else:
+            delayed_action_server = action_server_launch
 
     if enable_gz:
         nodes.append(gz_bridge_node)
         nodes.append(gz_spawn_entity_node)
         nodes.append(delayed_joint_state_broadcaster)
         nodes.append(delayed_controllers)
-        nodes.append(delayed_action_server)
+        if enable_action_server:
+            nodes.append(delayed_action_server)
 
         # Relay color/camera_info → depth/camera_info for MoveIt octomap updater
         if enable_head_cam_depth:
@@ -657,7 +695,8 @@ def launch_gz(context, *args, **kwargs):
         nodes.append(joint_state_broadcaster)
         nodes.append(control_node)
         nodes.extend(controllers)
-        nodes.append(delayed_action_server)
+        if enable_action_server:
+            nodes.append(delayed_action_server)
         if enable_hand_left_cam_color:
             nodes.append(hand_left_cam_node)
         if enable_hand_right_cam_color:
