@@ -23,6 +23,7 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_head_cam_depth',      default_value='true'),
         DeclareLaunchArgument('enable_hand_left_cam_color', default_value='true'),
         DeclareLaunchArgument('enable_hand_right_cam_color',default_value='true'),
+        DeclareLaunchArgument('enable_tf_prefix',           default_value='false'),
         OpaqueFunction(function=launch_setup),
     ])
 
@@ -44,6 +45,7 @@ def launch_setup(context, *args, **kwargs):
     enable_head_cam_depth = _bool_str(LaunchConfiguration('enable_head_cam_depth').perform(context))
     enable_hand_left_cam_color = _bool_str(LaunchConfiguration('enable_hand_left_cam_color').perform(context))
     enable_hand_right_cam_color = _bool_str(LaunchConfiguration('enable_hand_right_cam_color').perform(context))
+    enable_tf_prefix = _bool_str(LaunchConfiguration('enable_tf_prefix').perform(context))
 
     rviz_config = os.path.join(get_package_share_directory(
         'sobit_home_description'), "rviz", "display.rviz")
@@ -68,21 +70,23 @@ def launch_setup(context, *args, **kwargs):
         'enable_head_cam_depth': enable_head_cam_depth,
         'enable_hand_left_cam_color': enable_hand_left_cam_color,
         'enable_hand_right_cam_color': enable_hand_right_cam_color,
+        'enable_tf_prefix': enable_tf_prefix,
     }
     robot_description_config = xacro.process_file(
         robot_description,
         mappings=xacro_arguments
     )
 
+    rsp_params = [{"robot_description": robot_description_config.toxml(), "use_sim_time": True}]
+    if enable_tf_prefix == 'True':
+        rsp_params.append({"frame_prefix": robot_namespace + '/'})
+
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
         name="robot_state_publisher",
         namespace=robot_namespace,
-        parameters=[{
-            "robot_description": robot_description_config.toxml(),
-            "use_sim_time": True,
-        }],
+        parameters=rsp_params,
         output="screen",
     )
 
