@@ -6,13 +6,14 @@ namespace sobit_home
 {
 
 MoveitServer::MoveitServer(const rclcpp::NodeOptions & options)
-: Node("moveit_server", rclcpp::NodeOptions(options).automatically_declare_parameters_from_overrides(true))
+: Node("moveit_server",
+    rclcpp::NodeOptions(options).automatically_declare_parameters_from_overrides(true))
 {
-  tf_buffer_   = std::make_shared<tf2_ros::Buffer>(get_clock());
+  tf_buffer_ = std::make_shared<tf2_ros::Buffer>(get_clock());
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
   plan_service_cb_group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-  action_cb_group_       = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  action_cb_group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
   // Service
   plan_service_ = create_service<PlanToPose>(
@@ -41,7 +42,7 @@ MoveitServer::MoveitServer(const rclcpp::NodeOptions & options)
 
   cleanup_timer_ = create_wall_timer(
     std::chrono::seconds(10),
-    [this]() { purge_stale_plans(); });
+    [this]() {purge_stale_plans();});
 
   if (!has_parameter("active_planning_groups")) {
     declare_parameter("active_planning_groups", std::vector<std::string>{"arm_left", "arm_right"});
@@ -78,11 +79,13 @@ void MoveitServer::init_move_groups()
       RCLCPP_ERROR(get_logger(), "move_group parameter service not available — aborting init");
       return;
     }
-    const auto params = param_client->get_parameters({"robot_description", "robot_description_semantic"});
+    const auto params = param_client->get_parameters({"robot_description",
+          "robot_description_semantic"});
     if (params.size() >= 2 && !params[0].as_string().empty()) {
       declare_parameter("robot_description", params[0].as_string());
       declare_parameter("robot_description_semantic", params[1].as_string());
-      RCLCPP_INFO(get_logger(), "robot_description declared on this node (%zu chars), SRDF (%zu chars)",
+      RCLCPP_INFO(get_logger(),
+          "robot_description declared on this node (%zu chars), SRDF (%zu chars)",
         params[0].as_string().size(), params[1].as_string().size());
     } else {
       RCLCPP_ERROR(get_logger(), "robot_description is empty — aborting init");
@@ -105,9 +108,9 @@ void MoveitServer::init_move_groups()
 
       // Pass shared_from_this() so MoveGroupInterface uses this registered node.
       moveit::planning_interface::MoveGroupInterface::Options opts(
-          group_name,
-          "robot_description",
-          "/" + ns);
+        group_name,
+        "robot_description",
+        "/" + ns);
       auto mgi = std::make_shared<moveit::planning_interface::MoveGroupInterface>(
           shared_from_this(),
           opts,
@@ -161,7 +164,8 @@ void MoveitServer::handle_plan_request(
     move_group = it->second;
   }
 
-  RCLCPP_INFO(get_logger(), "Received planning request for group: %s", request->planning_group.c_str());
+  RCLCPP_INFO(get_logger(), "Received planning request for group: %s",
+      request->planning_group.c_str());
 
   try {
     RCLCPP_INFO(get_logger(), "Planning Frame: %s, Pose Frame: %s",
@@ -185,7 +189,8 @@ void MoveitServer::handle_plan_request(
   }
 
   RCLCPP_INFO(get_logger(), "Setting Pose Target: x:%.2f, y:%.2f, z:%.2f",
-    request->target.pose.position.x, request->target.pose.position.y, request->target.pose.position.z);
+    request->target.pose.position.x, request->target.pose.position.y,
+      request->target.pose.position.z);
 
   if (!move_group->setPoseTarget(request->target)) {
     RCLCPP_ERROR(get_logger(), "Failed to set pose target (invalid pose?)");
@@ -206,13 +211,15 @@ void MoveitServer::handle_plan_request(
   }
 
   if (plan_result != moveit::core::MoveItErrorCode::SUCCESS) {
-    RCLCPP_WARN(get_logger(), "Relaxed Pose planning failed (%i). Attempting Position-Only fallback...",
+    RCLCPP_WARN(get_logger(),
+        "Relaxed Pose planning failed (%i). Attempting Position-Only fallback...",
       static_cast<int>(plan_result.val));
     move_group->clearPoseTargets();
     if (move_group->setPositionTarget(
         request->target.pose.position.x,
         request->target.pose.position.y,
-        request->target.pose.position.z)) {
+        request->target.pose.position.z))
+    {
       plan_result = move_group->plan(my_plan);
       RCLCPP_INFO(get_logger(), "Position-Only planning finished with code: %i",
         static_cast<int>(plan_result.val));
@@ -228,8 +235,8 @@ void MoveitServer::handle_plan_request(
     {
       std::lock_guard<std::mutex> lock(plan_cache_mutex_);
       CachedPlan cp;
-      cp.plan           = my_plan;
-      cp.timestamp      = now();
+      cp.plan = my_plan;
+      cp.timestamp = now();
       cp.planning_group = request->planning_group;
       plan_cache_[plan_id] = cp;
     }
@@ -239,11 +246,11 @@ void MoveitServer::handle_plan_request(
       const auto & pts = my_plan.trajectory.joint_trajectory.points;
       duration = pts.back().time_from_start.sec + pts.back().time_from_start.nanosec * 1e-9;
     }
-    response->success        = true;
-    response->plan_id        = plan_id;
-    response->trajectory     = my_plan.trajectory;
+    response->success = true;
+    response->plan_id = plan_id;
+    response->trajectory = my_plan.trajectory;
     response->estimated_time = duration;
-    response->message        = "Plan generated with ID: " + plan_id;
+    response->message = "Plan generated with ID: " + plan_id;
   } else {
     response->success = false;
     response->message = "MoveIt planning failed for both Pose and Position-Only strategies.";
@@ -301,14 +308,14 @@ rclcpp_action::CancelResponse MoveitServer::handle_exec_cancel(
 
 void MoveitServer::handle_exec_accepted(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
 {
-  std::thread{[this, goal_handle]() { execute_plan_thread(goal_handle); }}.detach();
+  std::thread{[this, goal_handle]() {execute_plan_thread(goal_handle);}}.detach();
 }
 
 void MoveitServer::execute_plan_thread(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
 {
   auto result = std::make_shared<ExecutePlan::Result>();
   std::string plan_id = goal_handle->get_goal()->plan_id;
-  
+
   CachedPlan cached_plan;
 
   // 1. Retrieve the plan from the cache
@@ -347,19 +354,19 @@ void MoveitServer::execute_plan_thread(const std::shared_ptr<GoalHandleExecutePl
 
   // 4. Setup the Feedback Thread
   std::atomic<bool> is_executing{true};
-  
-  std::thread feedback_thread([this, goal_handle, move_group, &is_executing]() {
-    rclcpp::Rate loop_rate(10); // Publish feedback at 10 Hz
-    
-    while (is_executing && rclcpp::ok()) {
-      // If the goal is canceled, break out early
-      if (goal_handle->is_canceling()) {
-        break;
-      }
 
-      auto feedback = std::make_shared<ExecutePlan::Feedback>();
-      feedback->current_state = "EXECUTING";
-      
+  std::thread feedback_thread([this, goal_handle, move_group, &is_executing]() {
+      rclcpp::Rate loop_rate(10); // Publish feedback at 10 Hz
+
+      while (is_executing && rclcpp::ok()) {
+      // If the goal is canceled, break out early
+        if (goal_handle->is_canceling()) {
+          break;
+        }
+
+        auto feedback = std::make_shared<ExecutePlan::Feedback>();
+        feedback->current_state = "EXECUTING";
+
       // Optional: Calculate distance to goal
       // try {
       //   auto current_pose = move_group->getCurrentPose().pose;
@@ -367,10 +374,10 @@ void MoveitServer::execute_plan_thread(const std::shared_ptr<GoalHandleExecutePl
       //   // feedback->distance_to_goal = ...
       // } catch (...) {}
 
-      goal_handle->publish_feedback(feedback);
-      loop_rate.sleep();
-    }
-  });
+        goal_handle->publish_feedback(feedback);
+        loop_rate.sleep();
+      }
+    });
 
   // 5. Execute the plan (This is a BLOCKING call)
   moveit::core::MoveItErrorCode exec_result;
@@ -380,7 +387,7 @@ void MoveitServer::execute_plan_thread(const std::shared_ptr<GoalHandleExecutePl
     RCLCPP_ERROR(get_logger(), "Exception during execute: %s", e.what());
     exec_result = moveit::core::MoveItErrorCode::FAILURE;
   }
-  
+
   // 6. Stop the feedback thread safely
   is_executing = false;
   if (feedback_thread.joinable()) {
@@ -416,7 +423,7 @@ void MoveitServer::purge_stale_plans()
 {
   std::lock_guard<std::mutex> lock(plan_cache_mutex_);
   const auto now = this->now();
-  for (auto it = plan_cache_.begin(); it != plan_cache_.end();) {
+  for (auto it = plan_cache_.begin(); it != plan_cache_.end(); ) {
     if ((now - it->second.timestamp).seconds() > 60.0) {
       RCLCPP_WARN(get_logger(), "Purging expired plan_id: %s", it->first.c_str());
       it = plan_cache_.erase(it);

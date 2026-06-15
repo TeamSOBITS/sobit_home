@@ -20,73 +20,73 @@
 namespace sobit_home
 {
 
-  class WheelActionServer : public rclcpp::Node
-  {
-  public:
-    using MoveWheelLinear = sobits_interfaces::action::MoveWheelLinear;
-    using MoveWheelRotate = sobits_interfaces::action::MoveWheelRotate;
+class WheelActionServer : public rclcpp::Node
+{
+public:
+  using MoveWheelLinear = sobits_interfaces::action::MoveWheelLinear;
+  using MoveWheelRotate = sobits_interfaces::action::MoveWheelRotate;
 
-    using GoalHandleMoveWheelLinear = rclcpp_action::ServerGoalHandle<sobits_interfaces::action::MoveWheelLinear>;
-    using GoalHandleMoveWheelRotate = rclcpp_action::ServerGoalHandle<sobits_interfaces::action::MoveWheelRotate>;
+  using GoalHandleMoveWheelLinear = rclcpp_action::ServerGoalHandle<sobits_interfaces::action::MoveWheelLinear>;
+  using GoalHandleMoveWheelRotate = rclcpp_action::ServerGoalHandle<sobits_interfaces::action::MoveWheelRotate>;
 
-    explicit WheelActionServer(const rclcpp::NodeOptions & options);
-    ~WheelActionServer();
+  explicit WheelActionServer(const rclcpp::NodeOptions & options);
+  ~WheelActionServer();
 
-    geometry_msgs::msg::Vector3 get_euler_from_quat(
-      const geometry_msgs::msg::Quaternion & quat);
-    geometry_msgs::msg::Quaternion get_quat_from_euler(
-      const geometry_msgs::msg::Vector3 & rpy);
+  geometry_msgs::msg::Vector3 get_euler_from_quat(
+    const geometry_msgs::msg::Quaternion & quat);
+  geometry_msgs::msg::Quaternion get_quat_from_euler(
+    const geometry_msgs::msg::Vector3 & rpy);
 
-  private:
-    void exe_move_wheel_linear(
-      const std::shared_ptr<GoalHandleMoveWheelLinear> goal_handle);
-    void exe_move_wheel_rotate(
-      const std::shared_ptr<GoalHandleMoveWheelRotate> goal_handle);
+private:
+  void exe_move_wheel_linear(
+    const std::shared_ptr<GoalHandleMoveWheelLinear> goal_handle);
+  void exe_move_wheel_rotate(
+    const std::shared_ptr<GoalHandleMoveWheelRotate> goal_handle);
 
-    void odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg);
+  void odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg);
 
     // Action Servers
-    rclcpp_action::Server<MoveWheelLinear>::SharedPtr action_server_move_wheel_linear_;
-    rclcpp_action::Server<MoveWheelRotate>::SharedPtr action_server_move_wheel_rotate_;
+  rclcpp_action::Server<MoveWheelLinear>::SharedPtr action_server_move_wheel_linear_;
+  rclcpp_action::Server<MoveWheelRotate>::SharedPtr action_server_move_wheel_rotate_;
 
     // Publisher and Subscriber
-    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_cmd_vel_;
-    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_odom_;
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_cmd_vel_;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_odom_;
 
     // Odometry messages
-    nav_msgs::msg::Odometry init_odom_;
-    nav_msgs::msg::Odometry curt_odom_;
+  nav_msgs::msg::Odometry init_odom_;
+  nav_msgs::msg::Odometry curt_odom_;
 
     // PID parameters for linear movement
-    double wheel_linear_kp_;
-    double wheel_linear_ki_;
-    double wheel_linear_kd_;
+  double wheel_linear_kp_;
+  double wheel_linear_ki_;
+  double wheel_linear_kd_;
 
     // PID parameters for rotation movement
-    double wheel_rotate_kp_;
-    double wheel_rotate_ki_;
-    double wheel_rotate_kd_;
+  double wheel_rotate_kp_;
+  double wheel_rotate_ki_;
+  double wheel_rotate_kd_;
 
-  }; // class WheelActionServer
+};   // class WheelActionServer
 
-  inline geometry_msgs::msg::Vector3 WheelActionServer::get_euler_from_quat(
-      const geometry_msgs::msg::Quaternion & msg_quat)
-  {
-    tf2::Quaternion tf_quat;
-    geometry_msgs::msg::Vector3 euler;
-    tf2::fromMsg(msg_quat, tf_quat);
-    tf_quat.normalize();
-    tf2::Matrix3x3(tf_quat).getRPY(euler.x, euler.y, euler.z);
-    return euler;
-  }
+inline geometry_msgs::msg::Vector3 WheelActionServer::get_euler_from_quat(
+  const geometry_msgs::msg::Quaternion & msg_quat)
+{
+  tf2::Quaternion tf_quat;
+  geometry_msgs::msg::Vector3 euler;
+  tf2::fromMsg(msg_quat, tf_quat);
+  tf_quat.normalize();
+  tf2::Matrix3x3(tf_quat).getRPY(euler.x, euler.y, euler.z);
+  return euler;
+}
 
-  inline geometry_msgs::msg::Quaternion WheelActionServer::get_quat_from_euler(
-      const geometry_msgs::msg::Vector3 & euler)
-  {
-    tf2::Quaternion tf_quat;
-    tf_quat.setRPY(euler.x, euler.y, euler.z);
-    return tf2::toMsg(tf_quat);
-  }
+inline geometry_msgs::msg::Quaternion WheelActionServer::get_quat_from_euler(
+  const geometry_msgs::msg::Vector3 & euler)
+{
+  tf2::Quaternion tf_quat;
+  tf_quat.setRPY(euler.x, euler.y, euler.z);
+  return tf2::toMsg(tf_quat);
+}
 
 } // namespace sobit_home
 
