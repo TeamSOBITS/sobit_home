@@ -191,6 +191,7 @@ def launch_gz(context, *args, **kwargs):
             'enable_hand_right_cam_color' : 'True' if enable_hand_right_cam_color else 'False',
             'enable_rm_motors': 'True' if enable_rm_motors else 'False',
             'enable_dxl_pro': 'True' if enable_dxl_pro else 'False',
+            'enable_tf_prefix': 'True' if enable_tf_prefix else 'False',
             'dxl_x_lower_body_port': dxl_x_lower_body_port,
             'dxl_x_upper_body_port': dxl_x_upper_body_port,
             'dxl_p_upper_body_port': dxl_p_upper_body_port,
@@ -273,6 +274,7 @@ def launch_gz(context, *args, **kwargs):
                 'topic_namespace1': 'lidar_front',
                 'config_file2': urg_configs[1],
                 'topic_namespace2': 'lidar_back',
+                'enable_tf_prefix': 'true' if enable_tf_prefix else 'false',
             }.items()
         )
         controllers.append(urg_node)

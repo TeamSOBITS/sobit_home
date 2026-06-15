@@ -31,6 +31,7 @@
 
   <!-- Add variables -->
   <xacro:arg name="robot_name" default="sobit_home" />
+  <xacro:arg name="enable_tf_prefix" default="False" />
 
   <xacro:arg name="enable_gz"                       default="True" />
   <xacro:arg name="enable_head_cam_color"        default="True" />
@@ -69,7 +70,7 @@
     <link name="lidar_merged_laser" />
     <xacro:plate prefix="plate" parent="base_link" />
     <xacro:wheel prefix="wheel" parent="plate_middle_link" />
-    <xacro:lidar prefix="lidar" parent="plate_middle_link" robot_name="$(arg robot_name)" />
+    <xacro:lidar prefix="lidar" parent="plate_middle_link" robot_name="$(arg robot_name)" enable_tf_prefix="$(arg enable_tf_prefix)" />
   </xacro:if>
   <xacro:unless value="${ $(arg enable_mobile_base) }">
     <xacro:base/>
