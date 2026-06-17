@@ -357,6 +357,52 @@ SOBIT HOMEのジョイント名とその定数名を以下の通りです．
 
 定義したいポース名を`poses`に追加し，その後ポース名の下に各ジョイントの角度を設定します．
 
+> [!NOTE]
+> ポーズ指定の動作（`move_to_pose`）は，変更したジョイントだけでなく，**すべて**のアーム・ボディ・ヘッドのジョイントを指令します．ポーズ定義で省略したジョイントは `0.0` が既定値となり，そこへ実際に駆動されます．そのため各ポーズには必ず全ジョイントを記述してください．（1つのジョイントだけを指令し，残りを現在位置に保持したい場合は `move_joint` Actionを使用してください．）
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+
+#### 起動時にポーズリストを上書きする
+
+`action_server.launch.py`はポーズYAMLのパスを起動引数として公開しているため，**`sobit_home_library`を編集することなく**，別のパッケージやマシンから独自のポーズを与えることができます．既定値はライブラリ自身の`config/`を指します．
+
+| 起動引数 | 既定値 |
+| --- | --- |
+| `pose_config` | `sobit_home_library/config/pose_list.yaml` |
+| `right_hand_pose_config` | `sobit_home_library/config/right_hand_pose_list.yaml` |
+| `left_hand_pose_config` | `sobit_home_library/config/left_hand_pose_list.yaml` |
+
+```sh
+$ ros2 launch sobit_home_library action_server.launch.py \
+    pose_config:=/path/to/my_pose_list.yaml
+```
+
+`robot.launch.py`も同じ引数を引き渡すため，フルbringupからでも同様に上書きできます．さらにロボットのbringupでは，`enable_action_server:=false`を指定することで（別のマシンで起動できるように）Actionサーバーの起動自体をスキップできます．
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+
+#### 実行中にポーズを更新する（再起動不要）
+
+ポーズはROSパラメータとして保持されているため，ノードを再起動せずに実行中に設定・再読み込みできます．パラメータを変更した後，`reload_poses`サービスを呼び出すと，メモリ上のポーズ一覧が再構築されます．
+
+```sh
+# 単一の値を設定するか，YAML全体を一括で読み込む
+$ ros2 param set /sobit_home/joint_action_server initial_pose.body_lift 0.42
+$ ros2 param load /sobit_home/joint_action_server /path/to/new_pose_list.yaml
+
+# 変更を適用する
+$ ros2 service call /sobit_home/reload_poses std_srvs/srv/Trigger {}
+```
+
+サービスの応答には現在読み込まれている全身ポーズの名前が一覧表示されるため，編集が反映されたかを確認できます．
+
+> [!IMPORTANT]
+> `reload_poses`は**`poses`配列の内容のみ**から有効なポーズ一覧を再構築します．既存ポーズの値の更新は即座に反映されますが，**新しいポーズを追加する**場合は，その名前を`poses`配列にも追加する必要があります（例：`ros2 param set /sobit_home/joint_action_server poses "[initial_pose, ..., my_new_pose]"`）．そうしないとその値は無視され，`move_to_pose`は「pose not found」で中断します．配列から削除された名前は，次回の再読み込み時に有効な一覧から取り除かれます．
+>
+> 実行中の変更はYAMLファイルには**書き戻されません**．値を調整したら，再起動後も保持されるように`pose_list.yaml`へ反映してください．
+
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
 

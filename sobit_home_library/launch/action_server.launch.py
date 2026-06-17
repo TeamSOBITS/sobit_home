@@ -9,11 +9,25 @@ from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
+    _lib_config = os.path.join(get_package_share_directory("sobit_home_library"), "config")
+
     arg_robot_name       = DeclareLaunchArgument('robot_name',       default_value='sobit_home')
     arg_use_sim_time     = DeclareLaunchArgument('use_sim_time',     default_value='true')
     arg_use_rviz         = DeclareLaunchArgument('use_rviz',         default_value='false')
     arg_enable_teleop    = DeclareLaunchArgument('enable_teleop',    default_value='false')
     arg_enable_moveit    = DeclareLaunchArgument('enable_moveit',    default_value='true')
+    arg_pose_config            = DeclareLaunchArgument(
+        'pose_config',
+        default_value=os.path.join(_lib_config, 'pose_list.yaml'),
+        description='Path to whole-body pose YAML. Override with rc_doinglaundry path for competition.')
+    arg_right_hand_pose_config = DeclareLaunchArgument(
+        'right_hand_pose_config',
+        default_value=os.path.join(_lib_config, 'right_hand_pose_list.yaml'),
+        description='Path to right-hand pose YAML.')
+    arg_left_hand_pose_config  = DeclareLaunchArgument(
+        'left_hand_pose_config',
+        default_value=os.path.join(_lib_config, 'left_hand_pose_list.yaml'),
+        description='Path to left-hand pose YAML.')
     arg_linear_kp        = DeclareLaunchArgument('linear_kp',        default_value='0.1')
     arg_linear_kd        = DeclareLaunchArgument('linear_kd',        default_value='0.4')
     arg_linear_ki        = DeclareLaunchArgument('linear_ki',        default_value='0.8')
@@ -35,6 +49,9 @@ def generate_launch_description():
         arg_rotate_kd,
         arg_rotate_ki,
         arg_enable_tf_prefix,
+        arg_pose_config,
+        arg_right_hand_pose_config,
+        arg_left_hand_pose_config,
         OpaqueFunction(function=launch_setup),
     ])
 
@@ -56,12 +73,9 @@ def launch_setup(context, *args, **kwargs):
     use_sim_time_bool = use_sim_time.lower() == 'true'
     enable_tf_prefix_bool = enable_tf_prefix.lower() in ('true', '1', 'yes')
 
-    pose_config = os.path.join(
-        get_package_share_directory("sobit_home_library"), "config", "pose_list.yaml")
-    right_hand_pose_config = os.path.join(
-        get_package_share_directory("sobit_home_library"), "config", "right_hand_pose_list.yaml")
-    left_hand_pose_config = os.path.join(
-        get_package_share_directory("sobit_home_library"), "config", "left_hand_pose_list.yaml")
+    pose_config            = LaunchConfiguration('pose_config').perform(context)
+    right_hand_pose_config = LaunchConfiguration('right_hand_pose_config').perform(context)
+    left_hand_pose_config  = LaunchConfiguration('left_hand_pose_config').perform(context)
 
     joint_action_server_node = Node(
         package="sobit_home_library",

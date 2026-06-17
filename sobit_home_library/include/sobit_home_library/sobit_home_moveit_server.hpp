@@ -20,7 +20,8 @@
 namespace sobit_home
 {
 
-struct CachedPlan {
+struct CachedPlan
+{
   moveit::planning_interface::MoveGroupInterface::Plan plan;
   rclcpp::Time timestamp;
   std::string planning_group;
@@ -63,7 +64,8 @@ private:
 
   // Core map mapping string -> MoveGroupInterface
   // Both active_groups_ and active_executions_ are guarded by their respective mutexes.
-  std::unordered_map<std::string, std::shared_ptr<moveit::planning_interface::MoveGroupInterface>> active_groups_;
+  std::unordered_map<std::string,
+    std::shared_ptr<moveit::planning_interface::MoveGroupInterface>> active_groups_;
   mutable std::mutex active_groups_mutex_;
 
   std::unordered_map<std::string, std::string> active_executions_; // plan_id -> planning_group

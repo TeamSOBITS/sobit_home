@@ -355,6 +355,52 @@ Poses can be added and edited in the file [pose_list.yaml](sobit_home_library/co
 
 Add the desired pose name to `poses`, and then set the angles for each joint under the pose name.
 
+> [!NOTE]
+> A named-pose move (`move_to_pose`) always commands **all** arm, body, and head joints — not only the ones you changed. Any joint you omit from a pose block defaults to `0.0` and is actively driven there, so always specify the full joint set for each pose. (Use the `move_joint` action if you want to command a single joint and leave the rest holding position.)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+#### Overriding the pose list at launch
+
+`action_server.launch.py` exposes the pose YAML paths as launch arguments, so another package or machine can supply its own poses **without editing `sobit_home_library`**. The defaults point at the library's own `config/`.
+
+| Launch argument | Default |
+| --- | --- |
+| `pose_config` | `sobit_home_library/config/pose_list.yaml` |
+| `right_hand_pose_config` | `sobit_home_library/config/right_hand_pose_list.yaml` |
+| `left_hand_pose_config` | `sobit_home_library/config/left_hand_pose_list.yaml` |
+
+```sh
+$ ros2 launch sobit_home_library action_server.launch.py \
+    pose_config:=/path/to/my_pose_list.yaml
+```
+
+`robot.launch.py` forwards the same arguments, so the override can also be applied from the full bringup. The robot bringup can additionally skip starting the action server entirely (so it can be run on another machine) via `enable_action_server:=false`.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+#### Updating poses at runtime (no restart)
+
+Poses are held as ROS parameters, so they can be set live and reloaded without restarting the node. After changing parameters, call the `reload_poses` service to rebuild the in-memory pose set.
+
+```sh
+# Set a single value, or load a whole YAML at once
+$ ros2 param set /sobit_home/joint_action_server initial_pose.body_lift 0.42
+$ ros2 param load /sobit_home/joint_action_server /path/to/new_pose_list.yaml
+
+# Apply the changes
+$ ros2 service call /sobit_home/reload_poses std_srvs/srv/Trigger {}
+```
+
+The service reply lists the names of all whole-body poses now loaded — use it to confirm your edit registered.
+
+> [!IMPORTANT]
+> `reload_poses` rebuilds the active pose set **entirely from the `poses` array**. Updating an existing pose's values takes effect immediately, but to **add a new pose** you must add its name to the `poses` array as well (e.g. `ros2 param set /sobit_home/joint_action_server poses "[initial_pose, ..., my_new_pose]"`) — otherwise its values are ignored and `move_to_pose` will abort with "pose not found". A pose name dropped from the array is removed from the active set on the next reload.
+>
+> Runtime changes are **not** written back to the YAML file. Once a value is tuned, copy it into `pose_list.yaml` so it persists across restarts.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
