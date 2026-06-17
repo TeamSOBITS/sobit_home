@@ -47,7 +47,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_l_mcp_link" />
       <origin xyz="-0.002855 ${y_sign * 0.018025} ${y_sign * 0.024532}" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 1.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="0.52" velocity="11.031179004" />
+      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_l_mcp_link" >
@@ -73,7 +73,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_l_pip_link" />
       <origin xyz="-0.02125 ${y_sign * 0.019006} ${y_sign * 0.040125}" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
-      <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="0.52" velocity="11.031179004" />
+      <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_l_pip_link" >
@@ -107,7 +107,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_l_dip_link" />
       <origin xyz="0.0 ${y_sign * 0.050} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="0.52" velocity="11.031179004" />
+      <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_l_dip_link" >
@@ -142,7 +142,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_r_mcp_link" />
       <origin xyz="-0.002855 ${y_sign * 0.020025} ${-y_sign * 0.024532}" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 -1.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="0.52" velocity="11.031179004" />
+      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
       <mimic joint="${prefix_hand}_${position}_${prefix_finger}_l_mcp_joint" multiplier="1.0" />
     </joint>
 
@@ -169,7 +169,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_r_pip_link" />
       <origin xyz="-0.02125 ${y_sign * 0.016750} ${-y_sign * 0.040125}" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="0.52" velocity="11.031179004" />
+      <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_r_pip_link" >
@@ -202,7 +202,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_r_dip_link" />
       <origin xyz="0.0 ${y_sign * 0.050} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
-      <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="0.52" velocity="11.031179004" />
+      <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_r_dip_link" >
@@ -236,12 +236,12 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_c_mcp_link" />
       <origin xyz="0.036751 ${y_sign * 0.036625} ${y_sign * 0.014550} " rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 0.0 1.0 " />
-      <!-- <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="0.52" velocity="11.031179004" /> -->
+      <!-- <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031179004" /> -->
       <xacro:if value="${position == 'left'}">
-        <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="0.52" velocity="11.031" />
+        <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031" />
       </xacro:if>
       <xacro:if value="${position == 'right'}">
-        <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="0.52" velocity="11.031" />
+        <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031" />
       </xacro:if>
     </joint>
 
@@ -276,10 +276,10 @@
       <origin xyz="0.0 ${y_sign * 0.050} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 0.0 1.0 " />
       <xacro:if value="${position == 'right'}">
-        <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="0.52" velocity="11.031" />
+        <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031" />
       </xacro:if>
       <xacro:if value="${position == 'left'}">
-        <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="0.52" velocity="11.031" />
+        <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031" />
       </xacro:if>
     </joint>
 

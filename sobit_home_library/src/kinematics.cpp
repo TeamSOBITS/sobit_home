@@ -126,90 +126,6 @@ bool Kinematics::ik_solve(double tx, double tz, double & st_out, double & el_out
 }
 
   // -----------------------------------------------------------------------
-  // Base shift: find the minimum forward base displacement (dx, metres) that
-  // brings an unreachable target (tx, tz) into the arm workspace.
-  //
-  // Driving forward dx shifts the target to (tx - dx, tz) in the arm frame.
-  // Returns true and sets dx_out on success; false if tz is out of range
-  // for all possible x (lift height adjustment required instead).
-  // -----------------------------------------------------------------------
-bool Kinematics::base_shift_for_reachability(double tx, double tz, double & dx_out)
-{
-  double dummy_st, dummy_el;
-  if (ik_solve(tx, tz, dummy_st, dummy_el)) {
-    dx_out = 0.0;
-    return true;
-  }
-
-    // Check if tz is feasible at any x in the workspace
-  constexpr int N_SCAN = 50;
-  bool z_ok = false;
-  for (int k = 0; k <= N_SCAN; ++k) {
-    const double xk = WS_X_MIN + k * (WS_X_MAX - WS_X_MIN) / N_SCAN;
-    if (ik_solve(xk, tz, dummy_st, dummy_el)) {z_ok = true; break;}
-  }
-  if (!z_ok) {return false;}
-
-    // Coarse scan over the dx range [tx-WS_X_MAX, tx-WS_X_MIN] to find
-    // any reachable dx, then bisect toward the smallest |dx|.
-  const double dx_lo = tx - WS_X_MAX;
-  const double dx_hi = tx - WS_X_MIN;
-
-    // Scan forward (from dx=0 outward) to find first reachable dx
-  double found_dx = std::numeric_limits<double>::quiet_NaN();
-  for (int i = 0; i <= N_SCAN; ++i) {
-    const double dx = dx_lo + i * (dx_hi - dx_lo) / N_SCAN;
-    if (ik_solve(tx - dx, tz, dummy_st, dummy_el)) {found_dx = dx; break;}
-  }
-  if (std::isnan(found_dx)) {return false;}
-
-    // Bisect between 0 and found_dx to get the minimum |dx|
-  double best_dx = found_dx;
-  if (found_dx > 0.0) {
-    double lo = 0.0, hi = found_dx;
-    for (int i = 0; i < 40; ++i) {
-      const double mid = (lo + hi) / 2.0;
-      if (ik_solve(tx - mid, tz, dummy_st, dummy_el)) {hi = mid;} else {lo = mid;}
-    }
-    best_dx = hi;
-  } else if (found_dx < 0.0) {
-    double lo = found_dx, hi = 0.0;
-    for (int i = 0; i < 40; ++i) {
-      const double mid = (lo + hi) / 2.0;
-      if (ik_solve(tx - mid, tz, dummy_st, dummy_el)) {lo = mid;} else {hi = mid;}
-    }
-    best_dx = lo;
-  }
-
-    // Also scan from the other end to check if opposite direction is smaller
-  double found_dx2 = std::numeric_limits<double>::quiet_NaN();
-  for (int i = 0; i <= N_SCAN; ++i) {
-    const double dx = dx_hi - i * (dx_hi - dx_lo) / N_SCAN;
-    if (ik_solve(tx - dx, tz, dummy_st, dummy_el)) {found_dx2 = dx; break;}
-  }
-  if (!std::isnan(found_dx2) && std::abs(found_dx2) < std::abs(best_dx)) {
-    if (found_dx2 > 0.0) {
-      double lo = 0.0, hi = found_dx2;
-      for (int i = 0; i < 40; ++i) {
-        const double mid = (lo + hi) / 2.0;
-        if (ik_solve(tx - mid, tz, dummy_st, dummy_el)) {hi = mid;} else {lo = mid;}
-      }
-      if (std::abs(hi) < std::abs(best_dx)) {best_dx = hi;}
-    } else if (found_dx2 < 0.0) {
-      double lo = found_dx2, hi = 0.0;
-      for (int i = 0; i < 40; ++i) {
-        const double mid = (lo + hi) / 2.0;
-        if (ik_solve(tx - mid, tz, dummy_st, dummy_el)) {lo = mid;} else {hi = mid;}
-      }
-      if (std::abs(lo) < std::abs(best_dx)) {best_dx = lo;}
-    }
-  }
-
-  dx_out = best_dx;
-  return true;
-}
-
-  // -----------------------------------------------------------------------
 
 geometry_msgs::msg::Pose Kinematics::forward_kinematics(
   const std::vector<double> & /*joint_angles_rad*/,
@@ -218,14 +134,30 @@ geometry_msgs::msg::Pose Kinematics::forward_kinematics(
   const bool is_right)
 {
   geometry_msgs::msg::Pose move_pose;
-  const double side_sign = is_right ? 1.0 : -1.0;
-  const double shoulder_y = side_sign * BaseToShoulderDY;
+    // Right arm reaches along base-frame y < 0, left along y > 0.
+  const double side_sign = is_right ? -1.0 : 1.0;
+    // Lateral offset of the EE reach line from base center (signed by arm side).
+  const double ee_lateral = side_sign * (BaseToShoulderDY + EeLateralFromShoulder);
 
   const double tx_base = base_target_tf.transform.translation.x;
   const double ty_base = base_target_tf.transform.translation.y;
 
-    // Yaw the base to face the target
-  const double diff_yaw = std::atan2(ty_base - shoulder_y, tx_base);
+    // Yaw the base so the END-EFFECTOR reach line (not the shoulder pivot) is
+    // aimed at the target. The arm extends in a plane offset by ee_lateral from
+    // base center, so simply pointing base center (or the shoulder) at the target
+    // leaves the EE short by that offset. Rotate base center toward the target,
+    // then back off by asin(ee_lateral / range) so the offset line intersects it.
+    //   after rotating the base by diff_yaw, the target's lateral coord in the
+    //   new base frame equals ee_lateral (verified: residual ~0).
+  const double range = std::hypot(tx_base, ty_base);
+  double diff_yaw = 0.0;
+  if (range > std::abs(ee_lateral)) {
+    diff_yaw = std::atan2(ty_base, tx_base) -
+      std::asin(std::clamp(ee_lateral / range, -1.0, 1.0));
+  } else {
+      // Target closer than the lateral offset: fall back to facing it directly.
+    diff_yaw = std::atan2(ty_base, tx_base);
+  }
   tf2::Quaternion q;
   q.setRPY(0.0, 0.0, diff_yaw);
   move_pose.orientation = tf2::toMsg(q);
@@ -233,91 +165,86 @@ geometry_msgs::msg::Pose Kinematics::forward_kinematics(
   const double tx_lift = lift_target_tf.transform.translation.x;
   const double tz_lift = lift_target_tf.transform.translation.z;
 
-    // Lift delta: find minimum dz such that ik_solve(tx_lift, tz_lift - dz) succeeds.
-    // Raising the lift by dz shifts the target to (tx, tz - dz) in body_lift_link.
+    // Reposition deltas (dx forward base shift, dz lift raise) that bring an
+    // unreachable target into the arm workspace. Driving the base forward by dx
+    // and raising the lift by dz shifts the target to (tx - dx, tz - dz) in
+    // body_lift_link, so we need ik_solve(tx_lift - dx, tz_lift - dz) to succeed.
+    //
+    // The reachable (x, z) set is a thin curved region, so dx and dz are coupled:
+    // near the z extremes the reachable x-window collapses. Computing one axis
+    // then the other (each assuming the other is in range) lands on the boundary
+    // sliver and reports a correction that is not actually reachable. Instead we
+    // search the (dz, dx) grid jointly and pick the reachable pair with the least
+    // total motion, so the reported move_pose always corresponds to a target the
+    // arm can reach after the move.
+  double dx = 0.0;
   double dz = 0.0;
   {
-    double dummy_st, dummy_el;
-    if (!ik_solve(tx_lift, tz_lift, dummy_st, dummy_el)) {
-        // Check if any z at this x is reachable (otherwise x is out of range)
-      bool z_feasible = false;
-      for (int k = 0; k <= 40; ++k) {
-        const double zk = WS_Z_MIN + k * (WS_Z_MAX - WS_Z_MIN) / 40.0;
-        if (ik_solve(tx_lift, zk, dummy_st, dummy_el)) {z_feasible = true; break;}
+    double s, e;
+    if (!ik_solve(tx_lift, tz_lift, s, e)) {
+        // Candidate dz values: 0 plus a sweep across the lift travel that maps
+        // tz_lift into the z-workspace. dz>0 raises the lift (target moves down
+        // in the lift frame), dz<0 lowers it.
+      constexpr int NZ = 60;
+      const double dz_lo = tz_lift - WS_Z_MAX;
+      const double dz_hi = tz_lift - WS_Z_MIN;
+        // Candidate dx values across the base travel that maps tx_lift into the
+        // x-workspace, plus 0.
+      constexpr int NX = 60;
+      const double dx_lo = tx_lift - WS_X_MAX;
+      const double dx_hi = tx_lift - WS_X_MIN;
+
+        // 2 cm interior margin so the adjusted target lands safely inside the
+        // workspace, not right on the (numerically fragile) boundary.
+      constexpr double MARGIN = 0.02;
+
+      double best_cost = std::numeric_limits<double>::infinity();
+      double best_dx = 0.0, best_dz = 0.0;
+      bool found = false;
+
+        // Test one (dx, dz) pair: keep it if reachable and cheaper than the best
+        // so far. Cost weights lift and base motion equally; both are costly.
+      auto try_pair = [&](double cand_dx, double cand_dz) {
+          const double ax = tx_lift - cand_dx;
+          const double az = tz_lift - cand_dz;
+          double cs, ce;
+          if (!ik_solve(ax, az, cs, ce)) {return;}
+          const double cost = std::abs(cand_dx) + std::abs(cand_dz);
+          if (cost < best_cost) {
+            best_cost = cost; best_dx = cand_dx; best_dz = cand_dz; found = true;
+          }
+        };
+
+      for (int iz = 0; iz <= NZ; ++iz) {
+        const double raw_dz = dz_lo + iz * (dz_hi - dz_lo) / NZ;
+          // Apply the interior margin in the direction that pushes toward 0-side
+          // interior of the band (sign follows raw_dz).
+        const double cdz = raw_dz + (raw_dz >= 0.0 ? MARGIN : -MARGIN);
+        for (int ix = 0; ix <= NX; ++ix) {
+          const double raw_dx = dx_lo + ix * (dx_hi - dx_lo) / NX;
+          const double cdx = raw_dx + (raw_dx >= 0.0 ? MARGIN : -MARGIN);
+          try_pair(cdx, cdz);
+        }
+          // Also try this dz with no base shift (target already in x-range).
+        try_pair(0.0, cdz);
       }
-      if (z_feasible) {
-          // Find minimum |dz| such that ik_solve(tx, tz - dz) succeeds.
-          // dz range spans [tz_lift - WS_Z_MAX, tz_lift - WS_Z_MIN].
-          // The reachable island may not touch dz=0, so scan from near-zero outward.
-        const double dz_lo = tz_lift - WS_Z_MAX;
-        const double dz_hi = tz_lift - WS_Z_MIN;
+        // And try every dx with no lift change.
+      for (int ix = 0; ix <= NX; ++ix) {
+        const double raw_dx = dx_lo + ix * (dx_hi - dx_lo) / NX;
+        const double cdx = raw_dx + (raw_dx >= 0.0 ? MARGIN : -MARGIN);
+        try_pair(cdx, 0.0);
+      }
 
-        auto try_dz = [&](double d) {
-            double s, e; return ik_solve(tx_lift, tz_lift - d, s, e);
-          };
-
-          // Scan from the end closer to 0 to find first reachable dz
-          // (to get the minimum-magnitude solution)
-        double best_dz = std::numeric_limits<double>::quiet_NaN();
-
-          // Scan the full dz range to find any reachable point,
-          // then bisect toward minimum |dz| from each side.
-        constexpr int N = 120;
-          // Scan from near-zero outward in both directions to find the first
-          // reachable dz, which is the minimum-magnitude solution.
-        auto scan_from_zero = [&](double range_start, double range_end) -> double {
-            // range_start is close to 0, range_end is farther
-            for (int i = 0; i <= N; ++i) {
-              double d = range_start + i * (range_end - range_start) / N;
-              if (try_dz(d)) {
-                // Bisect between previous step (unreachable) and d (reachable)
-                double prev = range_start + (i > 0 ? (i - 1) : 0) * (range_end - range_start) / N;
-                double lo = prev, hi = d;
-                if (lo > hi) {std::swap(lo, hi);}
-                for (int j = 0; j < 40; ++j) {
-                  double mid = (lo + hi) / 2.0;
-                  if (try_dz(mid)) {hi = mid;} else {lo = mid;}
-                }
-                return hi;
-              }
-            }
-            return std::numeric_limits<double>::quiet_NaN();
-          };
-
-          // Positive side: scan from 0 toward dz_hi
-        if (dz_hi > 0.0) {
-          double candidate = scan_from_zero(std::max(dz_lo, 0.0), dz_hi);
-          if (!std::isnan(candidate) && (std::isnan(best_dz) || candidate < std::abs(best_dz))) {
-            best_dz = candidate;
-          }
-        }
-
-          // Negative side: scan from 0 toward dz_lo
-        if (dz_lo < 0.0) {
-          double candidate = scan_from_zero(std::min(dz_hi, 0.0), dz_lo);
-          if (!std::isnan(candidate) &&
-            (std::isnan(best_dz) || std::abs(candidate) < std::abs(best_dz)))
-          {
-            best_dz = candidate;
-          }
-        }
-
-        if (!std::isnan(best_dz)) {
-            // Add a 2 cm interior margin so the adjusted target lands
-            // safely inside the workspace boundary, not right on the edge.
-          constexpr double MARGIN = 0.02;
-          dz = best_dz + (best_dz >= 0.0 ? MARGIN : -MARGIN);
-        }
+      if (found) {
+        dx = best_dx;
+        dz = best_dz;
       }
     }
   }
+
+  move_pose.position.x = dx;    // base forward shift (+ = forward, - = backward)
   move_pose.position.y = 0.0;
   move_pose.position.z = dz;    // lift delta (+ = up, - = down)
-
-    // Base x-shift needed to bring (tx, adjusted_tz) into IK workspace
-  double dx = 0.0;
-  base_shift_for_reachability(tx_lift, tz_lift - dz, dx);
-  move_pose.position.x = dx;
 
   return move_pose;
 }

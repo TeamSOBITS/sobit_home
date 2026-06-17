@@ -31,8 +31,17 @@ public:
   std::vector<double> look_at(const geometry_msgs::msg::TransformStamped & target_tf);
 
 private:
-    // Y-offset from body_lift_link origin to the right-arm shoulder pivot.
+    // Y-offset from base center to the right-arm shoulder pivot.
+    // The right shoulder sits at base-frame y = -0.205 (negative = robot's right),
+    // the left mirrors to +0.205.
   static constexpr double BaseToShoulderDY = 0.205;
+
+    // Additional lateral offset from the shoulder pivot to the end-effector reach
+    // line, in the arm's straight-out pose (right arm: EE is a further -0.100 m
+    // from the shoulder). Sign mirrors with the arm side. The EE therefore reaches
+    // along the base-frame line y = -(BaseToShoulderDY + EeLateralFromShoulder)
+    // for the right arm. Used to aim the base yaw at the EE line, not the pivot.
+  static constexpr double EeLateralFromShoulder = 0.100;
 
     // X-reach of the arm when upper_roll=-π/2 and shoulder_tilt=π/2 (arm straight forward).
   static constexpr double ArmReachX = 1.319;
@@ -78,10 +87,6 @@ private:
 
     // Multi-seed 2-DOF IK solver.
   static bool ik_solve(double tx, double tz, double & st_out, double & el_out);
-
-    // Returns minimum base x-shift (dx) to bring (tx,tz) into IK workspace.
-    // Positive dx = drive forward. Returns false if tz is out of z range.
-  static bool base_shift_for_reachability(double tx, double tz, double & dx_out);
 };
 }
 #endif
