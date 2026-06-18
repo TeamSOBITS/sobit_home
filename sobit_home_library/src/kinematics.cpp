@@ -131,8 +131,10 @@ geometry_msgs::msg::Pose Kinematics::forward_kinematics(
   const std::vector<double> & /*joint_angles_rad*/,
   const geometry_msgs::msg::TransformStamped & base_target_tf,
   const geometry_msgs::msg::TransformStamped & lift_target_tf,
-  const bool is_right)
+  const bool is_right,
+  std::vector<double> * post_move_rads)
 {
+  if (post_move_rads) {post_move_rads->clear();}
   geometry_msgs::msg::Pose move_pose;
     // Right arm reaches along base-frame y < 0, left along y > 0.
   const double side_sign = is_right ? -1.0 : 1.0;
@@ -142,13 +144,10 @@ geometry_msgs::msg::Pose Kinematics::forward_kinematics(
   const double tx_base = base_target_tf.transform.translation.x;
   const double ty_base = base_target_tf.transform.translation.y;
 
-    // Yaw the base so the END-EFFECTOR reach line (not the shoulder pivot) is
-    // aimed at the target. The arm extends in a plane offset by ee_lateral from
-    // base center, so simply pointing base center (or the shoulder) at the target
-    // leaves the EE short by that offset. Rotate base center toward the target,
-    // then back off by asin(ee_lateral / range) so the offset line intersects it.
-    //   after rotating the base by diff_yaw, the target's lateral coord in the
-    //   new base frame equals ee_lateral (verified: residual ~0).
+    // Yaw the base so the EE reach line (offset ee_lateral from base center)
+    // aims at the target: point at it, then back off by asin(ee_lateral/range)
+    // so the offset line — not base center — intersects it. After the yaw the
+    // target's lateral coord equals ee_lateral.
   const double range = std::hypot(tx_base, ty_base);
   double diff_yaw = 0.0;
   if (range > std::abs(ee_lateral)) {
@@ -165,60 +164,57 @@ geometry_msgs::msg::Pose Kinematics::forward_kinematics(
   const double tx_lift = lift_target_tf.transform.translation.x;
   const double tz_lift = lift_target_tf.transform.translation.z;
 
-    // Reposition deltas (dx forward base shift, dz lift raise) that bring an
-    // unreachable target into the arm workspace. Driving the base forward by dx
-    // and raising the lift by dz shifts the target to (tx - dx, tz - dz) in
-    // body_lift_link, so we need ik_solve(tx_lift - dx, tz_lift - dz) to succeed.
-    //
-    // The reachable (x, z) set is a thin curved region, so dx and dz are coupled:
-    // near the z extremes the reachable x-window collapses. Computing one axis
-    // then the other (each assuming the other is in range) lands on the boundary
-    // sliver and reports a correction that is not actually reachable. Instead we
-    // search the (dz, dx) grid jointly and pick the reachable pair with the least
-    // total motion, so the reported move_pose always corresponds to a target the
-    // arm can reach after the move.
+    // X the planar IK must reach is the post-yaw forward distance, not raw
+    // tx_lift (the pre-yaw X). After yawing, the target's lateral coord is
+    // ee_lateral, so its forward reach is sqrt(range^2 - ee_lateral^2); add the
+    // lift mount offset to express it in the lift frame. Using tx_lift directly
+    // under-drives far/low targets where the reachable X-window is a sliver.
+  const double lift_mount_dx = tx_lift - tx_base;
+  const double reach_x_lift =
+    std::sqrt(std::max(0.0, range * range - ee_lateral * ee_lateral)) + lift_mount_dx;
+
+    // Reposition deltas: driving base by dx and raising lift by dz shifts the
+    // post-yaw target to (reach_x_lift - dx, tz_lift - dz). The reachable (x, z)
+    // set is a thin curved region (dx and dz coupled), so search the grid
+    // jointly and pick the reachable pair with least total motion.
   double dx = 0.0;
   double dz = 0.0;
   {
     double s, e;
-    if (!ik_solve(tx_lift, tz_lift, s, e)) {
-        // Candidate dz values: 0 plus a sweep across the lift travel that maps
-        // tz_lift into the z-workspace. dz>0 raises the lift (target moves down
-        // in the lift frame), dz<0 lowers it.
+    if (!ik_solve(reach_x_lift, tz_lift, s, e)) {
+        // dz sweep maps tz_lift into the z-workspace (dz>0 raises lift).
       constexpr int NZ = 60;
       const double dz_lo = tz_lift - WS_Z_MAX;
       const double dz_hi = tz_lift - WS_Z_MIN;
-        // Candidate dx values across the base travel that maps tx_lift into the
-        // x-workspace, plus 0.
+        // dx sweep maps reach_x_lift into the x-workspace.
       constexpr int NX = 60;
-      const double dx_lo = tx_lift - WS_X_MAX;
-      const double dx_hi = tx_lift - WS_X_MIN;
+      const double dx_lo = reach_x_lift - WS_X_MAX;
+      const double dx_hi = reach_x_lift - WS_X_MIN;
 
-        // 2 cm interior margin so the adjusted target lands safely inside the
-        // workspace, not right on the (numerically fragile) boundary.
+        // Interior margin: keep the adjusted target off the fragile boundary.
       constexpr double MARGIN = 0.02;
 
       double best_cost = std::numeric_limits<double>::infinity();
       double best_dx = 0.0, best_dz = 0.0;
+      double best_st = 0.0, best_el = 0.0;
       bool found = false;
 
-        // Test one (dx, dz) pair: keep it if reachable and cheaper than the best
-        // so far. Cost weights lift and base motion equally; both are costly.
+        // Keep a (dx, dz) pair if reachable and cheaper (lift+base weighted equally).
       auto try_pair = [&](double cand_dx, double cand_dz) {
-          const double ax = tx_lift - cand_dx;
+          const double ax = reach_x_lift - cand_dx;
           const double az = tz_lift - cand_dz;
           double cs, ce;
           if (!ik_solve(ax, az, cs, ce)) {return;}
           const double cost = std::abs(cand_dx) + std::abs(cand_dz);
           if (cost < best_cost) {
-            best_cost = cost; best_dx = cand_dx; best_dz = cand_dz; found = true;
+            best_cost = cost; best_dx = cand_dx; best_dz = cand_dz;
+            best_st = cs; best_el = ce; found = true;
           }
         };
 
       for (int iz = 0; iz <= NZ; ++iz) {
         const double raw_dz = dz_lo + iz * (dz_hi - dz_lo) / NZ;
-          // Apply the interior margin in the direction that pushes toward 0-side
-          // interior of the band (sign follows raw_dz).
+          // Margin pushes toward the band interior (sign follows raw_dz).
         const double cdz = raw_dz + (raw_dz >= 0.0 ? MARGIN : -MARGIN);
         for (int ix = 0; ix <= NX; ++ix) {
           const double raw_dx = dx_lo + ix * (dx_hi - dx_lo) / NX;
@@ -238,6 +234,12 @@ geometry_msgs::msg::Pose Kinematics::forward_kinematics(
       if (found) {
         dx = best_dx;
         dz = best_dz;
+          // Post-move arm config (same layout as inverse_kinematics()).
+        if (post_move_rads) {
+          const double upper_roll = -M_PI_2;
+          const double wrist_tilt = M_PI_2 - best_st - best_el;
+          *post_move_rads = {best_st, upper_roll, 0.0, best_el, 0.0, wrist_tilt, 0.0};
+        }
       }
     }
   }
