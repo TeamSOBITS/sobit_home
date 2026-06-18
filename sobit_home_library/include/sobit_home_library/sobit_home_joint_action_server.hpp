@@ -142,6 +142,12 @@ public:
     const std::string & group_name);
 
 private:
+    // Graspable EE height band above the floor [m].
+    //   upper = lift LIFT_MAX (link 1.388) + arm WS_Z_MAX (0.948)
+    //   lower = floor (arm can dip below 0 but the EE would hit the ground)
+  static constexpr double MAX_GRASP_HEIGHT = 2.34;
+  static constexpr double MIN_GRASP_HEIGHT = 0.0;
+
   const std::vector<std::string> JointNamesArmRight = {
     "arm_right_shoulder_tilt_joint",
     "arm_right_upper_roll_joint",

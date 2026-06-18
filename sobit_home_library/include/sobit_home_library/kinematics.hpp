@@ -22,7 +22,8 @@ public:
     const std::vector<double> & joint_angles_rad,
     const geometry_msgs::msg::TransformStamped & base_target_tf,
     const geometry_msgs::msg::TransformStamped & lift_target_tf,
-    const bool is_right);
+    const bool is_right,
+    std::vector<double> * post_move_rads = nullptr);
 
   std::vector<double> inverse_kinematics(
     const geometry_msgs::msg::TransformStamped & lift_target_tf,

@@ -527,16 +527,46 @@ void JointActionServer::get_pos_to_coord(
     return;
   }
 
+    // Height gate: base_footprint is on the floor, so goal_in_base.z is the
+    // target height. Outside the graspable band -> unreachable by any move.
+  const double target_height = goal_in_base.transform.translation.z;
+  if (target_height > MAX_GRASP_HEIGHT || target_height < MIN_GRASP_HEIGHT) {
+    response->success = false;
+    response->message = "Target out of range: height " +
+      std::to_string(target_height) + " m is outside graspable band [" +
+      std::to_string(MIN_GRASP_HEIGHT) + ", " + std::to_string(MAX_GRASP_HEIGHT) + "] m.";
+    return;
+  }
+
   auto rads = kinematics_->inverse_kinematics(goal_in_lift, is_right);
 
-    // Always compute move_pose: base shift needed to reach (or already at) target
-  response->move_pose = kinematics_->forward_kinematics(rads, goal_in_base, goal_in_lift, is_right);
+    // move_pose = base/lift reposition (zero if reachable in place). When not
+    // reachable in place, post_move_rads holds the arm config after the move.
+  std::vector<double> post_move_rads;
+  response->move_pose =
+    kinematics_->forward_kinematics(rads, goal_in_base, goal_in_lift, is_right, &post_move_rads);
 
-  if (rads.empty()) {
+    // success == IK solvable: in place (rads) or after move (post_move_rads);
+    // false only when no arm config reaches it even after the optimal move.
+  const bool in_place = !rads.empty();
+  const std::vector<double> & joints = in_place ? rads : post_move_rads;
+
+  if (joints.empty()) {
     response->success = false;
+    response->message = "Target unreachable: no arm solution within workspace.";
+    return;
+  }
+
+  response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
+  response->target_joint_rad = joints;
+  response->success = true;
+
+  if (in_place) {
+    response->message = "Success: target reachable in place.";
+  } else {
     const double dx = response->move_pose.position.x;
     const double dz = response->move_pose.position.z;
-    std::string msg = "Target unreachable:";
+    std::string msg = "Success: reachable after move:";
     if (std::abs(dz) > 0.001) {
       msg += " adjust lift " + std::to_string(std::abs(dz)) + " m " +
         (dz > 0 ? "up" : "down") + ";";
@@ -545,17 +575,8 @@ void JointActionServer::get_pos_to_coord(
       msg += " drive base " + std::to_string(std::abs(dx)) + " m " +
         (dx > 0 ? "forward" : "backward") + ";";
     }
-    if (std::abs(dx) < 0.001 && std::abs(dz) < 0.001) {
-      msg += " out of workspace.";
-    }
     response->message = msg;
-    return;
   }
-
-  response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
-  response->target_joint_rad = rads;
-  response->success = true;
-  response->message = "Success: Target reached.";
 }
 
 void JointActionServer::get_pos_to_tf(
@@ -588,17 +609,46 @@ void JointActionServer::get_pos_to_tf(
   goal_in_lift.transform.translation.y += diff.y;
   goal_in_lift.transform.translation.z += diff.z;
 
+    // Height gate: base_footprint is on the floor, so goal_in_base.z is the
+    // target height. Outside the graspable band -> unreachable by any move.
+  const double target_height = goal_in_base.transform.translation.z;
+  if (target_height > MAX_GRASP_HEIGHT || target_height < MIN_GRASP_HEIGHT) {
+    response->success = false;
+    response->message = "Target out of range: height " +
+      std::to_string(target_height) + " m is outside graspable band [" +
+      std::to_string(MIN_GRASP_HEIGHT) + ", " + std::to_string(MAX_GRASP_HEIGHT) + "] m.";
+    return;
+  }
+
   const auto rads = kinematics_->inverse_kinematics(goal_in_lift, is_right);
 
-    // Always compute move_pose: base shift / lift adjustment needed to reach
-    // (or, when reachable, the zero adjustment) so the caller can reposition.
-  response->move_pose = kinematics_->forward_kinematics(rads, goal_in_base, goal_in_lift, is_right);
+    // move_pose = base/lift reposition (zero if reachable in place). When not
+    // reachable in place, post_move_rads holds the arm config after the move.
+  std::vector<double> post_move_rads;
+  response->move_pose =
+    kinematics_->forward_kinematics(rads, goal_in_base, goal_in_lift, is_right, &post_move_rads);
 
-  if (rads.empty()) {
+    // success == IK solvable: in place (rads) or after move (post_move_rads);
+    // false only when no arm config reaches it even after the optimal move.
+  const bool in_place = !rads.empty();
+  const std::vector<double> & joints = in_place ? rads : post_move_rads;
+
+  if (joints.empty()) {
     response->success = false;
+    response->message = "Target unreachable: no arm solution within workspace.";
+    return;
+  }
+
+  response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
+  response->target_joint_rad = joints;
+  response->success = true;
+
+  if (in_place) {
+    response->message = "Success: TF target reachable in place.";
+  } else {
     const double dx = response->move_pose.position.x;
     const double dz = response->move_pose.position.z;
-    std::string msg = "Target unreachable with offset:";
+    std::string msg = "Success: reachable after move:";
     if (std::abs(dz) > 0.001) {
       msg += " adjust lift " + std::to_string(std::abs(dz)) + " m " +
         (dz > 0 ? "up" : "down") + ";";
@@ -607,17 +657,8 @@ void JointActionServer::get_pos_to_tf(
       msg += " drive base " + std::to_string(std::abs(dx)) + " m " +
         (dx > 0 ? "forward" : "backward") + ";";
     }
-    if (std::abs(dx) < 0.001 && std::abs(dz) < 0.001) {
-      msg += " out of workspace.";
-    }
     response->message = msg;
-    return;
   }
-
-  response->target_joint_names = is_right ? JointNamesArmRight : JointNamesArmLeft;
-  response->target_joint_rad = rads;
-  response->success = true;
-  response->message = "Success: TF target reached.";
 }
 
 void JointActionServer::get_head_to_coord(
