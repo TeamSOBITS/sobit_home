@@ -777,7 +777,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">53</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">55</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -815,7 +815,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">55</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">55</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -853,7 +853,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">57</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">55</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -923,7 +923,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">63</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">55</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -961,7 +961,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">65</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">55</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -999,7 +999,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">67</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">55</param>
+        <param name="Goal_Current">50</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
