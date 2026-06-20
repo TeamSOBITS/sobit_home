@@ -152,14 +152,19 @@ void SwerveController::control_callback()
     wheel_joint_vel.data.push_back((steering_state == 1) ? sobit_home_control_->goal_drive_vel[i] : 0.0);
   pub_wheel_joint_->publish(wheel_joint_vel);
 
-  // Calculate Odometry
-  sobit_home_odometry_->update_odom();
-
-  // Publish Odometry
+  // Integrate only when steering has settled (mid-transition angles corrupt the
+  // odom solve). Otherwise hold pose + zero twist (drives are 0, base isn't moving).
+  // Always publish odom + TF so Nav2 never sees a transform gap.
+  if (steering_state == 1) {
+    sobit_home_odometry_->update_odom();
+  } else {
+    sobit_home_odometry_->odom_.twist.twist = geometry_msgs::msg::Twist();
+    sobit_home_odometry_->odom_.header.stamp = get_clock()->now();
+  }
   sobit_home_odometry_->pose_broadcaster();
   pub_odometry_->publish(sobit_home_odometry_->odom_);
 
-  // Update Previous data
+  // Sync every cycle so coast during settling isn't integrated as a jump on resume.
   for (int i=0; i<4; i++)
     sobit_home_odometry_->prev_drive_pos[i] = sobit_home_odometry_->current_drive_pos[i];
 }
