@@ -116,8 +116,8 @@
 
     <xacro:if value="${$(arg enable_mobile_base) and $(arg enable_rm_motors)}">
       <ros2_control name="robomaster_control" type="system">
-      <!-- <ros2_control name="robomaster_control" type="system" is_async="true"> -->
-        <!-- <properties>
+      <!-- <ros2_control name="robomaster_control" type="system" is_async="true">
+        <properties>
           <async scheduling_policy="synchronized" thread_priority="79" affinity="[4]" print_warnings="true"/>
         </properties> -->
         <hardware>
@@ -137,7 +137,11 @@
     </xacro:if>
 
     <xacro:if value="${$(arg enable_body)}">
-      <ros2_control name="uirobot_control" type="system">
+      <!-- <ros2_control name="uirobot_control" type="system"> -->
+      <ros2_control name="uirobot_control" type="system" is_async="true">
+        <properties>
+          <async scheduling_policy="synchronized" thread_priority="79" affinity="[6]" print_warnings="true"/>
+        </properties>
         <hardware>
           <xacro:if value="${$(arg enable_gz)}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
