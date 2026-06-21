@@ -67,7 +67,7 @@
       arm_right_wrist_tilt: -1.57
       arm_right_wrist_roll: 0.00
 
-    close_detecting_pose:
+    detecting_pose:
       body_lift: 0.5
 
       head_pan: 0.0
@@ -89,7 +89,7 @@
       arm_right_wrist_tilt: -1.57
       arm_right_wrist_roll: 0.0
 
-    detecting_pose:
+    open_detecting_pose:
       body_lift: 0.5
 
       head_pan: 0.0
