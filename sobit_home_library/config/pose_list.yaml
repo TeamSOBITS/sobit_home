@@ -5,7 +5,6 @@
       - shutdown_pose
       - detecting_pose
       - move_pose
-      - close_detecting_pose
       - open_detecting_pose
 
     initial_pose:
