@@ -555,8 +555,8 @@ def launch_gz(context, *args, **kwargs):
                     # "/model/" + robot_name + "/pose" + "@geometry_msgs/msg/Pose" + "[gz.msgs.Pose",
                     "/" + robot_name + "/head_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
                     "/" + robot_name + "/head_camera/color" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
-                    "/" + robot_name + "/head_camera/depth" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
-                    "/" + robot_name + "/head_camera/depth/points" + "@sensor_msgs/msg/PointCloud2" + "[gz.msgs.PointCloudPacked",
+                    # NOTE: head_camera/depth/points is NOT bridged from gz. gz emits the
+                    # cloud in BODY convention (+X fwd), which does not match the real cam
                     "/" + robot_name + "/hand_left_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
                     "/" + robot_name + "/hand_left_camera/color" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
                     "/" + robot_name + "/hand_right_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
@@ -569,7 +569,6 @@ def launch_gz(context, *args, **kwargs):
                 ],
         remappings=[
                     ("/" + robot_name + "/head_camera/color", "/" + robot_name + "/head_camera/color/image_raw"),
-                    ("/" + robot_name + "/head_camera/depth", "/" + robot_name + "/head_camera/depth/image_raw"),
                     ("/" + robot_name + "/hand_left_camera/camera_info", "/" + robot_name + "/hand_left_camera/color/camera_info"),
                     ("/" + robot_name + "/hand_left_camera/color", "/" + robot_name + "/hand_left_camera/color/image_raw"),
                     ("/" + robot_name + "/hand_right_camera/camera_info", "/" + robot_name + "/hand_right_camera/color/camera_info"),
@@ -577,14 +576,85 @@ def launch_gz(context, *args, **kwargs):
                 ],
         parameters=[{
             'use_sim_time': True,
-            f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.reliability': 'best_effort',
-            f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.depth': 1,
-            f'qos_overrides./{robot_name}/head_camera/depth/image_raw.publisher.reliability': 'best_effort',
-            f'qos_overrides./{robot_name}/head_camera/depth/image_raw.publisher.depth': 1,
             f'qos_overrides./{robot_name}/head_camera/color/image_raw.publisher.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/color/image_raw.publisher.depth': 1,
+            f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw.publisher.reliability': 'best_effort',
+            f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw.publisher.depth': 1,
+            f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw.publisher.reliability': 'best_effort',
+            f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw.publisher.depth': 1,
         }],
         output='screen'
+    )
+
+    # Bridge the depth IMAGE and stamp it with the OPTICAL frame_id. This image is the
+    # single source of truth for everything 3D in sim:
+    #   - MoveIt's DepthImageOctomapUpdater deprojects it via camera_info (optical
+    #     convention), so its header MUST be head_camera_depth_optical_frame.
+    #   - depth_image_proc regenerates the point cloud from it (below), inheriting the
+    #     same optical frame -> matches the real Orbbec driver exactly.
+    # The ros_gz_bridge `override_frame_id` param relabels header.frame_id for every
+    # topic this node bridges (here: only the depth image). gz's own gz_frame_id is
+    # left at head_camera_depth_frame in the SDF and is now irrelevant on the ROS side.
+    gz_bridge_depth_image_node = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        name='parameter_bridge_depth_image',
+        namespace=robot_name,
+        arguments=[
+            "/" + robot_name + "/head_camera/depth" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
+            "/" + robot_name + "/head_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
+        ],
+        remappings=[
+            ("/" + robot_name + "/head_camera/depth", "/" + robot_name + "/head_camera/depth/image_raw"),
+            ("/" + robot_name + "/head_camera/camera_info", "/" + robot_name + "/head_camera/depth/camera_info"),
+        ],
+        parameters=[{
+            'use_sim_time': True,
+            'override_frame_id': 'head_camera_depth_optical_frame',
+            f'qos_overrides./{robot_name}/head_camera/depth/image_raw.publisher.reliability': 'best_effort',
+            f'qos_overrides./{robot_name}/head_camera/depth/image_raw.publisher.depth': 1,
+            f'qos_overrides./{robot_name}/head_camera/depth/camera_info.publisher.reliability': 'best_effort',
+            f'qos_overrides./{robot_name}/head_camera/depth/camera_info.publisher.depth': 1,
+        }],
+        output='screen'
+    )
+
+    # Regenerate the depth point cloud on the ROS side from the depth image +
+    # camera_info, exactly as the real cam does.
+    head_camera_point_cloud_xyz_node = Node(
+        package='depth_image_proc',
+        executable='point_cloud_xyz_node',
+        name='head_camera_point_cloud_xyz',
+        namespace=robot_name,
+        parameters=[{
+            'use_sim_time': True,
+            f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.reliability': 'best_effort',
+            f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.depth': 1,
+        }],
+        remappings=[
+            ("image_rect",  "/" + robot_name + "/head_camera/depth/image_raw"),
+            ("points",      "/" + robot_name + "/head_camera/depth/points"),
+        ],
+        output='screen'
+    )
+
+    # Publish a compressedDepth transport of the raw depth image
+    head_camera_depth_compressed_node = Node(
+        package='image_transport',
+        executable='republish',
+        name='head_camera_depth_compressed_republisher',
+        namespace=robot_name,
+        arguments=['raw', 'compressedDepth'],
+        remappings=[
+            ("in",                  "/" + robot_name + "/head_camera/depth/image_raw"),
+            ("out/compressedDepth", "/" + robot_name + "/head_camera/depth/image_raw/compressedDepth"),
+        ],
+        parameters=[{
+            'use_sim_time': True,
+            f'qos_overrides./{robot_name}/head_camera/depth/image_raw/compressedDepth.publisher.reliability': 'best_effort',
+            f'qos_overrides./{robot_name}/head_camera/depth/image_raw/compressedDepth.publisher.depth': 1,
+        }],
+        output='log'
     )
 
     # Real hardware: ELP wrist cameras via usb_cam
