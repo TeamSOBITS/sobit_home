@@ -5,12 +5,10 @@
 
     <!-- Sensor - Head Camera (Color) -->
     <xacro:if value="${enable_head_cam_color}">
-      <gazebo reference="head_camera_color_optical_frame">
+      <gazebo reference="head_camera_color_frame">
         <sensor name="head_camera_color" type="camera">
-          <pose>0 0 0 ${M_PI/2} -${M_PI/2} 0 </pose>
+          <pose>0 0 0 0 0 0 </pose>
 
-          
-          <!-- <ignition_frame_id>${robot_name}/head_camera_color_optical_frame</ignition_frame_id> -->
           <gz_frame_id>head_camera_color_optical_frame</gz_frame_id>
           <topic>${robot_name}/head_camera/color</topic>
 
@@ -42,10 +40,8 @@
 
     <!-- Sensor - Head Camera (Depth) -->
     <xacro:if value="${enable_head_cam_depth}">
-      <!-- <gazebo reference="head_camera_depth_optical_frame"> -->
       <gazebo reference="head_camera_depth_frame">
         <sensor name="head_camera_depth" type="depth_camera">
-          <!-- <pose>0 0 0 ${M_PI/2} -${M_PI/2} 0 </pose> -->
           <pose>0 0 0 0 0 0 </pose>
 
           <gz_frame_id>head_camera_depth_frame</gz_frame_id>
@@ -53,7 +49,7 @@
 
           <always_on>1</always_on>
           <visualize>false</visualize>
-          <update_rate>1</update_rate>
+          <update_rate>10</update_rate>
 
           <camera name="head_camera_depth">
             <horizontal_fov>1.64061</horizontal_fov>
