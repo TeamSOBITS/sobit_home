@@ -568,7 +568,6 @@ def launch_gz(context, *args, **kwargs):
                     # "/" + robot_name + "/imu" + "@sensor_msgs/msg/Imu" + "[gz.msgs.IMU",
                 ],
         remappings=[
-                    ("/" + robot_name + "/head_camera/camera_info", "/" + robot_name + "/head_camera/color/camera_info"),
                     ("/" + robot_name + "/head_camera/color", "/" + robot_name + "/head_camera/color/image_raw"),
                     ("/" + robot_name + "/head_camera/depth", "/" + robot_name + "/head_camera/depth/image_raw"),
                     ("/" + robot_name + "/hand_left_camera/camera_info", "/" + robot_name + "/hand_left_camera/color/camera_info"),
@@ -657,14 +656,14 @@ def launch_gz(context, *args, **kwargs):
         if enable_action_server:
             nodes.append(delayed_action_server)
 
-        # Relay color/camera_info → depth/camera_info for MoveIt octomap updater
+        # Relay camera_info → depth/camera_info for MoveIt octomap updater
         if enable_head_cam_depth:
             nodes.append(Node(
                 package='topic_tools',
                 executable='relay',
                 name='head_camera_depth_camera_info_relay',
                 parameters=[
-                    {'input_topic':  '/' + robot_name + '/head_camera/color/camera_info'},
+                    {'input_topic':  '/' + robot_name + '/head_camera/camera_info'},
                     {'output_topic': '/' + robot_name + '/head_camera/depth/camera_info'},
                     {'use_sim_time': True},
                 ],
