@@ -577,11 +577,11 @@ def launch_gz(context, *args, **kwargs):
                 ],
         parameters=[{
             'use_sim_time': True,
-            f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.reliability': 'reliable',
+            f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.depth': 1,
-            f'qos_overrides./{robot_name}/head_camera/depth/image_raw.publisher.reliability': 'reliable',
+            f'qos_overrides./{robot_name}/head_camera/depth/image_raw.publisher.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/depth/image_raw.publisher.depth': 1,
-            f'qos_overrides./{robot_name}/head_camera/color/image_raw.publisher.reliability': 'reliable',
+            f'qos_overrides./{robot_name}/head_camera/color/image_raw.publisher.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/color/image_raw.publisher.depth': 1,
         }],
         output='screen'
