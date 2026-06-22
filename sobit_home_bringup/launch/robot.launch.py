@@ -29,7 +29,7 @@ def generate_launch_description():
     arg_robot_coords_Y = DeclareLaunchArgument('robot_coords_Y', default_value='0')
 
     arg_enable_gz                   = DeclareLaunchArgument('enable_gz', default_value='true')
-    arg_enable_display              = DeclareLaunchArgument('enable_display', default_value='true')
+    arg_enable_display              = DeclareLaunchArgument('enable_display', default_value='false')
     arg_enable_mobile_base          = DeclareLaunchArgument('enable_mobile_base', default_value='true')
     arg_enable_arm_left             = DeclareLaunchArgument('enable_arm_left', default_value='true')
     arg_enable_arm_right            = DeclareLaunchArgument('enable_arm_right', default_value='true')
@@ -325,6 +325,7 @@ def launch_gz(context, *args, **kwargs):
                 'config_file' : merge_scan_config,
                 'pointcloud_remapping' : '/' + robot_name + '/lidar_scan/points',
                 'scan_remapping': '/' + robot_name + '/lidar_scan',
+                'use_sim_time': 'true' if enable_gz else 'false',
             }.items()
         )
         controllers.append(merge_lidar_node)
