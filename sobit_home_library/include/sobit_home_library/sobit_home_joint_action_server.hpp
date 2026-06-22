@@ -300,7 +300,7 @@ private:
     const std::vector<double>& rads,
     bool is_right);
   void grasp_monitor_callback();
-  bool check_grasp(bool is_right);
+  void check_grasp(bool is_right);
   void publish_grasp_state(bool grasped, bool is_right);
   std::string get_tf_frame(const std::string & frame_name);
 };

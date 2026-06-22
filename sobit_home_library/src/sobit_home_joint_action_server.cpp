@@ -151,12 +151,15 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options)
 
   declare_parameter("robot_description", "");
   urdf_timer_ = create_wall_timer(
-      std::chrono::milliseconds(500),
+    std::chrono::milliseconds(500),
     [this]() {load_joint_limits();});
+
   // Added timer for  grasp state monitor: t.tsukada
   grasp_monitor_timer_ = create_wall_timer(
-      std::chrono::milliseconds(100),
-      std::bind(&JointActionServer::grasp_monitor_callback, this));
+    std::chrono::milliseconds(100),
+    [this]() {
+      check_grasp(true);
+      check_grasp(false);});
 
   declare_parameter("poses", std::vector<std::string>());
   declare_parameter("right_hand_poses", std::vector<std::string>());
@@ -758,25 +761,30 @@ void JointActionServer::update_commanded_joint_position(
     }
 }
 
-//check grasp result
-bool JointActionServer::check_grasp(bool is_right)
+// check grasp result
+void JointActionServer::check_grasp(bool is_right)
 {
   const auto & target_map =
     is_right ? hand_right_target_joint_rad_
-            : hand_left_target_joint_rad_;
+             : hand_left_target_joint_rad_;
 
   if (target_map.empty()) {
-    return false;
+    std_msgs::msg::Bool msg;
+    msg.data = false;
+
+    (is_right ? pub_right_hand_grasp_state_
+              : pub_left_hand_grasp_state_)->publish(msg);
+    return;
   }
 
   constexpr double angle_th = 0.15;
-  constexpr double vel_th   = 0.2;
-  constexpr double current_limit_mA = 55.0;
+  constexpr double vel_th = 0.2;
+  constexpr double current_limit_mA = 50.0;
   constexpr double current_scale = 2.69;
 
   const std::vector<std::vector<std::string>> fingers =
     is_right ?
-    std::vector<std::vector<std::string>>{
+    std::vector<std::vector<std::string>> {
       {"hand_right_finger_l_mcp_joint",
        "hand_right_finger_l_pip_joint",
        "hand_right_finger_l_dip_joint"},
@@ -786,9 +794,8 @@ bool JointActionServer::check_grasp(bool is_right)
 
       {"hand_right_finger_r_pip_joint",
        "hand_right_finger_r_dip_joint"}
-    }
-    :
-    std::vector<std::vector<std::string>>{
+    } :
+    std::vector<std::vector<std::string>> {
       {"hand_left_finger_l_mcp_joint",
        "hand_left_finger_l_pip_joint",
        "hand_left_finger_l_dip_joint"},
@@ -804,8 +811,7 @@ bool JointActionServer::check_grasp(bool is_right)
 
   for (const auto & finger : fingers)
   {
-    int contact_joint = 0;
-    int stable_joint  = 0;
+    int blocked_joint = 0;
 
     for (const auto & joint : finger)
     {
@@ -815,56 +821,36 @@ bool JointActionServer::check_grasp(bool is_right)
       auto it_e = curt_joint_effort_.find(joint);
 
       if (it_q == curt_joint_state_.end() ||
-        it_t == target_map.end() ||
-        it_v == curt_joint_velocity_.end() ||
-        it_e == curt_joint_effort_.end())
-      {
+          it_t == target_map.end() ||
+          it_v == curt_joint_velocity_.end() ||
+          it_e == curt_joint_effort_.end()) {
         continue;
       }
 
       const double q_err = std::abs(it_q->second - it_t->second);
-      const double v     = std::abs(it_v->second);
-
+      const double v = std::abs(it_v->second);
 
       const double e_mA_raw = std::abs(it_e->second);
-      const double e_mA     = e_mA_raw / current_scale;
+      const double e_mA = e_mA_raw / current_scale;
 
+      const bool position_blocked = (q_err > angle_th);
+      const bool current_high = (e_mA >= current_limit_mA * 0.9);
+      const bool nearly_stopped = (v < vel_th);
 
-      const bool contact =
-        (q_err > angle_th * 0.7) &&
-        (e_mA > 4.0) &&
-        (v < vel_th);
-
-      const bool stable =
-        (v < vel_th) &&
-        (e_mA > 2.0);
-
-      if (contact) contact_joint++;
-      if (stable)  stable_joint++;
+      if (position_blocked && current_high && nearly_stopped) {
+        blocked_joint++;
+      }
     }
 
-    const bool finger_grasped =
-      (contact_joint >= 1) &&
-      (stable_joint  >= 1);
+    const bool finger_grasped = (blocked_joint >= 1);
 
     if (finger_grasped) {
       valid_fingers++;
     }
   }
 
-  return valid_fingers >= 2;
-}
+  bool is_grasped = (valid_fingers >= 2);
 
-// grasp state monitor:t.tsukada
-void JointActionServer::grasp_monitor_callback()
-{
-  publish_grasp_state(check_grasp(false), false);
-  publish_grasp_state(check_grasp(true), true);
-}
-
-// Grasp state publisher: t.tsukada
-void JointActionServer::publish_grasp_state(bool is_grasped, bool is_right)
-{
   std_msgs::msg::Bool msg;
   msg.data = is_grasped;
 
