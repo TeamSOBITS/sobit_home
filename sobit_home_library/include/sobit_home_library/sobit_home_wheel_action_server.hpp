@@ -67,6 +67,17 @@ private:
   double wheel_rotate_ki_;
   double wheel_rotate_kd_;
 
+  // Arrival tolerance: loop exits when remaining distance/angle < tol, so the
+  // PD braking doesn't asymptotically stall the loop and stall the result.
+  double wheel_linear_arrival_tol_;
+  double wheel_rotate_arrival_tol_;
+
+  // Runtime parameter updates: on_set_parameters writes the members above so
+  // PID gains + arrival tolerances can be tuned live via `ros2 param set`.
+  rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_cb_handle_;
+  rcl_interfaces::msg::SetParametersResult on_param_update(
+    const std::vector<rclcpp::Parameter> & params);
+
 };   // class WheelActionServer
 
 inline geometry_msgs::msg::Vector3 WheelActionServer::get_euler_from_quat(
