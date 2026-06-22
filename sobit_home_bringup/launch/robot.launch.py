@@ -727,6 +727,11 @@ def launch_gz(context, *args, **kwargs):
         if enable_action_server:
             nodes.append(delayed_action_server)
 
+        if enable_head_cam_depth:
+            nodes.append(gz_bridge_depth_image_node)
+            nodes.append(head_camera_point_cloud_xyz_node)
+            nodes.append(head_camera_depth_compressed_node)
+
         # Republish raw images as compressed for each camera in Gazebo
         for cam_name, enabled in [
             ('head_camera',       enable_head_cam_color),
