@@ -26,6 +26,16 @@ MoveitServer::MoveitServer(const rclcpp::NodeOptions & options)
     rclcpp::ServicesQoS(),
     plan_service_cb_group_);
 
+  plan_to_named_pose_service_ = create_service<PlanToNamedPose>(
+    "plan_to_named_pose",
+    [this](
+      const std::shared_ptr<PlanToNamedPose::Request> req,
+      std::shared_ptr<PlanToNamedPose::Response> res) {
+      handle_plan_to_named_pose_request(req, res);
+    },
+    rclcpp::ServicesQoS(),
+    plan_service_cb_group_);
+
   execute_action_server_ = rclcpp_action::create_server<ExecutePlan>(
     this, "execute_plan",
     [this](const rclcpp_action::GoalUUID &, std::shared_ptr<const ExecutePlan::Goal> goal) {
@@ -45,7 +55,7 @@ MoveitServer::MoveitServer(const rclcpp::NodeOptions & options)
     [this]() {purge_stale_plans();});
 
   if (!has_parameter("active_planning_groups")) {
-    declare_parameter("active_planning_groups", std::vector<std::string>{"arm_left", "arm_right"});
+    declare_parameter("active_planning_groups", std::vector<std::string>{"arm_left", "arm_right", "arm", "head_arm_body"});
   }
 
   RCLCPP_INFO(get_logger(), "MoveitServer starting (clock_type=%d)",
@@ -257,6 +267,108 @@ void MoveitServer::handle_plan_request(
     RCLCPP_INFO(get_logger(),
       "Hint: If planning fails with code 99999, check for self-collisions in the URDF/SRDF.");
   }
+}
+
+void MoveitServer::handle_plan_to_named_pose_request(
+  const std::shared_ptr<PlanToNamedPose::Request> request,
+  std::shared_ptr<PlanToNamedPose::Response> response)
+{
+  std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group;
+  {
+    std::lock_guard<std::mutex> lock(active_groups_mutex_);
+    if (active_groups_.empty()) {
+      response->success = false;
+      response->message = "MoveGroups are still initializing.";
+      return;
+    }
+    auto it = active_groups_.find(request->planning_group);
+    if (it == active_groups_.end()) {
+      response->success = false;
+      response->message = "Planning group not found: " + request->planning_group;
+      return;
+    }
+    move_group = it->second;
+  }
+
+  RCLCPP_INFO(get_logger(), "Received planning request for group: %s",
+      request->planning_group.c_str());
+
+  try {
+    const std::vector<std::string> joint_names = move_group->getJointNames();
+    const std::vector<double> current_joint_values = move_group->getCurrentJointValues();
+    
+    std::string joint_log = "Current Joint Values: ";
+    for (size_t i = 0; i < joint_names.size() && i < current_joint_values.size(); ++i) {
+      joint_log += joint_names[i] + ":" + std::to_string(current_joint_values[i]) + " ";
+    }
+    RCLCPP_INFO(get_logger(), "%s", joint_log.c_str());
+  } catch (const std::exception & e) {
+    RCLCPP_WARN(get_logger(), "Could not retrieve current joint values: %s", e.what());
+  }
+
+  move_group->setPlanningTime(10.0);
+  move_group->setNumPlanningAttempts(10);
+  move_group->setWorkspace(-5.0, -5.0, 0.0, 5.0, 5.0, 5.0);
+  move_group->setStartStateToCurrentState();
+
+  if (request->pose_name.empty()) {
+    RCLCPP_WARN(get_logger(), "Pose name is empty");
+    response->success = false;
+    response->message = "Pose name is empty.";
+    return;
+  }
+
+  RCLCPP_INFO(get_logger(), "Setting Pose Name: %s", request->pose_name.c_str());
+
+  if (!move_group->setNamedTarget(request->pose_name)) {
+    RCLCPP_ERROR(get_logger(), "Failed to set pose name '%s'.", request->pose_name.c_str());
+    response->success = false;
+    response->message = "Failed to set pose name: " + request->pose_name;
+    return;
+  }
+
+  RCLCPP_INFO(get_logger(), "Starting OMPL planning...");
+  moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+  moveit::core::MoveItErrorCode plan_result = move_group->plan(my_plan);
+
+  if (plan_result != moveit::core::MoveItErrorCode::SUCCESS) {
+    RCLCPP_WARN(get_logger(), "Initial Pose planning failed (%i). Relaxing tolerance...",
+      static_cast<int>(plan_result.val));
+      response->success = false;
+      response->message = "Initial Pose planning failed.";
+  }
+
+  RCLCPP_INFO(get_logger(), "Final planning result code: %i", static_cast<int>(plan_result.val));
+
+  if (plan_result == moveit::core::MoveItErrorCode::SUCCESS) {
+    const std::string plan_id = "plan_" + std::to_string(now().nanoseconds());
+    {
+      std::lock_guard<std::mutex> lock(plan_cache_mutex_);
+      CachedPlan cp;
+      cp.plan = my_plan;
+      cp.timestamp = now();
+      cp.planning_group = request->planning_group;
+      plan_cache_[plan_id] = cp;
+    }
+
+    double duration = 0.0;
+    if (!my_plan.trajectory.joint_trajectory.points.empty()) {
+      const auto & pts = my_plan.trajectory.joint_trajectory.points;
+      duration = pts.back().time_from_start.sec + pts.back().time_from_start.nanosec * 1e-9;
+    }
+    response->success = true;
+    response->plan_id = plan_id;
+    response->trajectory = my_plan.trajectory;
+    response->estimated_time = duration;
+    response->message = "Plan generated with ID: " + plan_id;
+  } else {
+    response->success = false;
+    response->message = "MoveIt planning failed for both Pose and Position-Only strategies.";
+    RCLCPP_INFO(get_logger(),
+      "Hint: If planning fails with code 99999, check for self-collisions in the URDF/SRDF.");
+  }
+
+  RCLCPP_INFO(get_logger(), "Final planning result code: %i", static_cast<int>(plan_result.val));
 }
 
 rclcpp_action::GoalResponse MoveitServer::handle_exec_goal(

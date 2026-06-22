@@ -15,6 +15,7 @@
 #include <unordered_map>
 
 #include "sobits_interfaces/srv/plan_to_pose.hpp"
+#include "sobits_interfaces/srv/plan_to_named_pose.hpp"
 #include "sobits_interfaces/action/execute_plan.hpp"
 
 namespace sobit_home
@@ -31,6 +32,7 @@ class MoveitServer : public rclcpp::Node
 {
 public:
   using PlanToPose = sobits_interfaces::srv::PlanToPose;
+  using PlanToNamedPose = sobits_interfaces::srv::PlanToNamedPose;
   using ExecutePlan = sobits_interfaces::action::ExecutePlan;
   using GoalHandleExecutePlan = rclcpp_action::ServerGoalHandle<ExecutePlan>;
 
@@ -41,6 +43,10 @@ private:
   void handle_plan_request(
     const std::shared_ptr<PlanToPose::Request> request,
     std::shared_ptr<PlanToPose::Response> response);
+
+  void handle_plan_to_named_pose_request(
+    const std::shared_ptr<PlanToNamedPose::Request> request,
+    std::shared_ptr<PlanToNamedPose::Response> response);
 
   rclcpp_action::GoalResponse handle_exec_goal(
     const rclcpp_action::GoalUUID & uuid,
@@ -80,6 +86,7 @@ private:
 
   // Service & Action
   rclcpp::Service<PlanToPose>::SharedPtr plan_service_;
+  rclcpp::Service<PlanToNamedPose>::SharedPtr plan_to_named_pose_service_;
   rclcpp_action::Server<ExecutePlan>::SharedPtr execute_action_server_;
 
   // Plan Execution Cache

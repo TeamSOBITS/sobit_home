@@ -159,7 +159,7 @@ def _launch_setup(context, *args, **kwargs):
                 namespace=robot_name,
                 parameters=[
                     {'use_sim_time': use_sim_time},
-                    {'active_planning_groups': ['arm_left', 'arm_right', 'arm_left_body', 'arm_right_body']},
+                    {'active_planning_groups': ['arm_left', 'arm_right', 'arm_left_body', 'arm_right_body', 'head_arm_body']},
                 ],
                 extra_arguments=[{'use_intra_process_comms': False}]
             ),
