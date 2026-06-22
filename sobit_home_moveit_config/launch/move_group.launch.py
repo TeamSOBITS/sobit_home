@@ -29,6 +29,12 @@ def _launch_setup(context, *args, **kwargs):
         srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home_teleop.srdf')
     else:
         srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home.srdf')
+    # Planning params for MoveitServer. Defaults to this package's generic yaml;
+    # override with the rc_doinglaundry path at launch for competition tuning.
+    moveit_server_params_file_path = LaunchConfiguration('moveit_server_config').perform(context)
+    if not moveit_server_params_file_path:
+        moveit_server_params_file_path = os.path.join(
+            pkg_share_moveit_config, 'config', 'moveit_server.yaml')
     moveit_controllers_file_path = os.path.join(pkg_share_moveit_config, 'config', 'moveit_controllers.yaml')
     joint_limits_file_path = os.path.join(pkg_share_moveit_config, 'config', 'joint_limits.yaml')
     kinematics_file_path = os.path.join(pkg_share_moveit_config, 'config', 'kinematics.yaml')
@@ -158,6 +164,7 @@ def _launch_setup(context, *args, **kwargs):
                 name='moveit_server',
                 namespace=robot_name,
                 parameters=[
+                    moveit_server_params_file_path,
                     {'use_sim_time': use_sim_time},
                     {'active_planning_groups': ['arm_left', 'arm_right', 'arm_left_body', 'arm_right_body', 'head_arm_body']},
                 ],
@@ -196,10 +203,17 @@ def generate_launch_description():
         default_value='false',
         description='Whether to load the MoveitArmTeleop composable node')
 
+    declare_moveit_server_config_cmd = DeclareLaunchArgument(
+        name='moveit_server_config',
+        default_value='',
+        description='Path to MoveitServer planning-params YAML. Empty = package default. '
+                    'Override with the rc_doinglaundry path for competition.')
+
     return LaunchDescription([
         declare_robot_name_cmd,
         declare_use_sim_time_cmd,
         declare_use_rviz_cmd,
         declare_enable_teleop_cmd,
+        declare_moveit_server_config_cmd,
         OpaqueFunction(function=_launch_setup),
     ])

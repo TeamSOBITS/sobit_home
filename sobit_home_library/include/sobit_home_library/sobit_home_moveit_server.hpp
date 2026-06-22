@@ -11,8 +11,10 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
 
+#include <atomic>
 #include <mutex>
 #include <unordered_map>
+#include <vector>
 
 #include "sobits_interfaces/srv/plan_to_pose.hpp"
 #include "sobits_interfaces/srv/plan_to_named_pose.hpp"
@@ -63,6 +65,13 @@ private:
 
   void init_move_groups();
 
+  // Declares the tunable planning parameters and wires up the dynamic-update
+  // callback so they can be changed at runtime with `ros2 param set`.
+  void init_tunable_params();
+
+  rcl_interfaces::msg::SetParametersResult on_set_parameters(
+    const std::vector<rclcpp::Parameter> & params);
+
 
   // One-shot timer that fires init_move_groups() after the constructor returns,
   // guaranteeing shared_from_this() is valid when MoveGroupInterface is built.
@@ -93,6 +102,22 @@ private:
   std::unordered_map<std::string, CachedPlan> plan_cache_;
   std::mutex plan_cache_mutex_;
   rclcpp::TimerBase::SharedPtr cleanup_timer_;
+
+  // Planning budget
+  std::atomic<double> plan_time_sec_{3.5};
+  std::atomic<int> plan_attempts_{4};
+
+  // Planning workspace AABB applied to every plan request (min/max in the
+  // planning frame). Atomic for the same cross-thread reason as above.
+  std::atomic<double> workspace_min_x_{-5.0};
+  std::atomic<double> workspace_min_y_{-5.0};
+  std::atomic<double> workspace_min_z_{0.0};
+  std::atomic<double> workspace_max_x_{5.0};
+  std::atomic<double> workspace_max_y_{5.0};
+  std::atomic<double> workspace_max_z_{5.0};
+
+  // Keeps the dynamic-parameter callback registration alive.
+  rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_cb_handle_;
 };
 
 }  // namespace sobit_home

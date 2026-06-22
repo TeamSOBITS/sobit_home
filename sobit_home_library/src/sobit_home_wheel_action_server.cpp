@@ -22,6 +22,10 @@ WheelActionServer::WheelActionServer(const rclcpp::NodeOptions & options)
   wheel_rotate_ki_ = get_parameter("wheel_rotate_ki").as_double();
   wheel_rotate_kd_ = get_parameter("wheel_rotate_kd").as_double();
 
+  // Arrival tolerances (m / rad) — defaulted so the node runs standalone.
+  wheel_linear_arrival_tol_ = declare_parameter<double>("wheel_linear_arrival_tol", 0.02);
+  wheel_rotate_arrival_tol_ = declare_parameter<double>("wheel_rotate_arrival_tol", 0.02);
+
   RCLCPP_INFO(get_logger(), "Wheel Linear PID parameters:");
   RCLCPP_INFO(get_logger(), "  Kp: %f", wheel_linear_kp_);
   RCLCPP_INFO(get_logger(), "  Ki: %f", wheel_linear_ki_);
@@ -64,7 +68,32 @@ WheelActionServer::WheelActionServer(const rclcpp::NodeOptions & options)
       "odom", qos_profile,
     [this](const nav_msgs::msg::Odometry::SharedPtr msg) {odom_callback(msg);});
 
+  // Allow live tuning of PID gains + arrival tolerances via `ros2 param set`.
+  param_cb_handle_ = add_on_set_parameters_callback(
+    [this](const std::vector<rclcpp::Parameter> & params) {
+      return on_param_update(params);
+    });
+
   RCLCPP_INFO(get_logger(), "WheelActionServer has been initialized.");
+}
+
+rcl_interfaces::msg::SetParametersResult WheelActionServer::on_param_update(
+  const std::vector<rclcpp::Parameter> & params)
+{
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  for (const auto & p : params) {
+    const auto & n = p.get_name();
+    if      (n == "wheel_linear_kp")          wheel_linear_kp_          = p.as_double();
+    else if (n == "wheel_linear_ki")          wheel_linear_ki_          = p.as_double();
+    else if (n == "wheel_linear_kd")          wheel_linear_kd_          = p.as_double();
+    else if (n == "wheel_rotate_kp")          wheel_rotate_kp_          = p.as_double();
+    else if (n == "wheel_rotate_ki")          wheel_rotate_ki_          = p.as_double();
+    else if (n == "wheel_rotate_kd")          wheel_rotate_kd_          = p.as_double();
+    else if (n == "wheel_linear_arrival_tol") wheel_linear_arrival_tol_ = p.as_double();
+    else if (n == "wheel_rotate_arrival_tol") wheel_rotate_arrival_tol_ = p.as_double();
+  }
+  return result;
 }
 
 WheelActionServer::~WheelActionServer()
@@ -103,13 +132,19 @@ void WheelActionServer::exe_move_wheel_linear(
   const double MAX_LINEAR_VEL = 0.4;
   const double MAX_INTEGRAL = 0.5;
   const double BRAKE_DIST = 0.20;
+  // Arrival tolerance (param wheel_linear_arrival_tol): the PD braking (vel→0 as
+  // error→0) makes curt_dist approach goal_dist ASYMPTOTICALLY, so
+  // `curt_dist < goal_dist` is effectively never false → the loop spins at ~0
+  // speed until the client times out even though the base arrived. Exit once
+  // within tol so the goal succeeds promptly.
+  const double ARRIVAL_TOL = wheel_linear_arrival_tol_;
 
   auto start_time = now();
   auto prev_time = start_time;
   init_odom_ = curt_odom_;
   rclcpp::Rate loop_rate(10);
 
-  while (curt_dist < goal_dist) {
+  while (goal_dist - curt_dist > ARRIVAL_TOL) {
     if (goal_handle->is_canceling()) {
       RCLCPP_INFO(get_logger(), "move_wheel_linear goal canceled");
       pub_cmd_vel_->publish(zero_vel);
@@ -189,13 +224,14 @@ void WheelActionServer::exe_move_wheel_rotate(
   const double MAX_ANGULAR_VEL = 0.7;
   const double MAX_INTEGRAL_ROT = 0.5;
   const double BRAKE_ANGLE = 0.35;
+  const double ARRIVAL_TOL_ROT = wheel_rotate_arrival_tol_;  // rad — exit before asymptotic PD stall
 
   auto start_time = now();
   auto prev_time_rot = start_time;
   rclcpp::Rate loop_rate(10);
   geometry_msgs::msg::Twist zero_vel;
 
-  while (moved_angle < goal_angle) {
+  while (goal_angle - moved_angle > ARRIVAL_TOL_ROT) {
     if (goal_handle->is_canceling()) {
       RCLCPP_INFO(get_logger(), "move_wheel_rotate goal canceled");
       pub_cmd_vel_->publish(zero_vel);

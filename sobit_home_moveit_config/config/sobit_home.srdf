@@ -359,6 +359,23 @@
     <disable_collisions link1="arm_left_elbow_link" link2="wheel_steer_base_b_r_link" reason="Never"/>
     <disable_collisions link1="arm_left_elbow_link" link2="wheel_steer_base_f_r_link" reason="Never"/>
     <disable_collisions link1="arm_left_elbow_link" link2="wheel_steer_f_r_link" reason="Never"/>
+    <disable_collisions link1="arm_left_lower_flex_link" link2="plate_cover_link" reason="Never"/>
+    <disable_collisions link1="arm_right_lower_flex_link" link2="plate_cover_link" reason="Never"/>
+    <!-- Closed-gripper finger contacts: when the 2-finger hand closes on an item
+         the centre finger touches the L/R fingers. Disable so post-grasp arm
+         planning (place) isn't blocked by CheckStartStateCollision. -->
+    <disable_collisions link1="hand_right_finger_c_ip_link" link2="hand_right_finger_l_dip_link" reason="Never"/>
+    <disable_collisions link1="hand_right_finger_c_ip_link" link2="hand_right_finger_l_pip_link" reason="Never"/>
+    <disable_collisions link1="hand_right_finger_c_ip_link" link2="hand_right_finger_r_dip_link" reason="Never"/>
+    <disable_collisions link1="hand_right_finger_c_ip_link" link2="hand_right_finger_r_pip_link" reason="Never"/>
+    <disable_collisions link1="hand_right_finger_c_mcp_link" link2="hand_right_finger_l_dip_link" reason="Never"/>
+    <disable_collisions link1="hand_right_finger_c_mcp_link" link2="hand_right_finger_r_dip_link" reason="Never"/>
+    <disable_collisions link1="hand_left_finger_c_ip_link" link2="hand_left_finger_l_dip_link" reason="Never"/>
+    <disable_collisions link1="hand_left_finger_c_ip_link" link2="hand_left_finger_l_pip_link" reason="Never"/>
+    <disable_collisions link1="hand_left_finger_c_ip_link" link2="hand_left_finger_r_dip_link" reason="Never"/>
+    <disable_collisions link1="hand_left_finger_c_ip_link" link2="hand_left_finger_r_pip_link" reason="Never"/>
+    <disable_collisions link1="hand_left_finger_c_mcp_link" link2="hand_left_finger_l_dip_link" reason="Never"/>
+    <disable_collisions link1="hand_left_finger_c_mcp_link" link2="hand_left_finger_r_dip_link" reason="Never"/>
     <disable_collisions link1="arm_left_lower_flex_link" link2="arm_left_shoulder_tilt_link" reason="Never"/>
     <disable_collisions link1="arm_left_lower_flex_link" link2="arm_left_upper_flex_link" reason="Never"/>
     <disable_collisions link1="arm_left_lower_flex_link" link2="arm_left_upper_roll_link" reason="Never"/>
