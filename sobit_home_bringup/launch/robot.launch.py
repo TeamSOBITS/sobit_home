@@ -687,7 +687,10 @@ def launch_gz(context, *args, **kwargs):
                         ('in',              '/' + robot_name + '/' + cam_name + '/color/image_raw'),
                         ('out/compressed',  '/' + robot_name + '/' + cam_name + '/color/image_raw/compressed'),
                     ],
-                    parameters=[{'use_sim_time': True}],
+                    parameters=[{
+                        'use_sim_time': True,
+                        f'qos_overrides./{robot_name}/{cam_name}/color/image_raw/compressed.publisher.reliability': 'best_effort',
+                    }],
                     output='log',
                 ))
     else:
