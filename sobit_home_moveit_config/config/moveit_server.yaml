@@ -1,0 +1,19 @@
+# Default planning parameters for sobit_home::MoveitServer.
+# Generic defaults so the package works standalone — competition-specific
+# overrides live in rc_doinglaundry/config/ and are applied at launch time.
+# All values are dynamically updatable at runtime via `ros2 param set`.
+/**:
+  ros__parameters:
+    # Per-request OMPL planning budget. Low time keeps an unreachable-target
+    # reach probe cheap (~plan_time_sec x 3 fallback strategies) instead of 30 s.
+    plan_time_sec: 10.0      # [s]   wall-clock budget per planning attempt
+    plan_attempts: 10        # [-]   number of OMPL solve attempts
+
+    # Planning workspace AABB (min/max corner, planning frame). Applied to every
+    # plan request to bound the sampling volume.
+    workspace_min_x: -5.0   # [m]
+    workspace_min_y: -5.0   # [m]
+    workspace_min_z:  0.0   # [m]
+    workspace_max_x:  5.0   # [m]
+    workspace_max_y:  5.0   # [m]
+    workspace_max_z:  5.0   # [m]

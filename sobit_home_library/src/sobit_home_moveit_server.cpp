@@ -48,6 +48,9 @@ MoveitServer::MoveitServer(const rclcpp::NodeOptions & options)
     declare_parameter("active_planning_groups", std::vector<std::string>{"arm_left", "arm_right"});
   }
 
+  // Planning budget + workspace bounds
+  init_tunable_params();
+
   RCLCPP_INFO(get_logger(), "MoveitServer starting (clock_type=%d)",
     static_cast<int>(get_clock()->get_clock_type()));
 
@@ -70,11 +73,14 @@ void MoveitServer::init_move_groups()
     ns = ns.substr(1);
   }
 
+  const std::string move_group_service =
+    ns.empty() ? "/move_group" : "/" + ns + "/move_group";
+
   if (!has_parameter("robot_description")) {
-    RCLCPP_INFO(get_logger(), "Fetching robot_description from /%s/move_group ...", ns.c_str());
+    RCLCPP_INFO(get_logger(), "Fetching robot_description from %s ...", move_group_service.c_str());
     auto tmp_node = std::make_shared<rclcpp::Node>("moveit_server_param_fetch", get_namespace());
     auto param_client = std::make_shared<rclcpp::SyncParametersClient>(
-      tmp_node, "/" + ns + "/move_group");
+      tmp_node, move_group_service);
     if (!param_client->wait_for_service(std::chrono::seconds(15))) {
       RCLCPP_ERROR(get_logger(), "move_group parameter service not available — aborting init");
       return;
@@ -110,7 +116,7 @@ void MoveitServer::init_move_groups()
       moveit::planning_interface::MoveGroupInterface::Options opts(
         group_name,
         "robot_description",
-        "/" + ns);
+        ns.empty() ? "/" : "/" + ns);
       auto mgi = std::make_shared<moveit::planning_interface::MoveGroupInterface>(
           shared_from_this(),
           opts,
@@ -141,6 +147,104 @@ void MoveitServer::init_move_groups()
                    group_name.c_str(), e.what());
     }
   }
+}
+
+void MoveitServer::init_tunable_params()
+{
+  auto declare_double = [this](const std::string & name, double default_val,
+      std::atomic<double> & sink) {
+    const double v = has_parameter(name)
+      ? get_parameter(name).as_double()
+      : declare_parameter(name, default_val);
+    sink.store(v);
+  };
+
+  declare_double("plan_time_sec", plan_time_sec_.load(), plan_time_sec_);
+
+  const int attempts = has_parameter("plan_attempts")
+    ? static_cast<int>(get_parameter("plan_attempts").as_int())
+    : static_cast<int>(declare_parameter("plan_attempts", plan_attempts_.load()));
+  plan_attempts_.store(attempts);
+
+  declare_double("workspace_min_x", workspace_min_x_.load(), workspace_min_x_);
+  declare_double("workspace_min_y", workspace_min_y_.load(), workspace_min_y_);
+  declare_double("workspace_min_z", workspace_min_z_.load(), workspace_min_z_);
+  declare_double("workspace_max_x", workspace_max_x_.load(), workspace_max_x_);
+  declare_double("workspace_max_y", workspace_max_y_.load(), workspace_max_y_);
+  declare_double("workspace_max_z", workspace_max_z_.load(), workspace_max_z_);
+
+  RCLCPP_INFO(get_logger(),
+    "Planning params: time=%.2fs attempts=%d workspace=[%.2f %.2f %.2f]..[%.2f %.2f %.2f]",
+    plan_time_sec_.load(), plan_attempts_.load(),
+    workspace_min_x_.load(), workspace_min_y_.load(), workspace_min_z_.load(),
+    workspace_max_x_.load(), workspace_max_y_.load(), workspace_max_z_.load());
+
+  param_cb_handle_ = add_on_set_parameters_callback(
+    [this](const std::vector<rclcpp::Parameter> & params) {
+      return on_set_parameters(params);
+    });
+}
+
+rcl_interfaces::msg::SetParametersResult MoveitServer::on_set_parameters(
+  const std::vector<rclcpp::Parameter> & params)
+{
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+
+  for (const auto & p : params) {
+    const auto & name = p.get_name();
+
+    if (name == "plan_attempts") {
+      if (p.get_type() != rclcpp::ParameterType::PARAMETER_INTEGER) {
+        result.successful = false;
+        result.reason = "plan_attempts must be an integer";
+        break;
+      }
+      const int v = static_cast<int>(p.as_int());
+      if (v < 1) {
+        result.successful = false;
+        result.reason = "plan_attempts must be >= 1";
+        break;
+      }
+      plan_attempts_.store(v);
+      continue;
+    }
+
+    // All remaining tunables are doubles.
+    const std::unordered_map<std::string, std::atomic<double> *> double_sinks = {
+      {"plan_time_sec", &plan_time_sec_},
+      {"workspace_min_x", &workspace_min_x_},
+      {"workspace_min_y", &workspace_min_y_},
+      {"workspace_min_z", &workspace_min_z_},
+      {"workspace_max_x", &workspace_max_x_},
+      {"workspace_max_y", &workspace_max_y_},
+      {"workspace_max_z", &workspace_max_z_},
+    };
+    auto it = double_sinks.find(name);
+    if (it == double_sinks.end()) {
+      continue;  // not one of ours — leave it to other callbacks/default handling
+    }
+    if (p.get_type() != rclcpp::ParameterType::PARAMETER_DOUBLE) {
+      result.successful = false;
+      result.reason = name + " must be a double";
+      break;
+    }
+    // TODO(min-max): each workspace bound is validated independently here, so
+    // setting them one at a time can transiently leave min > max (e.g. set
+    // workspace_min_x above the current max_x before lowering max_x).
+    // setWorkspace() tolerates an inverted AABB, so we defer cross-field
+    // coherence validation for now. Revisit if a degenerate workspace ever
+    // produces planning failures.
+    const double v = p.as_double();
+    if (name == "plan_time_sec" && v <= 0.0) {
+      result.successful = false;
+      result.reason = "plan_time_sec must be > 0";
+      break;
+    }
+    it->second->store(v);
+  }
+
+  return result;
 }
 
 void MoveitServer::handle_plan_request(
@@ -177,10 +281,21 @@ void MoveitServer::handle_plan_request(
     RCLCPP_WARN(get_logger(), "Could not retrieve current pose: %s", e.what());
   }
 
-  move_group->setPlanningTime(10.0);
-  move_group->setNumPlanningAttempts(10);
-  move_group->setWorkspace(-5.0, -5.0, 0.0, 5.0, 5.0, 5.0);
-  move_group->setStartStateToCurrentState();
+  move_group->setPlanningTime(plan_time_sec_.load());
+  move_group->setNumPlanningAttempts(plan_attempts_.load());
+  move_group->setWorkspace(
+    workspace_min_x_.load(), workspace_min_y_.load(), workspace_min_z_.load(),
+    workspace_max_x_.load(), workspace_max_y_.load(), workspace_max_z_.load());
+  {
+    moveit::core::RobotStatePtr start_state = move_group->getCurrentState(2.0);
+    if (start_state) {
+      start_state->enforceBounds();
+      move_group->setStartState(*start_state);
+    } else {
+      RCLCPP_WARN(get_logger(), "getCurrentState() returned null; falling back to current state.");
+      move_group->setStartStateToCurrentState();
+    }
+  }
 
   if (request->target.header.frame_id.empty()) {
     request->target.header.frame_id = move_group->getPlanningFrame();
