@@ -4,63 +4,81 @@
       - peace_pose
       - fist_pose
       - two_fingers_open_pose
-      - two_fingers_close_pose
+      - two_fingers_grasp_pose
+      - two_fingers_pick_pose
       - three_fingers_open_pose
-      - three_fingers_close_pose
+      - three_fingers_grasp_pose
+      - three_fingers_pick_pose
 
 # performance poses
     peace_pose:
-      hand_left_finger_l_mcp : 1.3
-      hand_left_finger_l_pip : -0.5
+      hand_left_finger_c_ip  :  0.0
+      hand_left_finger_c_mcp : -1.57 
       hand_left_finger_l_dip : -2.0
-      hand_left_finger_c_mcp : -1.571 
-      hand_left_finger_c_ip : 0.0
-      hand_left_finger_r_pip : -1.571 
-      hand_left_finger_r_dip : 0.0 
+      hand_left_finger_l_mcp :  1.3
+      hand_left_finger_l_pip : -0.5
+      hand_left_finger_r_dip :  0.0 
+      hand_left_finger_r_pip : -1.57 
     fist_pose:
-      hand_left_finger_l_mcp : 1.571
-      hand_left_finger_l_pip : -0.5 
+      hand_left_finger_c_ip  :  2.0
+      hand_left_finger_c_mcp :  0.5 
       hand_left_finger_l_dip : -2.0 
-      hand_left_finger_c_mcp : 0.5 
-      hand_left_finger_c_ip : 2.0
-      hand_left_finger_r_pip : 0.5
-      hand_left_finger_r_dip : 2.0
+      hand_left_finger_l_mcp :  1.57
+      hand_left_finger_l_pip : -0.5 
+      hand_left_finger_r_dip :  2.0
+      hand_left_finger_r_pip :  0.5
 
-# two fingers pose
+# two fingers poses
     two_fingers_open_pose:
-      hand_left_finger_l_mcp : -1.571
-      hand_left_finger_l_pip : 1.571 
-      hand_left_finger_l_dip : 0.0 
-      hand_left_finger_c_mcp : -1.571 
-      hand_left_finger_c_ip : 0.0
-      hand_left_finger_r_pip : -1.571
-      hand_left_finger_r_dip : 0.0
-    two_fingers_close_pose:
-      hand_left_finger_l_mcp : -1.571
-      hand_left_finger_l_pip : -0.5 
-      hand_left_finger_l_dip : -1.571 
-      hand_left_finger_c_mcp : 0.5 
-      hand_left_finger_c_ip : 1.571
-      hand_left_finger_r_pip : 0.5
-      hand_left_finger_r_dip : 1.571
+      hand_left_finger_c_ip  :  0.0
+      hand_left_finger_c_mcp : -1.57
+      hand_left_finger_l_dip :  0.0
+      hand_left_finger_l_mcp : -1.57
+      hand_left_finger_l_pip :  1.57
+      hand_left_finger_r_dip :  0.0
+      hand_left_finger_r_pip : -1.57
+    two_fingers_grasp_pose:
+      hand_left_finger_c_ip  :  1.57
+      hand_left_finger_c_mcp : -0.28
+      hand_left_finger_l_dip : -1.55
+      hand_left_finger_l_mcp : -1.58
+      hand_left_finger_l_pip :  0.13 
+      hand_left_finger_r_dip :  1.46
+      hand_left_finger_r_pip : -0.15
+    two_fingers_pick_pose:
+      hand_left_finger_c_ip  : -0.56
+      hand_left_finger_c_mcp :  0.59
+      hand_left_finger_l_dip :  0.50
+      hand_left_finger_l_mcp : -1.58
+      hand_left_finger_l_pip : -0.54
+      hand_left_finger_r_dip : -0.59
+      hand_left_finger_r_pip :  0.50
 
-# three fingers pose
+# three fingers poses
     three_fingers_open_pose:
+      hand_left_finger_c_ip  :  0.0
+      hand_left_finger_c_mcp : -1.57 
+      hand_left_finger_l_dip :  0.0 
       hand_left_finger_l_mcp : -0.524
-      hand_left_finger_l_pip : 1.571 
-      hand_left_finger_l_dip : 0.0 
-      hand_left_finger_c_mcp : -1.571 
-      hand_left_finger_c_ip : 0.0
-      hand_left_finger_r_pip : -1.571
-      hand_left_finger_r_dip : 0.0
-    three_fingers_close_pose:
-      hand_left_finger_l_mcp : -0.524
-      hand_left_finger_l_pip : -0.5 
-      hand_left_finger_l_dip : -1.571 
-      hand_left_finger_c_mcp : 0.5 
-      hand_left_finger_c_ip : 1.571
-      hand_left_finger_r_pip : 0.5
-      hand_left_finger_r_dip : 1.571
+      hand_left_finger_l_pip :  1.57 
+      hand_left_finger_r_dip :  0.0
+      hand_left_finger_r_pip : -1.57
+    three_fingers_grasp_pose:
+      hand_left_finger_c_ip  :  1.74
+      hand_left_finger_c_mcp : -0.39
+      hand_left_finger_l_dip : -1.52
+      hand_left_finger_l_mcp : -0.70
+      hand_left_finger_l_pip :  0.0 
+      hand_left_finger_r_dip :  1.46
+      hand_left_finger_r_pip :  0.0
+    three_fingers_pick_pose:
+      hand_left_finger_c_ip  : -0.54
+      hand_left_finger_c_mcp :  0.47
+      hand_left_finger_l_dip :  0.05
+      hand_left_finger_l_mcp : -0.93
+      hand_left_finger_l_pip : -0.53 
+      hand_left_finger_r_dip : -0.14
+      hand_left_finger_r_pip :  0.50
 
 
 
