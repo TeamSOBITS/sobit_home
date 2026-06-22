@@ -28,6 +28,9 @@
   <depend>ros_gz_bridge</depend>
   <depend>ros_gz_sim</depend>
   <depend>gz_ros2_control</depend>
+  <depend>depth_image_proc</depend>
+  <depend>image_transport</depend>
+  <depend>compressed_depth_image_transport</depend>
 
   <depend>sobit_home_description</depend>
   <depend>sobit_home_control</depend>
