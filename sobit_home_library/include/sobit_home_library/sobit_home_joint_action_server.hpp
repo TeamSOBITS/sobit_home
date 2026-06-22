@@ -31,6 +31,7 @@
 #include "trajectory_msgs/msg/joint_trajectory.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
+#include "std_msgs/msg/bool.hpp"
 
 #include "sobit_home_library/kinematics.hpp"
 
@@ -197,6 +198,12 @@ private:
   mutable std::mutex poses_mutex_;
 
   std::map<std::string, double> curt_joint_state_;
+  std::map<std::string, double> curt_joint_effort_;
+  std::map<std::string, double> curt_joint_velocity_;
+
+  std::map<std::string, double> hand_left_target_joint_rad_;
+  std::map<std::string, double> hand_right_target_joint_rad_;
+
   mutable std::mutex joint_state_mutex_;
   std::unique_ptr<Kinematics> kinematics_;
 
@@ -262,12 +269,15 @@ private:
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_right_hand_joint_control_;
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_body_joint_control_;
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr pub_head_joint_control_;
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr pub_left_hand_grasp_state_;
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr pub_right_hand_grasp_state_;
 
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr sub_joint_state_;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
+  rclcpp::TimerBase::SharedPtr grasp_monitor_timer_;
   rclcpp::TimerBase::SharedPtr urdf_timer_;
   bool urdf_loaded_{false};
 
@@ -285,6 +295,13 @@ private:
   void load_joint_limits();
   bool parse_urdf_limits(const std::string & urdf_xml);
   void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg);
+  void update_commanded_joint_position(
+    const std::vector<std::string>& names,
+    const std::vector<double>& rads,
+    bool is_right);
+  void grasp_monitor_callback();
+  void check_grasp(bool is_right);
+  void publish_grasp_state(bool grasped, bool is_right);
   std::string get_tf_frame(const std::string & frame_name);
 };
 

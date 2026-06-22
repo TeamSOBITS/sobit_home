@@ -6,6 +6,10 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options)
 : Node("joint_action_server", options),
   poses_(),
   curt_joint_state_(),
+  curt_joint_effort_(),
+  curt_joint_velocity_(), 
+  hand_left_target_joint_rad_(),    
+  hand_right_target_joint_rad_(),  
   kinematics_(std::make_unique<Kinematics>()),
   tf_buffer_(std::make_shared<tf2_ros::Buffer>(get_clock())),
   tf_listener_(std::make_shared<tf2_ros::TransformListener>(*tf_buffer_)),
@@ -139,11 +143,23 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options)
       "body_position_controller/joint_trajectory", qos_profile);
   pub_head_joint_control_ = create_publisher<trajectory_msgs::msg::JointTrajectory>(
       "head_position_controller/joint_trajectory", qos_profile);
+  // Added new publisher: t.tsukada
+  pub_left_hand_grasp_state_ = create_publisher<std_msgs::msg::Bool>(
+    "hand_left/grasp_state", qos_profile);
+  pub_right_hand_grasp_state_ = create_publisher<std_msgs::msg::Bool>(
+    "hand_right/grasp_state", qos_profile);
 
   declare_parameter("robot_description", "");
   urdf_timer_ = create_wall_timer(
-      std::chrono::milliseconds(500),
+    std::chrono::milliseconds(500),
     [this]() {load_joint_limits();});
+
+  // Added timer for  grasp state monitor: t.tsukada
+  grasp_monitor_timer_ = create_wall_timer(
+    std::chrono::milliseconds(100),
+    [this]() {
+      check_grasp(true);
+      check_grasp(false);});
 
   declare_parameter("poses", std::vector<std::string>());
   declare_parameter("right_hand_poses", std::vector<std::string>());
@@ -466,8 +482,13 @@ void JointActionServer::exe_move_hand_to_pose(
     return;
   }
 
-  auto traj = set_joints(joint_names, extract(pose), goal->time_allowance, group);
+  // storing vector of target joint radian into variable for avoid duplication of function calling extract(): t.tsukada
+  const auto target_joint_rad = extract(pose);
+  auto traj = set_joints(joint_names, target_joint_rad, goal->time_allowance, group);
+
   if (!traj.joint_names.empty()) {
+      // keep final goal position for compare with current position: t.tsukada
+      update_commanded_joint_position(joint_names, target_joint_rad, group == "hand_right");
     pub->publish(traj);
   }
 
@@ -718,7 +739,123 @@ void JointActionServer::joint_state_callback(const sensor_msgs::msg::JointState:
   std::lock_guard<std::mutex> lock(joint_state_mutex_);
   for (size_t i = 0; i < msg->name.size(); ++i) {
     curt_joint_state_[msg->name[i]] = msg->position[i];
+    // Added effort and velosity parameter to judge open/close of hand: t.tsukada 
+    curt_joint_effort_[msg->name[i]] = msg->effort[i];
+    curt_joint_velocity_[msg->name[i]] = msg->velocity[i]; 
   }
+}
+
+//Keep commanded radian of hand joints
+void JointActionServer::update_commanded_joint_position(
+    const std::vector<std::string>& names,
+    const std::vector<double>& rads,
+    bool is_right)
+{
+    std::map<std::string, double>& target_map =
+        is_right ? hand_right_target_joint_rad_
+                : hand_left_target_joint_rad_;
+
+    for(size_t i = 0; i < names.size(); i++)
+    {
+        target_map[names[i]] = rads[i];
+    }
+}
+
+// check grasp result
+void JointActionServer::check_grasp(bool is_right)
+{
+  const auto & target_map =
+    is_right ? hand_right_target_joint_rad_
+             : hand_left_target_joint_rad_;
+
+  if (target_map.empty()) {
+    std_msgs::msg::Bool msg;
+    msg.data = false;
+
+    (is_right ? pub_right_hand_grasp_state_
+              : pub_left_hand_grasp_state_)->publish(msg);
+    return;
+  }
+
+  constexpr double angle_th = 0.15;
+  constexpr double vel_th = 0.2;
+  constexpr double current_limit_mA = 50.0;
+  constexpr double current_scale = 2.69;
+
+  const std::vector<std::vector<std::string>> fingers =
+    is_right ?
+    std::vector<std::vector<std::string>> {
+      {"hand_right_finger_l_mcp_joint",
+       "hand_right_finger_l_pip_joint",
+       "hand_right_finger_l_dip_joint"},
+
+      {"hand_right_finger_c_mcp_joint",
+       "hand_right_finger_c_ip_joint"},
+
+      {"hand_right_finger_r_pip_joint",
+       "hand_right_finger_r_dip_joint"}
+    } :
+    std::vector<std::vector<std::string>> {
+      {"hand_left_finger_l_mcp_joint",
+       "hand_left_finger_l_pip_joint",
+       "hand_left_finger_l_dip_joint"},
+
+      {"hand_left_finger_c_mcp_joint",
+       "hand_left_finger_c_ip_joint"},
+
+      {"hand_left_finger_r_pip_joint",
+       "hand_left_finger_r_dip_joint"}
+    };
+
+  int valid_fingers = 0;
+
+  for (const auto & finger : fingers)
+  {
+    int blocked_joint = 0;
+
+    for (const auto & joint : finger)
+    {
+      auto it_q = curt_joint_state_.find(joint);
+      auto it_t = target_map.find(joint);
+      auto it_v = curt_joint_velocity_.find(joint);
+      auto it_e = curt_joint_effort_.find(joint);
+
+      if (it_q == curt_joint_state_.end() ||
+          it_t == target_map.end() ||
+          it_v == curt_joint_velocity_.end() ||
+          it_e == curt_joint_effort_.end()) {
+        continue;
+      }
+
+      const double q_err = std::abs(it_q->second - it_t->second);
+      const double v = std::abs(it_v->second);
+
+      const double e_mA_raw = std::abs(it_e->second);
+      const double e_mA = e_mA_raw / current_scale;
+
+      const bool position_blocked = (q_err > angle_th);
+      const bool current_high = (e_mA >= current_limit_mA * 0.9);
+      const bool nearly_stopped = (v < vel_th);
+
+      if (position_blocked && current_high && nearly_stopped) {
+        blocked_joint++;
+      }
+    }
+
+    const bool finger_grasped = (blocked_joint >= 1);
+
+    if (finger_grasped) {
+      valid_fingers++;
+    }
+  }
+
+  bool is_grasped = (valid_fingers >= 2);
+
+  std_msgs::msg::Bool msg;
+  msg.data = is_grasped;
+
+  (is_right ? pub_right_hand_grasp_state_
+            : pub_left_hand_grasp_state_)->publish(msg);
 }
 
 trajectory_msgs::msg::JointTrajectory JointActionServer::set_joints(
