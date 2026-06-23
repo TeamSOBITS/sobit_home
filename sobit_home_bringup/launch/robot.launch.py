@@ -629,11 +629,14 @@ def launch_gz(context, *args, **kwargs):
         namespace=robot_name,
         parameters=[{
             'use_sim_time': True,
+            f'qos_overrides./{robot_name}/head_camera/depth/image_raw.subscription.reliability': 'best_effort',
+            f'qos_overrides./{robot_name}/head_camera/depth/camera_info.subscription.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/depth/points.publisher.depth': 1,
         }],
         remappings=[
             ("image_rect",  "/" + robot_name + "/head_camera/depth/image_raw"),
+            ("camera_info", "/" + robot_name + "/head_camera/depth/camera_info"),
             ("points",      "/" + robot_name + "/head_camera/depth/points"),
         ],
         output='screen'
@@ -652,6 +655,7 @@ def launch_gz(context, *args, **kwargs):
         ],
         parameters=[{
             'use_sim_time': True,
+            f'qos_overrides./{robot_name}/head_camera/depth/image_raw.subscription.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/depth/image_raw/compressedDepth.publisher.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/depth/image_raw/compressedDepth.publisher.depth': 1,
         }],
@@ -727,6 +731,11 @@ def launch_gz(context, *args, **kwargs):
         if enable_action_server:
             nodes.append(delayed_action_server)
 
+        if enable_head_cam_depth:
+            nodes.append(gz_bridge_depth_image_node)
+            nodes.append(head_camera_point_cloud_xyz_node)
+            nodes.append(head_camera_depth_compressed_node)
+
         # Republish raw images as compressed for each camera in Gazebo
         for cam_name, enabled in [
             ('head_camera',       enable_head_cam_color),
@@ -746,6 +755,7 @@ def launch_gz(context, *args, **kwargs):
                     ],
                     parameters=[{
                         'use_sim_time': True,
+                        f'qos_overrides./{robot_name}/{cam_name}/color/image_raw.subscription.reliability': 'best_effort',
                         f'qos_overrides./{robot_name}/{cam_name}/color/image_raw/compressed.publisher.reliability': 'best_effort',
                     }],
                     output='log',
