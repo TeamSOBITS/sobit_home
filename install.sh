@@ -104,7 +104,8 @@ sudo apt-get install -y \
     curl \
     mpg321 \
     lsb-release gnupg \
-    openssh-server
+    openssh-server \
+    netcat-openbsd
 
 sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
@@ -129,6 +130,11 @@ echo "    export HOME_CAM_LEFT_PORT=\"/dev/\$(ls /sys/bus/usb/devices/3-5.4:1.0/
 echo "    export HOME_CAM_RIGHT_PORT=\"/dev/\$(ls /sys/bus/usb/devices/3-6.4:1.0/video4linux/ | sort -V | head -1)\"" >> $HOME/.bashrc
 echo "fi" >> $HOME/.bashrc
 echo "" >> $HOME/.bashrc
+
+echo "alias audio-start='bash \$HOME/colcon_ws/src/sobit_home/audio.sh start'" >> $HOME/.bashrc
+echo "alias audio-stop='bash \$HOME/colcon_ws/src/sobit_home/audio.sh stop'" >> $HOME/.bashrc
+echo "alias audio-status='bash \$HOME/colcon_ws/src/sobit_home/audio.sh status'" >> $HOME/.bashrc
+
 source $HOME/.bashrc
 
 # Reboot notice
