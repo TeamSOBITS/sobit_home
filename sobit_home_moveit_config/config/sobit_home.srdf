@@ -188,6 +188,25 @@
         <joint name="arm_right_wrist_tilt_joint" value="0.52"/>
         <joint name="arm_right_wrist_roll_joint" value="0"/>
     </group_state>
+    <group_state name="move_pose" group="head_arm_body">
+        <joint name="body_lift_joint" value="0.5"/>
+        <joint name="head_pan_joint" value="0"/>
+        <joint name="head_tilt_joint" value="0"/>
+        <joint name="arm_left_shoulder_tilt_joint" value="-0.55"/>
+        <joint name="arm_left_upper_flex_joint" value="-0.55"/>
+        <joint name="arm_left_upper_roll_joint" value="-1.57"/>
+        <joint name="arm_left_elbow_joint" value="2.77"/>
+        <joint name="arm_left_lower_flex_joint" value="-0.55"/>
+        <joint name="arm_left_wrist_tilt_joint" value="-1.57"/>
+        <joint name="arm_left_wrist_roll_joint" value="1.57"/>
+        <joint name="arm_right_shoulder_tilt_joint" value="-0.55"/>
+        <joint name="arm_right_upper_flex_joint" value="-0.55"/>
+        <joint name="arm_right_upper_roll_joint" value="-1.57"/>
+        <joint name="arm_right_elbow_joint" value="2.77"/>
+        <joint name="arm_right_lower_flex_joint" value="-0.55"/>
+        <joint name="arm_right_wrist_tilt_joint" value="-1.57"/>
+        <joint name="arm_right_wrist_roll_joint" value="1.57"/>
+    </group_state>
     <group_state name="left_hand_2finger_open" group="hand_left">
         <joint name="hand_left_finger_c_ip_joint" value="-0.5235"/>
         <joint name="hand_left_finger_c_mcp_joint" value="-1.5707"/>
