@@ -3,7 +3,10 @@
 namespace sobit_home
 {
 JointActionServer::JointActionServer(const rclcpp::NodeOptions & options)
-: Node("joint_action_server", options),
+: Node("joint_action_server",
+    rclcpp::NodeOptions(options)
+    .automatically_declare_parameters_from_overrides(true)
+    .allow_undeclared_parameters(true)),
   poses_(),
   curt_joint_state_(),
   curt_joint_effort_(),
@@ -149,7 +152,15 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options)
   pub_right_hand_grasp_state_ = create_publisher<std_msgs::msg::Bool>(
     "hand_right/grasp_state", qos_profile);
 
-  declare_parameter("robot_description", "");
+  // With automatically_declare_parameters_from_overrides(true), any of these
+  // may already exist if supplied as a launch override; guard each declare.
+  auto declare_if_absent = [this](const std::string & name, const auto & default_val) {
+      if (!has_parameter(name)) {
+        declare_parameter(name, default_val);
+      }
+    };
+
+  declare_if_absent("robot_description", std::string(""));
   urdf_timer_ = create_wall_timer(
     std::chrono::milliseconds(500),
     [this]() {load_joint_limits();});
@@ -161,10 +172,10 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options)
       check_grasp(true);
       check_grasp(false);});
 
-  declare_parameter("poses", std::vector<std::string>());
-  declare_parameter("right_hand_poses", std::vector<std::string>());
-  declare_parameter("left_hand_poses", std::vector<std::string>());
-  declare_parameter("enable_tf_prefix", false);
+  declare_if_absent("poses", std::vector<std::string>());
+  declare_if_absent("right_hand_poses", std::vector<std::string>());
+  declare_if_absent("left_hand_poses", std::vector<std::string>());
+  declare_if_absent("enable_tf_prefix", false);
 
   load_poses_from_params();
 
