@@ -72,6 +72,10 @@ private:
   double wheel_linear_arrival_tol_;
   double wheel_rotate_arrival_tol_;
 
+  // Max linear speed caps (m/s): forward vs lateral. Lateral is capped lower.
+  double wheel_max_linear_vel_;
+  double wheel_max_lateral_vel_;
+
   // Runtime parameter updates: on_set_parameters writes the members above so
   // PID gains + arrival tolerances can be tuned live via `ros2 param set`.
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_cb_handle_;

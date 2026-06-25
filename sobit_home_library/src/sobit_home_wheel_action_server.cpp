@@ -26,6 +26,13 @@ WheelActionServer::WheelActionServer(const rclcpp::NodeOptions & options)
   wheel_linear_arrival_tol_ = declare_parameter<double>("wheel_linear_arrival_tol", 0.02);
   wheel_rotate_arrival_tol_ = declare_parameter<double>("wheel_rotate_arrival_tol", 0.02);
 
+  // Max linear speed caps (m/s), defaulted so the node runs standalone. The
+  // commanded speed is decomposed into x (forward) and y (lateral) by heading;
+  // lateral moves are capped LOWER because a fast sideways strafe is harder to
+  // control and feels unsafe. Override from rc_doinglaundry config at launch.
+  wheel_max_linear_vel_  = declare_parameter<double>("wheel_max_linear_vel", 0.2);
+  wheel_max_lateral_vel_ = declare_parameter<double>("wheel_max_lateral_vel", 0.2);
+
   RCLCPP_INFO(get_logger(), "Wheel Linear PID parameters:");
   RCLCPP_INFO(get_logger(), "  Kp: %f", wheel_linear_kp_);
   RCLCPP_INFO(get_logger(), "  Ki: %f", wheel_linear_ki_);
@@ -92,6 +99,8 @@ rcl_interfaces::msg::SetParametersResult WheelActionServer::on_param_update(
     else if (n == "wheel_rotate_kd")          wheel_rotate_kd_          = p.as_double();
     else if (n == "wheel_linear_arrival_tol") wheel_linear_arrival_tol_ = p.as_double();
     else if (n == "wheel_rotate_arrival_tol") wheel_rotate_arrival_tol_ = p.as_double();
+    else if (n == "wheel_max_linear_vel")     wheel_max_linear_vel_     = p.as_double();
+    else if (n == "wheel_max_lateral_vel")    wheel_max_lateral_vel_    = p.as_double();
   }
   return result;
 }
@@ -129,9 +138,15 @@ void WheelActionServer::exe_move_wheel_linear(
 
   double prev_error = goal_dist;
   double error_integral = 0.0;
-  const double MAX_LINEAR_VEL = 0.4;
   const double MAX_INTEGRAL = 0.5;
   const double BRAKE_DIST = 0.20;
+  // Heading-blended speed cap: pure-forward (x) uses wheel_max_linear_vel_,
+  // pure-lateral (y) uses the lower wheel_max_lateral_vel_, and diagonals
+  // interpolate. |sin(heading)| = lateral fraction.
+  const double heading_for_cap = std::atan2(goal->target_point.y, goal->target_point.x);
+  const double lateral_frac = std::fabs(std::sin(heading_for_cap));
+  const double MAX_LINEAR_VEL =
+    (1.0 - lateral_frac) * wheel_max_linear_vel_ + lateral_frac * wheel_max_lateral_vel_;
   // Arrival tolerance (param wheel_linear_arrival_tol): the PD braking (vel→0 as
   // error→0) makes curt_dist approach goal_dist ASYMPTOTICALLY, so
   // `curt_dist < goal_dist` is effectively never false → the loop spins at ~0
