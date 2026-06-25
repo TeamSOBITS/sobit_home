@@ -3,8 +3,8 @@
     poses:
       - initial_pose
       - shutdown_pose
-      - detecting_pose
       - move_pose
+      - detecting_pose
       - open_detecting_pose
 
     initial_pose:
