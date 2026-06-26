@@ -830,18 +830,6 @@ void JointActionServer::check_grasp(bool is_right)
       const double e_mA_raw = std::abs(it_e->second);
       const double e_mA = e_mA_raw /current_scale; 
 
-      // debug
-      RCLCPP_INFO(
-        this->get_logger(),
-        "%s q=%.3f target=%.3f err=%.3f vel=%.3f effort_mA=%.3f",
-        joint.c_str(),
-        it_q->second,
-        it_t->second,
-        q_err,
-        v,
-        e_mA
-      );
-
       const bool position_blocked = (q_err > angle_th);
       const bool nearly_stopped = (v < vel_th);
       const bool current_increased = (e_mA > current_th_mA);
