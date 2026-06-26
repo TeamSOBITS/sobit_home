@@ -4,11 +4,6 @@
 
   <xacro:macro name="controllers" params="enable_gz:=False robot_name:=sobit_home">
 
-    <!-- Async hardware = separate read/write thread, decoupling serial/CAN I/O from
-         the control loop. Only meaningful on REAL hardware; gz_ros2_control is stepped
-         synchronously by the sim, so force sync (is_async=false) under Gazebo. -->
-    <xacro:property name="hw_is_async" value="${'false' if $(arg enable_gz) else 'true'}"/>
-
     <xacro:if value="${$(arg enable_mobile_base)}">
       <ros2_control name="dynamixel_control_lower" type="system">
       <!-- <ros2_control name="dynamixel_control_lower" type="system" is_async="true"> -->
@@ -142,12 +137,11 @@
     </xacro:if>
 
     <xacro:if value="${$(arg enable_body)}">
-      <ros2_control name="uirobot_control" type="system" is_async="${hw_is_async}">
-        <xacro:unless value="${$(arg enable_gz)}">
-          <properties>
-            <async scheduling_policy="synchronized" thread_priority="79" affinity="[6]" print_warnings="true"/>
-          </properties>
-        </xacro:unless>
+      <!-- <ros2_control name="uirobot_control" type="system"> -->
+      <ros2_control name="uirobot_control" type="system" is_async="true">
+        <properties>
+          <async scheduling_policy="synchronized" thread_priority="79" affinity="[6]" print_warnings="true"/>
+        </properties>
         <hardware>
           <xacro:if value="${$(arg enable_gz)}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
@@ -739,7 +733,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">51</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">100</param>
+        <param name="Goal_Current">150</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -787,7 +781,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">53</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">50</param>
+        <param name="Goal_Current">75</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -825,7 +819,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">55</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">50</param>
+        <param name="Goal_Current">75</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -863,7 +857,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">57</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">50</param>
+        <param name="Goal_Current">75</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -885,7 +879,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">61</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">100</param>
+        <param name="Goal_Current">150</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -933,7 +927,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">63</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">50</param>
+        <param name="Goal_Current">75</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -971,7 +965,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">65</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">50</param>
+        <param name="Goal_Current">75</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -1009,7 +1003,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">67</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">50</param>
+        <param name="Goal_Current">75</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
