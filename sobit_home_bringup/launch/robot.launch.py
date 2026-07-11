@@ -354,12 +354,13 @@ def launch_gz(context, *args, **kwargs):
                 ],
         )
         swerve_controller = Node(
-            package='sobit_home_control',
-            executable='swerve_controller_node',
+            package='swerve_steering_controller',
+            executable='swerve_controller',
             name='swerve_controller',
             namespace=robot_name,
             parameters=[
                 {'use_sim_time': enable_gz},
+                {'enable_tf_prefix': enable_tf_prefix},
                 swerve_config,
             ],
             output='screen',
