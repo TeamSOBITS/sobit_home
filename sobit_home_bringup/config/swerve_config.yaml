@@ -5,6 +5,8 @@
 
     twist_topic: cmd_vel
 
+    enable_tf_prefix: false
+
     position_controller_name: wheel_steer_position_controller
     velocity_controller_name: wheel_drive_velocity_controller
 
@@ -12,6 +14,10 @@
     # interval" assumption of the odometry solve valid. Stay at or below the
     # 50 Hz joint_states rate.
     cycle_fequency: 25
+
+    # Moderate on purpose: teleop moves the steering goals continuously, and a
+    # tight gate cuts drive power on every joystick nudge (jerky base).
+    driving_status_threshold: 0.15  # [rad] steer error above which drives are cut
 
     steering_joints:
       - wheel_steer_f_l_joint
@@ -31,9 +37,6 @@
       wheel_x_distance: 0.35355339  # [m]
       wheel_y_distance: 0.35355339  # [m]
       steer_max_vel: 10.0  # [rad/s] used in steering_state threshold
-      # Moderate on purpose: teleop moves the steering goals continuously, and a
-      # tight gate cuts drive power on every joystick nudge (jerky base).
-      driving_status_threshold: 0.15  # [rad] steer error above which drives are cut
       steer_settle_vel: 0.5  # [rad/s] wheels steering faster than this are excluded from odometry integration
       steer_min_acc: 0.5  # [rad/s^2] not used
       steer_max_acc: 1.0  # [rad/s^2] not used
