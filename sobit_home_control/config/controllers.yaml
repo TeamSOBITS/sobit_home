@@ -23,11 +23,8 @@
     # body_position_controller: #PTPモード
     #   type: position_controllers/JointGroupPositionController
 
-    wheel_steer_position_controller:
-      type: position_controllers/JointGroupPositionController
-
-    wheel_drive_velocity_controller:
-      type: velocity_controllers/JointGroupVelocityController
+    swerve_steering_controller:
+      type: swerve_steering_controller_cpp/SwerveSteeringController
 
 
     joint_state_broadcaster:
@@ -125,18 +122,27 @@
       - velocity
     allow_partial_joints_goal: true
 
-/**/wheel_steer_position_controller:
+/**/swerve_steering_controller:
   ros__parameters:
-    joints:
+    robot_base_frame: base_footprint
+    cmd_vel_topic: cmd_vel
+    enable_tf_prefix: false
+    cycle_frequency: 50.0
+    driving_status_threshold: 0.26  # [rad] steer settle tolerance before drives engage
+    steering_joints:
       - wheel_steer_f_l_joint
       - wheel_steer_f_r_joint
       - wheel_steer_b_l_joint
       - wheel_steer_b_r_joint
-
-/**/wheel_drive_velocity_controller:
-  ros__parameters:
-    joints:
+    drive_joints:
       - wheel_drive_f_l_joint
       - wheel_drive_f_r_joint
       - wheel_drive_b_l_joint
       - wheel_drive_b_r_joint
+    mobile_base:
+      wheel_radius: 0.075  # [m]
+      wheel_x_distance: 0.35355339  # [m]
+      wheel_y_distance: 0.35355339  # [m]
+      steer_max_vel: 10.0  # [rad/s]
+      drive_max_vel: 10.0  # IK velocity-normalization cap, m/s at wheel contact
+      drive_max_acc: 1.0  # [rad/s^2] drive command slew-rate limit

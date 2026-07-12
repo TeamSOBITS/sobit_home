@@ -214,7 +214,6 @@ def launch_gz(context, *args, **kwargs):
         os.path.join(get_package_share_directory(bringup_package), "config", "back_urg_node_param.yaml"),
     ]
     merge_scan_config = os.path.join(get_package_share_directory(bringup_package), "config", "laser_scan_merger.yaml")
-    swerve_config = os.path.join(get_package_share_directory(bringup_package), "config", "swerve_config.yaml")
     twist_mux_config = os.path.join(get_package_share_directory(bringup_package), "config", "twist_mux.yaml")
     hand_left_cam_config  = os.path.join(get_package_share_directory(bringup_package), "config", "hand_left_cam.yaml")
     hand_right_cam_config = os.path.join(get_package_share_directory(bringup_package), "config", "hand_right_cam.yaml")
@@ -344,30 +343,23 @@ def launch_gz(context, *args, **kwargs):
         controllers.append(merge_lidar_node)
 
     if enable_mobile_base:
-        wheel_steer_position_controller = Node(
+        # Swerve drive: the swerve_steering_controller_cpp plugin is a ros2_control
+        # controller that directly claims the per-module steer/position + drive/velocity
+        # command interfaces (it replaces the old JointGroup position/velocity forwarders
+        # and the standalone Python swerve node). Its type + params come from
+        # sobit_home_control/config/controllers.yaml.
+        swerve_controller = Node(
             package='controller_manager',
             executable='spawner',
-            name='wheel_steer_position_controller',
+            name='swerve_steering_controller_spawner',
             namespace=robot_name,
             arguments=[
-                'wheel_steer_position_controller',
+                'swerve_steering_controller',
                 '-c', 'controller_manager', '--activate'
                 ],
         )
-        swerve_controller = Node(
-            package='swerve_steering_controller',
-            executable='swerve_controller',
-            name='swerve_controller',
-            namespace=robot_name,
-            parameters=[
-                {'use_sim_time': enable_gz},
-                {'enable_tf_prefix': enable_tf_prefix},
-                swerve_config,
-            ],
-            output='screen',
-        )
-        # Command-velocity multiplexer: navigation / tracker / joystick -> cmd_vel.
-        # The muxed output feeds the swerve controller's cmd_vel subscription.
+        # Command-velocity multiplexer: navigation / tracker / joystick / action / moveit
+        # -> cmd_vel, which the swerve controller subscribes to.
         twist_mux_node = Node(
             package='twist_mux',
             executable='twist_mux',
@@ -382,19 +374,7 @@ def launch_gz(context, *args, **kwargs):
             ],
             output='screen',
         )
-        controllers.append(wheel_steer_position_controller)
-        if enable_rm_motors:
-            wheel_drive_velocity_controller = Node(
-                package='controller_manager',
-                executable='spawner',
-                name='wheel_drive_velocity_controller',
-                namespace=robot_name,
-                arguments=[
-                    'wheel_drive_velocity_controller',
-                    '-c', 'controller_manager', '--activate'
-                    ],
-            )
-            controllers.append(wheel_drive_velocity_controller)
+        controllers.append(swerve_controller)
 
     if enable_arm_left:
         arm_left_position_controller = Node(
@@ -515,14 +495,10 @@ def launch_gz(context, *args, **kwargs):
     )
 
     if enable_mobile_base:
-        delayed_swerve_controller = RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=controllers[-1],
-                on_exit=[swerve_controller],
-            )
-        )
-        nodes.append(delayed_swerve_controller)
-        # twist_mux has no controller dependency; start it directly.
+        # The swerve controller is a normal ros2_control controller now, so it is spawned
+        # as part of the `controllers` list by the joint_state_broadcaster -> controllers
+        # event chain; no separate delayed launch is needed. twist_mux has no controller
+        # dependency and starts directly.
         nodes.append(twist_mux_node)
 
     action_server_launch = IncludeLaunchDescription(
