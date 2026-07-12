@@ -35,6 +35,7 @@
   <depend>sobit_home_description</depend>
   <depend>sobit_home_control</depend>
   <exec_depend>swerve_steering_controller</exec_depend>
+  <exec_depend>twist_mux</exec_depend>
   <depend>sobits_display</depend>
 
   <test_depend>ament_lint_auto</test_depend>

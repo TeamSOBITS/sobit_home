@@ -215,6 +215,7 @@ def launch_gz(context, *args, **kwargs):
     ]
     merge_scan_config = os.path.join(get_package_share_directory(bringup_package), "config", "laser_scan_merger.yaml")
     swerve_config = os.path.join(get_package_share_directory(bringup_package), "config", "swerve_config.yaml")
+    twist_mux_config = os.path.join(get_package_share_directory(bringup_package), "config", "twist_mux.yaml")
     hand_left_cam_config  = os.path.join(get_package_share_directory(bringup_package), "config", "hand_left_cam.yaml")
     hand_right_cam_config = os.path.join(get_package_share_directory(bringup_package), "config", "hand_right_cam.yaml")
 
@@ -365,6 +366,22 @@ def launch_gz(context, *args, **kwargs):
             ],
             output='screen',
         )
+        # Command-velocity multiplexer: navigation / tracker / joystick -> cmd_vel.
+        # The muxed output feeds the swerve controller's cmd_vel subscription.
+        twist_mux_node = Node(
+            package='twist_mux',
+            executable='twist_mux',
+            name='twist_mux',
+            namespace=robot_name,
+            parameters=[
+                {'use_sim_time': enable_gz},
+                twist_mux_config,
+            ],
+            remappings=[
+                ('cmd_vel_out', 'cmd_vel'),
+            ],
+            output='screen',
+        )
         controllers.append(wheel_steer_position_controller)
         if enable_rm_motors:
             wheel_drive_velocity_controller = Node(
@@ -505,6 +522,8 @@ def launch_gz(context, *args, **kwargs):
             )
         )
         nodes.append(delayed_swerve_controller)
+        # twist_mux has no controller dependency; start it directly.
+        nodes.append(twist_mux_node)
 
     action_server_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([

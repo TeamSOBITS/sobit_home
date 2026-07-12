@@ -1,0 +1,42 @@
+# Command-velocity multiplexer for the SOBIT HOME mobile base.
+#
+# Three input command sources are muxed by priority (higher wins) into a single
+# output topic, which the swerve controller subscribes to as `cmd_vel`. Each input
+# has its own timeout: if the highest-priority active source stops publishing for
+# longer than its timeout, twist_mux falls through to the next priority (and to a
+# zero-velocity stop once every source is stale).
+#
+# Priority: joystick (manual override / e-stop) > tracker > navigation.
+#
+# NOTE: use_stamped is false so the output is a plain geometry_msgs/Twist, matching
+# the swerve controller's cmd_vel subscription (both the Python node and the
+# swerve_steering_controller_cpp plugin subscribe geometry_msgs/msg/Twist).
+twist_mux:
+  ros__parameters:
+    use_stamped: false
+
+    topics:
+      navigation:
+        topic   : cmd_vel_nav
+        timeout : 0.5
+        priority: 10
+      tracker:
+        topic   : cmd_vel_tracker
+        timeout : 0.5
+        priority: 20
+      # Whole-body base moves from MoveIt (moveit_whole_body_bridge). Beats autonomous
+      # navigation/tracker so planned base motion is not overridden by them.
+      moveit:
+        topic   : cmd_vel_moveit
+        timeout : 0.5
+        priority: 80
+      # Programmatic wheel action goals (sobit_home_wheel_action_server).
+      action:
+        topic   : cmd_vel_action
+        timeout : 0.5
+        priority: 90
+      # Manual joystick / teleop: highest priority, overrides everything (e-stop / takeover).
+      joystick:
+        topic   : cmd_vel_joy
+        timeout : 0.5
+        priority: 100
