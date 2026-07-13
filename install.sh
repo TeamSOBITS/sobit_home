@@ -15,7 +15,7 @@ ros_packages=(
     "dynamixel_hardware"
     "uirobot_hardware"
     "rm_motors_ros"
-    # "swerve_steering_controller"
+    "swerve_steering_controller_cpp"
     "ros2_laser_scan_merger"
     "tmc_wrs_gz"
     "aws_small_house_world"
@@ -58,6 +58,7 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-velocity-controllers \
     ros-$ROS_DISTRO-effort-controllers \
     ros-$ROS_DISTRO-joint-trajectory-controller \
+    ros-$ROS_DISTRO-twist-mux \
     ros-$ROS_DISTRO-joint-state-publisher \
     ros-$ROS_DISTRO-joint-state-publisher-gui \
     ros-$ROS_DISTRO-joint-state-broadcaster \
