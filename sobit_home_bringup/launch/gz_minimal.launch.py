@@ -1,4 +1,5 @@
 import os
+import re
 
 from ament_index_python.packages import get_package_share_directory
 
@@ -51,6 +52,22 @@ def _bool(lc, context):
     return 'True' if lc.perform(context).lower() in ('true', '1', 'yes') else 'False'
 
 
+def _gz_world_name(path):
+    """Read the <world name='...'> attribute from an SDF/xacro world file.
+
+    The bridge needs the Gazebo world name to build /world/<name>/... service
+    topics. All shipped worlds declare the name literally, so a plain regex is
+    enough and we avoid expanding the xacro just to read one attribute.
+    Falls back to 'default', which is what Gazebo itself uses.
+    """
+    try:
+        with open(path) as f:
+            m = re.search(r"<world\s+name=['\"]([^'\"]+)['\"]", f.read())
+    except OSError:
+        return 'default'
+    return m.group(1) if m else 'default'
+
+
 def launch_setup(context, *args, **kwargs):
     robot_name  = LaunchConfiguration('robot_name').perform(context)
     robot_id    = int(LaunchConfiguration('robot_id').perform(context))
@@ -87,12 +104,19 @@ def launch_setup(context, *args, **kwargs):
             get_package_share_directory('sobit_home_description'),
             'worlds', 'empty_w_physics.sdf')
 
+    gz_world_name = _gz_world_name(world_file)
+
     gz_bridge_node = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
             "/clock" + "@rosgraph_msgs/msg/Clock" + "[gz.msgs.Clock",
             "/tf"    + "@tf2_msgs/msg/TFMessage"  + "[gz.msgs.Pose_V",
+            # Entity control service
+            f"/world/{gz_world_name}/control@ros_gz_interfaces/srv/ControlWorld",
+            f"/world/{gz_world_name}/create@ros_gz_interfaces/srv/SpawnEntity",
+            f"/world/{gz_world_name}/remove@ros_gz_interfaces/srv/DeleteEntity",
+            f"/world/{gz_world_name}/set_pose@ros_gz_interfaces/srv/SetEntityPose",
         ],
         output='screen',
     )
