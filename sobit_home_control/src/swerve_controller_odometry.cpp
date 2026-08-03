@@ -4,13 +4,14 @@
 static inline double safe_sign(double val) { return (val >= 0.0) ? 1.0 : -1.0; }
 
 // Calculate Odometry
-void SobitHomeOdometry::update_odom()
+void SobitHomeOdometry::update_odom(double dt)
 {
   nav_msgs::msg::Odometry result_odom = odom_;
+  if (dt <= 1e-6 || dt > 1.0) dt = 1.0 / CYCLE_FEQUENCY;  // first cycle / timer hiccup
 
   // get the movement of each wheel[m]
   std::vector<double> distance_m(4);
-  for (int i=0; i<4; i++) 
+  for (int i=0; i<4; i++)
     distance_m[i] = distance_calculation(current_drive_pos[i] - prev_drive_pos[i]);
 
   // Transform to Roll, Pitch and Yaw from previous odom
@@ -78,9 +79,9 @@ void SobitHomeOdometry::update_odom()
           dist_base_wheel_2 = 1.; // dummy of zero devided...
         }
         
-        if (cos(atan2(base_center.y-wheels_point[i].y, base_center.x-wheels_point[i].x) - current_steer_pos[i] - M_PI/2.) < 0.) 
+        if (cos(atan2(base_center.y-wheels_point[i].y, base_center.x-wheels_point[i].x) - current_steer_pos[i] - M_PI/2.) < 0.)
           pn1 = -1 * pn1;
-        if (cos(atan2(base_center.y-wheels_point[j].y, base_center.x-wheels_point[j].x) - current_steer_pos[j] - M_PI/2.) < 0.) 
+        if (cos(atan2(base_center.y-wheels_point[j].y, base_center.x-wheels_point[j].x) - current_steer_pos[j] - M_PI/2.) < 0.)
           pn2 = -1 * pn2;
 
         // 
@@ -92,12 +93,12 @@ void SobitHomeOdometry::update_odom()
 
       }
 
-      // 
+      //
       if (!std::isfinite(x)  ) x   = 0.;
       if (!std::isfinite(y)  ) y   = 0.;
       if (!std::isfinite(yaw)) yaw = 0.;
 
-      // 
+      //
       diff_x   += x   / normalize;
       diff_y   += y   / normalize;
       diff_yaw += yaw / normalize;
@@ -114,10 +115,11 @@ void SobitHomeOdometry::update_odom()
   quat_tf.setRPY(0., 0., (prev_yaw + diff_yaw));
   tf2::convert(quat_tf, result_odom.pose.pose.orientation);
 
-  // Update the Vellocity of robot
-  result_odom.twist.twist.linear.x  = diff_x   * CYCLE_FEQUENCY;
-  result_odom.twist.twist.linear.y  = diff_y   * CYCLE_FEQUENCY;
-  result_odom.twist.twist.angular.z = diff_yaw * CYCLE_FEQUENCY;
+  // Update the Vellocity of robot (measured dt: the wall timer and 50 Hz
+  // joint_states are unsynchronized, so the nominal period is up to ~10% off)
+  result_odom.twist.twist.linear.x  = diff_x   / dt;
+  result_odom.twist.twist.linear.y  = diff_y   / dt;
+  result_odom.twist.twist.angular.z = diff_yaw / dt;
 
   result_odom.header.stamp = node_->get_clock()->now();
 

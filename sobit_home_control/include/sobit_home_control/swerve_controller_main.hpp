@@ -54,6 +54,8 @@ private:
   int CYCLE_FEQUENCY;
   double STEER_MAX_VEL;
   double DRIVING_STATUS_THRESHOLD; // Driving status threshold [rad]
+
+  rclcpp::Time prev_cycle_time_;
 };
 
 } // namespace sobit_home

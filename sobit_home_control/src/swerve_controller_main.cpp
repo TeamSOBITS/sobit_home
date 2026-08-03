@@ -68,6 +68,8 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
     sobit_home_odometry_->prev_drive_pos[i] = sobit_home_odometry_->current_drive_pos[i] = joints_pos[drive_joints_names[i]];
   }
 
+  prev_cycle_time_ = get_clock()->now();
+
   control_timer_ = create_wall_timer(
     std::chrono::milliseconds(static_cast<int>(1000.0 / CYCLE_FEQUENCY)),
     [this]() { control_callback(); });
@@ -114,6 +116,13 @@ void SwerveController::control_callback()
   // Wait until joint_states topic is populated (needed for steering and odometry calculations)
   if (joints_pos.empty()) return;
 
+  // Measured cycle time — the wall timer and the joint_states publisher are
+  // unsynchronized, so the nominal period is up to one joint_states period off.
+  rclcpp::Time now = get_clock()->now();
+  double dt = (now - prev_cycle_time_).seconds();
+  prev_cycle_time_ = now;
+  if (dt <= 1e-6 || dt > 1.0) dt = 1.0 / CYCLE_FEQUENCY;
+
   // Update current steer positions
   for (size_t i=0; i < steering_joints_names.size(); i++) {
     sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = joints_pos[steering_joints_names[i]];
@@ -121,7 +130,7 @@ void SwerveController::control_callback()
   }
 
   // Determine steering state:
-  //   1 = steers at goal  → publish goal drive velocities
+  //   1 = steers at goal → publish goal drive velocities
   //   0 = steers adjusting within threshold → publish 0 (drives stop)
   //  -1 = steers far from goal → publish 0 (drives stop)
   //
@@ -156,7 +165,7 @@ void SwerveController::control_callback()
   // odom solve). Otherwise hold pose + zero twist (drives are 0, base isn't moving).
   // Always publish odom + TF so Nav2 never sees a transform gap.
   if (steering_state == 1) {
-    sobit_home_odometry_->update_odom();
+    sobit_home_odometry_->update_odom(dt);
   } else {
     sobit_home_odometry_->odom_.twist.twist = geometry_msgs::msg::Twist();
     sobit_home_odometry_->odom_.header.stamp = get_clock()->now();
