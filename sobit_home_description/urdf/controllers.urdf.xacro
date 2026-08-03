@@ -4,6 +4,11 @@
 
   <xacro:macro name="controllers" params="enable_gz:=False robot_name:=sobit_home">
 
+    <!-- Async hardware = separate read/write thread, decoupling serial/CAN I/O from
+         the control loop. Only meaningful on REAL hardware; gz_ros2_control is stepped
+         synchronously by the sim, so force sync (is_async=false) under Gazebo. -->
+    <xacro:property name="hw_is_async" value="${'false' if $(arg enable_gz) else 'true'}"/>
+
     <xacro:if value="${$(arg enable_mobile_base)}">
       <!-- <ros2_control name="dynamixel_control_lower" type="system"> -->
       <ros2_control name="dynamixel_control_lower" type="system" is_async="true">
