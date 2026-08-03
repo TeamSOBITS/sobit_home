@@ -175,15 +175,27 @@ def launch_gz(context, *args, **kwargs):
         print('Uirobot Body Node ID : ' + um_body_id)
 
         if enable_mobile_base and enable_rm_motors:
-            fail_flag = False
-            fail_flag = os.system('sudo ip link set can0 down')
-            fail_flag = os.system('sudo ip link set can0 type can bitrate 1000000')
-            fail_flag = os.system('sudo ip link set can0 up')
-            if fail_flag != 0:
+            can_setup_cmds = [
+                ['sudo', 'ip', 'link', 'set', 'can0', 'down'],
+                ['sudo', 'ip', 'link', 'set', 'can0', 'type', 'can', 'bitrate', '1000000'],
+                # The default 10-frame TX queue jams with ENOBUFS if the bus briefly stops draining
+                ['sudo', 'ip', 'link', 'set', 'can0', 'txqueuelen', '65536'],
+                ['sudo', 'ip', 'link', 'set', 'can0', 'up'],
+            ]
+            if any(subprocess.run(cmd).returncode != 0 for cmd in can_setup_cmds):
                 print('Failed to set up CAN0 interface. Please check CAN adapter connection.')
                 exit(1)
-            else:
-                print('CAN0 interface is set up.')
+            print('CAN0 interface is set up.')
+
+            # Powered RM motors broadcast feedback at 1 kHz; a silent bus cannot ACK
+            # our frames and ros2_control write() would fail with ENOBUFS (os error 105)
+            try:
+                subprocess.run(['candump', '-n', '1', 'can0'],
+                               timeout=1.5, stdout=subprocess.DEVNULL, check=True)
+                print('CAN0 bus is alive (motor feedback detected).')
+            except (subprocess.TimeoutExpired, subprocess.CalledProcessError, FileNotFoundError):
+                print('No traffic on CAN0. Is the emergency stop released and motor power on?')
+                exit(1)
 
         # Find USB Cam port
         cam_left_port = str(os.environ.get('HOME_CAM_LEFT_PORT'))
