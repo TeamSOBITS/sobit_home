@@ -138,9 +138,7 @@ bool MoveitServer::init_move_groups()
     }
   }
 
-  // Validate requested groups against the SRDF before constructing any
-  // MoveGroupInterface: its constructor terminates the whole process on an
-  // unknown group instead of throwing something catchable.
+  // MoveGroupInterface's ctor kills the process on an unknown group — validate first.
   moveit::core::RobotModelConstPtr robot_model;
   try {
     robot_model_loader::RobotModelLoader loader(shared_from_this(), "robot_description");

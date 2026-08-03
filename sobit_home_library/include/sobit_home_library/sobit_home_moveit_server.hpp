@@ -63,10 +63,7 @@ private:
 
   void purge_stale_plans();
 
-  // Returns true when every valid planning group is initialized (groups
-  // missing from the SRDF are reported and skipped). Returns false when
-  // move_group's parameters are not available yet or a group failed
-  // transiently — the caller schedules a retry.
+  // True when all valid groups are initialized; false on transient failure (caller retries).
   bool init_move_groups();
 
   void schedule_init_retry();
@@ -79,9 +76,7 @@ private:
     const std::vector<rclcpp::Parameter> & params);
 
 
-  // Fires init_move_groups() after the constructor returns, guaranteeing
-  // shared_from_this() is valid when MoveGroupInterface is built. Re-armed
-  // by schedule_init_retry() until init completes or attempts run out.
+  // Post-constructor init timer (shared_from_this() must be valid); re-armed on retry.
   rclcpp::TimerBase::SharedPtr init_timer_;
   int init_attempts_{0};
   static constexpr int kMaxInitAttempts = 24;
