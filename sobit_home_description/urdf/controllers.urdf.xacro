@@ -10,11 +10,11 @@
     <xacro:property name="hw_is_async" value="${'false' if $(arg enable_gz) else 'true'}"/>
 
     <xacro:if value="${$(arg enable_mobile_base)}">
-      <ros2_control name="dynamixel_control_lower" type="system">
-      <!-- <ros2_control name="dynamixel_control_lower" type="system" is_async="true"> -->
-        <!-- <properties>
+      <!-- <ros2_control name="dynamixel_control_lower" type="system"> -->
+      <ros2_control name="dynamixel_control_lower" type="system" is_async="true">
+        <properties>
           <async scheduling_policy="synchronized" thread_priority="79" affinity="[1]" print_warnings="true"/>
-        </properties> -->
+        </properties>
         <hardware>
           <xacro:if value="${$(arg enable_gz)}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
@@ -34,8 +34,8 @@
   
     <xacro:if value="${$(arg enable_head) + $(arg enable_arm_left) + $(arg enable_arm_right)}">
       <ros2_control name="dynamixel_upper" type="system">
-      <!-- <ros2_control name="dynamixel_upper" type="system" is_async="true"> -->
-        <!-- <properties>
+      <!-- <ros2_control name="dynamixel_upper" type="system" is_async="true">
+        <properties>
           <async scheduling_policy="synchronized" thread_priority="79" affinity="[2]" print_warnings="true"/>
         </properties> -->
         <hardware>
@@ -93,8 +93,8 @@
   
     <xacro:if value="${($(arg enable_arm_left) + $(arg enable_arm_right)) and $(arg enable_dxl_pro)}">
       <ros2_control name="dynamixel_pro_upper" type="system">
-      <!-- <ros2_control name="dynamixel_pro_upper" type="system" is_async="true"> -->
-        <!-- <properties>
+      <!-- <ros2_control name="dynamixel_pro_upper" type="system" is_async="true">
+        <properties>
           <async scheduling_policy="synchronized" thread_priority="79" affinity="[3]" print_warnings="true"/>
         </properties> -->
         <hardware>
