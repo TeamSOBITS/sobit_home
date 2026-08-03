@@ -111,26 +111,6 @@
       </inertial>
     </link>
 
-<!-- Upper roll sub joint -->
-    <joint name="${prefix}_${position}_upper_roll_sub_joint" type="revolute" >
-      <mimic joint="${prefix}_${position}_upper_roll_joint" multiplier="-1" offset="0"/>
-      <parent link="${prefix}_${position}_shoulder_tilt_link" />
-      <child link="${prefix}_${position}_upper_roll_sub_link" />
-      <origin xyz="-0.0510 ${y_sign * 0.100} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="${y_sign * -1} 0.0 0.0" />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
-    </joint>
-
-    <link name="${prefix}_${position}_upper_roll_sub_link" >
-      <inertial>
-        <origin xyz="${y_sign * 0.0510} ${y_sign * (0.1285)/2 + y_sign * 0.10} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
-        <mass value="1.31" />
-        <inertia ixx="${1/12*1.31*(3*0.0875**2+0.1285**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*1.31*(3*0.0875**2+0.1285**2)}" iyz="0.0"
-                 izz="${1/2*1.31*0.0875**2}" />
-      </inertial>
-    </link>
-  
 
   <!-- Upper flex joint -->
     <joint name="${prefix}_${position}_upper_flex_joint" type="revolute" >
@@ -169,26 +149,6 @@
       </inertial>
     </link>
 
-<!-- Upper flex sub joint -->
-    <joint name="${prefix}_${position}_upper_flex_sub_joint" type="revolute" >
-      <mimic joint="${prefix}_${position}_upper_flex_joint" multiplier="1" offset="0"/>
-      <parent link="${prefix}_${position}_upper_roll_link" />
-      <child link="${prefix}_${position}_upper_flex_sub_link" />
-      <origin xyz="-0.0510 ${y_sign * (0.1135+0.0510)} 0.0" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 -1.0 0.0" />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
-    </joint>
-
-    <link name="${prefix}_${position}_upper_flex_sub_link" >
-      <inertial>
-        <origin xyz="0.0 ${y_sign * 0.170/2 + y_sign * (0.095+0.01)} 0.0" rpy="${y_sign * M_PI/2} 0.0 0.0" />
-        <mass value="1.006" />
-        <inertia ixx="${1/12*1.006*(3*0.038**2+0.170**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*1.006*(3*0.038**2+0.170**2)}" iyz="0.0"
-                 izz="${1/2*1.006*0.038**2}" />
-      </inertial>
-    </link>
-
 
 <!-- Elbow joint -->
     <joint name="${prefix}_${position}_elbow_joint" type="revolute" >
@@ -215,26 +175,6 @@
       </collision>
       <inertial>
         <origin xyz="0.0 ${y_sign * 0.12/2 + y_sign * 0.09} -0.0510" rpy="${y_sign * M_PI/2} 0.0 0.0" />
-        <mass value="0.466"/>
-        <inertia ixx="${1/12*0.466*(3*0.055**2+0.12**2)}" ixy="0.0" ixz="0.0"
-                 iyy="${1/12*0.466*(3*0.055**2+0.12**2)}" iyz="0.0"
-                 izz="${1/2*0.466*0.055**2}" />
-      </inertial>
-    </link>
-
-<!-- Elbow sub joint -->
-    <joint name="${prefix}_${position}_elbow_sub_joint" type="revolute" >
-      <mimic joint="${prefix}_${position}_elbow_joint" multiplier="-1" offset="0"/>
-      <parent link="${prefix}_${position}_upper_flex_link" />
-      <child link="${prefix}_${position}_elbow_sub_link" />
-      <origin xyz="0.05495 ${y_sign * (0.28865-0.00765)} -0.0510" rpy="0.0 0.0 0.0" />
-      <axis xyz="0.0 0.0 ${y_sign}" />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${10.6 * effort_ratio}" velocity="3.14" />
-    </joint>
-
-    <link name="${prefix}_${position}_elbow_sub_link" >
-      <inertial>
-        <origin xyz="0.0 ${y_sign * 0.12/2 + y_sign * 0.09} ${-y_sign * 0.051}" rpy="${y_sign * M_PI/2} 0.0 0.0" />
         <mass value="0.466"/>
         <inertia ixx="${1/12*0.466*(3*0.055**2+0.12**2)}" ixy="0.0" ixz="0.0"
                  iyy="${1/12*0.466*(3*0.055**2+0.12**2)}" iyz="0.0"
