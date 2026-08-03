@@ -643,7 +643,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">51</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">100</param>
+        <param name="Goal_Current">300</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -789,7 +789,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">61</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">100</param>
+        <param name="Goal_Current">300</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
