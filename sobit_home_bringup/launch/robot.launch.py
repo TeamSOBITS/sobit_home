@@ -314,11 +314,11 @@ def launch_gz(context, *args, **kwargs):
             ]),
             launch_arguments={
                 'namespace' : robot_name,
-                'lidar_num' : '2',
+                'lidar_num' : '1',
                 'config_file1': urg_configs[0],
                 'topic_namespace1': 'lidar_front',
-                'config_file2': urg_configs[1],
-                'topic_namespace2': 'lidar_back',
+                # 'config_file2': urg_configs[1],
+                # 'topic_namespace2': 'lidar_back',
                 'enable_tf_prefix': 'true' if enable_tf_prefix else 'false',
             }.items()
         )

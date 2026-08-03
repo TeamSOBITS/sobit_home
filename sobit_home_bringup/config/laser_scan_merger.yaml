@@ -31,7 +31,7 @@
     scanTopic1: /sobit_home/lidar_front/scan # TODO: dynamic namespase
     scanTopic2: /sobit_home/lidar_back/scan  # TODO: dynamic namespase
     show1: true
-    show2: true
+    show2: false
     use_sim_time: false
 
 /pointcloud_to_laserscan:

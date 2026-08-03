@@ -2,7 +2,7 @@
   ros__parameters:
     angle_max: 2.25
     angle_min: -2.25
-    ip_address: "172.16.10.10"
+    ip_address: "172.16.10.20"
     ip_port: 10940
     serial_baud: 115200
     laser_frame_id: "lidar_front_laser"
