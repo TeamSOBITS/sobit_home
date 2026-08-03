@@ -3,10 +3,7 @@
 namespace sobit_home
 {
 JointActionServer::JointActionServer(const rclcpp::NodeOptions & options)
-: Node("joint_action_server",
-    rclcpp::NodeOptions(options)
-    .automatically_declare_parameters_from_overrides(true)
-    .allow_undeclared_parameters(true)),
+: Node("joint_action_server", options),
   poses_(),
   curt_joint_state_(),
   curt_joint_effort_(),
@@ -152,15 +149,7 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options)
   pub_right_hand_grasp_state_ = create_publisher<std_msgs::msg::Bool>(
     "hand_right/grasp_state", qos_profile);
 
-  // With automatically_declare_parameters_from_overrides(true), any of these
-  // may already exist if supplied as a launch override; guard each declare.
-  auto declare_if_absent = [this](const std::string & name, const auto & default_val) {
-      if (!has_parameter(name)) {
-        declare_parameter(name, default_val);
-      }
-    };
-
-  declare_if_absent("robot_description", std::string(""));
+  declare_parameter("robot_description", "");
   urdf_timer_ = create_wall_timer(
     std::chrono::milliseconds(500),
     [this]() {load_joint_limits();});
@@ -172,10 +161,10 @@ JointActionServer::JointActionServer(const rclcpp::NodeOptions & options)
       check_grasp(true);
       check_grasp(false);});
 
-  declare_if_absent("poses", std::vector<std::string>());
-  declare_if_absent("right_hand_poses", std::vector<std::string>());
-  declare_if_absent("left_hand_poses", std::vector<std::string>());
-  declare_if_absent("enable_tf_prefix", false);
+  declare_parameter("poses", std::vector<std::string>());
+  declare_parameter("right_hand_poses", std::vector<std::string>());
+  declare_parameter("left_hand_poses", std::vector<std::string>());
+  declare_parameter("enable_tf_prefix", false);
 
   load_poses_from_params();
 
@@ -788,10 +777,11 @@ void JointActionServer::check_grasp(bool is_right)
     return;
   }
 
-  constexpr double angle_th = 0.15;
-  constexpr double vel_th = 0.2;
-  constexpr double current_limit_mA = 50.0;
-  constexpr double current_scale = 2.69;
+  constexpr double angle_th = 0.025;
+  constexpr double vel_th = 0.035;
+  
+  constexpr double current_th_mA = 20.0;   
+  constexpr double current_scale = 2.69;   
 
   const std::vector<std::vector<std::string>> fingers =
     is_right ?
@@ -799,10 +789,8 @@ void JointActionServer::check_grasp(bool is_right)
       {"hand_right_finger_l_mcp_joint",
        "hand_right_finger_l_pip_joint",
        "hand_right_finger_l_dip_joint"},
-
       {"hand_right_finger_c_mcp_joint",
        "hand_right_finger_c_ip_joint"},
-
       {"hand_right_finger_r_pip_joint",
        "hand_right_finger_r_dip_joint"}
     } :
@@ -810,10 +798,8 @@ void JointActionServer::check_grasp(bool is_right)
       {"hand_left_finger_l_mcp_joint",
        "hand_left_finger_l_pip_joint",
        "hand_left_finger_l_dip_joint"},
-
       {"hand_left_finger_c_mcp_joint",
        "hand_left_finger_c_ip_joint"},
-
       {"hand_left_finger_r_pip_joint",
        "hand_left_finger_r_dip_joint"}
     };
@@ -842,13 +828,13 @@ void JointActionServer::check_grasp(bool is_right)
       const double v = std::abs(it_v->second);
 
       const double e_mA_raw = std::abs(it_e->second);
-      const double e_mA = e_mA_raw / current_scale;
+      const double e_mA = e_mA_raw /current_scale; 
 
       const bool position_blocked = (q_err > angle_th);
-      const bool current_high = (e_mA >= current_limit_mA * 0.9);
       const bool nearly_stopped = (v < vel_th);
+      const bool current_increased = (e_mA > current_th_mA);
 
-      if (position_blocked && current_high && nearly_stopped) {
+      if (position_blocked && nearly_stopped && current_increased) {
         blocked_joint++;
       }
     }
