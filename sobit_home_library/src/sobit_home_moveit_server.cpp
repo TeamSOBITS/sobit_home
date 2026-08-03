@@ -1,6 +1,7 @@
 #include "sobit_home_library/sobit_home_moveit_server.hpp"
 #include <atomic>
 #include <rclcpp/parameter_client.hpp>
+#include <moveit/robot_model_loader/robot_model_loader.hpp>
 
 namespace sobit_home
 {
@@ -137,6 +138,20 @@ bool MoveitServer::init_move_groups()
     }
   }
 
+  // Validate requested groups against the SRDF before constructing any
+  // MoveGroupInterface: its constructor terminates the whole process on an
+  // unknown group instead of throwing something catchable.
+  moveit::core::RobotModelConstPtr robot_model;
+  try {
+    robot_model_loader::RobotModelLoader loader(shared_from_this(), "robot_description");
+    robot_model = loader.getModel();
+  } catch (const std::exception & e) {
+    RCLCPP_ERROR(get_logger(), "Failed to load robot model: %s", e.what());
+  }
+  if (!robot_model) {
+    return false;
+  }
+
   bool all_done = true;
   for (const auto & group_name : groups) {
     {
@@ -144,6 +159,15 @@ bool MoveitServer::init_move_groups()
       if (active_groups_.count(group_name)) {
         continue; // already initialized on a previous retry
       }
+    }
+
+    if (!robot_model->hasJointModelGroup(group_name)) {
+      RCLCPP_ERROR(get_logger(),
+        "Planning group '%s' is not defined in the loaded SRDF — skipping. "
+        "Check active_planning_groups against the SRDF selected at launch "
+        "(teleop and non-teleop use different SRDFs).",
+        group_name.c_str());
+      continue;
     }
 
     try {

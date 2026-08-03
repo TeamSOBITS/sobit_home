@@ -63,7 +63,8 @@ private:
 
   void purge_stale_plans();
 
-  // Returns true when every planning group is initialized. Returns false when
+  // Returns true when every valid planning group is initialized (groups
+  // missing from the SRDF are reported and skipped). Returns false when
   // move_group's parameters are not available yet or a group failed
   // transiently — the caller schedules a retry.
   bool init_move_groups();
