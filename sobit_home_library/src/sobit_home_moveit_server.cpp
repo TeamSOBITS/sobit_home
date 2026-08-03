@@ -68,13 +68,36 @@ MoveitServer::MoveitServer(const rclcpp::NodeOptions & options)
     std::chrono::milliseconds(0),
     [this]() {
       init_timer_->cancel();
-      init_move_groups();
+      if (!init_move_groups()) {
+        schedule_init_retry();
+      }
     });
 }
 
 MoveitServer::~MoveitServer() {}
 
-void MoveitServer::init_move_groups()
+void MoveitServer::schedule_init_retry()
+{
+  if (++init_attempts_ >= kMaxInitAttempts) {
+    RCLCPP_ERROR(get_logger(),
+      "Giving up on MoveGroupInterface init after %d attempts — "
+      "planning services will not work", init_attempts_);
+    return;
+  }
+  RCLCPP_WARN(get_logger(),
+    "MoveGroupInterface init incomplete — retrying in 5s (attempt %d/%d)",
+    init_attempts_, kMaxInitAttempts);
+  init_timer_ = create_wall_timer(
+    std::chrono::seconds(5),
+    [this]() {
+      init_timer_->cancel();
+      if (!init_move_groups()) {
+        schedule_init_retry();
+      }
+    });
+}
+
+bool MoveitServer::init_move_groups()
 {
   const auto groups = get_parameter("active_planning_groups").as_string_array();
 
@@ -88,27 +111,33 @@ void MoveitServer::init_move_groups()
 
   if (!has_parameter("robot_description")) {
     RCLCPP_INFO(get_logger(), "Fetching robot_description from %s ...", move_group_service.c_str());
-    auto tmp_node = std::make_shared<rclcpp::Node>("moveit_server_param_fetch", get_namespace());
-    auto param_client = std::make_shared<rclcpp::SyncParametersClient>(
-      tmp_node, move_group_service);
-    if (!param_client->wait_for_service(std::chrono::seconds(15))) {
-      RCLCPP_ERROR(get_logger(), "move_group parameter service not available — aborting init");
-      return;
-    }
-    const auto params = param_client->get_parameters({"robot_description",
-          "robot_description_semantic"});
-    if (params.size() >= 2 && !params[0].as_string().empty()) {
-      declare_parameter("robot_description", params[0].as_string());
-      declare_parameter("robot_description_semantic", params[1].as_string());
-      RCLCPP_INFO(get_logger(),
-          "robot_description declared on this node (%zu chars), SRDF (%zu chars)",
-        params[0].as_string().size(), params[1].as_string().size());
-    } else {
-      RCLCPP_ERROR(get_logger(), "robot_description is empty — aborting init");
-      return;
+    try {
+      auto tmp_node = std::make_shared<rclcpp::Node>("moveit_server_param_fetch", get_namespace());
+      auto param_client = std::make_shared<rclcpp::SyncParametersClient>(
+        tmp_node, move_group_service);
+      if (!param_client->wait_for_service(std::chrono::seconds(5))) {
+        RCLCPP_WARN(get_logger(), "move_group parameter service not available yet");
+        return false;
+      }
+      const auto params = param_client->get_parameters({"robot_description",
+            "robot_description_semantic"});
+      if (params.size() >= 2 && !params[0].as_string().empty()) {
+        declare_parameter("robot_description", params[0].as_string());
+        declare_parameter("robot_description_semantic", params[1].as_string());
+        RCLCPP_INFO(get_logger(),
+            "robot_description declared on this node (%zu chars), SRDF (%zu chars)",
+          params[0].as_string().size(), params[1].as_string().size());
+      } else {
+        RCLCPP_WARN(get_logger(), "robot_description not available on move_group yet");
+        return false;
+      }
+    } catch (const std::exception & e) {
+      RCLCPP_WARN(get_logger(), "Failed to fetch robot_description: %s", e.what());
+      return false;
     }
   }
 
+  bool all_done = true;
   for (const auto & group_name : groups) {
     {
       std::lock_guard<std::mutex> lock(active_groups_mutex_);
@@ -142,6 +171,7 @@ void MoveitServer::init_move_groups()
         RCLCPP_ERROR(this->get_logger(),
                      "Group '%s' has no joints — is the SRDF loaded and move_group running?",
                      group_name.c_str());
+        all_done = false;
       } else {
         RCLCPP_INFO(this->get_logger(),
                     "Initialized '%s'  planning_frame='%s'  ee_link='%s'",
@@ -155,8 +185,10 @@ void MoveitServer::init_move_groups()
       RCLCPP_ERROR(this->get_logger(),
                    "Failed to init MoveGroupInterface for '%s': %s",
                    group_name.c_str(), e.what());
+      all_done = false;
     }
   }
+  return all_done;
 }
 
 void MoveitServer::init_tunable_params()

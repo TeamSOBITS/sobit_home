@@ -63,7 +63,12 @@ private:
 
   void purge_stale_plans();
 
-  void init_move_groups();
+  // Returns true when every planning group is initialized. Returns false when
+  // move_group's parameters are not available yet or a group failed
+  // transiently — the caller schedules a retry.
+  bool init_move_groups();
+
+  void schedule_init_retry();
 
   // Declares the tunable planning parameters and wires up the dynamic-update
   // callback so they can be changed at runtime with `ros2 param set`.
@@ -73,9 +78,12 @@ private:
     const std::vector<rclcpp::Parameter> & params);
 
 
-  // One-shot timer that fires init_move_groups() after the constructor returns,
-  // guaranteeing shared_from_this() is valid when MoveGroupInterface is built.
+  // Fires init_move_groups() after the constructor returns, guaranteeing
+  // shared_from_this() is valid when MoveGroupInterface is built. Re-armed
+  // by schedule_init_retry() until init completes or attempts run out.
   rclcpp::TimerBase::SharedPtr init_timer_;
+  int init_attempts_{0};
+  static constexpr int kMaxInitAttempts = 24;
 
   // Core map mapping string -> MoveGroupInterface
   // Both active_groups_ and active_executions_ are guarded by their respective mutexes.
