@@ -142,7 +142,11 @@
     </xacro:if>
 
     <xacro:if value="${$(arg enable_body)}">
-      <ros2_control name="uirobot_control" type="system" is_async="${hw_is_async}">
+      <!-- rw_rate 20 Hz on real hardware: one read is 2 serial round-trips at 115200
+           (~10-30 ms), which can never fit the 50 Hz / 20 ms budget and only produces
+           "previous async trigger still in progress" warnings. -->
+      <ros2_control name="uirobot_control" type="system" is_async="${hw_is_async}"
+                    rw_rate="${'50' if $(arg enable_gz) else '20'}">
         <xacro:unless value="${$(arg enable_gz)}">
           <properties>
             <async scheduling_policy="synchronized" thread_priority="79" affinity="[6]" print_warnings="true"/>
