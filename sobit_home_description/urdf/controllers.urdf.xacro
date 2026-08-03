@@ -23,7 +23,7 @@
             <xacro:property name="dxl_x_lower_body_port" value="$(arg dxl_x_lower_body_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
             <param name="port_name">${dxl_x_lower_body_port}</param>
-            <param name="baud_rate">4000000</param>
+            <param name="baud_rate">2000000</param>
           </xacro:unless>
         </hardware>
 
@@ -46,7 +46,7 @@
             <xacro:property name="dxl_x_upper_body_port" value="$(arg dxl_x_upper_body_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
             <param name="port_name">${dxl_x_upper_body_port}</param>
-            <param name="baud_rate">4000000</param>
+            <param name="baud_rate">2000000</param>
           </xacro:unless>
         </hardware>
 
@@ -77,7 +77,7 @@
             <xacro:property name="dxl_x_hand_port" value="$(arg dxl_x_hand_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
             <param name="port_name">${dxl_x_hand_port}</param>
-            <param name="baud_rate">4000000</param>
+            <param name="baud_rate">2000000</param>
           </xacro:unless>
         </hardware>
 
@@ -105,7 +105,7 @@
             <xacro:property name="dxl_p_upper_body_port" value="$(arg dxl_p_upper_body_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
             <param name="port_name">${dxl_p_upper_body_port}</param>
-            <param name="baud_rate">4000000</param>
+            <param name="baud_rate">2000000</param>
           </xacro:unless>
         </hardware>
 
