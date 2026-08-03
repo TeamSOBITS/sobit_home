@@ -14,6 +14,19 @@ void SobitHomeOdometry::update_odom(double dt)
   for (int i=0; i<4; i++)
     distance_m[i] = distance_calculation(current_drive_pos[i] - prev_drive_pos[i]);
 
+  // The pairwise solve below assumes each steer angle was constant over the
+  // integration interval. A wheel whose steer moved during the interval breaks
+  // that assumption (this is what made odom yaw slip on every direction
+  // change), so: use the mid-interval steer angle for the decomposition, and
+  // exclude wheels that steered faster than STEER_SETTLE_VEL entirely.
+  std::vector<double> steer_mid(4);
+  std::vector<bool>   wheel_valid(4);
+  for (int i=0; i<4; i++) {
+    double steer_delta = wrap_pi(current_steer_pos[i] - prev_steer_pos[i]);
+    steer_mid[i]   = wrap_pi(prev_steer_pos[i] + steer_delta / 2.);
+    wheel_valid[i] = fabs(steer_delta) / dt <= STEER_SETTLE_VEL;
+  }
+
   // Transform to Roll, Pitch and Yaw from previous odom
   tf2::Quaternion quat_tf;
   double prev_roll, prev_pitch, prev_yaw;
@@ -28,16 +41,17 @@ void SobitHomeOdometry::update_odom(double dt)
   wheels_point[1].y = wheels_point[3].y = WHEEL_Y_DISTANCE / 2. * (-1); // Y position of right wheel is (-)
 
   // calculate the base_center. base_center is center in SWEVEL Motion's robot movement circle
-  // 4C2 = 6 -> i:j=[0~5]
+  // 4C2 = 6 -> i:j=[0~5], skipping pairs that include a still-steering wheel
   double diff_x = 0.,diff_y = 0., diff_yaw = 0.;
-  int normalize = ((wheels_point.size()*(wheels_point.size()-1)) / (2.*1.));
+  int used_pairs = 0;
   for (size_t i=0; i<wheels_point.size()-1; i++) {
     for (size_t j=i+1; j<wheels_point.size(); j++) {
+      if (!wheel_valid[i] || !wheel_valid[j]) continue;
 
       double x=0., y=0., yaw=0.;
       geometry_msgs::msg::Point base_center;
-      double wheel_rad_1 = current_steer_pos[i] + ((0. < distance_m[i]) ? 0. : M_PI);
-      double wheel_rad_2 = current_steer_pos[j] + ((0. < distance_m[j]) ? 0. : M_PI);
+      double wheel_rad_1 = steer_mid[i] + ((0. < distance_m[i]) ? 0. : M_PI);
+      double wheel_rad_2 = steer_mid[j] + ((0. < distance_m[j]) ? 0. : M_PI);
       double wheel_m_1 = fabsf(distance_m[i]);
       double wheel_m_2 = fabsf(distance_m[j]);
       if (1. - fabsf(cos(wheel_rad_2 - wheel_rad_1)) < 0.001) { // near the parallel of current_steer_pos[j] and current_steer_pos[i]
@@ -79,9 +93,9 @@ void SobitHomeOdometry::update_odom(double dt)
           dist_base_wheel_2 = 1.; // dummy of zero devided...
         }
         
-        if (cos(atan2(base_center.y-wheels_point[i].y, base_center.x-wheels_point[i].x) - current_steer_pos[i] - M_PI/2.) < 0.)
+        if (cos(atan2(base_center.y-wheels_point[i].y, base_center.x-wheels_point[i].x) - steer_mid[i] - M_PI/2.) < 0.)
           pn1 = -1 * pn1;
-        if (cos(atan2(base_center.y-wheels_point[j].y, base_center.x-wheels_point[j].x) - current_steer_pos[j] - M_PI/2.) < 0.)
+        if (cos(atan2(base_center.y-wheels_point[j].y, base_center.x-wheels_point[j].x) - steer_mid[j] - M_PI/2.) < 0.)
           pn2 = -1 * pn2;
 
         // 
@@ -99,11 +113,22 @@ void SobitHomeOdometry::update_odom(double dt)
       if (!std::isfinite(yaw)) yaw = 0.;
 
       //
-      diff_x   += x   / normalize;
-      diff_y   += y   / normalize;
-      diff_yaw += yaw / normalize;
+      diff_x   += x;
+      diff_y   += y;
+      diff_yaw += yaw;
+      used_pairs++;
     }
   }
+
+  // Fewer than 2 settled wheels — no reliable pair, hold the pose this cycle
+  if (used_pairs == 0) {
+    odom_.twist.twist = geometry_msgs::msg::Twist();
+    odom_.header.stamp = node_->get_clock()->now();
+    return;
+  }
+  diff_x   /= used_pairs;
+  diff_y   /= used_pairs;
+  diff_yaw /= used_pairs;
 
   // Update the Odometry
   result_odom.pose.pose.position.x = odom_.pose.pose.position.x + 

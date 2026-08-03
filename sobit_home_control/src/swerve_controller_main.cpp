@@ -23,6 +23,7 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
   declare_parameter("mobile_base.steer_max_vel",     10.0);
   declare_parameter("mobile_base.drive_max_vel",     10.0);
   declare_parameter("driving_status_threshold",      0.26);
+  declare_parameter("mobile_base.steer_settle_vel",  0.5);
 
   steering_joints_names = get_parameter("steering_joints").as_string_array();
   drive_joints_names    = get_parameter("drive_joints").as_string_array();
@@ -64,6 +65,7 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
 
   for (size_t i=0; i < drive_joints_names.size(); i++) {
     sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = sobit_home_control_->goal_steer_pos[i] = joints_pos[steering_joints_names[i]];
+    sobit_home_odometry_->prev_steer_pos[i] = joints_pos[steering_joints_names[i]];
     sobit_home_control_->goal_drive_vel[i] = 0.0;
     sobit_home_odometry_->prev_drive_pos[i] = sobit_home_odometry_->current_drive_pos[i] = joints_pos[drive_joints_names[i]];
   }
@@ -174,8 +176,10 @@ void SwerveController::control_callback()
   pub_odometry_->publish(sobit_home_odometry_->odom_);
 
   // Sync every cycle so coast during settling isn't integrated as a jump on resume.
-  for (int i=0; i<4; i++)
+  for (int i=0; i<4; i++) {
     sobit_home_odometry_->prev_drive_pos[i] = sobit_home_odometry_->current_drive_pos[i];
+    sobit_home_odometry_->prev_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i];
+  }
 }
 
 } // namespace sobit_home
