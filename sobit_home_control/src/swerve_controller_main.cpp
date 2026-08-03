@@ -22,8 +22,11 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
   declare_parameter("mobile_base.wheel_y_distance",  0.35355339);
   declare_parameter("mobile_base.steer_max_vel",     10.0);
   declare_parameter("mobile_base.drive_max_vel",     10.0);
-  declare_parameter("driving_status_threshold",      0.26);
-  declare_parameter("mobile_base.steer_settle_vel",  0.5);
+  // NOTE: the config nests this under mobile_base; the old top-level
+  // "driving_status_threshold" was never populated from swerve_config.yaml,
+  // so the robot silently ran with the 0.26 rad default.
+  declare_parameter("mobile_base.driving_status_threshold", 0.05);
+  declare_parameter("mobile_base.steer_settle_vel",         0.5);
 
   steering_joints_names = get_parameter("steering_joints").as_string_array();
   drive_joints_names    = get_parameter("drive_joints").as_string_array();
@@ -32,7 +35,7 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
 
   CYCLE_FEQUENCY           = get_parameter("cycle_fequency").as_int();
   STEER_MAX_VEL            = get_parameter("mobile_base.steer_max_vel").as_double();
-  DRIVING_STATUS_THRESHOLD = get_parameter("driving_status_threshold").as_double();
+  DRIVING_STATUS_THRESHOLD = get_parameter("mobile_base.driving_status_threshold").as_double();
 
   // Initialize the control and odometry classes
   sobit_home_control_ = std::make_unique<SobitHomeControl>(this);
@@ -141,6 +144,12 @@ void SwerveController::control_callback()
   // caused odometry to integrate a wrong heading and produced localization
   // drift during every mode transition (swivel/rotation).  Now we always
   // publish an explicit command so the controller is never in open-loop.
+  //
+  // NOTE: the gate is deliberately position-error-only and moderate. Teleop
+  // nudges the steering goals continuously, so a strict gate (tight error +
+  // steer-speed condition) chops drive power several times per second — jerky
+  // base. Odometry accuracy during transitions does NOT depend on this gate:
+  // update_odom() excludes still-steering wheels per wheel (steer_settle_vel).
   int steering_state = 1;
   wheel_joint_pos.data.clear();
   for (size_t i=0; i < steering_joints_names.size(); i++) {
