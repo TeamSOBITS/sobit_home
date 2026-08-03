@@ -673,6 +673,10 @@ def launch_gz(context, *args, **kwargs):
                 hand_left_cam_config,
                 {"video_device": cam_left_port},
                 {"frame_id": robot_name + '/hand_left_camera_optical_frame'},
+                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw.publisher.reliability': 'best_effort'},
+                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw.publisher.depth': 1},
+                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw/compressed.publisher.reliability': 'best_effort'},
+                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw/compressed.publisher.depth': 1},
                 ],
             remappings=[
                 ('image_raw', 'color/image_raw'),
@@ -693,6 +697,10 @@ def launch_gz(context, *args, **kwargs):
                 hand_right_cam_config,
                 {"video_device": cam_right_port},
                 {"frame_id": robot_name + '/hand_right_camera_optical_frame'},
+                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw.publisher.reliability': 'best_effort'},
+                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw.publisher.depth': 1},
+                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw/compressed.publisher.reliability': 'best_effort'},
+                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw/compressed.publisher.depth': 1},
             ],
             remappings=[
                 ('image_raw', 'color/image_raw'),
