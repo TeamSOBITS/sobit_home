@@ -118,6 +118,7 @@ echo "" >> $HOME/.bashrc
 echo "# SOBIT HOME environment variables" >> $HOME/.bashrc
 echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> $HOME/.bashrc
 echo "export HOST_ROS_DOMAIN_ID=\${ROS_DOMAIN_ID}" >> $HOME/.bashrc
+echo "export LOCAL_CYCLONEDDS_URI=file://${DIR}/cyclonedds_local.xml" >> $HOME/.bashrc
 echo "export REMOTE_CYCLONEDDS_URI=file://${DIR}/cyclonedds_profile.xml" >> $HOME/.bashrc
 echo "source ${DIR}/mode_ctr.sh" >> $HOME/.bashrc
 echo "if [ \"\$ROS_DOMAIN_ID\" = \"80\" ]; then" >> $HOME/.bashrc
