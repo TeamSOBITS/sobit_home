@@ -11,7 +11,7 @@
 
     <xacro:if value="${$(arg enable_mobile_base)}">
       <!-- <ros2_control name="dynamixel_control_lower" type="system"> -->
-      <ros2_control name="dynamixel_control_lower" type="system" is_async="true">
+      <ros2_control name="dynamixel_control_lower" type="system" is_async="${hw_is_async}">
         <properties>
           <async scheduling_policy="synchronized" thread_priority="79" affinity="[1]" print_warnings="true"/>
         </properties>
