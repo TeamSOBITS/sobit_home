@@ -8,6 +8,18 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 
 
+# Module switches passed through to move_group.launch.py for the SRDF xacro.
+MODULE_ARGS = (
+    'enable_mobile_base',
+    'enable_arm_left',
+    'enable_arm_right',
+    'enable_hand_left',
+    'enable_hand_right',
+    'enable_head',
+    'enable_body',
+)
+
+
 def generate_launch_description():
     _lib_config = os.path.join(get_package_share_directory("sobit_home_library"), "config")
     _moveit_config = os.path.join(
@@ -44,6 +56,11 @@ def generate_launch_description():
     arg_linear_arr_tol   = DeclareLaunchArgument('linear_arrival_tol', default_value='0.02')
     arg_rotate_arr_tol   = DeclareLaunchArgument('rotate_arrival_tol', default_value='0.02')
     arg_enable_tf_prefix = DeclareLaunchArgument('enable_tf_prefix', default_value='false')
+    # Forwarded untouched to move_group.launch.py.
+    args_modules = [
+        DeclareLaunchArgument(name, default_value='true')
+        for name in MODULE_ARGS
+    ]
 
     return LaunchDescription([
         arg_robot_name,
@@ -64,6 +81,7 @@ def generate_launch_description():
         arg_right_hand_pose_config,
         arg_left_hand_pose_config,
         arg_moveit_server_config,
+        *args_modules,
         OpaqueFunction(function=launch_setup),
     ])
 
@@ -143,7 +161,10 @@ def launch_setup(context, *args, **kwargs):
             'use_sim_time': use_sim_time,
             'use_rviz':     use_rviz,
             'enable_teleop':   enable_teleop,
+            'enable_tf_prefix': enable_tf_prefix,
             'moveit_server_config': moveit_server_config,
+            # Module switches -> URDF + SRDF xacro args.
+            **{name: LaunchConfiguration(name).perform(context) for name in MODULE_ARGS},
         }.items(),
     )
 

@@ -17,18 +17,49 @@ def _launch_setup(context, *args, **kwargs):
     pkg_share_control = FindPackageShare(package='sobit_home_control').find('sobit_home_control')
     bridge_config_file = os.path.join(pkg_share_control, 'config', 'moveit_whole_body_bridge.yaml')
 
-    # Resolve runtime values
-    enable_teleop = LaunchConfiguration('enable_teleop').perform(context).lower() == 'true'
-
     # Launch configuration variables (substitutions for node parameters)
     robot_name = LaunchConfiguration('robot_name')
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_rviz = LaunchConfiguration('use_rviz')
-    # Configuration file paths — SRDF chosen based on enable_teleop
-    if enable_teleop:
-        srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home_teleop.srdf')
-    else:
-        srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home.srdf')
+    # One xacro SRDF for every configuration; teleop is just an argument.
+    srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home.srdf.xacro')
+    # Module switches shared by the URDF and the SRDF.
+    module_mappings = {
+        name: LaunchConfiguration(name).perform(context)
+        for name in (
+            'enable_mobile_base',
+            'enable_arm_left',
+            'enable_arm_right',
+            'enable_hand_left',
+            'enable_hand_right',
+            'enable_head',
+            'enable_body',
+        )
+    }
+    # Forward enable_* flags so the SRDF matches the spawned URDF.
+    srdf_mappings = dict(
+        module_mappings,
+        enable_teleop=LaunchConfiguration('enable_teleop').perform(context),
+    )
+    # Without an explicit robot_description the builder expands the URDF with its
+    # xacro defaults (every module on), so move_group would plan against a robot
+    # that does not match the one actually spawned.
+    urdf_model_path = os.path.join(
+        FindPackageShare(package='sobit_home_description').find('sobit_home_description'),
+        'robots', 'sobit_home_robot.urdf.xacro')
+    # The URDF evaluates its flags as bare Python (${$(arg enable_head)}), so they
+    # must be capitalized literals; the SRDF lowercases and compares as strings.
+    def _py_bool(value):
+        return 'True' if value.lower() in ('true', '1', 'yes') else 'False'
+
+    # enable_gz picks the ros2_control hardware plugin; it tracks use_sim_time,
+    # which robot.launch.py already derives from enable_gz.
+    urdf_mappings = {k: _py_bool(v) for k, v in module_mappings.items()}
+    urdf_mappings.update(
+        robot_name=LaunchConfiguration('robot_name').perform(context),
+        enable_gz=_py_bool(LaunchConfiguration('use_sim_time').perform(context)),
+        enable_tf_prefix=_py_bool(LaunchConfiguration('enable_tf_prefix').perform(context)),
+    )
     # Planning params for MoveitServer. Defaults to this package's generic yaml;
     # override with the rc_doinglaundry path at launch for competition tuning.
     moveit_server_params_file_path = LaunchConfiguration('moveit_server_config').perform(context)
@@ -45,7 +76,8 @@ def _launch_setup(context, *args, **kwargs):
     # Build MoveIt configuration
     moveit_config = (
         MoveItConfigsBuilder("sobit_home", package_name=package_name_moveit_config)
-        .robot_description_semantic(file_path=srdf_model_path)
+        .robot_description(file_path=urdf_model_path, mappings=urdf_mappings)
+        .robot_description_semantic(file_path=srdf_model_path, mappings=srdf_mappings)
         .robot_description_kinematics(file_path=kinematics_file_path)
         .joint_limits(file_path=joint_limits_file_path)
         # .moveit_cpp(file_path=moveit_cpp_file_path)
@@ -209,11 +241,35 @@ def generate_launch_description():
         description='Path to MoveitServer planning-params YAML. Empty = package default. '
                     'Override with the rc_doinglaundry path for competition.')
 
+    declare_enable_tf_prefix_cmd = DeclareLaunchArgument(
+        name='enable_tf_prefix',
+        default_value='false',
+        description='Prefix TF frames with the robot name; must match robot.launch.py')
+
+    # Module switches for the SRDF xacro; names match robot.launch.py.
+    declare_module_cmds = [
+        DeclareLaunchArgument(
+            name=name,
+            default_value='true',
+            description=f'Whether {label} is present; disables its SRDF planning groups when false')
+        for name, label in (
+            ('enable_mobile_base', 'the mobile base'),
+            ('enable_arm_left', 'the left arm'),
+            ('enable_arm_right', 'the right arm'),
+            ('enable_hand_left', 'the left hand'),
+            ('enable_hand_right', 'the right hand'),
+            ('enable_head', 'the head'),
+            ('enable_body', 'the body lift'),
+        )
+    ]
+
     return LaunchDescription([
         declare_robot_name_cmd,
         declare_use_sim_time_cmd,
         declare_use_rviz_cmd,
         declare_enable_teleop_cmd,
         declare_moveit_server_config_cmd,
+        declare_enable_tf_prefix_cmd,
+        *declare_module_cmds,
         OpaqueFunction(function=_launch_setup),
     ])
