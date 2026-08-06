@@ -9,6 +9,46 @@ from launch_ros.descriptions import ComposableNode
 from moveit_configs_utils import MoveItConfigsBuilder
 
 
+# Which enable_* flag owns each entry of moveit_controllers.yaml.
+_CONTROLLER_OWNER = {
+    'head_position_controller': 'enable_head',
+    'arm_left_position_controller': 'enable_arm_left',
+    'arm_right_position_controller': 'enable_arm_right',
+    'hand_left_position_controller': 'enable_hand_left',
+    'hand_right_position_controller': 'enable_hand_right',
+    'body_position_controller': 'enable_body',
+}
+
+# Declared in moveit_controllers.yaml but no longer spawned by
+# sobit_home_control/config/controllers.yaml, so never advertise them.
+_CONTROLLERS_REMOVED = ('mobile_base_controller',)
+
+
+def _prune_disabled_controllers(trajectory_execution, module_mappings):
+    """Strip controllers for disabled modules from the trajectory_execution dict.
+
+    Drops both the controller_names entry and the controller's own definition,
+    so MoveIt never advertises a controller that no spawner will create.
+    """
+    scm = trajectory_execution.get('moveit_simple_controller_manager')
+    if not scm:
+        return
+
+    def _enabled(name):
+        if name in _CONTROLLERS_REMOVED:
+            return False
+        owner = _CONTROLLER_OWNER.get(name)
+        if owner is None:
+            return True
+        return module_mappings.get(owner, 'true').lower() in ('true', '1', 'yes')
+
+    kept = [n for n in scm.get('controller_names', []) if _enabled(n)]
+    for name in list(scm):
+        if name != 'controller_names' and name not in kept:
+            del scm[name]
+    scm['controller_names'] = kept
+
+
 def _launch_setup(context, *args, **kwargs):
 
     package_name_moveit_config = 'sobit_home_moveit_config'
@@ -99,6 +139,10 @@ def _launch_setup(context, *args, **kwargs):
         .pilz_cartesian_limits(file_path=pilz_cartesian_limits_file_path)
         .to_moveit_configs()
     )
+
+    # Drop controllers whose module is disabled: MoveIt otherwise keeps trying to
+    # connect to a FollowJointTrajectory action that no spawner ever created.
+    _prune_disabled_controllers(moveit_config.trajectory_execution, module_mappings)
 
     # Add frame_prefix so MoveIt maps URDF frames to TF frames
     config_dict = moveit_config.to_dict()
