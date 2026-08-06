@@ -4,12 +4,17 @@
 
   <xacro:macro name="controllers" params="enable_gz:=False robot_name:=sobit_home">
 
+    <!-- Async hardware = separate read/write thread, decoupling serial/CAN I/O from
+         the control loop. Only meaningful on REAL hardware; gz_ros2_control is stepped
+         synchronously by the sim, so force sync (is_async=false) under Gazebo. -->
+    <xacro:property name="hw_is_async" value="${'false' if $(arg enable_gz) else 'true'}"/>
+
     <xacro:if value="${$(arg enable_mobile_base)}">
-      <ros2_control name="dynamixel_control_lower" type="system">
-      <!-- <ros2_control name="dynamixel_control_lower" type="system" is_async="true"> -->
-        <!-- <properties>
+      <!-- <ros2_control name="dynamixel_control_lower" type="system"> -->
+      <ros2_control name="dynamixel_control_lower" type="system" is_async="true">
+        <properties>
           <async scheduling_policy="synchronized" thread_priority="79" affinity="[1]" print_warnings="true"/>
-        </properties> -->
+        </properties>
         <hardware>
           <xacro:if value="${$(arg enable_gz)}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
@@ -18,7 +23,7 @@
             <xacro:property name="dxl_x_lower_body_port" value="$(arg dxl_x_lower_body_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
             <param name="port_name">${dxl_x_lower_body_port}</param>
-            <param name="baud_rate">4000000</param>
+            <param name="baud_rate">2000000</param>
           </xacro:unless>
         </hardware>
 
@@ -29,8 +34,8 @@
   
     <xacro:if value="${$(arg enable_head) + $(arg enable_arm_left) + $(arg enable_arm_right)}">
       <ros2_control name="dynamixel_upper" type="system">
-      <!-- <ros2_control name="dynamixel_upper" type="system" is_async="true"> -->
-        <!-- <properties>
+      <!-- <ros2_control name="dynamixel_upper" type="system" is_async="true">
+        <properties>
           <async scheduling_policy="synchronized" thread_priority="79" affinity="[2]" print_warnings="true"/>
         </properties> -->
         <hardware>
@@ -41,7 +46,7 @@
             <xacro:property name="dxl_x_upper_body_port" value="$(arg dxl_x_upper_body_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
             <param name="port_name">${dxl_x_upper_body_port}</param>
-            <param name="baud_rate">4000000</param>
+            <param name="baud_rate">2000000</param>
           </xacro:unless>
         </hardware>
 
@@ -72,7 +77,7 @@
             <xacro:property name="dxl_x_hand_port" value="$(arg dxl_x_hand_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
             <param name="port_name">${dxl_x_hand_port}</param>
-            <param name="baud_rate">4000000</param>
+            <param name="baud_rate">2000000</param>
           </xacro:unless>
         </hardware>
 
@@ -88,8 +93,8 @@
   
     <xacro:if value="${($(arg enable_arm_left) + $(arg enable_arm_right)) and $(arg enable_dxl_pro)}">
       <ros2_control name="dynamixel_pro_upper" type="system">
-      <!-- <ros2_control name="dynamixel_pro_upper" type="system" is_async="true"> -->
-        <!-- <properties>
+      <!-- <ros2_control name="dynamixel_pro_upper" type="system" is_async="true">
+        <properties>
           <async scheduling_policy="synchronized" thread_priority="79" affinity="[3]" print_warnings="true"/>
         </properties> -->
         <hardware>
@@ -100,7 +105,7 @@
             <xacro:property name="dxl_p_upper_body_port" value="$(arg dxl_p_upper_body_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
             <param name="port_name">${dxl_p_upper_body_port}</param>
-            <param name="baud_rate">4000000</param>
+            <param name="baud_rate">2000000</param>
           </xacro:unless>
         </hardware>
 
@@ -137,11 +142,16 @@
     </xacro:if>
 
     <xacro:if value="${$(arg enable_body)}">
-      <!-- <ros2_control name="uirobot_control" type="system"> -->
-      <ros2_control name="uirobot_control" type="system" is_async="true">
-        <properties>
-          <async scheduling_policy="synchronized" thread_priority="79" affinity="[6]" print_warnings="true"/>
-        </properties>
+      <!-- rw_rate 20 Hz on real hardware: one read is 2 serial round-trips at 115200
+           (~10-30 ms), which can never fit the 50 Hz / 20 ms budget and only produces
+           "previous async trigger still in progress" warnings. -->
+      <ros2_control name="uirobot_control" type="system" is_async="${hw_is_async}"
+                    rw_rate="${'50' if $(arg enable_gz) else '20'}">
+        <xacro:unless value="${$(arg enable_gz)}">
+          <properties>
+            <async scheduling_policy="synchronized" thread_priority="79" affinity="[6]" print_warnings="true"/>
+          </properties>
+        </xacro:unless>
         <hardware>
           <xacro:if value="${$(arg enable_gz)}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
@@ -425,22 +435,6 @@
       <state_interface name="effort"/>
     </joint>
 
-    <joint name="${prefix}_upper_roll_sub_joint">
-      <param name="mimic">${prefix}_upper_roll_joint</param>
-      <param name="multiplier">-1</param>
-      <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">33</param>
-        <param name="control_mode">0</param>
-        <param name="interface">rs</param>
-        <param name="Return_Delay_Time">0</param>
-      </xacro:unless>
-      <state_interface name="position">
-        <param name="initial_value">1.571</param>
-      </state_interface>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-
     <joint name="${prefix}_upper_flex_joint">
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">34</param>
@@ -453,22 +447,6 @@
         <param name="min">-${M_PI/2}</param>
         <param name="max">${M_PI/2}</param>
       </command_interface>
-      <state_interface name="position">
-        <param name="initial_value">0.0</param>
-      </state_interface>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-
-    <joint name="${prefix}_upper_flex_sub_joint">
-      <param name="mimic">${prefix}_upper_flex_joint</param>
-      <param name="multiplier">1</param>
-      <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">35</param>
-        <param name="control_mode">0</param>
-        <param name="interface">rs</param>
-        <param name="Return_Delay_Time">0</param>
-      </xacro:unless>
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -490,22 +468,6 @@
       </command_interface>
       <state_interface name="position">
         <param name="initial_value">1.571</param>
-      </state_interface>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-
-    <joint name="${prefix}_elbow_sub_joint">
-      <param name="mimic">${prefix}_elbow_joint</param>
-      <param name="multiplier">-1</param>
-      <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">37</param>
-        <param name="control_mode">0</param>
-        <param name="interface">rs</param>
-        <param name="Return_Delay_Time">0</param>
-      </xacro:unless>
-      <state_interface name="position">
-        <param name="initial_value">-1.571</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
@@ -588,22 +550,6 @@
       <state_interface name="effort"/>
     </joint>
 
-    <joint name="${prefix}_upper_roll_sub_joint">
-      <param name="mimic">${prefix}_upper_roll_joint</param>
-      <param name="multiplier">-1</param>
-      <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">43</param>
-        <param name="control_mode">0</param>
-        <param name="interface">rs</param>
-        <param name="Return_Delay_Time">0</param>
-      </xacro:unless>
-      <state_interface name="position">
-        <param name="initial_value">1.571</param>
-      </state_interface>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-
     <joint name="${prefix}_upper_flex_joint">
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">44</param>
@@ -615,22 +561,6 @@
         <param name="min">-${M_PI}</param>
         <param name="max">0</param>
       </command_interface>
-      <state_interface name="position">
-        <param name="initial_value">0.0</param>
-      </state_interface>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-
-    <joint name="${prefix}_upper_flex_sub_joint">
-      <param name="mimic">${prefix}_upper_flex_joint</param>
-      <param name="multiplier">1</param>
-      <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">45</param>
-        <param name="control_mode">0</param>
-        <param name="interface">rs</param>
-        <param name="Return_Delay_Time">0</param>
-      </xacro:unless>
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
@@ -651,22 +581,6 @@
       </command_interface>
       <state_interface name="position">
         <param name="initial_value">1.571</param>
-      </state_interface>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-
-    <joint name="${prefix}_elbow_sub_joint">
-      <param name="mimic">${prefix}_elbow_joint</param>
-      <param name="multiplier">-1</param>
-      <xacro:unless value="${$(arg enable_gz)}">
-        <param name="id">47</param>
-        <param name="control_mode">0</param>
-        <param name="interface">rs</param>
-        <param name="Return_Delay_Time">0</param>
-      </xacro:unless>
-      <state_interface name="position">
-        <param name="initial_value">-1.571</param>
       </state_interface>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
@@ -733,7 +647,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">51</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">150</param>
+        <param name="Goal_Current">300</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>
@@ -879,7 +793,7 @@
       <xacro:unless value="${$(arg enable_gz)}">
         <param name="id">61</param>
         <param name="control_mode">6</param>
-        <param name="Goal_Current">150</param>
+        <param name="Goal_Current">300</param>
         <param name="interface">ttl</param>
         <param name="Return_Delay_Time">0</param>
       </xacro:unless>

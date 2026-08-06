@@ -14,6 +14,14 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+// Wrap an angle (difference) into [-pi, pi]
+static inline double wrap_pi(double a)
+{
+  while (a >  M_PI) a -= 2. * M_PI;
+  while (a < -M_PI) a += 2. * M_PI;
+  return a;
+}
+
 class SobitHomeOdometry{
 private:
   rclcpp::Node* node_;
@@ -24,8 +32,10 @@ public:
   double WHEEL_X_DISTANCE; // Wheel Distance between front and back [m]
   double WHEEL_Y_DISTANCE; // Wheel Distance between left and right [m]
   double WHEEL_RADIUS;     // Wheel Radius [m]
+  double STEER_SETTLE_VEL; // Steer speed above which a wheel is excluded from odometry [rad/s]
 
   double current_steer_pos[4] = {0, };
+  double prev_steer_pos[4] = {0, };
   double current_drive_pos[4] = {0, };
   double prev_drive_pos[4] = {0, };
 
@@ -37,6 +47,7 @@ public:
     WHEEL_X_DISTANCE = node_->get_parameter("mobile_base.wheel_x_distance").as_double();
     WHEEL_Y_DISTANCE = node_->get_parameter("mobile_base.wheel_y_distance").as_double();
     WHEEL_RADIUS = node_->get_parameter("mobile_base.wheel_radius").as_double();
+    STEER_SETTLE_VEL = node_->get_parameter("mobile_base.steer_settle_vel").as_double();
     RCLCPP_INFO(node_->get_logger(), "SOBIT HOME Odometry initialized.");
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(node_);
   }
@@ -44,7 +55,7 @@ public:
     RCLCPP_INFO(node_->get_logger(), "SOBIT HOME Odometry destroyed.");
   }
 
-  void update_odom();
+  void update_odom(double dt);
 
   double distance_calculation(double wheel_delta_pos);
   void pose_broadcaster();

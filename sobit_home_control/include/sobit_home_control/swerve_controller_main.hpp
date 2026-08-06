@@ -53,7 +53,9 @@ private:
 
   int CYCLE_FEQUENCY;
   double STEER_MAX_VEL;
-  double DRIVING_STATUS_THRESHOLD; // Driving status threshold [rad]
+  double DRIVING_STATUS_THRESHOLD; // Steer position error below which drives may engage [rad]
+
+  rclcpp::Time prev_cycle_time_;
 };
 
 } // namespace sobit_home

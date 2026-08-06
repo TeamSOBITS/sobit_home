@@ -87,6 +87,11 @@
         <group name="body"/>
         <group name="arm"/>
     </group>
+    <group name="head_arm_body">
+        <group name="head"/>
+        <group name="body"/>
+        <group name="arm"/>
+    </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
     <group_state name="initial_pose" group="head">
         <joint name="head_pan_joint" value="0"/>
@@ -207,12 +212,6 @@
     <!--PASSIVE JOINT: Purpose: this element is used to mark joints that are not actuated-->
     <passive_joint name="hand_left_finger_r_mcp_joint"/>
     <passive_joint name="hand_right_finger_r_mcp_joint"/>
-    <passive_joint name="arm_left_upper_roll_sub_joint"/>
-    <passive_joint name="arm_left_upper_flex_sub_joint"/>
-    <passive_joint name="arm_left_elbow_sub_joint"/>
-    <passive_joint name="arm_right_upper_roll_sub_joint"/>
-    <passive_joint name="arm_right_upper_flex_sub_joint"/>
-    <passive_joint name="arm_right_elbow_sub_joint"/>
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
     <disable_collisions link1="arm_left_base_link" link2="arm_left_elbow_link" reason="Never"/>
     <disable_collisions link1="arm_left_base_link" link2="arm_left_shoulder_tilt_link" reason="Adjacent"/>

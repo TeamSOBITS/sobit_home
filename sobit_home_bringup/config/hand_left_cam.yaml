@@ -3,6 +3,7 @@
       # video_device: "/dev/video0"
       framerate: 30.0
       io_method: "mmap"
+      buffer_count: 8  # V4L2 buffer ring depth; headroom against frame drops, no latency cost
       # frame_id: "hand_left_camera_optical_frame"
       pixel_format: "mjpeg2rgb"
       av_device_format: "YUV422P"
@@ -15,10 +16,10 @@
       saturation: -1
       sharpness: -1
       gain: -1
-      auto_white_balance: true
-      white_balance: 4000
-      autoexposure: true
-      exposure: 100
-      autofocus: false
-      focus: -1
+      auto_white_balance: false  # V4L2 'white_balance_automatic'
+      white_balance: 4000        # V4L2 'white_balance_temperature' [K], applies when auto_white_balance: false
+      autoexposure: true         # V4L2 'auto_exposure' (true: aperture priority, false: manual)
+      exposure: 100              # V4L2 'exposure_time_absolute' [100us units], applies when autoexposure: false
+      autofocus: false           # V4L2 'focus_automatic_continuous'
+      focus: 348                 # V4L2 'focus_absolute' 0-1023, -1 leaves lens position as-is
       skip_device_check: true

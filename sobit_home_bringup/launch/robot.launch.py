@@ -175,15 +175,27 @@ def launch_gz(context, *args, **kwargs):
         print('Uirobot Body Node ID : ' + um_body_id)
 
         if enable_mobile_base and enable_rm_motors:
-            fail_flag = False
-            fail_flag = os.system('sudo ip link set can0 down')
-            fail_flag = os.system('sudo ip link set can0 type can bitrate 1000000')
-            fail_flag = os.system('sudo ip link set can0 up')
-            if fail_flag != 0:
+            can_setup_cmds = [
+                ['sudo', 'ip', 'link', 'set', 'can0', 'down'],
+                ['sudo', 'ip', 'link', 'set', 'can0', 'type', 'can', 'bitrate', '1000000'],
+                # The default 10-frame TX queue jams with ENOBUFS if the bus briefly stops draining
+                ['sudo', 'ip', 'link', 'set', 'can0', 'txqueuelen', '65536'],
+                ['sudo', 'ip', 'link', 'set', 'can0', 'up'],
+            ]
+            if any(subprocess.run(cmd).returncode != 0 for cmd in can_setup_cmds):
                 print('Failed to set up CAN0 interface. Please check CAN adapter connection.')
                 exit(1)
-            else:
-                print('CAN0 interface is set up.')
+            print('CAN0 interface is set up.')
+
+            # Powered RM motors broadcast feedback at 1 kHz; a silent bus cannot ACK
+            # our frames and ros2_control write() would fail with ENOBUFS (os error 105)
+            try:
+                subprocess.run(['candump', '-n', '1', 'can0'],
+                               timeout=1.5, stdout=subprocess.DEVNULL, check=True)
+                print('CAN0 bus is alive (motor feedback detected).')
+            except (subprocess.TimeoutExpired, subprocess.CalledProcessError, FileNotFoundError):
+                print('No traffic on CAN0. Is the emergency stop released and motor power on?')
+                exit(1)
 
         # Find USB Cam port
         cam_left_port = str(os.environ.get('HOME_CAM_LEFT_PORT'))
@@ -302,11 +314,11 @@ def launch_gz(context, *args, **kwargs):
             ]),
             launch_arguments={
                 'namespace' : robot_name,
-                'lidar_num' : '2',
+                'lidar_num' : '1',
                 'config_file1': urg_configs[0],
                 'topic_namespace1': 'lidar_front',
-                'config_file2': urg_configs[1],
-                'topic_namespace2': 'lidar_back',
+                # 'config_file2': urg_configs[1],
+                # 'topic_namespace2': 'lidar_back',
                 'enable_tf_prefix': 'true' if enable_tf_prefix else 'false',
             }.items()
         )
@@ -673,6 +685,10 @@ def launch_gz(context, *args, **kwargs):
                 hand_left_cam_config,
                 {"video_device": cam_left_port},
                 {"frame_id": robot_name + '/hand_left_camera_optical_frame'},
+                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw.publisher.reliability': 'best_effort'},
+                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw.publisher.depth': 1},
+                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw/compressed.publisher.reliability': 'best_effort'},
+                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw/compressed.publisher.depth': 1},
                 ],
             remappings=[
                 ('image_raw', 'color/image_raw'),
@@ -693,6 +709,10 @@ def launch_gz(context, *args, **kwargs):
                 hand_right_cam_config,
                 {"video_device": cam_right_port},
                 {"frame_id": robot_name + '/hand_right_camera_optical_frame'},
+                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw.publisher.reliability': 'best_effort'},
+                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw.publisher.depth': 1},
+                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw/compressed.publisher.reliability': 'best_effort'},
+                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw/compressed.publisher.depth': 1},
             ],
             remappings=[
                 ('image_raw', 'color/image_raw'),

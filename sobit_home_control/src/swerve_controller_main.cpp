@@ -22,7 +22,11 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
   declare_parameter("mobile_base.wheel_y_distance",  0.35355339);
   declare_parameter("mobile_base.steer_max_vel",     10.0);
   declare_parameter("mobile_base.drive_max_vel",     10.0);
-  declare_parameter("driving_status_threshold",      0.26);
+  // NOTE: the config nests this under mobile_base; the old top-level
+  // "driving_status_threshold" was never populated from swerve_config.yaml,
+  // so the robot silently ran with the 0.26 rad default.
+  declare_parameter("mobile_base.driving_status_threshold", 0.05);
+  declare_parameter("mobile_base.steer_settle_vel",         0.5);
 
   steering_joints_names = get_parameter("steering_joints").as_string_array();
   drive_joints_names    = get_parameter("drive_joints").as_string_array();
@@ -31,7 +35,7 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
 
   CYCLE_FEQUENCY           = get_parameter("cycle_fequency").as_int();
   STEER_MAX_VEL            = get_parameter("mobile_base.steer_max_vel").as_double();
-  DRIVING_STATUS_THRESHOLD = get_parameter("driving_status_threshold").as_double();
+  DRIVING_STATUS_THRESHOLD = get_parameter("mobile_base.driving_status_threshold").as_double();
 
   // Initialize the control and odometry classes
   sobit_home_control_ = std::make_unique<SobitHomeControl>(this);
@@ -64,9 +68,12 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
 
   for (size_t i=0; i < drive_joints_names.size(); i++) {
     sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = sobit_home_control_->goal_steer_pos[i] = joints_pos[steering_joints_names[i]];
+    sobit_home_odometry_->prev_steer_pos[i] = joints_pos[steering_joints_names[i]];
     sobit_home_control_->goal_drive_vel[i] = 0.0;
     sobit_home_odometry_->prev_drive_pos[i] = sobit_home_odometry_->current_drive_pos[i] = joints_pos[drive_joints_names[i]];
   }
+
+  prev_cycle_time_ = get_clock()->now();
 
   control_timer_ = create_wall_timer(
     std::chrono::milliseconds(static_cast<int>(1000.0 / CYCLE_FEQUENCY)),
@@ -114,6 +121,13 @@ void SwerveController::control_callback()
   // Wait until joint_states topic is populated (needed for steering and odometry calculations)
   if (joints_pos.empty()) return;
 
+  // Measured cycle time — the wall timer and the joint_states publisher are
+  // unsynchronized, so the nominal period is up to one joint_states period off.
+  rclcpp::Time now = get_clock()->now();
+  double dt = (now - prev_cycle_time_).seconds();
+  prev_cycle_time_ = now;
+  if (dt <= 1e-6 || dt > 1.0) dt = 1.0 / CYCLE_FEQUENCY;
+
   // Update current steer positions
   for (size_t i=0; i < steering_joints_names.size(); i++) {
     sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = joints_pos[steering_joints_names[i]];
@@ -121,7 +135,7 @@ void SwerveController::control_callback()
   }
 
   // Determine steering state:
-  //   1 = steers at goal  → publish goal drive velocities
+  //   1 = steers at goal → publish goal drive velocities
   //   0 = steers adjusting within threshold → publish 0 (drives stop)
   //  -1 = steers far from goal → publish 0 (drives stop)
   //
@@ -130,6 +144,12 @@ void SwerveController::control_callback()
   // caused odometry to integrate a wrong heading and produced localization
   // drift during every mode transition (swivel/rotation).  Now we always
   // publish an explicit command so the controller is never in open-loop.
+  //
+  // NOTE: the gate is deliberately position-error-only and moderate. Teleop
+  // nudges the steering goals continuously, so a strict gate (tight error +
+  // steer-speed condition) chops drive power several times per second — jerky
+  // base. Odometry accuracy during transitions does NOT depend on this gate:
+  // update_odom() excludes still-steering wheels per wheel (steer_settle_vel).
   int steering_state = 1;
   wheel_joint_pos.data.clear();
   for (size_t i=0; i < steering_joints_names.size(); i++) {
@@ -156,7 +176,7 @@ void SwerveController::control_callback()
   // odom solve). Otherwise hold pose + zero twist (drives are 0, base isn't moving).
   // Always publish odom + TF so Nav2 never sees a transform gap.
   if (steering_state == 1) {
-    sobit_home_odometry_->update_odom();
+    sobit_home_odometry_->update_odom(dt);
   } else {
     sobit_home_odometry_->odom_.twist.twist = geometry_msgs::msg::Twist();
     sobit_home_odometry_->odom_.header.stamp = get_clock()->now();
@@ -165,8 +185,10 @@ void SwerveController::control_callback()
   pub_odometry_->publish(sobit_home_odometry_->odom_);
 
   // Sync every cycle so coast during settling isn't integrated as a jump on resume.
-  for (int i=0; i<4; i++)
+  for (int i=0; i<4; i++) {
     sobit_home_odometry_->prev_drive_pos[i] = sobit_home_odometry_->current_drive_pos[i];
+    sobit_home_odometry_->prev_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i];
+  }
 }
 
 } // namespace sobit_home
