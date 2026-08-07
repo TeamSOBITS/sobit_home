@@ -242,7 +242,9 @@ def _launch_setup(context, *args, **kwargs):
                 parameters=[
                     moveit_server_params_file_path,
                     {'use_sim_time': use_sim_time},
-                    {'active_planning_groups': ['arm_left', 'arm_right', 'arm_left_body', 'arm_right_body', 'head_arm_body']},
+                    # Single-arm groups plus their whole-body counterparts. Any
+                    # other group declared in the SRDF can be added here.
+                    {'active_planning_groups': ['arm_left', 'arm_right', 'arm_left_body', 'arm_right_body']},
                 ],
                 extra_arguments=[{'use_intra_process_comms': False}]
             ),

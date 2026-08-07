@@ -142,7 +142,62 @@
 
 `plan_to_pose`は指定した計画グループ（`arm_left`，`arm_right`，`arm_left_body`，`arm_right_body`）に対して軌道を生成してキャッシュします．`execute_plan`でキャッシュした軌道を再生します．全身グループ（`arm_left_body`，`arm_right_body`）では，アームと同時にベースもオドメトリフィードバックで追従します．
 
+`plan_to_named_pose`も同様ですが，目標姿勢の代わりにSRDFで定義された名前付き姿勢（`initial_pose`，`move_pose`など）を指定します．生成した軌道は同じくキャッシュされ，`execute_plan`で実行します．
+
+サーバが初期化する計画グループは`active_planning_groups`パラメータで決まります．`arm`，`head_arm_body`，`mobile_base_*`などSRDFで定義された他のグループを使う場合は，起動時にこのパラメータを指定してください．
+
 実機・Gazeboシミュレーションの両方で動作します．
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+
+### 実行時変更可能なパラメータ
+
+以下のパラメータはノードの動作中に再読み込みされるため，再起動・再ビルドなしで`ros2 param set`により調整できます．
+
+`wheel_action_server` — 移動制御：
+
+| パラメータ | 既定値 | 意味 |
+| --- | --- | --- |
+| `wheel_linear_kp` / `_ki` / `_kd` | 起動時に指定 | `move_wheel_linear`のPIDゲイン |
+| `wheel_rotate_kp` / `_ki` / `_kd` | 起動時に指定 | `move_wheel_rotate`のPIDゲイン |
+| `wheel_linear_arrival_tol` | `0.02` | 到達判定の許容誤差 [m] |
+| `wheel_rotate_arrival_tol` | `0.02` | 到達判定の許容誤差 [rad] |
+| `wheel_max_linear_vel` | `0.2` | 速度上限 [m/s] |
+| `wheel_max_lateral_vel` | `0.2` | 横方向の速度上限 [m/s] |
+
+`moveit_server` — 計画時間とワークスペース（既定値は[moveit_server.yaml](sobit_home_moveit_config/config/moveit_server.yaml)）：
+
+| パラメータ | 既定値 | 意味 |
+| --- | --- | --- |
+| `plan_time_sec` | `10.0` | 1回の計画試行あたりの時間上限 [s] |
+| `plan_attempts` | `10` | OMPLの試行回数 |
+| `workspace_min_x/y/z` | `-5.0`，`-5.0`，`0.0` | 計画ワークスペースの最小座標 [m] |
+| `workspace_max_x/y/z` | `5.0`，`5.0`，`5.0` | 計画ワークスペースの最大座標 [m] |
+
+```sh
+# 到達判定の許容誤差と計画時間を動作中に変更する
+$ ros2 param set /sobit_home/wheel_action_server wheel_linear_arrival_tol 0.01
+$ ros2 param set /sobit_home/moveit_server plan_time_sec 5.0
+```
+
+起動時に`moveit_server_config:=<path>`を指定すると，パッケージ既定のYAMLの代わりに別の計画パラメータYAMLを読み込めます．
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+
+### 意味論的記述（SRDF）
+
+SRDFは構成ごとに静的ファイルを用意するのではなく，単一の[sobit_home.srdf.xacro](sobit_home_moveit_config/config/sobit_home.srdf.xacro)から生成されます．launchファイルと同じ`enable_*`モジュールフラグを受け取るため，一部の部位を無効にして起動した場合，存在しないリンクを参照する計画グループ・姿勢・エンドエフェクタ・干渉ペアは生成されません．
+
+`enable_teleop:=true`とすると，`mobile_base`の計画グループと平面仮想関節が除外されます．遠隔操作ではオペレータがベースを直接操作するため，ベースを計画グループに含めてはならないためです．
+
+```sh
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py enable_teleop:=true
+```
+
+> [!IMPORTANT]
+> URDFとSRDFは同じフラグで展開されるため，常に同一のロボットを表します．どちらか一方にしかモジュールフラグを渡さないと，MoveItは実際に生成されていないロボットに対して計画することになります．
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -268,8 +323,12 @@ SOBIT HOMEのパンチルト機構と昇降機構とマニピュレータを動�
    | `orientation` | 目標方向へのヨー角 |
 
 3. MoveIt連携（`action_server.launch.py`で起動）
-   - Service: `plan_to_pose`
-   - Action: `execute_plan`
+   - Service: `plan_to_pose` — 計画グループに対して目標姿勢への軌道を生成
+   - Service: `plan_to_named_pose` — SRDFで定義された名前付き姿勢（`initial_pose`，`move_pose`など）への軌道を生成
+   - Action: `execute_plan` — いずれかのServiceでキャッシュした軌道を実行
+
+4. 配信トピック
+   - `hand_left/grasp_state`，`hand_right/grasp_state`（`std_msgs/Bool`）— 把持判定．ハンド動作の完了ごとに1回配信されます．2本以上の指が指令角度に到達せず停止した場合（物体に阻まれている場合）は`true`，指が目標角度まで到達した場合（何も把持していない場合）は`false`となります．
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -554,6 +613,18 @@ TBD
 > 販売店によって価格は変動します．最新の価格は各リンク先でご確認ください．
 
 </details> -->
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+
+<!-- マイルストーン -->
+## マイルストーン
+
+- [ ] [ロボットの特徴](#ロボットの特徴) — 仕様表の記入（速度，可搬重量，寸法，重量，センサ，アクチュエータ，電源）
+- [ ] [部品リスト（BOM）](#部品リストbom) — 型番・数量・価格・購入先を含む部品リストの作成
+- [ ] ロボットの組み立て — 組み立て手順
+
+いずれの節も現在は`TBD`であり，Markdownソース中にドラフトの表がコメントアウトされています．公開前に，記載値を現在の機体構成に対して実測・確認する必要があります．
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 

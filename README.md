@@ -141,7 +141,62 @@ The four-wheel independent steering controller computes per-wheel steer angle an
 
 `plan_to_pose` plans a trajectory for the given planning group (`arm_left`, `arm_right`, `arm_left_body`, `arm_right_body`) and caches it. `execute_plan` replays the cached trajectory. For whole-body groups (`arm_left_body`, `arm_right_body`), the base is moved in parallel with the arm via the `MoveItWholeBodyBridge`, which tracks the planned base waypoints using odometry feedback.
 
+`plan_to_named_pose` does the same but takes the name of a state declared in the SRDF (for example `initial_pose` or `move_pose`) instead of a target pose. The resulting plan is cached and executed with `execute_plan` in exactly the same way.
+
+The groups the server initializes come from the `active_planning_groups` parameter. Set it at launch to plan for other groups declared in the SRDF, such as `arm`, `head_arm_body` or the `mobile_base_*` whole-body groups.
+
 All MoveIt interfaces work correctly in both real-hardware and Gazebo simulation modes, including when the simulator is paused.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+### Runtime-tunable Parameters
+
+The parameters below are re-read while the node runs, so they can be tuned with `ros2 param set` without a relaunch or a rebuild.
+
+`wheel_action_server` — closed-loop wheel motion:
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `wheel_linear_kp` / `_ki` / `_kd` | set at launch | PID gains for `move_wheel_linear` |
+| `wheel_rotate_kp` / `_ki` / `_kd` | set at launch | PID gains for `move_wheel_rotate` |
+| `wheel_linear_arrival_tol` | `0.02` | Arrival tolerance [m] |
+| `wheel_rotate_arrival_tol` | `0.02` | Arrival tolerance [rad] |
+| `wheel_max_linear_vel` | `0.2` | Velocity clamp [m/s] |
+| `wheel_max_lateral_vel` | `0.2` | Lateral velocity clamp [m/s] |
+
+`moveit_server` — planning budget and workspace, defaults in [moveit_server.yaml](sobit_home_moveit_config/config/moveit_server.yaml):
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `plan_time_sec` | `10.0` | Wall-clock budget per planning attempt [s] |
+| `plan_attempts` | `10` | Number of OMPL solve attempts |
+| `workspace_min_x/y/z` | `-5.0`, `-5.0`, `0.0` | Planning workspace lower corner [m] |
+| `workspace_max_x/y/z` | `5.0`, `5.0`, `5.0` | Planning workspace upper corner [m] |
+
+```sh
+# Tighten the arrival tolerance and shorten the planning budget, live
+$ ros2 param set /sobit_home/wheel_action_server wheel_linear_arrival_tol 0.01
+$ ros2 param set /sobit_home/moveit_server plan_time_sec 5.0
+```
+
+Pass `moveit_server_config:=<path>` at launch to load a different planning-parameter YAML instead of the package default.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+### Semantic Description (SRDF)
+
+The semantic description is generated from a single [sobit_home.srdf.xacro](sobit_home_moveit_config/config/sobit_home.srdf.xacro) instead of one static SRDF per configuration. It takes the same `enable_*` module flags as the launch files, so a robot brought up without a limb does not advertise planning groups, group states, end effectors or collision pairs that reference links it does not have.
+
+`enable_teleop:=true` drops the `mobile_base` planning groups and the planar virtual joint, because in teleoperation the operator commands the base directly and it must not belong to a planning group.
+
+```sh
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py enable_teleop:=true
+```
+
+> [!IMPORTANT]
+> The URDF and the SRDF are expanded with the same flags, so both describe the same robot. Passing module flags only to one of them makes MoveIt plan against a robot that was never spawned.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -266,8 +321,12 @@ Implemented interfaces in `sobit_home_library`:
    | `orientation` | Yaw to face the target |
 
 3. MoveIt interfaces (launched from `action_server.launch.py`)
-   - Service: `plan_to_pose`
-   - Action: `execute_plan`
+   - Service: `plan_to_pose` — plan to a target pose for a planning group
+   - Service: `plan_to_named_pose` — plan to a state named in the SRDF (e.g. `initial_pose`, `move_pose`)
+   - Action: `execute_plan` — execute the plan cached by either service
+
+4. Published topics
+   - `hand_left/grasp_state`, `hand_right/grasp_state` (`std_msgs/Bool`) — grasp detection, published once after each hand motion completes. `true` when at least two fingers stopped short of their commanded angle, which means an object is blocking them; `false` when the fingers reached their target (nothing grasped).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -552,6 +611,18 @@ Total Approx. Cost (w/o Optional Items): **$6,592.54** -->
 > Prices may vary depending on the retailer. Please check each link for the latest prices.
 
 </details> -->
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+<!-- MILESTONE -->
+## Milestone
+
+- [ ] Hardware [Features](#features) — fill in the specification table (velocities, payloads, size, weight, sensors, actuators, power)
+- [ ] [Bill of Materials (BOM)](#bill-of-materials-bom) — complete the parts list with model numbers, quantities, costs and purchase links
+- [ ] Robot Assembly — assembly procedure
+
+Both sections currently read `TBD` and have a draft table commented out in the Markdown source; the values in those drafts still need to be measured and verified against the current build before they are published.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

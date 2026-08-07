@@ -55,8 +55,12 @@ MoveitServer::MoveitServer(const rclcpp::NodeOptions & options)
     std::chrono::seconds(10),
     [this]() {purge_stale_plans();});
 
+  // Single-arm groups plus their whole-body counterparts, which move the base
+  // through MoveitWholeBodyBridge. Override per launch to plan for other groups.
   if (!has_parameter("active_planning_groups")) {
-    declare_parameter("active_planning_groups", std::vector<std::string>{"arm_left", "arm_right", "arm", "head_arm_body"});
+    declare_parameter(
+      "active_planning_groups",
+      std::vector<std::string>{"arm_left", "arm_right", "arm_left_body", "arm_right_body"});
   }
 
   // Planning budget + workspace bounds
