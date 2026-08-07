@@ -65,8 +65,9 @@ bool SobitHomeKinematicsPlugin::initialize(const rclcpp::Node::SharedPtr& node,
 
   // Fallback for arm if not found by name (e.g. mobile_base_body group)
   if (!arm_jmg_) {
-    if (body_jmg_) {
-      // Treat body group as the arm group since it is the only non-base subgroup
+    // Only promote body_jmg_ if it has more than 1 joint — a 1-DOF lift chain
+    // is never a valid arm, and supportsGroup() would never pick one either.
+    if (body_jmg_ && body_jmg_->getActiveJointModels().size() > 1) {
       arm_jmg_ = body_jmg_;
       body_jmg_ = nullptr;
     } else {

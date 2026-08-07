@@ -1,5 +1,8 @@
 #include "sobit_home_control/swerve_controller_main.hpp"
 
+#include <chrono>
+#include <thread>
+
 namespace sobit_home
 {
 
@@ -64,7 +67,18 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
     get_parameter("velocity_controller_name").as_string() + "/commands", qos_profile);
 
   joints_pos.clear();
-  while (joints_pos.empty()) { rclcpp::spin_some(get_node_base_interface()); }
+  RCLCPP_INFO(this->get_logger(), "Waiting for joint_states...");
+  const double joint_states_timeout = declare_parameter("joint_states_timeout_sec", 30.0);
+  const auto wait_deadline = std::chrono::steady_clock::now() +
+    std::chrono::duration<double>(joint_states_timeout);
+  while (joints_pos.empty()) {
+    rclcpp::spin_some(get_node_base_interface());
+    if (std::chrono::steady_clock::now() > wait_deadline) {
+      RCLCPP_ERROR(this->get_logger(), "Timed out waiting for 'joint_states' topic; aborting init.");
+      return;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
 
   for (size_t i=0; i < drive_joints_names.size(); i++) {
     // operator[] would insert 0.0 for a missing joint and corrupt initial

@@ -33,6 +33,9 @@ WheelActionServer::WheelActionServer(const rclcpp::NodeOptions & options)
   wheel_max_linear_vel_  = declare_parameter<double>("wheel_max_linear_vel", 0.2);
   wheel_max_lateral_vel_ = declare_parameter<double>("wheel_max_lateral_vel", 0.2);
 
+  // Deadline for a goal's control loop, in case /odom stops publishing.
+  wheel_goal_timeout_sec_ = declare_parameter<double>("wheel_goal_timeout_sec", 60.0);
+
   RCLCPP_INFO(get_logger(), "Wheel Linear PID parameters:");
   RCLCPP_INFO(get_logger(), "  Kp: %f", wheel_linear_kp_);
   RCLCPP_INFO(get_logger(), "  Ki: %f", wheel_linear_ki_);
@@ -101,6 +104,7 @@ rcl_interfaces::msg::SetParametersResult WheelActionServer::on_param_update(
     else if (n == "wheel_rotate_arrival_tol") wheel_rotate_arrival_tol_ = p.as_double();
     else if (n == "wheel_max_linear_vel")     wheel_max_linear_vel_     = p.as_double();
     else if (n == "wheel_max_lateral_vel")    wheel_max_lateral_vel_    = p.as_double();
+    else if (n == "wheel_goal_timeout_sec")   wheel_goal_timeout_sec_   = p.as_double();
   }
   return result;
 }
@@ -169,6 +173,16 @@ void WheelActionServer::exe_move_wheel_linear(
       result->total_elapsed_time.nanosec = (now() - start_time).nanoseconds() %
         static_cast<int64_t>(1e9);
       goal_handle->canceled(result);
+      return;
+    }
+
+    // Deadline: a stalled /odom would otherwise spin this detached thread forever.
+    if ((now() - start_time).seconds() > wheel_goal_timeout_sec_) {
+      RCLCPP_ERROR(get_logger(), "move_wheel_linear timeout; aborting");
+      pub_cmd_vel_->publish(zero_vel);
+      result->success = false;
+      result->message = "[FAIL] Goal execution timeout";
+      goal_handle->abort(result);
       return;
     }
 
@@ -270,6 +284,16 @@ void WheelActionServer::exe_move_wheel_rotate(
       result->total_elapsed_time.nanosec = (now() - start_time).nanoseconds() %
         static_cast<int64_t>(1e9);
       goal_handle->canceled(result);
+      return;
+    }
+
+    // Deadline: a stalled /odom would otherwise spin this detached thread forever.
+    if ((now() - start_time).seconds() > wheel_goal_timeout_sec_) {
+      RCLCPP_ERROR(get_logger(), "move_wheel_rotate timeout; aborting");
+      pub_cmd_vel_->publish(zero_vel);
+      result->success = false;
+      result->message = "[FAIL] Goal execution timeout";
+      goal_handle->abort(result);
       return;
     }
 
