@@ -57,7 +57,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     xacro_arguments = {
-        'robot_namespace': robot_namespace,
+        'robot_name': robot_namespace,
         'enable_gz': enable_gz,
         'enable_mobile_base': enable_mobile_base,
         'enable_body': enable_body,

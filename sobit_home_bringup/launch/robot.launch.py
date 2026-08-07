@@ -221,7 +221,7 @@ def launch_gz(context, *args, **kwargs):
     robot_description_config = xacro.process_file(
         robot_description,
         mappings={
-            'robot_namespace': robot_name,
+            'robot_name': robot_name,
             'enable_gz' : 'True' if enable_gz else 'False',
             'enable_mobile_base': 'True' if enable_mobile_base else 'False',
             'enable_body': 'True' if enable_body else 'False',
