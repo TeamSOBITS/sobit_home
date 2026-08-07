@@ -34,6 +34,7 @@
 
   <depend>sobit_home_description</depend>
   <depend>sobit_home_control</depend>
+  <depend>sobit_home_library</depend>
   <depend>sobits_display</depend>
 
   <test_depend>ament_lint_auto</test_depend>
