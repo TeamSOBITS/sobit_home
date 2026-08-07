@@ -172,6 +172,20 @@ void WheelActionServer::exe_move_wheel_linear(
       return;
     }
 
+    // Checked before any command is published: NaN makes the loop condition
+    // false, which would otherwise exit reporting success without moving.
+    if (!std::isfinite(curt_dist) ||
+      !std::isfinite(curt_odom_.pose.pose.position.x) ||
+      !std::isfinite(curt_odom_.pose.pose.position.y))
+    {
+      RCLCPP_ERROR(get_logger(), "Non-finite odometry; aborting move_wheel_linear");
+      pub_cmd_vel_->publish(zero_vel);
+      result->success = false;
+      result->message = "[FAIL] Non-finite odometry";
+      goal_handle->abort(result);
+      return;
+    }
+
     auto curt_time = now();
     double dt = (curt_time - prev_time).nanoseconds() / 1e9;
     if (dt <= 0.0) {dt = 0.1;}
@@ -256,6 +270,19 @@ void WheelActionServer::exe_move_wheel_rotate(
       result->total_elapsed_time.nanosec = (now() - start_time).nanoseconds() %
         static_cast<int64_t>(1e9);
       goal_handle->canceled(result);
+      return;
+    }
+
+    // Checked before any command is published: NaN makes the loop condition
+    // false, which would otherwise exit reporting success without moving.
+    if (!std::isfinite(moved_angle) || !std::isfinite(curt_odom_.pose.pose.orientation.z) ||
+      !std::isfinite(curt_odom_.pose.pose.orientation.w))
+    {
+      RCLCPP_ERROR(get_logger(), "Non-finite odometry; aborting move_wheel_rotate");
+      pub_cmd_vel_->publish(zero_vel);
+      result->success = false;
+      result->message = "[FAIL] Non-finite odometry";
+      goal_handle->abort(result);
       return;
     }
 

@@ -67,10 +67,19 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
   while (joints_pos.empty()) { rclcpp::spin_some(get_node_base_interface()); }
 
   for (size_t i=0; i < drive_joints_names.size(); i++) {
-    sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = sobit_home_control_->goal_steer_pos[i] = joints_pos[steering_joints_names[i]];
-    sobit_home_odometry_->prev_steer_pos[i] = joints_pos[steering_joints_names[i]];
+    // operator[] would insert 0.0 for a missing joint and corrupt initial
+    // odometry; a missing joint here is a fatal configuration error.
+    auto steer_it = joints_pos.find(steering_joints_names[i]);
+    auto drive_it = joints_pos.find(drive_joints_names[i]);
+    if (steer_it == joints_pos.end() || drive_it == joints_pos.end()) {
+      RCLCPP_ERROR(this->get_logger(), "Joint '%s' not found in joint_states; aborting init.",
+        (steer_it == joints_pos.end()) ? steering_joints_names[i].c_str() : drive_joints_names[i].c_str());
+      return;
+    }
+    sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = sobit_home_control_->goal_steer_pos[i] = steer_it->second;
+    sobit_home_odometry_->prev_steer_pos[i] = steer_it->second;
     sobit_home_control_->goal_drive_vel[i] = 0.0;
-    sobit_home_odometry_->prev_drive_pos[i] = sobit_home_odometry_->current_drive_pos[i] = joints_pos[drive_joints_names[i]];
+    sobit_home_odometry_->prev_drive_pos[i] = sobit_home_odometry_->current_drive_pos[i] = drive_it->second;
   }
 
   prev_cycle_time_ = get_clock()->now();
@@ -138,8 +147,18 @@ void SwerveController::control_callback()
 
   // Update current steer positions
   for (size_t i=0; i < steering_joints_names.size(); i++) {
-    sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = joints_pos[steering_joints_names[i]];
-    sobit_home_odometry_->current_drive_pos[i] = joints_pos[drive_joints_names[i]];
+    // operator[] would silently insert 0.0 for a missing joint and corrupt
+    // odometry; skip this cycle's update instead of feeding a fake value in.
+    auto steer_it = joints_pos.find(steering_joints_names[i]);
+    auto drive_it = joints_pos.find(drive_joints_names[i]);
+    if (steer_it == joints_pos.end() || drive_it == joints_pos.end()) {
+      RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 5000,
+        "Joint '%s' not found in joint_states; skipping this cycle's update.",
+        (steer_it == joints_pos.end()) ? steering_joints_names[i].c_str() : drive_joints_names[i].c_str());
+      continue;
+    }
+    sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = steer_it->second;
+    sobit_home_odometry_->current_drive_pos[i] = drive_it->second;
   }
 
   // Determine steering state:

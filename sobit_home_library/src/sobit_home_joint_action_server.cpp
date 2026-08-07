@@ -886,7 +886,21 @@ trajectory_msgs::msg::JointTrajectory JointActionServer::set_joints(
     for (size_t i = 0; i < names.size(); ++i) {
       if (std::find(target_names.begin(), target_names.end(), names[i]) != target_names.end()) {
         traj.joint_names.push_back(names[i]);
-        point.positions.push_back(rads[i]);
+        double rad = rads[i];
+        // joint_limits_ is loaded from the URDF but was never enforced here,
+        // so out-of-range pose values reached the trajectory unclamped.
+        auto lim_it = joint_limits_.find(names[i]);
+        if (lim_it != joint_limits_.end() && lim_it->second.has) {
+          const auto & lim = lim_it->second;
+          double clamped = std::clamp(rad, lim.lower, lim.upper);
+          if (clamped != rad) {
+            RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+              "Joint '%s' target %f out of range [%f, %f]; clamped to %f",
+              names[i].c_str(), rad, lim.lower, lim.upper, clamped);
+          }
+          rad = clamped;
+        }
+        point.positions.push_back(rad);
       }
     }
   }

@@ -22,6 +22,17 @@ MoveitWholeBodyBridge::MoveitWholeBodyBridge(const rclcpp::NodeOptions & options
   max_v_xy_ = get_parameter("max_v_xy").as_double();
   max_omega_ = get_parameter("max_omega").as_double();
 
+  // A negative/non-finite bound makes the clamp below either always invert
+  // the commanded direction (max_v_xy_) or UB in std::clamp (max_omega_).
+  if (!std::isfinite(max_v_xy_) || max_v_xy_ < 0.0) {
+    RCLCPP_ERROR(get_logger(), "Invalid max_v_xy=%f, falling back to default 0.3", max_v_xy_);
+    max_v_xy_ = 0.3;
+  }
+  if (!std::isfinite(max_omega_) || max_omega_ < 0.0) {
+    RCLCPP_ERROR(get_logger(), "Invalid max_omega=%f, falling back to default 1.0", max_omega_);
+    max_omega_ = 1.0;
+  }
+
   cmd_vel_pub_ = create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
 
   odom_sub_ = create_subscription<nav_msgs::msg::Odometry>(

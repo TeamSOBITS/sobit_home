@@ -92,6 +92,16 @@ void SobitHomeControl::twist_callback(const geometry_msgs::msg::Twist::SharedPtr
         goal_drive_vel[i] = base_vel_rads * sqrtf(powf(wheel_point[i].x - base_center.x, 2.) + powf(wheel_point[i].y - base_center.y, 2.)) / r;
       }
 
+      // Scale all four wheels together (not independently) so the commanded
+      // curve shape is preserved even when the outer wheel hits DRIVE_MAX_VEL.
+      double max_abs_vel = 0.;
+      for (int i=0; i<4; i++)
+        if (fabsf(goal_drive_vel[i]) > max_abs_vel) max_abs_vel = fabsf(goal_drive_vel[i]);
+      if (max_abs_vel > DRIVE_MAX_VEL) {
+        double scale = DRIVE_MAX_VEL / max_abs_vel;
+        for (int i=0; i<4; i++) goal_drive_vel[i] *= scale;
+      }
+
       break;
     }
 
