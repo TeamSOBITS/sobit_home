@@ -185,6 +185,49 @@ Pass `moveit_server_config:=<path>` at launch to load a different planning-param
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
+### Planning Scene Warehouse
+
+MoveIt can persist planning scenes, robot states and constraints in a database, which is what RViz's **Stored Scenes** and **Stored States** panels read and write. `move_group` connects to it directly, so the warehouse is available as soon as the robot is launched.
+
+| Backend | `warehouse_backend` | Storage | Notes |
+| --- | --- | --- | --- |
+| SQLite | `sqlite` (default) | Single file, `warehouse_database_path` | Installed by `install.sh`; no server process |
+| MongoDB | `mongo` | Data directory, served by `mongod` | Built from source, see below |
+
+```sh
+# Default: SQLite at ~/.ros/sobit_home_warehouse.sqlite
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py
+
+# Choose the file explicitly
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+  warehouse_database_path:=$HOME/.ros/my_scenes.sqlite
+```
+
+To populate an empty database with the default contents, run the warehouse launch once:
+
+```sh
+$ ros2 launch sobit_home_moveit_config warehouse_db.launch.py
+```
+
+MongoDB has no binary release for ROS 2 Jazzy and no rosdep rule, so it is opt-in and built from source:
+
+```sh
+$ WAREHOUSE_MONGO=1 ./install.sh
+$ colcon build --packages-select warehouse_ros_mongo
+# Start the database server, then launch with the matching backend
+$ ros2 launch sobit_home_moveit_config warehouse_db.launch.py warehouse_backend:=mongo
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py warehouse_backend:=mongo
+```
+
+> [!WARNING]
+> With the SQLite backend, saving a scene under a name that already exists throws `warehouse_ros_sqlite::InternalError` (`no such column: M_planning_scene_id`) and aborts the calling process. This is an upstream defect in `warehouse_ros_sqlite` 1.0.5: metadata columns are added lazily, so the tables that never received a `planning_scene_id` do not have that column when the overwrite path queries it. Saving under a **new** name and loading work normally. `move_group` itself is unaffected.
+
+> [!NOTE]
+> `warehouse_backend` must be the same for `warehouse_db.launch.py` and the robot launch, otherwise each opens a different store.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
 ### Semantic Description (SRDF)
 
 The semantic description is generated from a single [sobit_home.srdf.xacro](sobit_home_moveit_config/config/sobit_home.srdf.xacro) instead of one static SRDF per configuration. It takes the same `enable_*` module flags as the launch files, so a robot brought up without a limb does not advertise planning groups, group states, end effectors or collision pairs that reference links it does not have.

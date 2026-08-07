@@ -186,6 +186,49 @@ $ ros2 param set /sobit_home/moveit_server plan_time_sec 5.0
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
 
+### プランニングシーンWarehouse
+
+MoveItはプランニングシーン・ロボット状態・拘束条件をデータベースに保存できます．RVizの**Stored Scenes**・**Stored States**パネルはこのデータベースを読み書きします．`move_group`が直接接続するため，ロボットを起動した時点で利用可能です．
+
+| バックエンド | `warehouse_backend` | 保存先 | 備考 |
+| --- | --- | --- | --- |
+| SQLite | `sqlite`（既定） | 単一ファイル（`warehouse_database_path`） | `install.sh`でインストール．サーバ不要 |
+| MongoDB | `mongo` | `mongod`が管理するディレクトリ | ソースからビルド（下記参照） |
+
+```sh
+# 既定：~/.ros/sobit_home_warehouse.sqlite
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py
+
+# ファイルを明示的に指定する
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+  warehouse_database_path:=$HOME/.ros/my_scenes.sqlite
+```
+
+空のデータベースに既定の内容を投入するには，warehouseのlaunchを1度実行します．
+
+```sh
+$ ros2 launch sobit_home_moveit_config warehouse_db.launch.py
+```
+
+MongoDBはROS 2 Jazzy向けのバイナリ配布もrosdepルールも存在しないため，任意選択でソースからビルドします．
+
+```sh
+$ WAREHOUSE_MONGO=1 ./install.sh
+$ colcon build --packages-select warehouse_ros_mongo
+# データベースサーバを起動してから，同じバックエンドでロボットを起動する
+$ ros2 launch sobit_home_moveit_config warehouse_db.launch.py warehouse_backend:=mongo
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py warehouse_backend:=mongo
+```
+
+> [!WARNING]
+> SQLiteバックエンドでは，既に存在する名前でシーンを保存すると`warehouse_ros_sqlite::InternalError`（`no such column: M_planning_scene_id`）が送出され，呼び出し元のプロセスが異常終了します．これは`warehouse_ros_sqlite` 1.0.5の上流の不具合です．メタデータの列は遅延生成されるため，`planning_scene_id`を一度も受け取っていないテーブルには上書き処理が参照する列が存在しません．**新規の名前**での保存と読み込みは正常に動作します．`move_group`自体には影響ありません．
+
+> [!NOTE]
+> `warehouse_db.launch.py`とロボットのlaunchでは`warehouse_backend`を一致させてください．異なる場合はそれぞれ別のデータベースを開くことになります．
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+
 ### 意味論的記述（SRDF）
 
 SRDFは構成ごとに静的ファイルを用意するのではなく，単一の[sobit_home.srdf.xacro](sobit_home_moveit_config/config/sobit_home.srdf.xacro)から生成されます．launchファイルと同じ`enable_*`モジュールフラグを受け取るため，一部の部位を無効にして起動した場合，存在しないリンクを参照する計画グループ・姿勢・エンドエフェクタ・干渉ペアは生成されません．

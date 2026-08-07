@@ -1,3 +1,4 @@
+import importlib.util
 import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
@@ -7,6 +8,25 @@ from launch_ros.actions import Node, ComposableNodeContainer, LoadComposableNode
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.descriptions import ComposableNode
 from moveit_configs_utils import MoveItConfigsBuilder
+
+
+def _load_warehouse_db_launch():
+    """Import warehouse_db.launch.py, which sits beside this file.
+
+    Launch files are not importable as modules, so the backend registry is
+    loaded by path instead of being duplicated here.
+    """
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                        'warehouse_db.launch.py')
+    spec = importlib.util.spec_from_file_location('sobit_home_warehouse_db', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+_warehouse_db = _load_warehouse_db_launch()
+WAREHOUSE_BACKENDS = _warehouse_db.WAREHOUSE_BACKENDS
+warehouse_parameters = _warehouse_db.warehouse_parameters
 
 
 # Which enable_* flag owns each entry of moveit_controllers.yaml.
@@ -154,6 +174,15 @@ def _launch_setup(context, *args, **kwargs):
         'max_range': 5.0
     }
 
+    # Warehouse backend, shared with warehouse_db.launch.py so move_group and the
+    # database server can never be pointed at different stores.
+    warehouse_config = warehouse_parameters(
+        LaunchConfiguration('warehouse_backend').perform(context).lower(),
+        LaunchConfiguration('warehouse_database_path').perform(context),
+        LaunchConfiguration('warehouse_host').perform(context),
+        LaunchConfiguration('warehouse_port').perform(context),
+    )
+
     # move_group node
     start_move_group_node_cmd = Node(
         package="moveit_ros_move_group",
@@ -166,6 +195,9 @@ def _launch_setup(context, *args, **kwargs):
             {'use_sim_time': use_sim_time},
             {'trajectory_execution.control_multi_dof_joint_variables': True},
             {'planning_scene_monitor.transform_buffer_duration': 20.0},
+            # Warehouse: lets RViz store and reload planning scenes, robot states
+            # and constraints. SQLite is a plain file, so no server is needed.
+            warehouse_config,
             # {'robot_description_planning.frame_prefix': robot_name + '/'},
         ],
         remappings=[
@@ -287,6 +319,30 @@ def generate_launch_description():
         description='Path to MoveitServer planning-params YAML. Empty = package default. '
                     'Override with the rc_doinglaundry path for competition.')
 
+    # Warehouse: lets RViz store and reload planning scenes, robot states and
+    # constraints. Must match whatever warehouse_db.launch.py was started with.
+    declare_warehouse_backend_cmd = DeclareLaunchArgument(
+        name='warehouse_backend',
+        default_value='sqlite',
+        choices=sorted(WAREHOUSE_BACKENDS),
+        description='Warehouse storage backend')
+
+    declare_warehouse_database_path_cmd = DeclareLaunchArgument(
+        name='warehouse_database_path',
+        default_value=os.path.join(
+            os.path.expanduser('~'), '.ros', 'sobit_home_warehouse.sqlite'),
+        description='SQLite: database file. MongoDB: data directory')
+
+    declare_warehouse_host_cmd = DeclareLaunchArgument(
+        name='warehouse_host',
+        default_value='localhost',
+        description='MongoDB host (ignored by the sqlite backend)')
+
+    declare_warehouse_port_cmd = DeclareLaunchArgument(
+        name='warehouse_port',
+        default_value='33829',
+        description='MongoDB port (ignored by the sqlite backend)')
+
     declare_enable_tf_prefix_cmd = DeclareLaunchArgument(
         name='enable_tf_prefix',
         default_value='false',
@@ -316,6 +372,10 @@ def generate_launch_description():
         declare_enable_teleop_cmd,
         declare_moveit_server_config_cmd,
         declare_enable_tf_prefix_cmd,
+        declare_warehouse_backend_cmd,
+        declare_warehouse_database_path_cmd,
+        declare_warehouse_host_cmd,
+        declare_warehouse_port_cmd,
         *declare_module_cmds,
         OpaqueFunction(function=_launch_setup),
     ])

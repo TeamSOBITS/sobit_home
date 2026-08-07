@@ -42,7 +42,10 @@
   <exec_depend>rviz_default_plugins</exec_depend>
   <exec_depend>sobit_home_description</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
-  <exec_depend>warehouse_ros_mongo</exec_depend>
+  <!-- Warehouse backends, selected by warehouse_backend at launch. Only the
+       sqlite one is released for Jazzy; warehouse_ros_mongo must be built from
+       source, so it is not declared here and stays optional. -->
+  <exec_depend>warehouse_ros_sqlite</exec_depend>
   <exec_depend>xacro</exec_depend>
 
 

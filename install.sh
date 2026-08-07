@@ -70,6 +70,7 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-xacro \
     ros-$ROS_DISTRO-moveit \
     ros-$ROS_DISTRO-moveit-ros-perception \
+    ros-$ROS_DISTRO-warehouse-ros-sqlite \
     ros-$ROS_DISTRO-std-msgs \
     ros-$ROS_DISTRO-geometry-msgs \
     ros-$ROS_DISTRO-sensor-msgs \
@@ -112,6 +113,29 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-
 sudo apt-get update
 sudo apt-get install -y \
     gz-harmonic
+
+# MoveIt warehouse (stored planning scenes / robot states / constraints).
+# The sqlite backend is installed above and is the default. MongoDB has no
+# binary release for this ROS distribution and no rosdep rule, so it is opt-in
+# and built from source together with its C++ driver:
+#     WAREHOUSE_MONGO=1 ./install.sh
+if [ "${WAREHOUSE_MONGO}" = "1" ]; then
+    echo "╠══╣ Installing the MongoDB warehouse backend from source"
+    sudo apt-get install -y \
+        build-essential \
+        cmake \
+        libssl-dev \
+        libsasl2-dev \
+        mongodb-server-core || \
+        echo "WARNING: mongodb-server-core unavailable; install mongod from the MongoDB apt repository"
+
+    if [ ! -d ../warehouse_ros_mongo ]; then
+        git clone -b ros2 https://github.com/moveit/warehouse_ros_mongo.git ../warehouse_ros_mongo
+    fi
+    echo "Cloned warehouse_ros_mongo. Build it with the rest of the workspace:"
+    echo "    colcon build --packages-select warehouse_ros_mongo"
+    echo "Then launch with warehouse_backend:=mongo"
+fi
 
 # Set up environment variables
 echo "" >> $HOME/.bashrc
