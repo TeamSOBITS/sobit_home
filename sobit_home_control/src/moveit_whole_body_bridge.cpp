@@ -103,6 +103,15 @@ void MoveitWholeBodyBridge::execute(const std::shared_ptr<GoalHandleFJT> goal_ha
 
     const auto & pt = points[i];
 
+    // Indices come from joint-name lookup; positions may not actually reach that far
+    if (static_cast<size_t>(idx_x) >= pt.positions.size() ||
+        static_cast<size_t>(idx_y) >= pt.positions.size() ||
+        static_cast<size_t>(idx_theta) >= pt.positions.size()) {
+      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+        "Trajectory point %zu has %zu positions, too few for base joint indices; skipping.", i, pt.positions.size());
+      continue;
+    }
+
     // Sleep until this waypoint's scheduled time using sim-time aware wait loop
     auto target_time = start_time + rclcpp::Duration(pt.time_from_start);
     while (now() < target_time) {
@@ -143,12 +152,21 @@ void MoveitWholeBodyBridge::execute(const std::shared_ptr<GoalHandleFJT> goal_ha
     double ff_vx = 0.0, ff_vy = 0.0, ff_omega = 0.0;
     if (i + 1 < points.size()) {
       const auto & next = points[i + 1];
-      double dt = rclcpp::Duration(next.time_from_start).seconds() -
-                  rclcpp::Duration(pt.time_from_start).seconds();
-      if (dt > 1e-6) {
-        ff_vx    = (next.positions[idx_x]     - pt.positions[idx_x])     / dt;
-        ff_vy    = (next.positions[idx_y]     - pt.positions[idx_y])     / dt;
-        ff_omega = (next.positions[idx_theta] - pt.positions[idx_theta]) / dt;
+      // next's positions may be shorter than this point's; skip feedforward if so
+      if (static_cast<size_t>(idx_x) >= next.positions.size() ||
+          static_cast<size_t>(idx_y) >= next.positions.size() ||
+          static_cast<size_t>(idx_theta) >= next.positions.size()) {
+        RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+          "Trajectory point %zu has %zu positions, too few for base joint indices; skipping feedforward.",
+          i + 1, next.positions.size());
+      } else {
+        double dt = rclcpp::Duration(next.time_from_start).seconds() -
+                    rclcpp::Duration(pt.time_from_start).seconds();
+        if (dt > 1e-6) {
+          ff_vx    = (next.positions[idx_x]     - pt.positions[idx_x])     / dt;
+          ff_vy    = (next.positions[idx_y]     - pt.positions[idx_y])     / dt;
+          ff_omega = (next.positions[idx_theta] - pt.positions[idx_theta]) / dt;
+        }
       }
     }
 

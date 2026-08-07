@@ -737,11 +737,18 @@ void JointActionServer::serve_get_finger_angle(
 void JointActionServer::joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg)
 {
   std::lock_guard<std::mutex> lock(joint_state_mutex_);
+  // position/velocity/effort may each be shorter than name (or empty) per sensor_msgs/JointState
+  if (msg->position.size() < msg->name.size() || msg->effort.size() < msg->name.size() ||
+      msg->velocity.size() < msg->name.size()) {
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+      "JointState has %zu names but %zu positions, %zu velocities, %zu efforts; ignoring the remainder",
+      msg->name.size(), msg->position.size(), msg->velocity.size(), msg->effort.size());
+  }
   for (size_t i = 0; i < msg->name.size(); ++i) {
-    curt_joint_state_[msg->name[i]] = msg->position[i];
-    // Added effort and velosity parameter to judge open/close of hand: t.tsukada 
-    curt_joint_effort_[msg->name[i]] = msg->effort[i];
-    curt_joint_velocity_[msg->name[i]] = msg->velocity[i]; 
+    if (i < msg->position.size()) curt_joint_state_[msg->name[i]] = msg->position[i];
+    // Added effort and velosity parameter to judge open/close of hand: t.tsukada
+    if (i < msg->effort.size()) curt_joint_effort_[msg->name[i]] = msg->effort[i];
+    if (i < msg->velocity.size()) curt_joint_velocity_[msg->name[i]] = msg->velocity[i];
   }
 }
 

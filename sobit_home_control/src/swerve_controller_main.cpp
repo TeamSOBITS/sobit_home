@@ -98,8 +98,16 @@ SwerveController::~SwerveController()
 
 void SwerveController::joint_callback(const sensor_msgs::msg::JointState::SharedPtr joint_info)
 {
-  for (size_t i = 0; i < joint_info->name.size(); ++i) 
-    joints_pos[joint_info->name[i]] = joint_info->position[i];
+  // position may be shorter than name (or empty) per sensor_msgs/JointState
+  if (joint_info->position.size() < joint_info->name.size()) {
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+      "JointState has %zu names but %zu positions; ignoring the remainder",
+      joint_info->name.size(), joint_info->position.size());
+  }
+  for (size_t i = 0; i < joint_info->name.size(); ++i) {
+    if (i < joint_info->position.size())
+      joints_pos[joint_info->name[i]] = joint_info->position[i];
+  }
 }
 
 // Play sound func
