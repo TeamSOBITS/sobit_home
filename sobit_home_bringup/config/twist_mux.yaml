@@ -1,0 +1,58 @@
+# Command-velocity multiplexer for the SOBIT HOME mobile base.
+#
+# Three input command sources are muxed by priority (higher wins) into a single
+# output topic, which the swerve controller subscribes to as `cmd_vel`. Each input
+# has its own timeout: if the highest-priority active source stops publishing for
+# longer than its timeout, twist_mux falls through to the next priority (and to a
+# zero-velocity stop once every source is stale).
+#
+# Priority: software e-stop > joystick (manual override) > action > moveit > tracker > navigation.
+#
+# NOTE: use_stamped is false so the output is a plain geometry_msgs/Twist, matching
+# the swerve controller's cmd_vel subscription (both the Python node and the
+# swerve_steering_controller_cpp plugin subscribe geometry_msgs/msg/Twist).
+# NOTE: use "/**" (not "twist_mux") so these params load regardless of the node's
+# namespace. The node is launched into the robot namespace (e.g. /sobit_home), so a
+# bare "twist_mux:" key does NOT match the fully-qualified name /sobit_home/twist_mux
+# and the params (input topics, use_stamped) would be silently dropped -> the mux
+# subscribes to no inputs and the whole cmd_vel chain goes dead.
+/**:
+  ros__parameters:
+    use_stamped: false
+
+    topics:
+      navigation:
+        topic   : cmd_vel_nav
+        timeout : 0.5
+        priority: 10
+      tracker:
+        topic   : cmd_vel_tracker
+        timeout : 0.5
+        priority: 20
+      # Whole-body base moves from MoveIt (moveit_whole_body_bridge). Beats autonomous
+      # navigation/tracker so planned base motion is not overridden by them.
+      moveit:
+        topic   : cmd_vel_moveit
+        timeout : 0.5
+        priority: 80
+      # Programmatic wheel action goals (sobit_home_wheel_action_server).
+      action:
+        topic   : cmd_vel_action
+        timeout : 0.5
+        priority: 90
+      # Manual joystick / teleop: overrides all autonomous sources (takeover).
+      joystick:
+        topic   : cmd_vel_joy
+        timeout : 0.5
+        priority: 100
+      # Software emergency stop (software_estop node). Dedicated top-priority channel
+      # so the e-stop's zero-velocity command overrides EVERYTHING, including manual
+      # joystick, and never contends with the real joystick on cmd_vel_joy. While the
+      # e-stop is engaged the node republishes zero here at ~20 Hz (< the 0.5 s
+      # timeout), so this input stays active and wins the mux. On release the node
+      # stops publishing; after 0.5 s this input goes stale and the mux falls through
+      # to the normal sources.
+      estop:
+        topic   : cmd_vel_estop
+        timeout : 0.5
+        priority: 255

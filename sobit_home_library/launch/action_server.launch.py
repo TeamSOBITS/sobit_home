@@ -141,6 +141,10 @@ def launch_setup(context, *args, **kwargs):
             {"wheel_linear_arrival_tol": linear_arr_tol},
             {"wheel_rotate_arrival_tol": rotate_arr_tol},
         ],
+        # Route through twist_mux instead of publishing cmd_vel directly.
+        remappings=[
+            ("cmd_vel", "cmd_vel_action"),
+        ],
         output="screen",
     )
 

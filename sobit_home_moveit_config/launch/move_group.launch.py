@@ -263,6 +263,8 @@ def _launch_setup(context, *args, **kwargs):
                 name='moveit_whole_body_bridge',
                 namespace=robot_name,
                 parameters=[{'use_sim_time': use_sim_time}, bridge_config_file],
+                # Route through twist_mux instead of publishing cmd_vel directly.
+                remappings=[('cmd_vel', 'cmd_vel_moveit')],
                 extra_arguments=[{'use_intra_process_comms': True}]
             ),
             # MoveIt plan/execute server
