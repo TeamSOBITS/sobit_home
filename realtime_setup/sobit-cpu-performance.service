@@ -1,0 +1,12 @@
+[Unit]
+Description=SOBIT HOME - force the performance power profile for low-latency control loops
+After=power-profiles-daemon.service
+Requires=power-profiles-daemon.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/powerprofilesctl set performance
+
+[Install]
+WantedBy=multi-user.target
