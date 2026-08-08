@@ -12,10 +12,12 @@
       <!-- rw_rate 100 Hz on real hardware: this 4-servo bus nearly keeps up with a
            bare 200 Hz trigger (16 overrun warnings/~4min) - 10ms gives headroom. -->
       <ros2_control name="dynamixel_control_lower" type="system" is_async="${hw_is_async}"
-                    rw_rate="${'50' if $(arg enable_gz) else '100'}">
-        <properties>
-          <async scheduling_policy="synchronized" thread_priority="79" affinity="[1]" print_warnings="true"/>
-        </properties>
+                    rw_rate="100">
+        <xacro:unless value="${$(arg enable_gz)}">
+          <properties>
+            <async scheduling_policy="synchronized" thread_priority="79" affinity="[1]" print_warnings="true"/>
+          </properties>
+        </xacro:unless>
         <hardware>
           <xacro:if value="${$(arg enable_gz)}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
@@ -37,10 +39,12 @@
       <!-- rw_rate 100 Hz on real hardware: with both hands off this bus (own dongle
            below), read max is 5.87ms/10ms budget (59%) - verified clean, 0 overruns. -->
       <ros2_control name="dynamixel_upper" type="system" is_async="${hw_is_async}"
-                    rw_rate="${'50' if $(arg enable_gz) else '100'}">
-        <properties>
-          <async scheduling_policy="synchronized" thread_priority="79" affinity="[2]" print_warnings="true"/>
-        </properties>
+                    rw_rate="100">
+        <xacro:unless value="${$(arg enable_gz)}">
+          <properties>
+            <async scheduling_policy="synchronized" thread_priority="79" affinity="[2]" print_warnings="true"/>
+          </properties>
+        </xacro:unless>
         <hardware>
           <xacro:if value="${$(arg enable_gz)}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
@@ -70,10 +74,12 @@
          each hand alone measured 2.5-3.7ms/10ms (0 overruns); both together untested. -->
     <xacro:if value="${$(arg enable_hand_left) + $(arg enable_hand_right)}">
       <ros2_control name="dynamixel_hand" type="system" is_async="${hw_is_async}"
-                    rw_rate="${'50' if $(arg enable_gz) else '100'}">
-        <properties>
-          <async scheduling_policy="synchronized" thread_priority="79" affinity="[5]" print_warnings="true"/>
-        </properties>
+                    rw_rate="100">
+        <xacro:unless value="${$(arg enable_gz)}">
+          <properties>
+            <async scheduling_policy="synchronized" thread_priority="79" affinity="[5]" print_warnings="true"/>
+          </properties>
+        </xacro:unless>
         <hardware>
           <xacro:if value="${$(arg enable_gz)}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
@@ -101,9 +107,11 @@
            50 Hz budget (max 7.5ms/20ms) - headroom confirmed via cm statistics. -->
       <ros2_control name="dynamixel_pro_upper" type="system" is_async="${hw_is_async}"
                     rw_rate="100">
-        <properties>
-          <async scheduling_policy="synchronized" thread_priority="79" affinity="[3]" print_warnings="true"/>
-        </properties>
+        <xacro:unless value="${$(arg enable_gz)}">
+          <properties>
+            <async scheduling_policy="synchronized" thread_priority="79" affinity="[3]" print_warnings="true"/>
+          </properties>
+        </xacro:unless>
         <hardware>
           <xacro:if value="${$(arg enable_gz)}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
@@ -130,10 +138,12 @@
       <!-- rw_rate 100 Hz on real hardware: CAN nearly keeps up with 200 Hz already
            (3 overrun warnings/~4min) - 10ms gives headroom. -->
       <ros2_control name="robomaster_control" type="system" is_async="${hw_is_async}"
-                    rw_rate="${'50' if $(arg enable_gz) else '100'}">
-        <properties>
-          <async scheduling_policy="synchronized" thread_priority="79" affinity="[4]" print_warnings="true"/>
-        </properties>
+                    rw_rate="100">
+        <xacro:unless value="${$(arg enable_gz)}">
+          <properties>
+            <async scheduling_policy="synchronized" thread_priority="79" affinity="[4]" print_warnings="true"/>
+          </properties>
+        </xacro:unless>
         <hardware>
           <xacro:if value="${$(arg enable_gz)}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
@@ -154,7 +164,7 @@
       <!-- rw_rate 20 Hz on real hardware: 2 serial round-trips at 115200 (~10-30ms)
            can't fit a faster budget without "still in progress" overrun warnings. -->
       <ros2_control name="uirobot_control" type="system" is_async="${hw_is_async}"
-                    rw_rate="${'50' if $(arg enable_gz) else '20'}">
+                    rw_rate="20">
         <xacro:unless value="${$(arg enable_gz)}">
           <properties>
             <async scheduling_policy="synchronized" thread_priority="79" affinity="[6]" print_warnings="true"/>
