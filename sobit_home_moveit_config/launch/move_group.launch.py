@@ -80,6 +80,7 @@ def _launch_setup(context, *args, **kwargs):
     # Launch configuration variables (substitutions for node parameters)
     robot_name = LaunchConfiguration('robot_name')
     use_sim_time = LaunchConfiguration('use_sim_time')
+    use_sim_time_bool = use_sim_time.perform(context).lower() in ('true', '1', 'yes')
     use_rviz = LaunchConfiguration('use_rviz')
     # One xacro SRDF for every configuration; teleop is just an argument.
     srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home.srdf.xacro')
@@ -188,6 +189,7 @@ def _launch_setup(context, *args, **kwargs):
         package="moveit_ros_move_group",
         executable="move_group",
         namespace=robot_name,
+        prefix=None if use_sim_time_bool else 'taskset -c 8-15',
         output="screen",
         parameters=[
             config_dict,
@@ -222,6 +224,9 @@ def _launch_setup(context, *args, **kwargs):
         executable="rviz2",
         # name="rviz2_moveit",
         arguments=["-d", rviz_config_file],
+        # 8-15 = unused E-cores - keeps this off the isolated RT cores (2-7)
+        # and the OS housekeeping cores (0-1), same as the other rviz2 instance.
+        prefix='taskset -c 8-15',
         output="screen",
         parameters=[
             moveit_config.robot_description,
@@ -255,6 +260,7 @@ def _launch_setup(context, *args, **kwargs):
         namespace=robot_name,
         package='rclcpp_components',
         executable='component_container_mt',
+        prefix=None if use_sim_time_bool else 'taskset -c 8-15',
         parameters=[{'use_sim_time': use_sim_time}],
         composable_node_descriptions=[
             ComposableNode(

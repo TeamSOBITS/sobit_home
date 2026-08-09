@@ -76,6 +76,9 @@ private:
   double wheel_max_linear_vel_;
   double wheel_max_lateral_vel_;
 
+  // Hard deadline for a goal's control loop, so a stalled /odom can't spin it forever.
+  double wheel_goal_timeout_sec_;
+
   // Runtime parameter updates: on_set_parameters writes the members above so
   // PID gains + arrival tolerances can be tuned live via `ros2 param set`.
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_cb_handle_;

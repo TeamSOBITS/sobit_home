@@ -21,6 +21,7 @@ ros_packages=(
     "aws_small_house_world"
     "sobits_gazebo_worlds"
     "sobits_display"
+    "usb_cam"
 )
 
 #Clone all packages
@@ -89,7 +90,6 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-ros-gz-bridge \
     ros-$ROS_DISTRO-ros-gz-sim \
     ros-$ROS_DISTRO-ros-gz-interfaces \
-    ros-$ROS_DISTRO-usb-cam \
     ros-$ROS_DISTRO-topic-tools \
     ros-$ROS_DISTRO-image-transport \
     ros-$ROS_DISTRO-compressed-depth-image-transport \
@@ -149,7 +149,7 @@ echo "if [ \"\$ROS_DOMAIN_ID\" = \"80\" ]; then" >> $HOME/.bashrc
 echo "    export DXL_X_LOWER_PORT=\`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W9E4N-if00-port0\`" >> $HOME/.bashrc
 echo "    export DXL_X_UPPER_PORT=\`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W9E57-if00-port0\`" >> $HOME/.bashrc
 echo "    export DXL_P_UPPER_PORT=\`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4TCRFG-if00-port0\`" >> $HOME/.bashrc
-echo "    export DXL_X_HAND_PORT=\`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7922NO-if00-port0\`" >> $HOME/.bashrc
+echo "    export DXL_X_HAND_PORT=\`realpath /dev/serial/by-id/usb-BestTechnology_E160_E160-if00-port0\`" >> $HOME/.bashrc
 echo "    export UM_PORT=\`realpath /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_dabce0b66407f0118d421f2e6d9880ab-if00-port0\`" >> $HOME/.bashrc
 echo "    export HOME_CAM_LEFT_PORT=\"/dev/\$(ls /sys/bus/usb/devices/3-5.4:1.0/video4linux/ | sort -V | head -1)\"" >> $HOME/.bashrc
 echo "    export HOME_CAM_RIGHT_PORT=\"/dev/\$(ls /sys/bus/usb/devices/3-6.4:1.0/video4linux/ | sort -V | head -1)\"" >> $HOME/.bashrc

@@ -38,19 +38,19 @@
       hand_right_finger_r_dip :  0.0
       hand_right_finger_r_pip : -1.57
     two_fingers_grasp_pose:
-      hand_right_finger_c_ip  : -2.1
+      hand_right_finger_c_ip  : -2.0943
       hand_right_finger_c_mcp :  0.32
       hand_right_finger_l_dip : -1.85
-      hand_right_finger_l_mcp :  1.6
+      hand_right_finger_l_mcp :  1.5707
       hand_right_finger_l_pip :  0.0 
       hand_right_finger_r_dip :  1.85
       hand_right_finger_r_pip :  0.0
     two_fingers_pick_pose:
       hand_right_finger_c_ip  :  0.45
-      hand_right_finger_c_mcp : -0.60
+      hand_right_finger_c_mcp : -0.5235
       hand_right_finger_l_dip :  0.45
-      hand_right_finger_l_mcp :  1.58
-      hand_right_finger_l_pip : -0.54
+      hand_right_finger_l_mcp :  1.5707
+      hand_right_finger_l_pip : -0.5235
       hand_right_finger_r_dip : -0.45
       hand_right_finger_r_pip :  0.50
 
@@ -72,11 +72,11 @@
       hand_right_finger_r_dip :  2.0
       hand_right_finger_r_pip :  0.0
     three_fingers_pick_pose:
-      hand_right_finger_c_ip  :  0.54
+      hand_right_finger_c_ip  :  0.5235
       hand_right_finger_c_mcp : -0.47
       hand_right_finger_l_dip :  0.05
       hand_right_finger_l_mcp :  0.93
-      hand_right_finger_l_pip : -0.53 
+      hand_right_finger_l_pip : -0.5235 
       hand_right_finger_r_dip : -0.14
       hand_right_finger_r_pip :  0.50
 

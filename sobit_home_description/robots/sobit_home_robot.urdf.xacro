@@ -55,7 +55,7 @@
   <xacro:arg name="dxl_x_upper_body_port"  default="/dev/ttyUSB3" />
   <xacro:arg name="dxl_p_upper_body_port"  default="/dev/ttyUSB2" />
   <xacro:arg name="dxl_x_hand_port"        default="/dev/ttyUSB4" />
-  
+
   <!-- Uirobot Body Lift Gateway Port -->
   <xacro:arg name="um_body_port" default="/dev/ttyUSB0" />
   <xacro:arg name="um_body_id" default="5" />

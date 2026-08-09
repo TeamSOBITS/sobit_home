@@ -1,7 +1,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch_ros.actions import Node
 from launch.substitutions.launch_configuration import LaunchConfiguration
 
@@ -9,12 +9,21 @@ from launch.substitutions.launch_configuration import LaunchConfiguration
 def generate_launch_description():
     arg_namespace    = DeclareLaunchArgument('namespace', default_value='')
     arg_use_sim_time = DeclareLaunchArgument('use_sim_time', default_value='false')
-    arg_config_file  = DeclareLaunchArgument('config_file', 
+    arg_config_file  = DeclareLaunchArgument('config_file',
         default_value=os.path.join(get_package_share_directory('sobit_home_bringup'), 'config', "swerve_config.yaml"
     ))
 
+    return LaunchDescription([
+        arg_namespace,
+        arg_use_sim_time,
+        arg_config_file,
+        OpaqueFunction(function=launch_setup),
+    ])
+
+
+def launch_setup(context, *args, **kwargs):
     namespace = LaunchConfiguration('namespace')
-    use_sim_time = LaunchConfiguration('use_sim_time')
+    use_sim_time = LaunchConfiguration('use_sim_time').perform(context).lower() in ('true', '1', 'yes')
     config_file = LaunchConfiguration('config_file')
 
     swerve_ctr_node = Node(
@@ -26,11 +35,7 @@ def generate_launch_description():
             {'use_sim_time': use_sim_time},
             config_file
         ],
+        prefix=None if use_sim_time else 'taskset -c 2-7',
         output="screen",
     )
-    return LaunchDescription([
-        arg_namespace,
-        arg_use_sim_time,
-        arg_config_file,
-        swerve_ctr_node,
-    ])
+    return [swerve_ctr_node]

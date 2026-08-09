@@ -3,6 +3,10 @@
        xmlns:xacro="http://ros.org/wiki/xacro" >
   <xacro:include filename="$(find sobit_home_description)/urdf/hand/hand.transmission.xacro" />
   
+  <!-- Closing travel measured on the assembled gripper: the c_ip and dip joints
+       reach 120 deg, past the pi/2 the CAD model assumed. -->
+  <xacro:property name="FINGER_CLOSE" value="${radians(120)}" />
+
   <xacro:macro name="hand" params="prefix_hand position prefix_finger parent" >
     <xacro:if value="${position == 'left'}">
       <xacro:property name="y_sign" value="1.0" />
@@ -107,7 +111,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_l_dip_link" />
       <origin xyz="0.0 ${y_sign * 0.050} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
+      <limit lower="${-FINGER_CLOSE}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_l_dip_link" >
@@ -202,7 +206,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_r_dip_link" />
       <origin xyz="0.0 ${y_sign * 0.050} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
-      <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
+      <limit lower="${-M_PI/6}" upper="${FINGER_CLOSE}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_r_dip_link" >
@@ -276,10 +280,10 @@
       <origin xyz="0.0 ${y_sign * 0.050} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 0.0 1.0 " />
       <xacro:if value="${position == 'right'}">
-        <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031" />
+        <limit lower="${-FINGER_CLOSE}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031" />
       </xacro:if>
       <xacro:if value="${position == 'left'}">
-        <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031" />
+        <limit lower="${-M_PI/6}" upper="${FINGER_CLOSE}" effort="${0.52 * effort_ratio}" velocity="11.031" />
       </xacro:if>
     </joint>
 

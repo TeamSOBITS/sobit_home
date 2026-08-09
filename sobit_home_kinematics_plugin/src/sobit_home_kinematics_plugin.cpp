@@ -65,8 +65,9 @@ bool SobitHomeKinematicsPlugin::initialize(const rclcpp::Node::SharedPtr& node,
 
   // Fallback for arm if not found by name (e.g. mobile_base_body group)
   if (!arm_jmg_) {
-    if (body_jmg_) {
-      // Treat body group as the arm group since it is the only non-base subgroup
+    // Only promote body_jmg_ if it has more than 1 joint — a 1-DOF lift chain
+    // is never a valid arm, and supportsGroup() would never pick one either.
+    if (body_jmg_ && body_jmg_->getActiveJointModels().size() > 1) {
       arm_jmg_ = body_jmg_;
       body_jmg_ = nullptr;
     } else {
@@ -137,6 +138,12 @@ bool SobitHomeKinematicsPlugin::searchPositionIK(const geometry_msgs::msg::Pose&
   }
 
   auto var_names = joint_model_group_->getVariableNames();
+  if (ik_seed_state.size() < var_names.size()) {
+    RCLCPP_ERROR(LOGGER, "IK seed state has %zu values but group '%s' has %zu variables.",
+                 ik_seed_state.size(), joint_model_group_->getName().c_str(), var_names.size());
+    error_code.val = moveit_msgs::msg::MoveItErrorCodes::NO_IK_SOLUTION;
+    return false;
+  }
   std::unordered_map<std::string, double> seed_map;
   for (size_t i = 0; i < var_names.size(); ++i) {
     seed_map[var_names[i]] = ik_seed_state[i];
@@ -213,6 +220,14 @@ bool SobitHomeKinematicsPlugin::searchPositionIK(const geometry_msgs::msg::Pose&
     arm_callback = [&solution_callback, &var_names, &arm_vars, seed_map, this](
         const geometry_msgs::msg::Pose& pose, const std::vector<double>& arm_sol,
         moveit_msgs::msg::MoveItErrorCodes& err) {
+      // The sub-solver owns arm_sol's length; a short vector must not be indexed
+      // by arm_vars.size(). Report no solution rather than read past the end.
+      if (arm_sol.size() < arm_vars.size()) {
+        RCLCPP_ERROR(LOGGER, "Arm IK callback got %zu values but sub-group has %zu variables.",
+                     arm_sol.size(), arm_vars.size());
+        err.val = moveit_msgs::msg::MoveItErrorCodes::NO_IK_SOLUTION;
+        return;
+      }
       auto local_seed_map = seed_map;
       for (size_t i = 0; i < arm_vars.size(); ++i) {
         local_seed_map[arm_vars[i]] = arm_sol[i];
@@ -245,6 +260,12 @@ bool SobitHomeKinematicsPlugin::searchPositionIK(const geometry_msgs::msg::Pose&
                                                   arm_consistency_limits, arm_solution,
                                                   arm_callback, error_code, options);
   if (ik_valid) {
+    if (arm_solution.size() < arm_vars.size()) {
+      RCLCPP_ERROR(LOGGER, "Arm IK solver returned %zu values but sub-group '%s' has %zu variables.",
+                   arm_solution.size(), arm_jmg_->getName().c_str(), arm_vars.size());
+      error_code.val = moveit_msgs::msg::MoveItErrorCodes::NO_IK_SOLUTION;
+      return false;
+    }
     for (size_t i = 0; i < arm_vars.size(); ++i) {
       seed_map[arm_vars[i]] = arm_solution[i];
     }

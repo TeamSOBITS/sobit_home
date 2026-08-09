@@ -1,6 +1,8 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 
+import xacro
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, IncludeLaunchDescription
@@ -110,6 +112,21 @@ def launch_setup(context, *args, **kwargs):
     left_hand_pose_config  = LaunchConfiguration('left_hand_pose_config').perform(context)
     moveit_server_config   = LaunchConfiguration('moveit_server_config').perform(context)
 
+    # The URDF is the source of the joint limits the pose values are clamped to,
+    # expanded with the same module flags the rest of this launch forwards.
+    urdf_path = os.path.join(
+        get_package_share_directory('sobit_home_description'),
+        'robots', 'sobit_home_robot.urdf.xacro')
+    urdf_mappings = {
+        name: ('True' if LaunchConfiguration(name).perform(context).lower()
+               in ('true', '1', 'yes') else 'False')
+        for name in MODULE_ARGS
+    }
+    urdf_mappings['robot_name'] = robot_name
+    urdf_mappings['enable_gz'] = 'True' if use_sim_time_bool else 'False'
+    urdf_mappings['enable_tf_prefix'] = 'True' if enable_tf_prefix_bool else 'False'
+    robot_description = xacro.process_file(urdf_path, mappings=urdf_mappings).toxml()
+
     joint_action_server_node = Node(
         package="sobit_home_library",
         executable="joint_action_server",
@@ -121,7 +138,11 @@ def launch_setup(context, *args, **kwargs):
             left_hand_pose_config,
             {"use_sim_time": use_sim_time_bool},
             {"enable_tf_prefix": enable_tf_prefix_bool},
+            # Without this the node's URDF poll never resolves, so the joint
+            # limits stay empty and pose values are published unclamped.
+            {"robot_description": robot_description},
         ],
+        prefix=None if use_sim_time_bool else 'taskset -c 8-15',
         output="screen",
     )
 
@@ -141,6 +162,7 @@ def launch_setup(context, *args, **kwargs):
             {"wheel_linear_arrival_tol": linear_arr_tol},
             {"wheel_rotate_arrival_tol": rotate_arr_tol},
         ],
+        prefix=None if use_sim_time_bool else 'taskset -c 8-15',
         output="screen",
     )
 

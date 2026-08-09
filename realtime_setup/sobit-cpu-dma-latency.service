@@ -1,0 +1,11 @@
+[Unit]
+Description=SOBIT HOME - hold /dev/cpu_dma_latency at 0 to disable deep C-states
+After=sysinit.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/sbin/sobit-cpu-dma-latency.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

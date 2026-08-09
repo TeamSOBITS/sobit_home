@@ -87,6 +87,14 @@ First, please set up the following environment before proceeding to the next ins
     $ source ~/colcon_ws/install/setup.sh
     ```
 
+7. One-time, on the robot's NUC: apply the real-time host tuning (IRQ affinity, CPU
+   power profile, DDS UDP buffers). See [REALTIME_SETUP.md](REALTIME_SETUP.md) for
+   what it does.
+    ```sh
+    $ cd ~/colcon_ws/src/sobit_home/realtime_setup
+    $ sudo bash setup.sh
+    ```
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 

@@ -1,0 +1,13 @@
+[Unit]
+Description=SOBIT HOME - keep unmanaged device IRQs off the RT-isolated CPUs
+DefaultDependencies=no
+After=sysinit.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/sobit-irq-affinity.sh
+
+[Install]
+WantedBy=multi-user.target

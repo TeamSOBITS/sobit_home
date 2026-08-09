@@ -1,5 +1,8 @@
 #include "sobit_home_control/swerve_controller_main.hpp"
 
+#include <chrono>
+#include <thread>
+
 namespace sobit_home
 {
 
@@ -64,13 +67,33 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
     get_parameter("velocity_controller_name").as_string() + "/commands", qos_profile);
 
   joints_pos.clear();
-  while (joints_pos.empty()) { rclcpp::spin_some(get_node_base_interface()); }
+  RCLCPP_INFO(this->get_logger(), "Waiting for joint_states...");
+  const double joint_states_timeout = declare_parameter("joint_states_timeout_sec", 30.0);
+  const auto wait_deadline = std::chrono::steady_clock::now() +
+    std::chrono::duration<double>(joint_states_timeout);
+  while (joints_pos.empty()) {
+    rclcpp::spin_some(get_node_base_interface());
+    if (std::chrono::steady_clock::now() > wait_deadline) {
+      RCLCPP_ERROR(this->get_logger(), "Timed out waiting for 'joint_states' topic; aborting init.");
+      return;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
 
   for (size_t i=0; i < drive_joints_names.size(); i++) {
-    sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = sobit_home_control_->goal_steer_pos[i] = joints_pos[steering_joints_names[i]];
-    sobit_home_odometry_->prev_steer_pos[i] = joints_pos[steering_joints_names[i]];
+    // operator[] would insert 0.0 for a missing joint and corrupt initial
+    // odometry; a missing joint here is a fatal configuration error.
+    auto steer_it = joints_pos.find(steering_joints_names[i]);
+    auto drive_it = joints_pos.find(drive_joints_names[i]);
+    if (steer_it == joints_pos.end() || drive_it == joints_pos.end()) {
+      RCLCPP_ERROR(this->get_logger(), "Joint '%s' not found in joint_states; aborting init.",
+        (steer_it == joints_pos.end()) ? steering_joints_names[i].c_str() : drive_joints_names[i].c_str());
+      return;
+    }
+    sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = sobit_home_control_->goal_steer_pos[i] = steer_it->second;
+    sobit_home_odometry_->prev_steer_pos[i] = steer_it->second;
     sobit_home_control_->goal_drive_vel[i] = 0.0;
-    sobit_home_odometry_->prev_drive_pos[i] = sobit_home_odometry_->current_drive_pos[i] = joints_pos[drive_joints_names[i]];
+    sobit_home_odometry_->prev_drive_pos[i] = sobit_home_odometry_->current_drive_pos[i] = drive_it->second;
   }
 
   prev_cycle_time_ = get_clock()->now();
@@ -83,35 +106,26 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
   sobit_home_odometry_->odom_.header.frame_id = "odom";
   sobit_home_odometry_->odom_.child_frame_id  = get_parameter("robot_base_frame").as_string();
 
-  // Start up sound
-  play_sound(true);
-
   RCLCPP_INFO(this->get_logger(), "SOBIT HOME Wheel Main initialized.");
 }
 
 SwerveController::~SwerveController()
 {
   RCLCPP_INFO(this->get_logger(), "SOBIT HOME Wheel Main destroyed.");
-  // Shut down sound
-  play_sound(false);
 }
 
 void SwerveController::joint_callback(const sensor_msgs::msg::JointState::SharedPtr joint_info)
 {
-  for (size_t i = 0; i < joint_info->name.size(); ++i) 
-    joints_pos[joint_info->name[i]] = joint_info->position[i];
-}
-
-// Play sound func
-void SwerveController::play_sound(bool is_startup)
-{
-  // Get sound file path
-  std::string pack_path = ament_index_cpp::get_package_share_directory("sobit_home_control");
-  std::string sound_file = is_startup ? "start_up" : "shut_down";
-  std::string sound_path = pack_path + "/mp3/" + sound_file + ".mp3";
-
-  // // Play Sound
-  std::system(("mpg321 --quiet " + sound_path + " &").c_str());
+  // position may be shorter than name (or empty) per sensor_msgs/JointState
+  if (joint_info->position.size() < joint_info->name.size()) {
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+      "JointState has %zu names but %zu positions; ignoring the remainder",
+      joint_info->name.size(), joint_info->position.size());
+  }
+  for (size_t i = 0; i < joint_info->name.size(); ++i) {
+    if (i < joint_info->position.size())
+      joints_pos[joint_info->name[i]] = joint_info->position[i];
+  }
 }
 
 
@@ -130,8 +144,18 @@ void SwerveController::control_callback()
 
   // Update current steer positions
   for (size_t i=0; i < steering_joints_names.size(); i++) {
-    sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = joints_pos[steering_joints_names[i]];
-    sobit_home_odometry_->current_drive_pos[i] = joints_pos[drive_joints_names[i]];
+    // operator[] would silently insert 0.0 for a missing joint and corrupt
+    // odometry; skip this cycle's update instead of feeding a fake value in.
+    auto steer_it = joints_pos.find(steering_joints_names[i]);
+    auto drive_it = joints_pos.find(drive_joints_names[i]);
+    if (steer_it == joints_pos.end() || drive_it == joints_pos.end()) {
+      RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 5000,
+        "Joint '%s' not found in joint_states; skipping this cycle's update.",
+        (steer_it == joints_pos.end()) ? steering_joints_names[i].c_str() : drive_joints_names[i].c_str());
+      continue;
+    }
+    sobit_home_control_->current_steer_pos[i] = sobit_home_odometry_->current_steer_pos[i] = steer_it->second;
+    sobit_home_odometry_->current_drive_pos[i] = drive_it->second;
   }
 
   // Determine steering state:

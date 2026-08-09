@@ -163,14 +163,14 @@ def launch_gz(context, *args, **kwargs):
         dxl_x_lower_body_port = str(os.environ.get('DXL_X_LOWER_PORT'))
         dxl_x_upper_body_port = str(os.environ.get('DXL_X_UPPER_PORT'))
         dxl_p_upper_body_port = str(os.environ.get('DXL_P_UPPER_PORT'))
-        dxl_x_hand_port       = str(os.environ.get('DXL_X_HAND_PORT'))
+        dxl_x_hand_port = str(os.environ.get('DXL_X_HAND_PORT'))
 
         um_body_port = str(os.environ.get('UM_PORT'))
         um_body_id = str(os.environ.get('UM_ID', '5'))
         print('Dynamixel Lower Body Port : ' + dxl_x_lower_body_port)
         print('Dynamixel Upper Body Port : ' + dxl_x_upper_body_port)
         print('Dynamixel PRO Upper Port  : ' + dxl_p_upper_body_port)
-        print('Dynamixel Hand Port       : ' + dxl_x_hand_port)
+        print('Dynamixel Hand Port : ' + dxl_x_hand_port)
         print('Uirobot Gateway Port : ' + um_body_port)
         print('Uirobot Body Node ID : ' + um_body_id)
 
@@ -221,7 +221,7 @@ def launch_gz(context, *args, **kwargs):
     robot_description_config = xacro.process_file(
         robot_description,
         mappings={
-            'robot_namespace': robot_name,
+            'robot_name': robot_name,
             'enable_gz' : 'True' if enable_gz else 'False',
             'enable_mobile_base': 'True' if enable_mobile_base else 'False',
             'enable_body': 'True' if enable_body else 'False',
@@ -260,6 +260,7 @@ def launch_gz(context, *args, **kwargs):
         name="robot_state_publisher",
         namespace=robot_name,
         parameters=robot_state_publisher_params,
+        prefix=None if enable_gz else 'taskset -c 8-15',
         output="screen",
     )
 
@@ -299,7 +300,7 @@ def launch_gz(context, *args, **kwargs):
         remappings=[
             ("controller_manager/robot_description", "robot_description"),
         ],
-        # prefix='chrt -f 80',
+        prefix=None if enable_gz else 'taskset -c 2-7 chrt -f 80',
         output="both",
     )
 
@@ -362,6 +363,7 @@ def launch_gz(context, *args, **kwargs):
                 {'use_sim_time': enable_gz},
                 swerve_config,
             ],
+            prefix=None if enable_gz else 'taskset -c 2-7',
             output='screen',
         )
         controllers.append(wheel_steer_position_controller)
@@ -705,6 +707,7 @@ def launch_gz(context, *args, **kwargs):
                 ('image_raw/theora', 'color/image_raw/theora'),
                 ('image_raw/zstd', 'color/image_raw/zstd'),
             ],
+            prefix='taskset -c 8-15',
             output='log',
         )
 
@@ -729,6 +732,7 @@ def launch_gz(context, *args, **kwargs):
                 ('image_raw/theora', 'color/image_raw/theora'),
                 ('image_raw/zstd', 'color/image_raw/zstd'),
             ],
+            prefix='taskset -c 8-15',
             output='log',
         )
 

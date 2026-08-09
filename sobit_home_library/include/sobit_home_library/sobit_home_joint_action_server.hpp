@@ -203,6 +203,7 @@ private:
 
   std::map<std::string, double> hand_left_target_joint_rad_;
   std::map<std::string, double> hand_right_target_joint_rad_;
+  mutable std::mutex hand_target_mutex_;
 
   mutable std::mutex joint_state_mutex_;
   std::unique_ptr<Kinematics> kinematics_;
