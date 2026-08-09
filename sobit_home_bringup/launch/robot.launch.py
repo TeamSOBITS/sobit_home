@@ -260,6 +260,7 @@ def launch_gz(context, *args, **kwargs):
         name="robot_state_publisher",
         namespace=robot_name,
         parameters=robot_state_publisher_params,
+        prefix=None if enable_gz else 'taskset -c 8-15',
         output="screen",
     )
 
@@ -706,6 +707,7 @@ def launch_gz(context, *args, **kwargs):
                 ('image_raw/theora', 'color/image_raw/theora'),
                 ('image_raw/zstd', 'color/image_raw/zstd'),
             ],
+            prefix='taskset -c 8-15',
             output='log',
         )
 
@@ -730,6 +732,7 @@ def launch_gz(context, *args, **kwargs):
                 ('image_raw/theora', 'color/image_raw/theora'),
                 ('image_raw/zstd', 'color/image_raw/zstd'),
             ],
+            prefix='taskset -c 8-15',
             output='log',
         )
 

@@ -53,9 +53,9 @@ def launch_setup(context, *args, **kwargs):
         executable='rviz2',
         name='rviz2',
         arguments=['-d', rviz_config],
-        # Unpinned, rviz2 can land on the isolated RT cores (2-7) and starve the
-        # control loop - confirmed this alone reproduces overruns on every bus.
-        prefix='taskset -c 0-1',
+        # 8-15 = the unused E-cores - keeps rviz2 off both the isolated RT cores
+        # (2-7) and the OS's own housekeeping cores (0-1).
+        prefix='taskset -c 8-15',
         output='screen',
         condition=IfCondition(LaunchConfiguration('use_rviz')),
     )

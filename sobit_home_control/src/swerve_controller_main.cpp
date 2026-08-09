@@ -106,17 +106,12 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
   sobit_home_odometry_->odom_.header.frame_id = "odom";
   sobit_home_odometry_->odom_.child_frame_id  = get_parameter("robot_base_frame").as_string();
 
-  // Start up sound
-  play_sound(true);
-
   RCLCPP_INFO(this->get_logger(), "SOBIT HOME Wheel Main initialized.");
 }
 
 SwerveController::~SwerveController()
 {
   RCLCPP_INFO(this->get_logger(), "SOBIT HOME Wheel Main destroyed.");
-  // Shut down sound
-  play_sound(false);
 }
 
 void SwerveController::joint_callback(const sensor_msgs::msg::JointState::SharedPtr joint_info)
@@ -131,18 +126,6 @@ void SwerveController::joint_callback(const sensor_msgs::msg::JointState::Shared
     if (i < joint_info->position.size())
       joints_pos[joint_info->name[i]] = joint_info->position[i];
   }
-}
-
-// Play sound func
-void SwerveController::play_sound(bool is_startup)
-{
-  // Get sound file path
-  std::string pack_path = ament_index_cpp::get_package_share_directory("sobit_home_control");
-  std::string sound_file = is_startup ? "start_up" : "shut_down";
-  std::string sound_path = pack_path + "/mp3/" + sound_file + ".mp3";
-
-  // // Play Sound
-  std::system(("mpg321 --quiet " + sound_path + " &").c_str());
 }
 
 

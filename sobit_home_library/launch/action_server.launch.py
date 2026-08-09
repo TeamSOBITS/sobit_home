@@ -142,6 +142,7 @@ def launch_setup(context, *args, **kwargs):
             # limits stay empty and pose values are published unclamped.
             {"robot_description": robot_description},
         ],
+        prefix=None if use_sim_time_bool else 'taskset -c 8-15',
         output="screen",
     )
 
@@ -161,6 +162,7 @@ def launch_setup(context, *args, **kwargs):
             {"wheel_linear_arrival_tol": linear_arr_tol},
             {"wheel_rotate_arrival_tol": rotate_arr_tol},
         ],
+        prefix=None if use_sim_time_bool else 'taskset -c 8-15',
         output="screen",
     )
 
