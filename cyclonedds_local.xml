@@ -2,7 +2,7 @@
   <Domain>
     <General>
       <Interfaces>
-        <NetworkInterface name="lo" multicast="true"/>
+        <NetworkInterface name="lo"/>
       </Interfaces>
       <AllowMulticast>false</AllowMulticast>
     </General>
