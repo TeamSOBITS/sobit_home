@@ -15,7 +15,7 @@
                     rw_rate="100">
         <xacro:unless value="${$(arg enable_gz)}">
           <properties>
-            <async scheduling_policy="synchronized" thread_priority="79" affinity="[1]" print_warnings="true"/>
+            <async scheduling_policy="synchronized" thread_priority="79" affinity="[7]" print_warnings="true"/>
           </properties>
         </xacro:unless>
         <hardware>
