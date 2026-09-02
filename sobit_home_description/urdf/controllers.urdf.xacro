@@ -15,7 +15,7 @@
                     rw_rate="100">
         <xacro:unless value="${$(arg enable_gz)}">
           <properties>
-            <async scheduling_policy="synchronized" thread_priority="79" affinity="[1]" print_warnings="true"/>
+            <async scheduling_policy="synchronized" thread_priority="79" affinity="[7]" print_warnings="true"/>
           </properties>
         </xacro:unless>
         <hardware>
@@ -103,10 +103,10 @@
     </xacro:if>
 
     <xacro:if value="${($(arg enable_arm_left) + $(arg enable_arm_right)) and $(arg enable_dxl_pro)}">
-      <!-- rw_rate 100 Hz on real hardware: measured read cycle only used 37% of the
-           50 Hz budget (max 7.5ms/20ms) - headroom confirmed via cm statistics. -->
+      <!-- rw_rate 50 Hz on real hardware: max read 7.5ms = 37% of the 20ms budget;
+           at 100 Hz the same 7.5ms left only ~25% margin and caused overrun warnings. -->
       <ros2_control name="dynamixel_pro_upper" type="system" is_async="${hw_is_async}"
-                    rw_rate="100">
+                    rw_rate="50">
         <xacro:unless value="${$(arg enable_gz)}">
           <properties>
             <async scheduling_policy="synchronized" thread_priority="79" affinity="[3]" print_warnings="true"/>

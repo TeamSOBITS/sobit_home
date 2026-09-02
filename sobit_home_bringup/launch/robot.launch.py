@@ -695,10 +695,6 @@ def launch_gz(context, *args, **kwargs):
                 hand_left_cam_config,
                 {"video_device": cam_left_port},
                 {"frame_id": robot_name + '/hand_left_camera_optical_frame'},
-                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw.publisher.reliability': 'best_effort'},
-                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw.publisher.depth': 1},
-                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw/compressed.publisher.reliability': 'best_effort'},
-                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw/compressed.publisher.depth': 1},
                 ],
             remappings=[
                 ('image_raw', 'color/image_raw'),
@@ -720,10 +716,6 @@ def launch_gz(context, *args, **kwargs):
                 hand_right_cam_config,
                 {"video_device": cam_right_port},
                 {"frame_id": robot_name + '/hand_right_camera_optical_frame'},
-                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw.publisher.reliability': 'best_effort'},
-                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw.publisher.depth': 1},
-                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw/compressed.publisher.reliability': 'best_effort'},
-                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw/compressed.publisher.depth': 1},
             ],
             remappings=[
                 ('image_raw', 'color/image_raw'),
@@ -793,9 +785,29 @@ def launch_gz(context, *args, **kwargs):
                     output='log',
                 ))
     else:
-        nodes.append(joint_state_broadcaster)
-        nodes.append(control_node)
-        nodes.extend(controllers)
+        # Real hardware: serialize startup so control_node doesn't race
+        # robot_state_publisher for 'robot_description' and spawners don't pile up.
+        delayed_control_node = RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=robot_state_publisher_node,
+                on_start=[control_node],
+            )
+        )
+        delayed_joint_state_broadcaster_real = RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=control_node,
+                on_start=[joint_state_broadcaster],
+            )
+        )
+        delayed_controllers_real = RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=joint_state_broadcaster,
+                on_exit=controllers,
+            )
+        )
+        nodes.append(delayed_control_node)
+        nodes.append(delayed_joint_state_broadcaster_real)
+        nodes.append(delayed_controllers_real)
         if enable_action_server:
             nodes.append(delayed_action_server)
         if enable_hand_left_cam_color:
