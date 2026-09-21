@@ -118,11 +118,17 @@ First, please set up the following environment before proceeding to the next ins
       use_rviz:=true
     ```
 
-3. For real hardware mode, load `.bashrc` and set SOBIT HOME domain before launch.
+3. Choose how far DDS traffic reaches before launching. Every new terminal starts in `dds_local_mode`.
+    | Mode | Command | Use it when |
+    | --- | --- | --- |
+    | Local | `dds_local_mode` | Simulator, or the robot running standalone. DDS stays on the PC (loopback), nothing reaches the LAN or Wi-Fi. |
+    | LAN | `dds_lan_mode` | The dev PC (`172.16.10.70`) and the NUC (`172.16.10.80`) share topics over the wired robot LAN, `ROS_DOMAIN_ID=80`. |
+
     ```sh
     $ source ~/.bashrc
-    $ sobit_home_mode
+    $ dds_lan_mode
     ```
+    `dds_lan_mode` only uses a wired `172.16.10.x` interface and stays in local mode if there is none, so robot data never goes over Wi-Fi. Use the same mode in every terminal of a machine: the two modes do not see each other. The LiDARs (`172.16.10.20`, `172.16.10.30`) are read over TCP by `urg_node` and work in both modes.
 
 If you did not succeed in connecting to the real robot, check the following points:
 - Ensure the emergency stop button is not pressed.

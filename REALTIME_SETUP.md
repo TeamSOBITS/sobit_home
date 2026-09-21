@@ -27,9 +27,9 @@ This is **host-level** setup, done once per NUC, outside the Docker container.
   new adapters too: the `BestTechnology E160` hand-bus dongle added later enumerates
   under the same `ftdi_sio` driver and already reads `latency_timer=1` - no new
   host-side rule needed for it.
-- `rmw_cyclonedds_cpp` is the selected RMW, and `mode_ctr.sh` keeps DDS discovery on
-  loopback by default (`ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST`), switching to
-  `SUBNET` only when talking to the real robot (`ROS_DOMAIN_ID=80`).
+- `rmw_cyclonedds_cpp` is the selected RMW, and `mode_ctr.sh` keeps DDS on loopback by
+  default (`dds_local_mode`, `ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST`), switching to the
+  wired robot LAN only in `dds_lan_mode` (`SUBNET`, `ROS_DOMAIN_ID=80`).
 
 
 ## Gaps found and fixed

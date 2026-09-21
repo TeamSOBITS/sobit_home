@@ -1,0 +1,19 @@
+<CycloneDDS>
+  <Domain>
+    <General>
+      <Interfaces>
+        <NetworkInterface address="172.16.10.0"/>
+      </Interfaces>
+      <AllowMulticast>false</AllowMulticast>
+    </General>
+
+    <Discovery>
+      <ParticipantIndex>auto</ParticipantIndex>
+      <MaxAutoParticipantIndex>64</MaxAutoParticipantIndex>
+      <Peers>
+        <Peer Address="172.16.10.80"/> <!-- NUC (robot) -->
+        <Peer Address="172.16.10.70"/> <!-- dev PC -->
+      </Peers>
+    </Discovery>
+  </Domain>
+</CycloneDDS>
