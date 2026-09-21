@@ -1,0 +1,73 @@
+# Head camera: Intel RealSense D415 (head_cam_type:=realsense); Orbbec counterpart is head_camera_orbbec.yaml.
+# robot.launch.py overrides camera_name, tf_prefix, enable_color, enable_depth and pointcloud.enable.
+/**:
+  ros__parameters:
+    camera_name: head_camera        # frame ids: <tf_prefix><camera_name>_<stream>_optical_frame
+    serial_no: ""                   # empty = first RealSense found
+    usb_port_id: ""
+    device_type: ""
+    initial_reset: false            # set true if the camera hangs after a crash (slower start)
+    wait_for_device_timeout: -1.0
+    reconnect_timeout: 6.0
+    diagnostics_period: 0.0
+
+    # TF comes from the URDF (nominal extrinsics), as with the Orbbec config
+    publish_tf: false
+    tf_publish_rate: 0.0
+    base_frame_id: link             # -> head_camera_link
+
+    # Color 640x480@30 (same as the Orbbec config and the Gazebo sensors)
+    enable_color: true
+    rgb_camera:
+      color_profile: "640,480,30"
+      color_format: RGB8
+      enable_auto_exposure: true
+    color_qos: SENSOR_DATA          # SENSOR_DATA or DEFAULT
+    color_info_qos: DEFAULT
+
+    # Depth 640x480@30, not aligned to color (Orbbec: depth_registration=false),
+    # so depth image and point cloud stay in head_camera_depth_optical_frame
+    enable_depth: true
+    depth_module:
+      depth_profile: "640,480,30"
+      depth_format: Z16
+      enable_auto_exposure: true
+    depth_qos: SENSOR_DATA          # SENSOR_DATA or DEFAULT
+    depth_info_qos: DEFAULT
+    align_depth:
+      enable: true
+    enable_infra1: false
+    enable_infra2: false
+    enable_sync: true               # frame sync, like Orbbec enable_frame_sync
+    enable_rgbd: false
+    clip_distance: -2.0             # <0 = no clipping
+
+    # Published as depth/color/points, remapped to depth/points by robot.launch.py
+    pointcloud:
+      enable: true
+      ordered_pc: true              # image_to_position indexes the cloud by pixel (width*y+x)
+      stream_filter: 2              # texture from the color stream
+      stream_index_filter: 0
+      allow_no_texture_points: true # no effect while ordered_pc is true: untextured points stay, colored black
+      pointcloud_qos: SENSOR_DATA
+
+    # Post-processing filters off (the Orbbec config only ran its soft/noise filters)
+    decimation_filter:
+      enable: false
+    spatial_filter:
+      enable: false
+    temporal_filter:
+      enable: false
+    hole_filling_filter:
+      enable: false
+    disparity_filter:
+      enable: false
+    hdr_merge:
+      enable: false
+    colorizer:
+      enable: false
+
+    # IMU (the D415 has none)
+    enable_gyro: false
+    enable_accel: false
+    enable_motion: false

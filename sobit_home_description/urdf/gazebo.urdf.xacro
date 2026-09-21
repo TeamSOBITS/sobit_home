@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- SOBIT HOME (Gazebo) -->
 <robot name="sobit_home_gazebo" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:macro name="gazebo_sensors" params="robot_name enable_head_cam_color:=True enable_head_cam_depth:=True enable_hand_left_cam_color:=True enable_hand_right_cam_color:=True">
+  <xacro:macro name="gazebo_sensors" params="robot_name head_cam_type:=realsense enable_head_cam_color:=True enable_head_cam_depth:=True enable_hand_left_cam_color:=True enable_hand_right_cam_color:=True">
+
+    <!-- Head camera horizontal FOV [rad]: Gemini 336L 1.64061 (pre-swap value); D415 69 deg color, 65 deg depth -->
+    <xacro:property name="head_cam_color_hfov" value="${1.64061 if head_cam_type == 'orbbec' else 1.2113}" />
+    <xacro:property name="head_cam_depth_hfov" value="${1.64061 if head_cam_type == 'orbbec' else 1.1345}" />
 
     <!-- Sensor - Head Camera (Color) -->
     <xacro:if value="${enable_head_cam_color}">
@@ -17,7 +21,7 @@
           <update_rate>10</update_rate>
 
           <camera name="head_camera_color">
-            <horizontal_fov>1.64061</horizontal_fov>
+            <horizontal_fov>${head_cam_color_hfov}</horizontal_fov>
             <image>
               <width>640</width>
               <height>480</height>
@@ -52,7 +56,7 @@
           <update_rate>10</update_rate>
 
           <camera name="head_camera_depth">
-            <horizontal_fov>1.64061</horizontal_fov>
+            <horizontal_fov>${head_cam_depth_hfov}</horizontal_fov>
             <image>
               <width>640</width>
               <height>480</height>

@@ -121,8 +121,8 @@
 - 非常停止ボタンが押されていないか．
 - バッテリー残量が十分か．
 - USBハブがPCに接続されているか．
-- 必要な環境変数が設定されているか（`DXL_X_LOWER_PORT`，`DXL_X_UPPER_PORT`，`DXL_P_UPPER_PORT`，`UM_PORT`，`HOME_CAM_LEFT_PORT`，`HOME_CAM_RIGHT_PORT`）．
-- `enable_mobile_base:=true`時に`can0`が利用可能か．
+- 必要な環境変数が設定されているか（`DXL_X_LOWER_PORT`，`DXL_X_UPPER_PORT`，`DXL_P_UPPER_PORT`，`UM_PORT`，`HOME_CAM_LEFT_PORT`，`HOME_CAM_RIGHT_PORT`，`RM_CAN_PORT`）．
+- `enable_mobile_base:=true`時に`RM_CAN_PORT`が指すCANインタフェースが存在するか（`ip link show $RM_CAN_PORT`）．`RM_CAN_PORT`は`install.sh`でSH-C31GアダプタのUSBシリアル番号から解決され，空の場合はそのアダプタが検出されていない．未設定の場合は`can0`にフォールバックする．
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -295,6 +295,12 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
 'enable_hand_left_cam_color'  : 'true',
 'enable_hand_right_cam_color' : 'true',
 'enable_lidar'                : 'true',
+```
+
+ヘッドのRGB-Dカメラは `head_cam_type` で切り替えます（`realsense` = Intel RealSense D415（デフォルト），`orbbec` = Orbbec Gemini 336L）．URDF，ドライバノード，設定ファイル（`sobit_home_bringup/config/head_camera_<type>.yaml`）が実機・シミュレータともに一括で切り替わります．
+
+```sh
+$ ros2 launch sobit_home_bringup real_minimal.launch.py head_cam_type:=orbbec
 ```
 
 また，複数のSOBIT HOMEを同じシミュレーション環境でも出現できます．
@@ -581,7 +587,7 @@ TBD
 | 重量 | 16.0[kg] |
 | リモートコントローラー | PS4 |
 | LiDAR | 不明 |
-| RGB-D | RealSense D415（ヘッド）、RealSense D405（ハンド） |
+| RGB-D | Orbbec Gemini 336L（ヘッド，現在は `head_cam_type:=realsense` で RealSense D415 に交換中）、RealSense D405（ハンド） |
 | スピーカー | Jabra Speak 710 |
 | マイク | MKE 400 |
 | アクチュエータ（アーム） | XM540-W150 ×4、XM430-W320 ×6 |

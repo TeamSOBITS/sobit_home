@@ -150,7 +150,7 @@
           </xacro:if>
           <xacro:unless value="${$(arg enable_gz)}">
             <plugin>rm_motors_hw/RmMotorsSystemHardware</plugin>
-            <param name="can_interface">can0</param>
+            <param name="can_interface">$(arg can_interface)</param>
             <param name="simulate">false</param>
           </xacro:unless>
         </hardware>

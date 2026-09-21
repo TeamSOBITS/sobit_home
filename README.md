@@ -128,8 +128,8 @@ If you did not succeed in connecting to the real robot, check the following poin
 - Ensure the emergency stop button is not pressed.
 - Verify the battery is sufficiently charged.
 - Confirm the USB hub is connected to the computer.
-- Verify that required environment variables are set in your shell (`DXL_X_LOWER_PORT`, `DXL_X_UPPER_PORT`, `DXL_P_UPPER_PORT`, `UM_PORT`, `HOME_CAM_LEFT_PORT`, `HOME_CAM_RIGHT_PORT`).
-- Verify CAN is available (`can0`) when `enable_mobile_base:=true`.
+- Verify that required environment variables are set in your shell (`DXL_X_LOWER_PORT`, `DXL_X_UPPER_PORT`, `DXL_P_UPPER_PORT`, `UM_PORT`, `HOME_CAM_LEFT_PORT`, `HOME_CAM_RIGHT_PORT`, `RM_CAN_PORT`).
+- Verify the CAN interface named by `RM_CAN_PORT` exists (`ip link show $RM_CAN_PORT`) when `enable_mobile_base:=true`. `RM_CAN_PORT` is resolved from the USB serial number of the SH-C31G adapter in `install.sh`; an empty value means that adapter was not detected. Unset falls back to `can0`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -302,6 +302,12 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
 'enable_hand_left_cam_color'  : 'true',
 'enable_hand_right_cam_color' : 'true',
 'enable_lidar'                : 'true',
+```
+
+The head RGB-D camera model is selected with `head_cam_type` (`realsense` = Intel RealSense D415, default; `orbbec` = Orbbec Gemini 336L). It switches the URDF, the driver node and its config file (`sobit_home_bringup/config/head_camera_<type>.yaml`) together, on the real robot and in the simulator:
+
+```sh
+$ ros2 launch sobit_home_bringup real_minimal.launch.py head_cam_type:=orbbec
 ```
 
 Additionally, multiple SOBIT HOMEs can be spawned in the same simulation environment by launching additional instances with different `robot_id` and spawn coordinates.
@@ -590,7 +596,7 @@ TBD
 | Weight | 16.0[kg] |
 | Remote Controller | PS4 |
 | LiDAR | unk |
-| RGB-D | RealSense D415 (head), RealSense D405 (hand) |
+| RGB-D | Orbbec Gemini 336L (head; a RealSense D415 is mounted at the moment, `head_cam_type:=realsense`), RealSense D405 (hand) |
 | Speaker | Jabra Speak 710 |
 | Microphone | MKE 400 |
 | Actuator (Arm) | 4 x XM540-W150, 6 x XM430-W320 |
