@@ -41,14 +41,14 @@ def generate_launch_description():
     arg_enable_head_cam_depth       = DeclareLaunchArgument('enable_head_cam_depth', default_value='true')
     arg_enable_hand_left_cam_color  = DeclareLaunchArgument('enable_hand_left_cam_color', default_value='true')
     arg_enable_hand_right_cam_color = DeclareLaunchArgument('enable_hand_right_cam_color', default_value='true')
+    # Head camera model. Selects the URDF camera (camera_head_<type>.urdf.xacro), the driver
+    # node and the default config file, so swapping cameras is a one-argument change.
+    arg_head_cam_type               = DeclareLaunchArgument(
+        'head_cam_type', default_value='realsense',
+        description='Head RGB-D camera model: orbbec (Gemini 336L) | realsense (D415)')
     arg_head_cam_config_file        = DeclareLaunchArgument(
-        'head_cam_config_file',
-        default_value=os.path.join(
-            get_package_share_directory('sobit_home_bringup'),
-            'config',
-            'head_camera_orbbec.yaml',
-        ),
-    )
+        'head_cam_config_file', default_value='',
+        description='Driver config YAML for the head camera. Empty = config/head_camera_<head_cam_type>.yaml')
     arg_enable_teleop          = DeclareLaunchArgument('enable_teleop',          default_value='false')
     arg_enable_rm_motors       = DeclareLaunchArgument('enable_rm_motors',       default_value='true')
     arg_enable_dxl_pro         = DeclareLaunchArgument('enable_dxl_pro',         default_value='true')
@@ -100,6 +100,7 @@ def generate_launch_description():
         arg_enable_head_cam_depth,
         arg_enable_hand_left_cam_color,
         arg_enable_hand_right_cam_color,
+        arg_head_cam_type,
         arg_head_cam_config_file,
         arg_enable_teleop,
         arg_enable_rm_motors,
@@ -136,6 +137,7 @@ def launch_gz(context, *args, **kwargs):
     enable_head_cam_depth       = _bool(LaunchConfiguration('enable_head_cam_depth').perform(context))
     enable_hand_left_cam_color  = _bool(LaunchConfiguration('enable_hand_left_cam_color').perform(context))
     enable_hand_right_cam_color = _bool(LaunchConfiguration('enable_hand_right_cam_color').perform(context))
+    head_cam_type               = LaunchConfiguration('head_cam_type').perform(context).lower()
     head_cam_config_file        = LaunchConfiguration('head_cam_config_file').perform(context)
     enable_display              = _bool(LaunchConfiguration('enable_display').perform(context))
     enable_teleop               = _bool(LaunchConfiguration('enable_teleop').perform(context))
@@ -148,6 +150,13 @@ def launch_gz(context, *args, **kwargs):
     pose_config                 = LaunchConfiguration('pose_config').perform(context)
     right_hand_pose_config      = LaunchConfiguration('right_hand_pose_config').perform(context)
     left_hand_pose_config       = LaunchConfiguration('left_hand_pose_config').perform(context)
+
+    if head_cam_type not in ('orbbec', 'realsense'):
+        print(f"Unknown head_cam_type '{head_cam_type}'. Use 'orbbec' or 'realsense'.")
+        exit(1)
+    if not head_cam_config_file:
+        head_cam_config_file = os.path.join(
+            get_package_share_directory(bringup_package), 'config', f'head_camera_{head_cam_type}.yaml')
 
     # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
     dxl_x_lower_body_port = ''
@@ -232,6 +241,7 @@ def launch_gz(context, *args, **kwargs):
             'enable_head': 'True' if enable_head else 'False',
             'enable_head_cam_color' : 'True' if enable_head_cam_color else 'False',
             'enable_head_cam_depth' : 'True' if enable_head_cam_depth else 'False',
+            'head_cam_type': head_cam_type,
             'enable_hand_left_cam_color' : 'True' if enable_hand_left_cam_color else 'False',
             'enable_hand_right_cam_color' : 'True' if enable_hand_right_cam_color else 'False',
             'enable_rm_motors': 'True' if enable_rm_motors else 'False',
@@ -521,6 +531,7 @@ def launch_gz(context, *args, **kwargs):
             'enable_teleop'          : 'true' if enable_teleop else 'false',
             'enable_moveit'          : 'true' if enable_moveit else 'false',
             'enable_tf_prefix'       : 'true' if enable_tf_prefix else 'false',
+            'head_cam_type'          : head_cam_type,
             # Module switches -> SRDF xacro args.
             'enable_mobile_base'     : 'true' if enable_mobile_base else 'false',
             'enable_arm_left'        : 'true' if enable_arm_left else 'false',
@@ -535,37 +546,75 @@ def launch_gz(context, *args, **kwargs):
         }.items(),
     )
 
+    # Real hardware head camera. Both drivers publish the same topics under /<robot_name>/head_camera
+    # (color/image_raw, depth/image_raw, depth/points) with URDF frame ids, so consumers do not care.
     if not enable_gz and (enable_head_cam_color or enable_head_cam_depth):
-        head_cam_launch = IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                PathJoinSubstitution([
-                    FindPackageShare('orbbec_camera'),
-                    'launch',
-                    'gemini_330_series.launch.py'
-                ])
-            ]),
-            launch_arguments={
-                'namespace': robot_name,
-                'camera_name': 'head_camera',
-                'config_file_path': head_cam_config_file,
-                # 'head_camera_depth_frame_id':    robot_name + '/head_camera_depth_frame',
-                # 'depth_optical_frame_id':        robot_name + '/head_camera_depth_optical_frame',
-                # 'head_camera_color_frame_id':    robot_name + '/head_camera_color_frame',
-                # 'color_optical_frame_id':        robot_name + '/head_camera_color_optical_frame',
-                # 'head_camera_left_ir_frame_id':  robot_name + '/head_camera_infra_1_frame',
-                # 'left_ir_optical_frame_id':      robot_name + '/head_camera_infra_1_optical_frame',
-                # 'head_camera_right_ir_frame_id': robot_name + '/head_camera_infra2_frame',
-                # 'right_ir_optical_frame_id':     robot_name + '/head_camera_infra2_optical_frame',
-                # 'head_camera_depth_frame_id':    'head_camera_depth_frame',
-                'depth_optical_frame_id':        'head_camera_depth_optical_frame',
-                # 'head_camera_color_frame_id':    'head_camera_color_frame',
-                'color_optical_frame_id':        'head_camera_color_optical_frame',
-                # 'head_camera_left_ir_frame_id':  'head_camera_infra_1_frame',
-                'left_ir_optical_frame_id':      'head_camera_left_ir_optical_frame',
-                # 'head_camera_right_ir_frame_id': 'head_camera_infra2_frame',
-                'right_ir_optical_frame_id':     'head_camera_right_ir_optical_frame',
-            }.items(),
-        )
+        if head_cam_type == 'orbbec':
+            # Orbbec Gemini 336L (vendor launch + flat config YAML)
+            head_cam_launch = IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([
+                    PathJoinSubstitution([
+                        FindPackageShare('orbbec_camera'),
+                        'launch',
+                        'gemini_330_series.launch.py'
+                    ])
+                ]),
+                launch_arguments={
+                    'namespace': robot_name,
+                    'camera_name': 'head_camera',
+                    'config_file_path': head_cam_config_file,
+                    # 'head_camera_depth_frame_id':    robot_name + '/head_camera_depth_frame',
+                    # 'depth_optical_frame_id':        robot_name + '/head_camera_depth_optical_frame',
+                    # 'head_camera_color_frame_id':    robot_name + '/head_camera_color_frame',
+                    # 'color_optical_frame_id':        robot_name + '/head_camera_color_optical_frame',
+                    # 'head_camera_left_ir_frame_id':  robot_name + '/head_camera_infra_1_frame',
+                    # 'left_ir_optical_frame_id':      robot_name + '/head_camera_infra_1_optical_frame',
+                    # 'head_camera_right_ir_frame_id': robot_name + '/head_camera_infra2_frame',
+                    # 'right_ir_optical_frame_id':     robot_name + '/head_camera_infra2_optical_frame',
+                    # 'head_camera_depth_frame_id':    'head_camera_depth_frame',
+                    'depth_optical_frame_id':        'head_camera_depth_optical_frame',
+                    # 'head_camera_color_frame_id':    'head_camera_color_frame',
+                    'color_optical_frame_id':        'head_camera_color_optical_frame',
+                    # 'head_camera_left_ir_frame_id':  'head_camera_infra_1_frame',
+                    'left_ir_optical_frame_id':      'head_camera_left_ir_optical_frame',
+                    # 'head_camera_right_ir_frame_id': 'head_camera_infra2_frame',
+                    'right_ir_optical_frame_id':     'head_camera_right_ir_optical_frame',
+                }.items(),
+            )
+        else:
+            # Intel RealSense D415. A plain Node instead of rs_launch.py so the process can be
+            # pinned like every other non-RT node and its topics remapped onto the Orbbec names.
+            head_cam_launch = Node(
+                package='realsense2_camera',
+                executable='realsense2_camera_node',
+                name='head_camera',
+                namespace=robot_name,
+                parameters=[
+                    head_cam_config_file,
+                    {
+                        # Frame ids are <tf_prefix><camera_name>_<stream>_optical_frame; the
+                        # URDF (camera_head_realsense.urdf.xacro) defines them, publish_tf is off.
+                        'camera_name': 'head_camera',
+                        'tf_prefix': robot_name + '/' if enable_tf_prefix else '',
+                        'enable_color': enable_head_cam_color,
+                        'enable_depth': enable_head_cam_depth,
+                        'pointcloud.enable': enable_head_cam_depth,
+                    },
+                ],
+                remappings=[
+                    ('~/depth/image_rect_raw',                 '~/depth/image_raw'),
+                    ('~/depth/image_rect_raw/compressed',      '~/depth/image_raw/compressed'),
+                    ('~/depth/image_rect_raw/compressedDepth', '~/depth/image_raw/compressedDepth'),
+                    ('~/depth/image_rect_raw/theora',          '~/depth/image_raw/theora'),
+                    ('~/depth/image_rect_raw/zstd',            '~/depth/image_raw/zstd'),
+                    ('~/depth/color/points',                   '~/depth/points'),
+                ],
+                ros_arguments=['--log-level', 'warn'],
+                # Keep off the isolated RT control-loop cores (2-7) and the OS housekeeping cores (0-1).
+                prefix='taskset -c 8-15',
+                emulate_tty=True,
+                output='screen',
+            )
         nodes.append(head_cam_launch)
 
     gz_bridge_node = Node(

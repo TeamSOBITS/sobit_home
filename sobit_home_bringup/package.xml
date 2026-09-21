@@ -31,6 +31,7 @@
   <depend>depth_image_proc</depend>
   <depend>image_transport</depend>
   <depend>compressed_depth_image_transport</depend>
+  <exec_depend>realsense2_camera</exec_depend>
 
   <depend>sobit_home_description</depend>
   <depend>sobit_home_control</depend>

@@ -12,6 +12,7 @@ ros_packages=(
     "urg_node"
     "sobits_interfaces"
     "orbbecsdk_ros2"
+    "realsense_ros"
     "dynamixel_hardware"
     "uirobot_hardware"
     "rm_motors_ros"

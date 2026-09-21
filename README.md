@@ -304,6 +304,12 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
 'enable_lidar'                : 'true',
 ```
 
+The head RGB-D camera model is selected with `head_cam_type` (`realsense` = Intel RealSense D415, default; `orbbec` = Orbbec Gemini 336L). It switches the URDF, the driver node and its config file (`sobit_home_bringup/config/head_camera_<type>.yaml`) together, on the real robot and in the simulator:
+
+```sh
+$ ros2 launch sobit_home_bringup real_minimal.launch.py head_cam_type:=orbbec
+```
+
 Additionally, multiple SOBIT HOMEs can be spawned in the same simulation environment by launching additional instances with different `robot_id` and spawn coordinates.
 
 ```sh
@@ -590,7 +596,7 @@ TBD
 | Weight | 16.0[kg] |
 | Remote Controller | PS4 |
 | LiDAR | unk |
-| RGB-D | RealSense D415 (head), RealSense D405 (hand) |
+| RGB-D | Orbbec Gemini 336L (head; a RealSense D415 is mounted at the moment, `head_cam_type:=realsense`), RealSense D405 (hand) |
 | Speaker | Jabra Speak 710 |
 | Microphone | MKE 400 |
 | Actuator (Arm) | 4 x XM540-W150, 6 x XM430-W320 |

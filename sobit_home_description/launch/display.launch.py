@@ -23,6 +23,8 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_head_cam_depth',      default_value='true'),
         DeclareLaunchArgument('enable_hand_left_cam_color', default_value='true'),
         DeclareLaunchArgument('enable_hand_right_cam_color',default_value='true'),
+        DeclareLaunchArgument('head_cam_type',              default_value='realsense',
+                              description='Head RGB-D camera model: orbbec (Gemini 336L) | realsense (D415)'),
         DeclareLaunchArgument('enable_tf_prefix',           default_value='false'),
         OpaqueFunction(function=launch_setup),
     ])
@@ -45,6 +47,7 @@ def launch_setup(context, *args, **kwargs):
     enable_head_cam_depth = _bool_str(LaunchConfiguration('enable_head_cam_depth').perform(context))
     enable_hand_left_cam_color = _bool_str(LaunchConfiguration('enable_hand_left_cam_color').perform(context))
     enable_hand_right_cam_color = _bool_str(LaunchConfiguration('enable_hand_right_cam_color').perform(context))
+    head_cam_type    = LaunchConfiguration('head_cam_type').perform(context)
     enable_tf_prefix = _bool_str(LaunchConfiguration('enable_tf_prefix').perform(context))
 
     rviz_config = os.path.join(get_package_share_directory(
@@ -70,6 +73,7 @@ def launch_setup(context, *args, **kwargs):
         'enable_head_cam_depth': enable_head_cam_depth,
         'enable_hand_left_cam_color': enable_hand_left_cam_color,
         'enable_hand_right_cam_color': enable_hand_right_cam_color,
+        'head_cam_type': head_cam_type,
         'enable_tf_prefix': enable_tf_prefix,
     }
     robot_description_config = xacro.process_file(

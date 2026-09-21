@@ -297,6 +297,12 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
 'enable_lidar'                : 'true',
 ```
 
+ヘッドのRGB-Dカメラは `head_cam_type` で切り替えます（`realsense` = Intel RealSense D415（デフォルト），`orbbec` = Orbbec Gemini 336L）．URDF，ドライバノード，設定ファイル（`sobit_home_bringup/config/head_camera_<type>.yaml`）が実機・シミュレータともに一括で切り替わります．
+
+```sh
+$ ros2 launch sobit_home_bringup real_minimal.launch.py head_cam_type:=orbbec
+```
+
 また，複数のSOBIT HOMEを同じシミュレーション環境でも出現できます．
 `robot_id`と出現座標を変えて起動してください．
 
@@ -581,7 +587,7 @@ TBD
 | 重量 | 16.0[kg] |
 | リモートコントローラー | PS4 |
 | LiDAR | 不明 |
-| RGB-D | RealSense D415（ヘッド）、RealSense D405（ハンド） |
+| RGB-D | Orbbec Gemini 336L（ヘッド，現在は `head_cam_type:=realsense` で RealSense D415 に交換中）、RealSense D405（ハンド） |
 | スピーカー | Jabra Speak 710 |
 | マイク | MKE 400 |
 | アクチュエータ（アーム） | XM540-W150 ×4、XM430-W320 ×6 |
