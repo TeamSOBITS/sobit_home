@@ -128,8 +128,8 @@ If you did not succeed in connecting to the real robot, check the following poin
 - Ensure the emergency stop button is not pressed.
 - Verify the battery is sufficiently charged.
 - Confirm the USB hub is connected to the computer.
-- Verify that required environment variables are set in your shell (`DXL_X_LOWER_PORT`, `DXL_X_UPPER_PORT`, `DXL_P_UPPER_PORT`, `UM_PORT`, `HOME_CAM_LEFT_PORT`, `HOME_CAM_RIGHT_PORT`).
-- Verify CAN is available (`can0`) when `enable_mobile_base:=true`.
+- Verify that required environment variables are set in your shell (`DXL_X_LOWER_PORT`, `DXL_X_UPPER_PORT`, `DXL_P_UPPER_PORT`, `UM_PORT`, `HOME_CAM_LEFT_PORT`, `HOME_CAM_RIGHT_PORT`, `RM_CAN_PORT`).
+- Verify the CAN interface named by `RM_CAN_PORT` exists (`ip link show $RM_CAN_PORT`) when `enable_mobile_base:=true`. `RM_CAN_PORT` is resolved from the USB serial number of the SH-C31G adapter in `install.sh`; an empty value means that adapter was not detected. Unset falls back to `can0`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

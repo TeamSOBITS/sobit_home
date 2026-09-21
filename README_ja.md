@@ -121,8 +121,8 @@
 - 非常停止ボタンが押されていないか．
 - バッテリー残量が十分か．
 - USBハブがPCに接続されているか．
-- 必要な環境変数が設定されているか（`DXL_X_LOWER_PORT`，`DXL_X_UPPER_PORT`，`DXL_P_UPPER_PORT`，`UM_PORT`，`HOME_CAM_LEFT_PORT`，`HOME_CAM_RIGHT_PORT`）．
-- `enable_mobile_base:=true`時に`can0`が利用可能か．
+- 必要な環境変数が設定されているか（`DXL_X_LOWER_PORT`，`DXL_X_UPPER_PORT`，`DXL_P_UPPER_PORT`，`UM_PORT`，`HOME_CAM_LEFT_PORT`，`HOME_CAM_RIGHT_PORT`，`RM_CAN_PORT`）．
+- `enable_mobile_base:=true`時に`RM_CAN_PORT`が指すCANインタフェースが存在するか（`ip link show $RM_CAN_PORT`）．`RM_CAN_PORT`は`install.sh`でSH-C31GアダプタのUSBシリアル番号から解決され，空の場合はそのアダプタが検出されていない．未設定の場合は`can0`にフォールバックする．
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 

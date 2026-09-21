@@ -165,6 +165,7 @@ def launch_gz(context, *args, **kwargs):
     dxl_x_hand_port = ''
     um_body_port = ''
     um_body_id = ''
+    rm_can_port = 'can0'
     # Find USB Cam port name from HOME_CAM_LEFT_PORT/HOME_CAM_RIGHT_PORT environment variable
     cam_left_port = ''
     cam_right_port = ''
@@ -184,26 +185,37 @@ def launch_gz(context, *args, **kwargs):
         print('Uirobot Body Node ID : ' + um_body_id)
 
         if enable_mobile_base and enable_rm_motors:
+            # RM_CAN_PORT is resolved in .bashrc from the SH-C31G adapter's USB serial
+            # (like the DXL_*_PORT realpath lookups). Unset keeps the historical can0;
+            # set-but-empty means the pinned adapter was not found, so fail loudly
+            # rather than silently driving through whichever adapter took can0.
+            if 'RM_CAN_PORT' in os.environ and not os.environ['RM_CAN_PORT']:
+                print('RM_CAN_PORT is empty: the pinned USB-CAN adapter was not found. '
+                      'Check its USB connection, then re-source ~/.bashrc.')
+                exit(1)
+            rm_can_port = os.environ.get('RM_CAN_PORT', 'can0')
+            print('RM Motors CAN Port : ' + rm_can_port)
+
             can_setup_cmds = [
-                ['sudo', 'ip', 'link', 'set', 'can0', 'down'],
-                ['sudo', 'ip', 'link', 'set', 'can0', 'type', 'can', 'bitrate', '1000000'],
+                ['sudo', 'ip', 'link', 'set', rm_can_port, 'down'],
+                ['sudo', 'ip', 'link', 'set', rm_can_port, 'type', 'can', 'bitrate', '1000000'],
                 # The default 10-frame TX queue jams with ENOBUFS if the bus briefly stops draining
-                ['sudo', 'ip', 'link', 'set', 'can0', 'txqueuelen', '65536'],
-                ['sudo', 'ip', 'link', 'set', 'can0', 'up'],
+                ['sudo', 'ip', 'link', 'set', rm_can_port, 'txqueuelen', '65536'],
+                ['sudo', 'ip', 'link', 'set', rm_can_port, 'up'],
             ]
             if any(subprocess.run(cmd).returncode != 0 for cmd in can_setup_cmds):
-                print('Failed to set up CAN0 interface. Please check CAN adapter connection.')
+                print(f'Failed to set up {rm_can_port} interface. Please check CAN adapter connection.')
                 exit(1)
-            print('CAN0 interface is set up.')
+            print(f'{rm_can_port} interface is set up.')
 
             # Powered RM motors broadcast feedback at 1 kHz; a silent bus cannot ACK
             # our frames and ros2_control write() would fail with ENOBUFS (os error 105)
             try:
-                subprocess.run(['candump', '-n', '1', 'can0'],
+                subprocess.run(['candump', '-n', '1', rm_can_port],
                                timeout=1.5, stdout=subprocess.DEVNULL, check=True)
-                print('CAN0 bus is alive (motor feedback detected).')
+                print(f'{rm_can_port} bus is alive (motor feedback detected).')
             except (subprocess.TimeoutExpired, subprocess.CalledProcessError, FileNotFoundError):
-                print('No traffic on CAN0. Is the emergency stop released and motor power on?')
+                print(f'No traffic on {rm_can_port}. Is the emergency stop released and motor power on?')
                 exit(1)
 
         # Find USB Cam port
@@ -253,6 +265,7 @@ def launch_gz(context, *args, **kwargs):
             'dxl_x_hand_port': dxl_x_hand_port,
             'um_body_port': um_body_port,
             'um_body_id': um_body_id,
+            'can_interface': rm_can_port,
         })
 
 

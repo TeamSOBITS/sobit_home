@@ -62,6 +62,7 @@
   <!-- Uirobot Body Lift Gateway Port -->
   <xacro:arg name="um_body_port" default="/dev/ttyUSB0" />
   <xacro:arg name="um_body_id" default="5" />
+  <xacro:arg name="can_interface" default="can0" />
 
   <xacro:if value="${ $(arg enable_mobile_base) }">
     <xacro:base/>

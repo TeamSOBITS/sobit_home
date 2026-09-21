@@ -154,6 +154,7 @@ echo "    export DXL_X_HAND_PORT=\`realpath /dev/serial/by-id/usb-BestTechnology
 echo "    export UM_PORT=\`realpath /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_dabce0b66407f0118d421f2e6d9880ab-if00-port0\`" >> $HOME/.bashrc
 echo "    export HOME_CAM_LEFT_PORT=\"/dev/\$(ls /sys/bus/usb/devices/3-5.4:1.0/video4linux/ | sort -V | head -1)\"" >> $HOME/.bashrc
 echo "    export HOME_CAM_RIGHT_PORT=\"/dev/\$(ls /sys/bus/usb/devices/3-6.4:1.0/video4linux/ | sort -V | head -1)\"" >> $HOME/.bashrc
+echo "    export RM_CAN_PORT=\`for n in /sys/class/net/can*; do [ \"\$(cat \$n/device/../serial 2>/dev/null)\" = 005200624B45501420313352 ] && basename \$n; done\`" >> $HOME/.bashrc
 echo "fi" >> $HOME/.bashrc
 echo "" >> $HOME/.bashrc
 
