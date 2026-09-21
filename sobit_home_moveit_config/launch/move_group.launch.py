@@ -101,6 +101,7 @@ def _launch_setup(context, *args, **kwargs):
     srdf_mappings = dict(
         module_mappings,
         enable_teleop=LaunchConfiguration('enable_teleop').perform(context),
+        head_cam_type=LaunchConfiguration('head_cam_type').perform(context),
     )
     # Without an explicit robot_description the builder expands the URDF with its
     # xacro defaults (every module on), so move_group would plan against a robot
@@ -120,6 +121,7 @@ def _launch_setup(context, *args, **kwargs):
         robot_name=LaunchConfiguration('robot_name').perform(context),
         enable_gz=_py_bool(LaunchConfiguration('use_sim_time').perform(context)),
         enable_tf_prefix=_py_bool(LaunchConfiguration('enable_tf_prefix').perform(context)),
+        head_cam_type=LaunchConfiguration('head_cam_type').perform(context),
     )
     # Planning params for MoveitServer. Defaults to this package's generic yaml;
     # override with the rc_doinglaundry path at launch for competition tuning.
@@ -354,6 +356,11 @@ def generate_launch_description():
         default_value='false',
         description='Prefix TF frames with the robot name; must match robot.launch.py')
 
+    declare_head_cam_type_cmd = DeclareLaunchArgument(
+        name='head_cam_type',
+        default_value='realsense',
+        description='Head camera model (orbbec | realsense); selects its URDF/SRDF links, must match robot.launch.py')
+
     # Module switches for the SRDF xacro; names match robot.launch.py.
     declare_module_cmds = [
         DeclareLaunchArgument(
@@ -378,6 +385,7 @@ def generate_launch_description():
         declare_enable_teleop_cmd,
         declare_moveit_server_config_cmd,
         declare_enable_tf_prefix_cmd,
+        declare_head_cam_type_cmd,
         declare_warehouse_backend_cmd,
         declare_warehouse_database_path_cmd,
         declare_warehouse_host_cmd,

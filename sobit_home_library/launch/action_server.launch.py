@@ -58,6 +58,7 @@ def generate_launch_description():
     arg_linear_arr_tol   = DeclareLaunchArgument('linear_arrival_tol', default_value='0.02')
     arg_rotate_arr_tol   = DeclareLaunchArgument('rotate_arrival_tol', default_value='0.02')
     arg_enable_tf_prefix = DeclareLaunchArgument('enable_tf_prefix', default_value='false')
+    arg_head_cam_type    = DeclareLaunchArgument('head_cam_type',    default_value='realsense')
     # Forwarded untouched to move_group.launch.py.
     args_modules = [
         DeclareLaunchArgument(name, default_value='true')
@@ -79,6 +80,7 @@ def generate_launch_description():
         arg_linear_arr_tol,
         arg_rotate_arr_tol,
         arg_enable_tf_prefix,
+        arg_head_cam_type,
         arg_pose_config,
         arg_right_hand_pose_config,
         arg_left_hand_pose_config,
@@ -103,6 +105,7 @@ def launch_setup(context, *args, **kwargs):
     linear_arr_tol   = float(LaunchConfiguration('linear_arrival_tol').perform(context))
     rotate_arr_tol   = float(LaunchConfiguration('rotate_arrival_tol').perform(context))
     enable_tf_prefix = LaunchConfiguration('enable_tf_prefix').perform(context)
+    head_cam_type    = LaunchConfiguration('head_cam_type').perform(context)
 
     use_sim_time_bool = use_sim_time.lower() == 'true'
     enable_tf_prefix_bool = enable_tf_prefix.lower() in ('true', '1', 'yes')
@@ -125,6 +128,7 @@ def launch_setup(context, *args, **kwargs):
     urdf_mappings['robot_name'] = robot_name
     urdf_mappings['enable_gz'] = 'True' if use_sim_time_bool else 'False'
     urdf_mappings['enable_tf_prefix'] = 'True' if enable_tf_prefix_bool else 'False'
+    urdf_mappings['head_cam_type'] = head_cam_type
     robot_description = xacro.process_file(urdf_path, mappings=urdf_mappings).toxml()
 
     joint_action_server_node = Node(
@@ -184,6 +188,7 @@ def launch_setup(context, *args, **kwargs):
             'use_rviz':     use_rviz,
             'enable_teleop':   enable_teleop,
             'enable_tf_prefix': enable_tf_prefix,
+            'head_cam_type': head_cam_type,
             'moveit_server_config': moveit_server_config,
             # Module switches -> URDF + SRDF xacro args.
             **{name: LaunchConfiguration(name).perform(context) for name in MODULE_ARGS},
