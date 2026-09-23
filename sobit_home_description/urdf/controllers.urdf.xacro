@@ -6,23 +6,23 @@
 
     <!-- Async hardware = separate read/write thread, decoupling I/O from the control
          loop. Real hardware only - gz_ros2_control steps sync, so force sync under Gazebo. -->
-    <xacro:property name="hw_is_async" value="${'false' if $(arg enable_gz) else 'true'}"/>
+    <xacro:property name="hw_is_async" value="${'false' if gz_on else 'true'}"/>
 
     <xacro:if value="${$(arg enable_mobile_base)}">
       <!-- rw_rate 100 Hz on real hardware: this 4-servo bus nearly keeps up with a
            bare 200 Hz trigger (16 overrun warnings/~4min) - 10ms gives headroom. -->
       <ros2_control name="dynamixel_control_lower" type="system" is_async="${hw_is_async}"
                     rw_rate="100">
-        <xacro:unless value="${$(arg enable_gz)}">
+        <xacro:unless value="${gz_on}">
           <properties>
             <async scheduling_policy="synchronized" thread_priority="79" affinity="[7]" print_warnings="true"/>
           </properties>
         </xacro:unless>
         <hardware>
-          <xacro:if value="${$(arg enable_gz)}">
+          <xacro:if value="${gz_on}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
           </xacro:if>
-          <xacro:unless value="${$(arg enable_gz)}">
+          <xacro:unless value="${gz_on}">
             <xacro:property name="dxl_x_lower_body_port" value="$(arg dxl_x_lower_body_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
             <param name="port_name">${dxl_x_lower_body_port}</param>
@@ -30,7 +30,7 @@
           </xacro:unless>
         </hardware>
 
-          <xacro:dxl_wheel_steer_controllers prefix="wheel"      enable_gz="${$(arg enable_gz)}"/>
+          <xacro:dxl_wheel_steer_controllers prefix="wheel"      enable_gz="${gz_on}"/>
 
       </ros2_control>
     </xacro:if>
@@ -40,16 +40,16 @@
            below), read max is 5.87ms/10ms budget (59%) - verified clean, 0 overruns. -->
       <ros2_control name="dynamixel_upper" type="system" is_async="${hw_is_async}"
                     rw_rate="100">
-        <xacro:unless value="${$(arg enable_gz)}">
+        <xacro:unless value="${gz_on}">
           <properties>
             <async scheduling_policy="synchronized" thread_priority="79" affinity="[2]" print_warnings="true"/>
           </properties>
         </xacro:unless>
         <hardware>
-          <xacro:if value="${$(arg enable_gz)}">
+          <xacro:if value="${gz_on}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
           </xacro:if>
-          <xacro:unless value="${$(arg enable_gz)}">
+          <xacro:unless value="${gz_on}">
             <xacro:property name="dxl_x_upper_body_port" value="$(arg dxl_x_upper_body_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
             <param name="port_name">${dxl_x_upper_body_port}</param>
@@ -58,13 +58,13 @@
         </hardware>
 
         <xacro:if value="${$(arg enable_head)}">
-          <xacro:dxl_head_controllers        prefix="head"       enable_gz="${$(arg enable_gz)}"/>
+          <xacro:dxl_head_controllers        prefix="head"       enable_gz="${gz_on}"/>
         </xacro:if>
         <xacro:if value="${$(arg enable_arm_left)}">
-          <xacro:dxl_arm_left_controllers    prefix="arm_left"   enable_gz="${$(arg enable_gz)}"/>
+          <xacro:dxl_arm_left_controllers    prefix="arm_left"   enable_gz="${gz_on}"/>
         </xacro:if>
         <xacro:if value="${$(arg enable_arm_right)}">
-          <xacro:dxl_arm_right_controllers   prefix="arm_right"  enable_gz="${$(arg enable_gz)}"/>
+          <xacro:dxl_arm_right_controllers   prefix="arm_right"  enable_gz="${gz_on}"/>
         </xacro:if>
 
       </ros2_control>
@@ -75,16 +75,16 @@
     <xacro:if value="${$(arg enable_hand_left) + $(arg enable_hand_right)}">
       <ros2_control name="dynamixel_hand" type="system" is_async="${hw_is_async}"
                     rw_rate="100">
-        <xacro:unless value="${$(arg enable_gz)}">
+        <xacro:unless value="${gz_on}">
           <properties>
             <async scheduling_policy="synchronized" thread_priority="79" affinity="[5]" print_warnings="true"/>
           </properties>
         </xacro:unless>
         <hardware>
-          <xacro:if value="${$(arg enable_gz)}">
+          <xacro:if value="${gz_on}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
           </xacro:if>
-          <xacro:unless value="${$(arg enable_gz)}">
+          <xacro:unless value="${gz_on}">
             <xacro:property name="dxl_x_hand_port" value="$(arg dxl_x_hand_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
             <param name="port_name">${dxl_x_hand_port}</param>
@@ -93,10 +93,10 @@
         </hardware>
 
         <xacro:if value="${$(arg enable_hand_left)}">
-          <xacro:dxl_hand_left_controllers   prefix="hand_left"  enable_gz="${$(arg enable_gz)}"/>
+          <xacro:dxl_hand_left_controllers   prefix="hand_left"  enable_gz="${gz_on}"/>
         </xacro:if>
         <xacro:if value="${$(arg enable_hand_right)}">
-          <xacro:dxl_hand_right_controllers  prefix="hand_right" enable_gz="${$(arg enable_gz)}"/>
+          <xacro:dxl_hand_right_controllers  prefix="hand_right" enable_gz="${gz_on}"/>
         </xacro:if>
 
       </ros2_control>
@@ -107,16 +107,16 @@
            at 100 Hz the same 7.5ms left only ~25% margin and caused overrun warnings. -->
       <ros2_control name="dynamixel_pro_upper" type="system" is_async="${hw_is_async}"
                     rw_rate="50">
-        <xacro:unless value="${$(arg enable_gz)}">
+        <xacro:unless value="${gz_on}">
           <properties>
             <async scheduling_policy="synchronized" thread_priority="79" affinity="[3]" print_warnings="true"/>
           </properties>
         </xacro:unless>
         <hardware>
-          <xacro:if value="${$(arg enable_gz)}">
+          <xacro:if value="${gz_on}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
           </xacro:if>
-          <xacro:unless value="${$(arg enable_gz)}">
+          <xacro:unless value="${gz_on}">
             <xacro:property name="dxl_p_upper_body_port" value="$(arg dxl_p_upper_body_port)"/>
             <plugin>dynamixel_hardware/DynamixelHardware</plugin>
             <param name="port_name">${dxl_p_upper_body_port}</param>
@@ -125,10 +125,10 @@
         </hardware>
 
         <xacro:if value="${$(arg enable_arm_left)}">
-          <xacro:dxl_pro_arm_left_controllers    prefix="arm_left"   enable_gz="${$(arg enable_gz)}"/>
+          <xacro:dxl_pro_arm_left_controllers    prefix="arm_left"   enable_gz="${gz_on}"/>
         </xacro:if>
         <xacro:if value="${$(arg enable_arm_right)}">
-          <xacro:dxl_pro_arm_right_controllers   prefix="arm_right"  enable_gz="${$(arg enable_gz)}"/>
+          <xacro:dxl_pro_arm_right_controllers   prefix="arm_right"  enable_gz="${gz_on}"/>
         </xacro:if>
 
       </ros2_control>
@@ -139,23 +139,23 @@
            (3 overrun warnings/~4min) - 10ms gives headroom. -->
       <ros2_control name="robomaster_control" type="system" is_async="${hw_is_async}"
                     rw_rate="100">
-        <xacro:unless value="${$(arg enable_gz)}">
+        <xacro:unless value="${gz_on}">
           <properties>
             <async scheduling_policy="synchronized" thread_priority="79" affinity="[4]" print_warnings="true"/>
           </properties>
         </xacro:unless>
         <hardware>
-          <xacro:if value="${$(arg enable_gz)}">
+          <xacro:if value="${gz_on}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
           </xacro:if>
-          <xacro:unless value="${$(arg enable_gz)}">
+          <xacro:unless value="${gz_on}">
             <plugin>rm_motors_hw/RmMotorsSystemHardware</plugin>
             <param name="can_interface">$(arg can_interface)</param>
             <param name="simulate">false</param>
           </xacro:unless>
         </hardware>
 
-        <xacro:rm_wheel_drive_controllers prefix="wheel" enable_gz="${$(arg enable_gz)}"/>
+        <xacro:rm_wheel_drive_controllers prefix="wheel" enable_gz="${gz_on}"/>
 
       </ros2_control>
     </xacro:if>
@@ -165,16 +165,16 @@
            can't fit a faster budget without "still in progress" overrun warnings. -->
       <ros2_control name="uirobot_control" type="system" is_async="${hw_is_async}"
                     rw_rate="20">
-        <xacro:unless value="${$(arg enable_gz)}">
+        <xacro:unless value="${gz_on}">
           <properties>
             <async scheduling_policy="synchronized" thread_priority="79" affinity="[6]" print_warnings="true"/>
           </properties>
         </xacro:unless>
         <hardware>
-          <xacro:if value="${$(arg enable_gz)}">
+          <xacro:if value="${gz_on}">
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
           </xacro:if>
-          <xacro:unless value="${$(arg enable_gz)}">
+          <xacro:unless value="${gz_on}">
             <xacro:property name="um_body_port" value="$(arg um_body_port)"/>
             <plugin>uirobot_hardware/UirobotHardware</plugin>
             <param name="port_name">${um_body_port}</param>
@@ -184,14 +184,14 @@
           </xacro:unless>
         </hardware>
 
-        <xacro:uirobot_control prefix="body" enable_gz="${$(arg enable_gz)}"/>
+        <xacro:uirobot_control prefix="body" enable_gz="${gz_on}"/>
 
       </ros2_control>
     </xacro:if>
 
 
     <!-- Gazebo Sim ROS2 Control -->
-    <xacro:if value="${$(arg enable_gz)}">
+    <xacro:if value="${gz_on}">
       <gazebo>
         <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
           <ros>
@@ -277,7 +277,7 @@
 
   <xacro:macro name="dxl_wheel_steer_controllers"  params="prefix enable_gz:=False">
     <joint name="${prefix}_steer_f_l_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">11</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -295,7 +295,7 @@
     </joint>
 
     <joint name="${prefix}_steer_f_r_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">12</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -313,7 +313,7 @@
     </joint>
 
     <joint name="${prefix}_steer_b_l_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">13</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -331,7 +331,7 @@
     </joint>
 
     <joint name="${prefix}_steer_b_r_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">14</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -352,7 +352,7 @@
 
   <xacro:macro name="dxl_head_controllers"         params="prefix enable_gz:=False">
     <joint name="head_pan_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">21</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -370,7 +370,7 @@
     </joint>
 
     <joint name="head_tilt_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">22</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -391,7 +391,7 @@
 
   <xacro:macro name="dxl_pro_arm_left_controllers"     params="prefix enable_gz:=False">
     <joint name="${prefix}_shoulder_tilt_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">31</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -413,7 +413,7 @@
 
   <xacro:macro name="dxl_pro_arm_right_controllers"    params="prefix enable_gz:=False">
     <joint name="${prefix}_shoulder_tilt_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">41</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -435,7 +435,7 @@
 
   <xacro:macro name="dxl_arm_left_controllers"     params="prefix enable_gz:=False">
     <joint name="${prefix}_upper_roll_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">32</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -454,7 +454,7 @@
     </joint>
 
     <joint name="${prefix}_upper_flex_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">34</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -473,7 +473,7 @@
     </joint>
 
     <joint name="${prefix}_elbow_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">36</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -492,7 +492,7 @@
     </joint>
 
     <joint name="${prefix}_lower_flex_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">38</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -511,7 +511,7 @@
     </joint>
 
     <joint name="${prefix}_wrist_tilt_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">39</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -530,7 +530,7 @@
     </joint>
 
     <joint name="${prefix}_wrist_roll_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">40</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -551,7 +551,7 @@
 
   <xacro:macro name="dxl_arm_right_controllers"     params="prefix enable_gz:=False">
     <joint name="${prefix}_upper_roll_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">42</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -569,7 +569,7 @@
     </joint>
 
     <joint name="${prefix}_upper_flex_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">44</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -587,7 +587,7 @@
     </joint>
 
     <joint name="${prefix}_elbow_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">46</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -605,7 +605,7 @@
     </joint>
 
     <joint name="${prefix}_lower_flex_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">48</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -623,7 +623,7 @@
     </joint>
 
     <joint name="${prefix}_wrist_tilt_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">49</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -641,7 +641,7 @@
     </joint>
 
     <joint name="${prefix}_wrist_roll_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">50</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -662,7 +662,7 @@
 
   <xacro:macro name="dxl_hand_left_controllers"    params="prefix enable_gz:=False">
     <joint name="${prefix}_finger_l_mcp_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">51</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">300</param>
@@ -680,7 +680,7 @@
       <state_interface name="effort"/>
     </joint>
 
-    <xacro:if value="${$(arg enable_gz)}">
+    <xacro:if value="${gz_on}">
       <joint name="${prefix}_finger_r_mcp_joint">
         <state_interface name="position">
           <param name="initial_value">0.0</param>
@@ -691,7 +691,7 @@
     </xacro:if>
 
     <joint name="${prefix}_finger_l_pip_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">52</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
@@ -710,7 +710,7 @@
     </joint>
 
     <joint name="${prefix}_finger_l_dip_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">53</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">75</param>
@@ -729,7 +729,7 @@
     </joint>
 
     <joint name="${prefix}_finger_c_mcp_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">54</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
@@ -748,7 +748,7 @@
     </joint>
 
     <joint name="${prefix}_finger_c_ip_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">55</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">75</param>
@@ -767,7 +767,7 @@
     </joint>
 
     <joint name="${prefix}_finger_r_pip_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">56</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
@@ -786,7 +786,7 @@
     </joint>
 
     <joint name="${prefix}_finger_r_dip_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">57</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">75</param>
@@ -808,7 +808,7 @@
 
   <xacro:macro name="dxl_hand_right_controllers"   params="prefix enable_gz:=False">
     <joint name="${prefix}_finger_l_mcp_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">61</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">300</param>
@@ -826,7 +826,7 @@
       <state_interface name="effort"/>
     </joint>
   
-    <xacro:if value="${$(arg enable_gz)}">
+    <xacro:if value="${gz_on}">
       <joint name="${prefix}_finger_r_mcp_joint">
         <state_interface name="position">
           <param name="initial_value">0.0</param>
@@ -837,7 +837,7 @@
     </xacro:if>
 
     <joint name="${prefix}_finger_l_pip_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">62</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
@@ -856,7 +856,7 @@
     </joint>
 
     <joint name="${prefix}_finger_l_dip_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">63</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">75</param>
@@ -875,7 +875,7 @@
     </joint>
 
     <joint name="${prefix}_finger_c_mcp_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">64</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
@@ -894,7 +894,7 @@
     </joint>
 
     <joint name="${prefix}_finger_c_ip_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">65</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">75</param>
@@ -913,7 +913,7 @@
     </joint>
 
     <joint name="${prefix}_finger_r_pip_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">66</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
@@ -932,7 +932,7 @@
     </joint>
 
     <joint name="${prefix}_finger_r_dip_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">67</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">75</param>
@@ -955,7 +955,7 @@
   <xacro:macro name="uirobot_control" params="prefix enable_gz:=False">
 
     <joint name="${prefix}_lift_joint">
-      <xacro:unless value="${$(arg enable_gz)}">
+      <xacro:unless value="${gz_on}">
         <param name="id">$(arg um_body_id)</param>
         <param name="gear_ratio">${200*M_PI}</param>
         <param name="position_kp">0.7</param>
