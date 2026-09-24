@@ -16,7 +16,8 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('robot_name',                  default_value='sobit_home'),
         DeclareLaunchArgument('robot_id',                    default_value='0'),
-        DeclareLaunchArgument('use_rviz',                    default_value='true'),
+        DeclareLaunchArgument('enable_viz',                  default_value='',
+                              description='Viewer to start: rerun, rviz, foxglove, or empty for none'),
         DeclareLaunchArgument('enable_mobile_base',          default_value='true'),
         DeclareLaunchArgument('enable_body',                 default_value='true'),
         DeclareLaunchArgument('enable_arm_left',             default_value='true'),
@@ -41,26 +42,28 @@ def generate_launch_description():
     ])
 
 
+
+def _viewer(context, robot_name):
+    """Return the launch action for the chosen viewer, or nothing."""
+    choice = LaunchConfiguration('enable_viz').perform(context).strip().lower()
+    if not choice:
+        return []
+    if choice not in ('rerun', 'rviz', 'foxglove'):
+        raise RuntimeError(
+            f"enable_viz must be rerun, rviz, foxglove or empty, not '{choice}'")
+    return [IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution(
+            [FindPackageShare(f'sobits_viz_{choice}'), 'launch', f'{choice}.launch.py'])),
+        launch_arguments={'robot_name': robot_name, 'use_sim_time': 'false'}.items(),
+    )]
+
+
 def launch_setup(context, *args, **kwargs):
     robot_name = LaunchConfiguration('robot_name').perform(context)
     robot_id   = int(LaunchConfiguration('robot_id').perform(context))
 
     effective_robot_name = robot_name if robot_id == 0 else f'{robot_name}_{robot_id}'
 
-    rviz_config = PathJoinSubstitution([
-        FindPackageShare('sobit_home_bringup'), 'rviz', 'sobit_home.rviz'
-    ])
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        arguments=['-d', rviz_config],
-        # 8-15 = the unused E-cores - keeps rviz2 off both the isolated RT cores
-        # (2-7) and the OS's own housekeeping cores (0-1).
-        prefix='taskset -c 8-15',
-        output='screen',
-        condition=IfCondition(LaunchConfiguration('use_rviz')),
-    )
 
     robot = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
@@ -91,4 +94,4 @@ def launch_setup(context, *args, **kwargs):
         }.items(),
     )
 
-    return [robot, rviz_node]
+    return [robot] + _viewer(context, 'sobit_home')
