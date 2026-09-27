@@ -280,35 +280,72 @@ SOBIT HOME has a simulation environment with Gazebo Harmonic, allowing you to ve
 $ ros2 launch sobit_home_bringup gz_minimal.launch.py
 ```
 
-At present, the following virtual environments are available.
+At present, the following virtual environments are available. They are provided by [sobits_gazebo_worlds](https://github.com/TeamSOBITS/sobits_gazebo_worlds) (`jazzy-devel` branch, cloned by `install.sh`), except `wrs` and `small_house`.
 
 | World Name   | Description |
 | ------------ | ----------- |
 | `empty`        | Spawns an environment without furniture or obstacles. |
 | `wrs`          | Spawns the Tidy Up environment used in WRS2020. |
 | `small_house`  | Spawns a small house layout developed by AWS. |
+| `precomp2025_arena` | Spawns the 2025 pre-competition arena world. |
 | `rcjo2025_arena` | Spawns the RCJ Open 2025 arena world. |
 | `rcjo2026_arena` | Spawns the RCJ Open 2026 arena world (default). |
+| `rcw2026_arena` | Spawns the RoboCup 2026 arena world, with hinged doors. |
 
-To change the environment, modify the `world_model` parameter in [gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py).
+Choose the environment with the `world_model` launch argument. It also accepts an absolute path to a world file.
 
 ```sh
 $ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
+
+# Closed arena (2.5 m walls, ceiling and room lights), without the Gazebo GUI
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+  world_model:=rcw2026_arena world_closed:=true headless:=true
 ```
 
 <!-- If it works correctly, the following Gazebo screen will be displayed.
 ![SOBIT HOME Gazebo Harmonic](sobit_home/docs/img/sobit_home_gz_sim.png) -->
 
-> [!TIP]
-> Since it is equipped with sensors similar to the actual machine, the processing may become heavy depending on the computer. Please select only the necessary sensors in [gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py).
+#### Launch Parameters
 
-```python
-'enable_head_cam_color'       : 'true',
-'enable_head_cam_depth'       : 'true',
-'enable_hand_left_cam_color'  : 'true',
-'enable_hand_right_cam_color' : 'true',
-'enable_lidar'                : 'true',
-```
+[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py) takes the following arguments (`name:=value`).
+
+| Argument | Default | Description |
+| --- | --- | --- |
+| **World** | | |
+| `world_model` | `rcjo2026_arena` | World to load: a name from the table above, or an absolute path to a world file. |
+| `world_closed` | `false` | Closed environment: 2.5 m walls, a solid ceiling and per-room lights. Only the sobits_gazebo_worlds arenas implement it. |
+| `headless` | `false` | Run Gazebo without its GUI (server only). Saves GPU memory. |
+| **Robot** | | |
+| `robot_name` | `sobit_home` | Robot name, used as its namespace. |
+| `robot_id` | `0` | Robot number for multi-robot setups. A value above `0` appends `_<id>` to the name. |
+| `robot_coords_x` / `_y` / `_z` | `-6.0` / `1.5` / `0.0` | Spawn position [m]. |
+| `robot_coords_Y` | `0.0` | Spawn yaw [rad]. |
+| `enable_tf_prefix` | `false` | Prefix TF frames with `<robot_name>/`. Needed when several robots share one TF tree. |
+| **Modules** | | |
+| `enable_mobile_base` | `true` | Include the mobile base. |
+| `enable_body` | `true` | Include the body lift. |
+| `enable_arm_left` / `enable_arm_right` | `true` | Include the left / right arm. |
+| `enable_hand_left` / `enable_hand_right` | `true` | Include the left / right hand. |
+| `enable_head` | `true` | Include the head (pan/tilt). |
+| **Sensors** | | |
+| `enable_head_cam_color` / `enable_head_cam_depth` | `true` | Head camera color / depth stream. |
+| `head_cam_type` | `realsense` | Head RGB-D camera model: `realsense` (D415) or `orbbec` (Gemini 336L). |
+| `enable_hand_left_cam_color` / `enable_hand_right_cam_color` | `true` | Wrist camera on the left / right hand. |
+| `enable_lidar` | `true` | Front and back laser scanners. |
+| **Software** | | |
+| `enable_moveit` | `true` | Start MoveIt (`move_group`). |
+| `enable_moveit_rviz` | `false` | Start MoveIt's own planning-scene RViz. |
+| `enable_viz` | (empty) | Viewer from [sobits_viz](https://github.com/TeamSOBITS/sobits_viz): `rerun`, `rviz` or `foxglove`. Empty starts none. |
+| `enable_teleop` | `false` | Teleoperation mode (see [Semantic Description (SRDF)](#semantic-description-srdf)). |
+| `enable_display` | `false` | Start the head display (`sobits_display`). |
+
+> [!TIP]
+> Since it is equipped with sensors similar to the actual machine, the processing may become heavy depending on the computer. Turn off the sensors you do not need:
+>
+> ```sh
+> $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+>   enable_head_cam_depth:=false enable_hand_right_cam_color:=false enable_lidar:=false
+> ```
 
 The head RGB-D camera model is selected with `head_cam_type` (`realsense` = Intel RealSense D415, default; `orbbec` = Orbbec Gemini 336L). It switches the URDF, the driver node and its config file (`sobit_home_bringup/config/head_camera_<type>.yaml`) together, on the real robot and in the simulator:
 

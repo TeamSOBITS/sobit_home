@@ -272,36 +272,73 @@ SOBIT HOMEにはGazebo Harmonicのシミュレーション環境が用意され�
 $ ros2 launch sobit_home_bringup gz_minimal.launch.py
 ```
 
-現時点では，これらの仮想環境が用意されています．
+現時点では，これらの仮想環境が用意されています．`wrs`と`small_house`以外は[sobits_gazebo_worlds](https://github.com/TeamSOBITS/sobits_gazebo_worlds)（`jazzy-devel`ブランチ，`install.sh`でクローン）が提供しています．
 
 | World Name | 説明 |
 | --- | --- |
 | `empty`      | 家具などのない環境を出現． |
 | `wrs`        | WRS2020に実施されたTidy Up環境を出現． |
 | `small_house` | AWSが開発した小型部屋のレイアウトを出現．|
+| `precomp2025_arena` | 2025年プレ大会向けのアリーナ環境を出現．|
 | `rcjo2025_arena` | RCJ Open 2025向けのアリーナ環境を出現．|
 | `rcjo2026_arena` | RCJ Open 2026向けのアリーナ環境を出現（デフォルト）．|
+| `rcw2026_arena` | RoboCup 2026向けのアリーナ環境を出現（開閉できるドア付き）．|
 
-環境を変更するために，`world_model`を[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py)で変更してください．
+環境は起動引数`world_model`で選択します．ワールドファイルの絶対パスも指定できます．
 
 ```sh
 $ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
+
+# 閉じた環境（2.5 mの壁・天井・部屋ごとの照明），GazeboのGUIなし
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+  world_model:=rcw2026_arena world_closed:=true headless:=true
 ```
 
 
 <!-- 正常に動作した場合は，次のようなGazeboの画面が表示されます．
 ![SOBIT HOME Gazebo Harmonic](sobit_home/docs/img/sobit_home_gz_sim.png) -->
 
-> [!TIP]
-> 実機と同じようなセンサも搭載されていますので，パソコンによって処理が重くなる可能性がありますので，必要なセンサだけを[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py)で選択してください．
+#### 起動引数
 
-```python
-'enable_head_cam_color'       : 'true',
-'enable_head_cam_depth'       : 'true',
-'enable_hand_left_cam_color'  : 'true',
-'enable_hand_right_cam_color' : 'true',
-'enable_lidar'                : 'true',
-```
+[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py)は次の引数（`name:=value`）を受け取ります．
+
+| 引数 | デフォルト | 説明 |
+| --- | --- | --- |
+| **ワールド** | | |
+| `world_model` | `rcjo2026_arena` | 読み込むワールド．上の表の名前，またはワールドファイルの絶対パス． |
+| `world_closed` | `false` | 閉じた環境：2.5 mの壁，天井，部屋ごとの照明．sobits_gazebo_worldsのアリーナのみ対応． |
+| `headless` | `false` | GazeboをGUIなし（サーバのみ）で実行．GPUメモリを節約． |
+| **ロボット** | | |
+| `robot_name` | `sobit_home` | ロボット名（名前空間として使用）． |
+| `robot_id` | `0` | 複数台構成でのロボット番号．`0`より大きい値で名前に`_<id>`を付加． |
+| `robot_coords_x` / `_y` / `_z` | `-6.0` / `1.5` / `0.0` | 出現位置 [m]． |
+| `robot_coords_Y` | `0.0` | 出現時のヨー角 [rad]． |
+| `enable_tf_prefix` | `false` | TFフレームに`<robot_name>/`を付加．複数台で1つのTFツリーを共有する場合に必要． |
+| **モジュール** | | |
+| `enable_mobile_base` | `true` | 移動台車を含める． |
+| `enable_body` | `true` | 昇降機構を含める． |
+| `enable_arm_left` / `enable_arm_right` | `true` | 左 / 右アームを含める． |
+| `enable_hand_left` / `enable_hand_right` | `true` | 左 / 右ハンドを含める． |
+| `enable_head` | `true` | 頭部（パン・チルト）を含める． |
+| **センサ** | | |
+| `enable_head_cam_color` / `enable_head_cam_depth` | `true` | 頭部カメラのカラー / 深度． |
+| `head_cam_type` | `realsense` | 頭部RGB-Dカメラの機種：`realsense`（D415）または`orbbec`（Gemini 336L）． |
+| `enable_hand_left_cam_color` / `enable_hand_right_cam_color` | `true` | 左 / 右ハンドの手首カメラ． |
+| `enable_lidar` | `true` | 前後のレーザスキャナ． |
+| **ソフトウェア** | | |
+| `enable_moveit` | `true` | MoveIt（`move_group`）を起動． |
+| `enable_moveit_rviz` | `false` | MoveIt専用のプランニングシーンRVizを起動． |
+| `enable_viz` | （空） | [sobits_viz](https://github.com/TeamSOBITS/sobits_viz)のビューア：`rerun`，`rviz`，`foxglove`．空の場合は起動しない． |
+| `enable_teleop` | `false` | 遠隔操作モード． |
+| `enable_display` | `false` | 頭部ディスプレイ（`sobits_display`）を起動． |
+
+> [!TIP]
+> 実機と同じようなセンサも搭載されていますので，パソコンによって処理が重くなる可能性があります．不要なセンサは無効にしてください．
+>
+> ```sh
+> $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+>   enable_head_cam_depth:=false enable_hand_right_cam_color:=false enable_lidar:=false
+> ```
 
 ヘッドのRGB-Dカメラは `head_cam_type` で切り替えます（`realsense` = Intel RealSense D415（デフォルト），`orbbec` = Orbbec Gemini 336L）．URDF，ドライバノード，設定ファイル（`sobit_home_bringup/config/head_camera_<type>.yaml`）が実機・シミュレータともに一括で切り替わります．
 
