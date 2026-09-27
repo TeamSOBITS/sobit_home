@@ -53,6 +53,7 @@ def generate_launch_description():
     arg_enable_rm_motors       = DeclareLaunchArgument('enable_rm_motors',       default_value='true')
     arg_enable_dxl_pro         = DeclareLaunchArgument('enable_dxl_pro',         default_value='true')
     arg_enable_moveit          = DeclareLaunchArgument('enable_moveit',          default_value='true')
+    arg_enable_moveit_rviz     = DeclareLaunchArgument('enable_moveit_rviz',     default_value='false')
     arg_enable_tf_prefix       = DeclareLaunchArgument('enable_tf_prefix',       default_value='false')
     arg_enable_action_server   = DeclareLaunchArgument(
         'enable_action_server', default_value='true',
@@ -106,6 +107,7 @@ def generate_launch_description():
         arg_enable_rm_motors,
         arg_enable_dxl_pro,
         arg_enable_moveit,
+        arg_enable_moveit_rviz,
         arg_enable_tf_prefix,
         arg_enable_action_server,
         arg_pose_config,
@@ -145,6 +147,7 @@ def launch_gz(context, *args, **kwargs):
     enable_rm_motors            = _bool(LaunchConfiguration('enable_rm_motors').perform(context))
     enable_dxl_pro              = _bool(LaunchConfiguration('enable_dxl_pro').perform(context))
     enable_moveit               = _bool(LaunchConfiguration('enable_moveit').perform(context))
+    enable_moveit_rviz          = _bool(LaunchConfiguration('enable_moveit_rviz').perform(context))
     enable_tf_prefix            = _bool(LaunchConfiguration('enable_tf_prefix').perform(context))
     enable_action_server        = _bool(LaunchConfiguration('enable_action_server').perform(context))
     pose_config                 = LaunchConfiguration('pose_config').perform(context)
@@ -543,6 +546,7 @@ def launch_gz(context, *args, **kwargs):
             'use_sim_time'           : 'true' if enable_gz else 'false',
             'enable_teleop'          : 'true' if enable_teleop else 'false',
             'enable_moveit'          : 'true' if enable_moveit else 'false',
+            'enable_moveit_rviz'     : 'true' if enable_moveit_rviz else 'false',
             'enable_tf_prefix'       : 'true' if enable_tf_prefix else 'false',
             'head_cam_type'          : head_cam_type,
             # Module switches -> SRDF xacro args.

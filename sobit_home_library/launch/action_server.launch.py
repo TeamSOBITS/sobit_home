@@ -29,7 +29,7 @@ def generate_launch_description():
 
     arg_robot_name       = DeclareLaunchArgument('robot_name',       default_value='sobit_home')
     arg_use_sim_time     = DeclareLaunchArgument('use_sim_time',     default_value='true')
-    arg_use_rviz         = DeclareLaunchArgument('use_rviz',         default_value='false')
+    arg_use_rviz         = DeclareLaunchArgument('enable_moveit_rviz', default_value='false')
     arg_enable_teleop    = DeclareLaunchArgument('enable_teleop',    default_value='false')
     arg_enable_moveit    = DeclareLaunchArgument('enable_moveit',    default_value='true')
     arg_pose_config            = DeclareLaunchArgument(
@@ -93,7 +93,7 @@ def generate_launch_description():
 def launch_setup(context, *args, **kwargs):
     robot_name       = LaunchConfiguration('robot_name').perform(context)
     use_sim_time     = LaunchConfiguration('use_sim_time').perform(context)
-    use_rviz         = LaunchConfiguration('use_rviz').perform(context)
+    use_rviz         = LaunchConfiguration('enable_moveit_rviz').perform(context)
     enable_teleop    = LaunchConfiguration('enable_teleop').perform(context)
     enable_moveit    = LaunchConfiguration('enable_moveit').perform(context)
     linear_kp        = float(LaunchConfiguration('linear_kp').perform(context))

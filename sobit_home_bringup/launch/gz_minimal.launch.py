@@ -1,8 +1,3 @@
-import os
-import re
-
-from ament_index_python.packages import get_package_share_directory
-
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
 from launch.conditions import IfCondition
@@ -17,12 +12,17 @@ def generate_launch_description():
         DeclareLaunchArgument('robot_name',                 default_value='sobit_home'),
         DeclareLaunchArgument('robot_id',                   default_value='0'),
         DeclareLaunchArgument('world_model',                default_value='rcjo2026_arena',
-                              description='empty | wrs | small_house | rcjo2025_arena | rcjo2026_arena | simple_data_collection'),
+                              description='empty | wrs | small_house | precomp2025_arena | rcjo2025_arena | rcjo2026_arena | rcw2026_arena'),
+        DeclareLaunchArgument('world_closed',               default_value='false',
+                              description='Closed environment: 2.5 m walls + solid ceiling + '
+                                          'per-room lights. The sobits_gazebo_worlds arenas '
+                                          'implement it; ignored by every other world.'),
         DeclareLaunchArgument('robot_coords_x',             default_value='-6.0'),
         DeclareLaunchArgument('robot_coords_y',             default_value='1.5'),
         DeclareLaunchArgument('robot_coords_z',             default_value='0.0'),
         DeclareLaunchArgument('robot_coords_Y',             default_value='0.0'),
-        DeclareLaunchArgument('use_rviz',                   default_value='true'),
+        DeclareLaunchArgument('enable_viz',                 default_value='',
+                              description='Viewer to start: rerun, rviz, foxglove, or empty for none'),
         DeclareLaunchArgument('enable_teleop',              default_value='false'),
         DeclareLaunchArgument('enable_gz',                  default_value='true'),
         DeclareLaunchArgument('enable_mobile_base',         default_value='true'),
@@ -41,6 +41,8 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_lidar',               default_value='true'),
         DeclareLaunchArgument('enable_display',             default_value='false'),
         DeclareLaunchArgument('enable_moveit',              default_value='true'),
+        DeclareLaunchArgument('enable_moveit_rviz',         default_value='false',
+                              description="MoveIt's own planning-scene RViz"),
         DeclareLaunchArgument('enable_tf_prefix',           default_value='false'),
         DeclareLaunchArgument('headless',                   default_value='false',
                               description='Run Gazebo in headless mode (--headless-rendering). '
@@ -54,94 +56,56 @@ def _bool(lc, context):
     return 'True' if lc.perform(context).lower() in ('true', '1', 'yes') else 'False'
 
 
-def _gz_world_name(path):
-    """Read the <world name='...'> attribute from an SDF/xacro world file.
-
-    The bridge needs the Gazebo world name to build /world/<name>/... service
-    topics. All shipped worlds declare the name literally, so a plain regex is
-    enough and we avoid expanding the xacro just to read one attribute.
-    Falls back to 'default', which is what Gazebo itself uses.
-    """
-    try:
-        with open(path) as f:
-            m = re.search(r"<world\s+name=['\"]([^'\"]+)['\"]", f.read())
-    except OSError:
-        return 'default'
-    return m.group(1) if m else 'default'
+def _viewer(context, robot_name):
+    """Return the launch action for the chosen viewer, or nothing."""
+    choice = LaunchConfiguration('enable_viz').perform(context).strip().lower()
+    if not choice:
+        return []
+    package = f'sobits_viz_{choice}'
+    launch_file = {'rerun': 'rerun', 'rviz': 'rviz', 'foxglove': 'foxglove'}.get(choice)
+    if launch_file is None:
+        raise RuntimeError(
+            f"enable_viz must be rerun, rviz, foxglove or empty, not '{choice}'")
+    return [IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution(
+            [FindPackageShare(package), 'launch', f'{launch_file}.launch.py'])),
+        launch_arguments={
+            'robot_name': robot_name,
+            'use_sim_time': 'true',
+            'enable_tf_prefix': _bool(
+                LaunchConfiguration('enable_tf_prefix'), context),
+        }.items(),
+    )]
 
 
 def launch_setup(context, *args, **kwargs):
     robot_name  = LaunchConfiguration('robot_name').perform(context)
     robot_id    = int(LaunchConfiguration('robot_id').perform(context))
     world_model = LaunchConfiguration('world_model').perform(context)
-    headless    = LaunchConfiguration('headless').perform(context).lower() in ('true', '1', 'yes')
-
-    # Resolve world file from world_model string
-    if world_model == 'empty':
-        world_file = os.path.join(
-            get_package_share_directory('sobit_home_description'),
-            'worlds', 'empty_w_physics.sdf')
-    elif world_model == 'wrs':
-        world_file = os.path.join(
-            get_package_share_directory('tmc_wrs_gz_worlds'),
-            'worlds', 'wrs2020.world.xacro')
-    elif world_model == 'small_house':
-        world_file = os.path.join(
-            get_package_share_directory('aws_small_house_world'),
-            'worlds', 'small_house.world')
-    elif world_model == 'rcjo2025_arena':
-        world_file = os.path.join(
-            get_package_share_directory('sobits_gazebo_worlds'),
-            'worlds', 'rcjo2025_arena.world.xacro')
-    elif world_model == 'rcjo2026_arena':
-        world_file = os.path.join(
-            get_package_share_directory('sobits_gazebo_worlds'),
-            'worlds', 'rcjo2026_arena.world.xacro')
-    elif world_model == 'simple_data_collection':
-        world_file = os.path.join(
-            get_package_share_directory('sobits_gazebo_worlds'),
-            'worlds', 'simple_data_collection.world.xacro')
-    else:
-        world_file = os.path.join(
-            get_package_share_directory('sobit_home_description'),
-            'worlds', 'empty_w_physics.sdf')
-
-    gz_world_name = _gz_world_name(world_file)
-
     gz_bridge_node = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
             "/clock" + "@rosgraph_msgs/msg/Clock" + "[gz.msgs.Clock",
             "/tf"    + "@tf2_msgs/msg/TFMessage"  + "[gz.msgs.Pose_V",
-            # Entity control service
-            f"/world/{gz_world_name}/control@ros_gz_interfaces/srv/ControlWorld",
-            f"/world/{gz_world_name}/create@ros_gz_interfaces/srv/SpawnEntity",
-            f"/world/{gz_world_name}/remove@ros_gz_interfaces/srv/DeleteEntity",
-            f"/world/{gz_world_name}/set_pose@ros_gz_interfaces/srv/SetEntityPose",
         ],
         output='screen',
     )
 
-    rviz_config = PathJoinSubstitution([
-        FindPackageShare('sobit_home_bringup'), 'rviz', 'sobit_home.rviz'
-    ])
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        output='screen',
-        arguments=['-d', rviz_config],
-        condition=IfCondition(LaunchConfiguration('use_rviz')),
-    )
 
     effective_robot_name = robot_name if robot_id == 0 else f'{robot_name}_{robot_id}'
 
-    headless_flag = ' --headless-rendering -s' if headless else ''
+    # World resolution, xacro expansion and /world/<name>/* service bridge live there
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])
+            PathJoinSubstitution([FindPackageShare('sobits_gazebo_worlds'),
+                                  'launch', 'world.launch.py'])
         ]),
-        launch_arguments={'gz_args': f'{headless_flag} -r -v 4 {world_file}'}.items(),
+        launch_arguments={
+            'world': world_model,
+            'closed': _bool(LaunchConfiguration('world_closed'), context),
+            'headless': _bool(LaunchConfiguration('headless'), context),
+        }.items(),
     )
 
     robot = IncludeLaunchDescription(
@@ -171,8 +135,9 @@ def launch_setup(context, *args, **kwargs):
             'enable_teleop'               : _bool(LaunchConfiguration('enable_teleop'), context),
             'enable_gz'                   : _bool(LaunchConfiguration('enable_gz'), context),
             'enable_moveit'               : _bool(LaunchConfiguration('enable_moveit'), context),
+            'enable_moveit_rviz'          : _bool(LaunchConfiguration('enable_moveit_rviz'), context),
             'enable_tf_prefix'            : _bool(LaunchConfiguration('enable_tf_prefix'), context),
         }.items(),
     )
 
-    return [gz_sim, gz_bridge_node, robot, rviz_node]
+    return [gz_sim, gz_bridge_node, robot] + _viewer(context, 'sobit_home')
