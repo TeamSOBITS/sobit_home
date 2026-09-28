@@ -5,6 +5,10 @@
 
     twist_topic: cmd_vel
 
+    # [s] force STOP if cmd_vel is older than this; <=0 disables. Publishers must
+    # send at >= 4 Hz (teleop: 100 Hz, wheel action server: 10 Hz -- both well clear).
+    cmd_vel_timeout: 0.5
+
     position_controller_name: wheel_steer_position_controller
     velocity_controller_name: wheel_drive_velocity_controller
 

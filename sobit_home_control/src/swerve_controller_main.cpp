@@ -11,6 +11,7 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
 {
   declare_parameter("robot_base_frame", "base_footprint");
   declare_parameter("twist_topic", "cmd_vel");
+  declare_parameter("cmd_vel_timeout", 0.5);
   declare_parameter("position_controller_name", "wheel_steer_position_controller");
   declare_parameter("velocity_controller_name", "wheel_drive_velocity_controller");
   declare_parameter("cycle_fequency", 10);
@@ -39,6 +40,7 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
   CYCLE_FEQUENCY           = get_parameter("cycle_fequency").as_int();
   STEER_MAX_VEL            = get_parameter("mobile_base.steer_max_vel").as_double();
   DRIVING_STATUS_THRESHOLD = get_parameter("mobile_base.driving_status_threshold").as_double();
+  CMD_VEL_TIMEOUT          = get_parameter("cmd_vel_timeout").as_double();
 
   // Initialize the control and odometry classes
   sobit_home_control_ = std::make_unique<SobitHomeControl>(this);
@@ -54,6 +56,7 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
   sub_vel_ = create_subscription<geometry_msgs::msg::Twist>(
     get_parameter("twist_topic").as_string(), qos_profile,
     [this](const geometry_msgs::msg::Twist::SharedPtr msg) {
+      last_cmd_vel_time_ = get_clock()->now();
       sobit_home_control_->twist_callback(msg);
     });
   sub_joint_info_ = create_subscription<sensor_msgs::msg::JointState>(
@@ -97,6 +100,7 @@ SwerveController::SwerveController(const rclcpp::NodeOptions & options)
   }
 
   prev_cycle_time_ = get_clock()->now();
+  last_cmd_vel_time_ = get_clock()->now();
 
   control_timer_ = create_wall_timer(
     std::chrono::milliseconds(static_cast<int>(1000.0 / CYCLE_FEQUENCY)),
@@ -158,6 +162,19 @@ void SwerveController::control_callback()
     sobit_home_odometry_->current_drive_pos[i] = drive_it->second;
   }
 
+  // Watchdog: force STOP if cmd_vel goes stale so a dead publisher can't leave the
+  // base driving forever (the ESCs latch the last command; nothing downstream times it out).
+  if (CMD_VEL_TIMEOUT > 0.0 &&
+      sobit_home_control_->motion_mode != SobitHomeControl::MODE::STOP_MOTION_MODE) {
+    double cmd_age = (now - last_cmd_vel_time_).seconds();
+    if (cmd_age > CMD_VEL_TIMEOUT) {
+      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
+        "cmd_vel watchdog: no Twist for %.2fs (timeout %.2fs); forcing STOP.",
+        cmd_age, CMD_VEL_TIMEOUT);
+      sobit_home_control_->twist_callback(std::make_shared<geometry_msgs::msg::Twist>());
+    }
+  }
+
   // Determine steering state:
   //   1 = steers at goal → publish goal drive velocities
   //   0 = steers adjusting within threshold → publish 0 (drives stop)
@@ -175,11 +192,19 @@ void SwerveController::control_callback()
   // base. Odometry accuracy during transitions does NOT depend on this gate:
   // update_odom() excludes still-steering wheels per wheel (steer_settle_vel).
   int steering_state = 1;
+  // Tracked over all four joints (unlike steering_state, which stops early) only for
+  // the gate warning below; never feeds back into steering_state or a published value.
+  double worst_err = 0.0;
+  size_t worst_idx = 0;
   wheel_joint_pos.data.clear();
   for (size_t i=0; i < steering_joints_names.size(); i++) {
     wheel_joint_pos.data.push_back(sobit_home_control_->goal_steer_pos[i]);
+    double err = fabs(sobit_home_control_->goal_steer_pos[i] - sobit_home_control_->current_steer_pos[i]);
+    if (err > worst_err) {
+      worst_err = err;
+      worst_idx = i;
+    }
     if (steering_state != -1) {
-      double err = fabs(sobit_home_control_->goal_steer_pos[i] - sobit_home_control_->current_steer_pos[i]);
       if (err > (DRIVING_STATUS_THRESHOLD + STEER_MAX_VEL / CYCLE_FEQUENCY))
         steering_state = -1;
       else if (err > DRIVING_STATUS_THRESHOLD)
@@ -195,6 +220,25 @@ void SwerveController::control_callback()
   for (size_t i=0; i < drive_joints_names.size(); i++)
     wheel_joint_vel.data.push_back((steering_state == 1) ? sobit_home_control_->goal_drive_vel[i] : 0.0);
   pub_wheel_joint_->publish(wheel_joint_vel);
+
+  // Drive command above is silently zeroed whenever the gate blocks; warn (throttled)
+  // when that's actually discarding a real non-zero drive request.
+  if (steering_state != 1) {
+    bool any_drive_requested = false;
+    for (size_t i=0; i < drive_joints_names.size(); i++) {
+      if (fabs(sobit_home_control_->goal_drive_vel[i]) > 1e-6) {
+        any_drive_requested = true;
+        break;
+      }
+    }
+    if (any_drive_requested) {
+      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 1000,
+        "Steering gate blocking drive command (steering_state=%d): worst steer error is "
+        "'%s' at %.4f rad (threshold %.4f rad)",
+        steering_state, steering_joints_names[worst_idx].c_str(), worst_err,
+        DRIVING_STATUS_THRESHOLD);
+    }
+  }
 
   // Integrate only when steering has settled (mid-transition angles corrupt the
   // odom solve). Otherwise hold pose + zero twist (drives are 0, base isn't moving).
