@@ -91,11 +91,11 @@
           <update_rate>30</update_rate>
 
           <camera name="hand_left_camera_color">
-            <!-- ELP-USBGS1200P01-H120: HFOV 126 deg -->
-            <horizontal_fov>2.19911</horizontal_fov>
+            <!-- Matches real 640x480 mode: fx 438.78 px (hand_*_cam_info.yaml) -> HFOV 72.2 deg -->
+            <horizontal_fov>1.26023</horizontal_fov>
             <image>
               <width>640</width>
-              <height>400</height>
+              <height>480</height>
               <format>RGB_INT8</format>
             </image>
             <clip>
@@ -122,11 +122,11 @@
           <update_rate>30</update_rate>
 
           <camera name="hand_right_camera_color">
-            <!-- ELP-USBGS1200P01-H120: HFOV 126 deg -->
-            <horizontal_fov>2.19911</horizontal_fov>
+            <!-- Matches real 640x480 mode: fx 438.78 px (hand_*_cam_info.yaml) -> HFOV 72.2 deg -->
+            <horizontal_fov>1.26023</horizontal_fov>
             <image>
               <width>640</width>
-              <height>400</height>
+              <height>480</height>
               <format>RGB_INT8</format>
             </image>
             <clip>
