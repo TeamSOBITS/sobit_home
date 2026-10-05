@@ -10,7 +10,7 @@
       image_width: 640
       image_height: 480
       camera_name: "hand_left_camera"
-      # camera_info_url: "package://sobit_home_bringup/config/hand_left_cam_info.yaml"
+      camera_info_url: "package://sobit_home_bringup/config/hand_left_cam_info.yaml"
       brightness: -1
       contrast: -1
       saturation: -1

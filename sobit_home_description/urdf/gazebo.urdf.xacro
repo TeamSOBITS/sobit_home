@@ -77,7 +77,7 @@
     </xacro:if>
 
     <!-- Sensor - Wrist Left Camera (ELP-USBGS1200P01-H120, Color) -->
-    <!-- AR0234 Global Shutter, HFOV 126 deg (2.19911 rad), 1920x1200 @ 90fps -->
+    <!-- AR0234 Global Shutter; simulated in the calibrated 640x480 @ 30fps mode (HFOV ~106 deg) -->
     <xacro:if value="${enable_hand_left_cam_color}">
       <gazebo reference="hand_left_camera_optical_frame">
         <sensor name="hand_left_camera_color" type="camera">
@@ -91,13 +91,31 @@
           <update_rate>30</update_rate>
 
           <camera name="hand_left_camera_color">
-            <!-- ELP-USBGS1200P01-H120: HFOV 126 deg -->
-            <horizontal_fov>2.19911</horizontal_fov>
+            <!-- Real 640x480 calibration: mean fx 240.91 px (hand_*_cam_info.yaml) -> HFOV 106.1 deg -->
+            <horizontal_fov>1.85097</horizontal_fov>
             <image>
               <width>640</width>
-              <height>400</height>
+              <height>480</height>
               <format>RGB_INT8</format>
             </image>
+            <!-- Per-camera calibrated K (hand_left_cam_info.yaml); projection sets the rendered principal point -->
+            <lens>
+              <intrinsics>
+                <fx>242.22058</fx>
+                <fy>243.31355</fy>
+                <cx>322.72581</cx>
+                <cy>216.81771</cy>
+                <s>0</s>
+              </intrinsics>
+              <projection>
+                <p_fx>242.22058</p_fx>
+                <p_fy>243.31355</p_fy>
+                <p_cx>322.72581</p_cx>
+                <p_cy>216.81771</p_cy>
+                <tx>0</tx>
+                <ty>0</ty>
+              </projection>
+            </lens>
             <clip>
               <near>0.01</near>
               <!-- <far>10</far> -->
@@ -108,7 +126,7 @@
     </xacro:if>
 
     <!-- Sensor - Wrist Right Camera (ELP-USBGS1200P01-H120, Color) -->
-    <!-- AR0234 Global Shutter, HFOV 126 deg (2.19911 rad), 1920x1200 @ 90fps -->
+    <!-- AR0234 Global Shutter; simulated in the calibrated 640x480 @ 30fps mode (HFOV ~106 deg) -->
     <xacro:if value="${enable_hand_right_cam_color}">
       <gazebo reference="hand_right_camera_optical_frame">
         <sensor name="hand_right_camera_color" type="camera">
@@ -122,13 +140,31 @@
           <update_rate>30</update_rate>
 
           <camera name="hand_right_camera_color">
-            <!-- ELP-USBGS1200P01-H120: HFOV 126 deg -->
-            <horizontal_fov>2.19911</horizontal_fov>
+            <!-- Real 640x480 calibration: mean fx 240.91 px (hand_*_cam_info.yaml) -> HFOV 106.1 deg -->
+            <horizontal_fov>1.85097</horizontal_fov>
             <image>
               <width>640</width>
-              <height>400</height>
+              <height>480</height>
               <format>RGB_INT8</format>
             </image>
+            <!-- Per-camera calibrated K (hand_right_cam_info.yaml); projection sets the rendered principal point -->
+            <lens>
+              <intrinsics>
+                <fx>239.59393</fx>
+                <fy>239.9392</fy>
+                <cx>298.30787</cx>
+                <cy>250.48436</cy>
+                <s>0</s>
+              </intrinsics>
+              <projection>
+                <p_fx>239.59393</p_fx>
+                <p_fy>239.9392</p_fy>
+                <p_cx>298.30787</p_cx>
+                <p_cy>250.48436</p_cy>
+                <tx>0</tx>
+                <ty>0</ty>
+              </projection>
+            </lens>
             <clip>
               <near>0.01</near>
               <!-- <far>10</far> -->
