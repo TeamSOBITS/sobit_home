@@ -3214,8 +3214,8 @@
       <visualize>false</visualize>
       <update_rate>10</update_rate>
       <camera name="hand_left_camera_color">
-        <!-- Matches real 640x480 mode: fx 438.78 px (hand_*_cam_info.yaml) -> HFOV 72.2 deg -->
-        <horizontal_fov>1.26023</horizontal_fov>
+        <!-- Real 640x480 calibration: mean fx 240.91 px (hand_*_cam_info.yaml) -> HFOV 106.1 deg -->
+        <horizontal_fov>1.85097</horizontal_fov>
         <image>
           <width>640</width>
           <height>480</height>
@@ -3237,8 +3237,8 @@
       <visualize>false</visualize>
       <update_rate>10</update_rate>
       <camera name="hand_right_camera_color">
-        <!-- Matches real 640x480 mode: fx 438.78 px (hand_*_cam_info.yaml) -> HFOV 72.2 deg -->
-        <horizontal_fov>1.26023</horizontal_fov>
+        <!-- Real 640x480 calibration: mean fx 240.91 px (hand_*_cam_info.yaml) -> HFOV 106.1 deg -->
+        <horizontal_fov>1.85097</horizontal_fov>
         <image>
           <width>640</width>
           <height>480</height>
