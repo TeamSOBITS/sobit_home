@@ -77,7 +77,7 @@
     </xacro:if>
 
     <!-- Sensor - Wrist Left Camera (ELP-USBGS1200P01-H120, Color) -->
-    <!-- AR0234 Global Shutter, HFOV 126 deg (2.19911 rad), 1920x1200 @ 90fps -->
+    <!-- AR0234 Global Shutter; simulated in the calibrated 640x480 @ 30fps mode (HFOV ~106 deg) -->
     <xacro:if value="${enable_hand_left_cam_color}">
       <gazebo reference="hand_left_camera_optical_frame">
         <sensor name="hand_left_camera_color" type="camera">
@@ -126,7 +126,7 @@
     </xacro:if>
 
     <!-- Sensor - Wrist Right Camera (ELP-USBGS1200P01-H120, Color) -->
-    <!-- AR0234 Global Shutter, HFOV 126 deg (2.19911 rad), 1920x1200 @ 90fps -->
+    <!-- AR0234 Global Shutter; simulated in the calibrated 640x480 @ 30fps mode (HFOV ~106 deg) -->
     <xacro:if value="${enable_hand_right_cam_color}">
       <gazebo reference="hand_right_camera_optical_frame">
         <sensor name="hand_right_camera_color" type="camera">
