@@ -3221,6 +3221,24 @@
           <height>480</height>
           <format>RGB_INT8</format>
         </image>
+        <!-- Per-camera calibrated K (hand_left_cam_info.yaml); projection sets the rendered principal point -->
+        <lens>
+          <intrinsics>
+            <fx>242.22058</fx>
+            <fy>243.31355</fy>
+            <cx>322.72581</cx>
+            <cy>216.81771</cy>
+            <s>0</s>
+          </intrinsics>
+          <projection>
+            <p_fx>242.22058</p_fx>
+            <p_fy>243.31355</p_fy>
+            <p_cx>322.72581</p_cx>
+            <p_cy>216.81771</p_cy>
+            <tx>0</tx>
+            <ty>0</ty>
+          </projection>
+        </lens>
         <clip>
           <near>0.01</near>
           <!-- <far>10</far> -->
@@ -3244,6 +3262,24 @@
           <height>480</height>
           <format>RGB_INT8</format>
         </image>
+        <!-- Per-camera calibrated K (hand_right_cam_info.yaml); projection sets the rendered principal point -->
+        <lens>
+          <intrinsics>
+            <fx>239.59393</fx>
+            <fy>239.9392</fy>
+            <cx>298.30787</cx>
+            <cy>250.48436</cy>
+            <s>0</s>
+          </intrinsics>
+          <projection>
+            <p_fx>239.59393</p_fx>
+            <p_fy>239.9392</p_fy>
+            <p_cx>298.30787</p_cx>
+            <p_cy>250.48436</p_cy>
+            <tx>0</tx>
+            <ty>0</ty>
+          </projection>
+        </lens>
         <clip>
           <near>0.01</near>
           <!-- <far>10</far> -->
