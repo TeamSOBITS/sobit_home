@@ -657,6 +657,7 @@ def launch_gz(context, *args, **kwargs):
                     # "/" + robot_name + "/imu" + "@sensor_msgs/msg/Imu" + "[gz.msgs.IMU",
                 ],
         remappings=[
+                    ("/" + robot_name + "/head_camera/camera_info", "/" + robot_name + "/head_camera/color/camera_info"),
                     ("/" + robot_name + "/head_camera/color", "/" + robot_name + "/head_camera/color/image_raw"),
                     ("/" + robot_name + "/hand_left_camera/camera_info", "/" + robot_name + "/hand_left_camera/color/camera_info"),
                     ("/" + robot_name + "/hand_left_camera/color", "/" + robot_name + "/hand_left_camera/color/image_raw"),

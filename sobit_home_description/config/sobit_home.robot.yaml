@@ -1,0 +1,164 @@
+schema_version: 2
+robot_id: sobit_home
+version: "2.0.0"
+namespace: sobit_home
+description_package: sobit_home_description
+
+urdf:
+  xacro: robots/sobit_home_robot.urdf.xacro
+  urdf: robots/sobit_home_robot.urdf
+  args:
+    head_cam_type: orbbec   # realsense | orbbec
+
+base_frame: base_footprint
+odom_frame: odom
+joint_states_topic: joint_states
+
+groups:
+  - name: head
+    controller: head_position_controller
+    joints:
+      - head_pan_joint
+      - head_tilt_joint
+
+  - name: body
+    controller: body_position_controller
+    joints:
+      - body_lift_joint
+
+  - name: arm_left
+    controller: arm_left_position_controller
+    joints:
+      - arm_left_shoulder_tilt_joint
+      - arm_left_upper_roll_joint
+      - arm_left_upper_flex_joint
+      - arm_left_elbow_joint
+      - arm_left_lower_flex_joint
+      - arm_left_wrist_tilt_joint
+      - arm_left_wrist_roll_joint
+
+  - name: arm_right
+    controller: arm_right_position_controller
+    joints:
+      - arm_right_shoulder_tilt_joint
+      - arm_right_upper_roll_joint
+      - arm_right_upper_flex_joint
+      - arm_right_elbow_joint
+      - arm_right_lower_flex_joint
+      - arm_right_wrist_tilt_joint
+      - arm_right_wrist_roll_joint
+
+  - name: hand_left
+    controller: hand_left_position_controller
+    uncommanded_joints: [hand_left_finger_r_mcp_joint]
+    joints:
+      - hand_left_finger_l_mcp_joint
+      - hand_left_finger_l_pip_joint
+      - hand_left_finger_l_dip_joint
+      - hand_left_finger_c_mcp_joint
+      - hand_left_finger_c_ip_joint
+      - hand_left_finger_r_pip_joint
+      - hand_left_finger_r_dip_joint
+
+  - name: hand_right
+    controller: hand_right_position_controller
+    uncommanded_joints: [hand_right_finger_r_mcp_joint]
+    joints:
+      - hand_right_finger_l_mcp_joint
+      - hand_right_finger_l_pip_joint
+      - hand_right_finger_l_dip_joint
+      - hand_right_finger_c_mcp_joint
+      - hand_right_finger_c_ip_joint
+      - hand_right_finger_r_pip_joint
+      - hand_right_finger_r_dip_joint
+
+mobile_base:
+  command_topic: cmd_vel
+  odom_topic: odom
+  has_vel_x: true
+  has_vel_y: true
+  has_vel_z: false
+  has_vel_theta: true
+  controllers:
+    - name: wheel_steer
+      controller: wheel_steer_position_controller
+      kind: position
+      joints: [wheel_steer_f_l_joint, wheel_steer_f_r_joint, wheel_steer_b_l_joint, wheel_steer_b_r_joint]
+    - name: wheel_drive
+      controller: wheel_drive_velocity_controller
+      kind: velocity
+      joints: [wheel_drive_f_l_joint, wheel_drive_f_r_joint, wheel_drive_b_l_joint, wheel_drive_b_r_joint]
+
+sensors:
+  cameras:
+    - name: head_camera
+      frame: head_camera_link
+      color:
+        frame: head_camera_color_optical_frame
+        raw_topic: head_camera/color/image_raw
+        compressed_topic: head_camera/color/image_raw/compressed
+        info_topic: head_camera/color/camera_info
+        width: 640
+        height: 480
+        fps: 30
+      depth:
+        frame: head_camera_depth_optical_frame
+        raw_topic: head_camera/depth/image_raw
+        compressed_topic: head_camera/depth/image_raw/compressedDepth
+        info_topic: head_camera/depth/camera_info
+        points_topic: head_camera/depth/points
+        encoding: 16UC1
+        range_m: [0.1, 10.0]
+    - name: hand_left_camera
+      frame: hand_left_camera_link
+      color:
+        frame: hand_left_camera_optical_frame
+        raw_topic: hand_left_camera/color/image_raw
+        compressed_topic: hand_left_camera/color/image_raw/compressed
+        info_topic: hand_left_camera/color/camera_info
+    - name: hand_right_camera
+      frame: hand_right_camera_link
+      color:
+        frame: hand_right_camera_optical_frame
+        raw_topic: hand_right_camera/color/image_raw
+        compressed_topic: hand_right_camera/color/image_raw/compressed
+        info_topic: hand_right_camera/color/camera_info
+
+  lidars:
+    - name: lidar_front
+      frame: lidar_front_laser
+      scan_topic: lidar_front/scan
+      points_topic: lidar_front/scan/points
+    - name: lidar_back
+      frame: lidar_back_laser
+      scan_topic: lidar_back/scan
+      points_topic: lidar_back/scan/points
+    - name: lidar_merged
+      frame: lidar_merged_laser
+      scan_topic: lidar_scan
+      points_topic: lidar_scan/points
+      merged_from: [lidar_front, lidar_back]
+
+  imus:
+    - name: head_camera_imu
+      frame: head_camera_IMU_frame
+      topic: head_camera/gyro_accel/sample
+      requires: {head_cam_type: orbbec}
+
+ee:
+  - name: left
+    ee_link: hand_left_end_effector_link
+    reference_frame: body_lift_link
+    control:
+      group: arm_left
+      command_frame: left_target_link
+      enable_topic: arm_left/moveit_track_enabled
+  - name: right
+    ee_link: hand_right_end_effector_link
+    reference_frame: body_lift_link
+    control:
+      group: arm_right
+      command_frame: right_target_link
+      enable_topic: arm_right/moveit_track_enabled
+
+excluded_joints: []
