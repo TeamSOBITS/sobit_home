@@ -47,56 +47,17 @@ cd ${DIR}
 python3 -m pip install --break-system-packages \
     transforms3d
 
-# Download ROS packages
+# Every ROS dependency is declared in the package.xml files and comes from
+# rosdep, including those of the cloned sibling packages.
 sudo apt-get update
-sudo apt-get install -y \
-    ros-$ROS_DISTRO-ros2-control \
-    ros-$ROS_DISTRO-ros2-controllers \
-    ros-$ROS_DISTRO-control-msgs \
-    ros-$ROS_DISTRO-control-toolbox \
-    ros-$ROS_DISTRO-controller-interface \
-    ros-$ROS_DISTRO-controller-manager \
-    ros-$ROS_DISTRO-controller-manager-msgs \
-    ros-$ROS_DISTRO-position-controllers \
-    ros-$ROS_DISTRO-velocity-controllers \
-    ros-$ROS_DISTRO-effort-controllers \
-    ros-$ROS_DISTRO-joint-trajectory-controller \
-    ros-$ROS_DISTRO-joint-state-publisher \
-    ros-$ROS_DISTRO-joint-state-publisher-gui \
-    ros-$ROS_DISTRO-joint-state-broadcaster \
-    ros-$ROS_DISTRO-joint-limits \
-    ros-$ROS_DISTRO-robot-state-publisher \
-    ros-$ROS_DISTRO-hardware-interface \
-    ros-$ROS_DISTRO-transmission-interface \
-    ros-$ROS_DISTRO-urdf \
-    ros-$ROS_DISTRO-urdf-launch \
-    ros-$ROS_DISTRO-xacro \
-    ros-$ROS_DISTRO-moveit \
-    ros-$ROS_DISTRO-moveit-ros-perception \
-    ros-$ROS_DISTRO-warehouse-ros-sqlite \
-    ros-$ROS_DISTRO-std-msgs \
-    ros-$ROS_DISTRO-geometry-msgs \
-    ros-$ROS_DISTRO-sensor-msgs \
-    ros-$ROS_DISTRO-nav-msgs \
-    ros-$ROS_DISTRO-trajectory-msgs \
-    ros-$ROS_DISTRO-tf2-geometry-msgs \
-    ros-$ROS_DISTRO-tf2-ros \
-    ros-$ROS_DISTRO-tf2 \
-    ros-$ROS_DISTRO-tf-transformations \
-    ros-$ROS_DISTRO-joy-linux \
-    ros-$ROS_DISTRO-launch \
-    ros-$ROS_DISTRO-launch-ros \
-    ros-$ROS_DISTRO-gz-ros2-control \
-    ros-$ROS_DISTRO-actuator-msgs \
-    ros-$ROS_DISTRO-gps-msgs \
-    ros-$ROS_DISTRO-ros-gz-bridge \
-    ros-$ROS_DISTRO-ros-gz-sim \
-    ros-$ROS_DISTRO-ros-gz-interfaces \
-    ros-$ROS_DISTRO-topic-tools \
-    ros-$ROS_DISTRO-image-transport \
-    ros-$ROS_DISTRO-compressed-depth-image-transport \
-    ros-$ROS_DISTRO-depth-image-proc \
-    ros-$ROS_DISTRO-rmw-cyclonedds-cpp
+if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
+    sudo rosdep init
+fi
+rosdep update
+rosdep install -r -y -i --from-paths ${DIR}
+for pkg in "${ros_packages[@]}"; do
+    rosdep install -r -y -i --from-paths ${DIR}/../${pkg}
+done
 
 # Set up the environment
 sudo usermod -aG dialout $USERNAME
@@ -117,7 +78,7 @@ sudo apt-get install -y \
     gz-harmonic
 
 # MoveIt warehouse (stored planning scenes / robot states / constraints).
-# The sqlite backend is installed above and is the default. MongoDB has no
+# The sqlite backend is installed by rosdep and is the default. MongoDB has no
 # binary release for this ROS distribution and no rosdep rule, so it is opt-in
 # and built from source together with its C++ driver:
 #     WAREHOUSE_MONGO=1 ./install.sh
