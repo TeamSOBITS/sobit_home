@@ -11,6 +11,7 @@ cd ..
 ros_packages=(
     "urg_node"
     "sobits_interfaces"
+    "sobits_robot_descriptor"
     "orbbecsdk_ros2"
     "realsense_ros"
     "dynamixel_hardware"
