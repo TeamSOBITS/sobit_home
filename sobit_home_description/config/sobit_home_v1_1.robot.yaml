@@ -139,12 +139,6 @@ sensors:
       points_topic: lidar_scan/points
       merged_from: [lidar_front, lidar_back]
 
-  imus:
-    - name: head_camera_imu
-      frame: head_camera_IMU_frame
-      topic: head_camera/gyro_accel/sample
-      requires: {head_cam_type: orbbec}
-
 ee:
   - name: left
     ee_link: hand_left_end_effector_link

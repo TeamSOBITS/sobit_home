@@ -113,10 +113,10 @@ def test_frames_are_links(desc, links):
     assert not frames - links, f'frames missing from URDF: {sorted(frames - links)}'
 
 
-def test_imu_only_with_orbbec(desc, links, variant):
+def test_no_imu_in_descriptor(desc, links, variant):
+    # The Orbbec IMU exists in the URDF but the driver never publishes it, so the descriptor lists no IMU.
     assert ('head_camera_IMU_frame' in links) == (variant == 'orbbec')
-    expected = ['head_camera_IMU_frame'] if variant == 'orbbec' else []
-    assert [i.frame for i in desc.imus] == expected
+    assert desc.imus == []
 
 
 def test_controllers_match_controllers_yaml(desc):
