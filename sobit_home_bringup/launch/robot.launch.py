@@ -690,12 +690,11 @@ def launch_gz(context, *args, **kwargs):
         name='parameter_bridge_depth_image',
         namespace=robot_name,
         arguments=[
-            "/" + robot_name + "/head_camera/depth" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
-            "/" + robot_name + "/head_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
+            "/" + robot_name + "/head_camera/depth/image" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
+            "/" + robot_name + "/head_camera/depth/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
         ],
         remappings=[
-            ("/" + robot_name + "/head_camera/depth", "/" + robot_name + "/head_camera/depth/image_raw"),
-            ("/" + robot_name + "/head_camera/camera_info", "/" + robot_name + "/head_camera/depth/camera_info"),
+            ("/" + robot_name + "/head_camera/depth/image", "/" + robot_name + "/head_camera/depth/image_raw"),
         ],
         parameters=[{
             'use_sim_time': True,
