@@ -358,7 +358,7 @@ def generate_launch_description():
 
     declare_head_cam_type_cmd = DeclareLaunchArgument(
         name='head_cam_type',
-        default_value='realsense',
+        default_value='orbbec',
         description='Head camera model (orbbec | realsense); selects its URDF/SRDF links, must match robot.launch.py')
 
     # Module switches for the SRDF xacro; names match robot.launch.py.

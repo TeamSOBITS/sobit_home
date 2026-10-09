@@ -44,7 +44,7 @@ def generate_launch_description():
     # Head camera model. Selects the URDF camera (camera_head_<type>.urdf.xacro), the driver
     # node and the default config file, so swapping cameras is a one-argument change.
     arg_head_cam_type               = DeclareLaunchArgument(
-        'head_cam_type', default_value='realsense',
+        'head_cam_type', default_value='orbbec',
         description='Head RGB-D camera model: orbbec (Gemini 336L) | realsense (D415)')
     arg_head_cam_config_file        = DeclareLaunchArgument(
         'head_cam_config_file', default_value='',

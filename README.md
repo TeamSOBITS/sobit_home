@@ -347,7 +347,7 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
 >   enable_head_cam_depth:=false enable_hand_right_cam_color:=false enable_lidar:=false
 > ```
 
-The head RGB-D camera model is selected with `head_cam_type` (`realsense` = Intel RealSense D415, default; `orbbec` = Orbbec Gemini 336L). It switches the URDF, the driver node and its config file (`sobit_home_bringup/config/head_camera_<type>.yaml`) together, on the real robot and in the simulator:
+The head RGB-D camera model is selected with `head_cam_type` (`orbbec` = Orbbec Gemini 336L, default; `realsense` = Intel RealSense D415). It switches the URDF, the driver node and its config file (`sobit_home_bringup/config/head_camera_<type>.yaml`) together, on the real robot and in the simulator:
 
 ```sh
 $ ros2 launch sobit_home_bringup real_minimal.launch.py head_cam_type:=orbbec
