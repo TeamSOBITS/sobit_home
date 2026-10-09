@@ -329,7 +329,7 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
 | `enable_head` | `true` | Include the head (pan/tilt). |
 | **Sensors** | | |
 | `enable_head_cam_color` / `enable_head_cam_depth` | `true` | Head camera color / depth stream. |
-| `head_cam_type` | `realsense` | Head RGB-D camera model: `realsense` (D415) or `orbbec` (Gemini 336L). |
+| `head_cam_type` | `orbbec` | Head RGB-D camera model: `realsense` (D415) or `orbbec` (Gemini 336L). |
 | `enable_hand_left_cam_color` / `enable_hand_right_cam_color` | `true` | Wrist camera on the left / right hand. |
 | `enable_lidar` | `true` | Front and back laser scanners. |
 | **Software** | | |
@@ -371,6 +371,48 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
 $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
   robot_name:=sobit_home robot_id:=2 robot_coords_x:=0.0 robot_coords_y:=2.0 robot_coords_Y:=0.0
 ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+### Run on Isaac Sim
+
+Isaac Sim 6.1 can be used instead of Gazebo. It runs on the host and is started by hand; the container drives it through services.
+The host setup (Isaac install, assets, the `~/colcon_ws` link) is described in the [sobits_gazebo_worlds README](../sobits_gazebo_worlds/README.md#isaac-sim).
+
+1. On the host, start the runner and leave it running:
+   ```sh
+   $ ~/docker_containers/jazzy_sobit_home_2_moveit_ws/src/sobits_gazebo_worlds/scripts/isaac_sim.sh
+   ```
+2. In the container, launch the robot. The launch loads the world, spawns the robot and starts the ROS stack:
+   ```sh
+   $ ros2 launch sobit_home_bringup isaac_minimal.launch.py world_model:=rcw2026_arena
+   ```
+
+Ctrl-C on the launch leaves Isaac running (and playing). Launching again reloads the world and respawns the robot (a deleted robot leaves its sensor writers and controller_manager behind in Isaac, so a fresh stage is the only clean respawn); `spawn_only:=true` skips the reload for a world opened by hand in the GUI.
+
+#### Launch Parameters
+
+[isaac_minimal.launch.py](sobit_home_bringup/launch/isaac_minimal.launch.py) takes the following Isaac-specific arguments, plus the module/sensor flags of gz_minimal.
+
+| Argument | Default | Description |
+| --- | --- | --- |
+| `world_model` | `rcjo2026_arena` | World to load: a name from the Gazebo table above (resolved to `<asset_root>/usd/<name>.usda`), or an absolute path to a USD file. |
+| `world_closed` | `false` | Closed environment, as for Gazebo. |
+| `asset_root` | (empty) | Asset directory. Empty uses `SOBITS_SIM_ASSET_ROOT`, else the `export/` directory of sobits_gazebo_worlds. |
+| `robot_usd` | (empty) | Robot USD. Empty uses `<asset_root>/usd/robots/sobit_home/sobit_home.usd`. |
+| `spawn_only` | `false` | Do not load the world; use the one already open in the Isaac GUI. |
+| `wait_timeout` | `120` | Seconds to wait for the runner's services. |
+
+The robot's spawn position and `enable_viz` are the same as in the Gazebo table.
+
+`robot.launch.py` takes a `simulator` argument (`none`, `gz` or `isaac`; empty derives it from `enable_gz`). With `isaac` it expects Isaac to be started externally, as above. `enable_gz:=true` still works and maps to `simulator:=gz`.
+
+**Known differences from the real robot**: the Gazebo list above applies, plus:
+
+- Compressed color images are H.264. Decode them with `isaac_compressed_image_decoder` from [IsaacSim-ros_workspaces](https://github.com/isaac-sim/IsaacSim-ros_workspaces).
+- The Quest app cannot decode H.264, so use the raw images there.
+- GPU PhysX needs `physxArticulation:sleepThreshold = 0` on articulations. The exported assets already set it (since v0.3.0, see `scripts/postprocess_usd.py` in sobits_gazebo_worlds); only custom USDs need it.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
