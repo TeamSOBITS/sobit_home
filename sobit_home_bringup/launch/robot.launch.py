@@ -736,13 +736,15 @@ def launch_gz(context, *args, **kwargs):
         executable='republish',
         name='head_camera_depth_compressed_republisher',
         namespace=robot_name,
-        arguments=['raw', 'compressedDepth'],
         remappings=[
             ("in",                  "/" + robot_name + "/head_camera/depth/image_raw"),
             ("out/compressedDepth", "/" + robot_name + "/head_camera/depth/image_raw/compressedDepth"),
         ],
         parameters=[{
             'use_sim_time': True,
+            # image_transport 5.x: positional transports are ignored; an empty out_transport loads every plugin (out, out/theora, ...)
+            'in_transport': 'raw',
+            'out_transport': 'compressedDepth',
             f'qos_overrides./{robot_name}/head_camera/depth/image_raw.subscription.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/depth/image_raw/compressedDepth.publisher.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/depth/image_raw/compressedDepth.publisher.depth': 1,
@@ -840,13 +842,14 @@ def launch_gz(context, *args, **kwargs):
                     executable='republish',
                     name=cam_name + '_compressed_republisher',
                     namespace=robot_name,
-                    arguments=['raw', 'compressed'],
                     remappings=[
                         ('in',              '/' + robot_name + '/' + cam_name + '/color/image_raw'),
                         ('out/compressed',  '/' + robot_name + '/' + cam_name + '/color/image_raw/compressed'),
                     ],
                     parameters=[{
                         'use_sim_time': True,
+                        'in_transport': 'raw',
+                        'out_transport': 'compressed',
                         f'qos_overrides./{robot_name}/{cam_name}/color/image_raw.subscription.reliability': 'best_effort',
                         f'qos_overrides./{robot_name}/{cam_name}/color/image_raw/compressed.publisher.reliability': 'best_effort',
                     }],
