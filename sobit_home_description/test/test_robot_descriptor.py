@@ -134,7 +134,8 @@ def test_gz_sensors_match_descriptor(desc, urdf, links):
     ns = desc.namespace
     color = {f'{ns}/{c.color.raw_topic.rsplit("/", 1)[0]}': c.color.frame
              for c in desc.cameras if c.color}
-    depth = {f'{ns}/{c.depth.raw_topic.rsplit("/", 1)[0]}'
+    # gz derives camera_info from the sensor topic's parent, so the depth sensor publishes on <stream>/image
+    depth = {f'{ns}/{c.depth.raw_topic.rsplit("/", 1)[0]}/image'
              for c in desc.cameras if c.depth}
     scans = {f'{ns}/{lidar.scan_topic}': lidar.frame for lidar in desc.lidars}
     seen = set()
