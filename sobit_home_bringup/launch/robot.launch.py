@@ -762,7 +762,7 @@ def launch_gz(context, *args, **kwargs):
             parameters=[
                 hand_left_cam_config,
                 {"video_device": cam_left_port},
-                {"frame_id": robot_name + '/hand_left_camera_optical_frame'},
+                {"frame_id": (robot_name + '/' if enable_tf_prefix else '') + 'hand_left_camera_optical_frame'},
                 ],
             remappings=[
                 ('image_raw', 'color/image_raw'),
@@ -784,7 +784,7 @@ def launch_gz(context, *args, **kwargs):
             parameters=[
                 hand_right_cam_config,
                 {"video_device": cam_right_port},
-                {"frame_id": robot_name + '/hand_right_camera_optical_frame'},
+                {"frame_id": (robot_name + '/' if enable_tf_prefix else '') + 'hand_right_camera_optical_frame'},
             ],
             remappings=[
                 ('image_raw', 'color/image_raw'),
