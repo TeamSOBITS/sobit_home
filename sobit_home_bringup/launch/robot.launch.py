@@ -28,7 +28,12 @@ def generate_launch_description():
     arg_robot_coords_z = DeclareLaunchArgument('robot_coords_z', default_value='0')
     arg_robot_coords_Y = DeclareLaunchArgument('robot_coords_Y', default_value='0')
 
-    arg_enable_gz                   = DeclareLaunchArgument('enable_gz', default_value='true')
+    arg_enable_gz                   = DeclareLaunchArgument(
+        'enable_gz', default_value='true',
+        description='Gazebo (true) or real hardware (false). Superseded by simulator when that is set.')
+    arg_simulator                   = DeclareLaunchArgument(
+        'simulator', default_value='',
+        description="'' (derive from enable_gz) | none (real hardware) | gz | isaac (started externally)")
     arg_enable_display              = DeclareLaunchArgument('enable_display', default_value='false')
     arg_enable_mobile_base          = DeclareLaunchArgument('enable_mobile_base', default_value='true')
     arg_enable_arm_left             = DeclareLaunchArgument('enable_arm_left', default_value='true')
@@ -89,6 +94,7 @@ def generate_launch_description():
         arg_robot_coords_z,
         arg_robot_coords_Y,
         arg_enable_gz,
+        arg_simulator,
         arg_enable_display,
         arg_enable_mobile_base,
         arg_enable_arm_left,
@@ -144,6 +150,7 @@ def launch_gz(context, *args, **kwargs):
     enable_display              = _bool(LaunchConfiguration('enable_display').perform(context))
     enable_teleop               = _bool(LaunchConfiguration('enable_teleop').perform(context))
     enable_gz                   = _bool(LaunchConfiguration('enable_gz').perform(context))
+    simulator                   = LaunchConfiguration('simulator').perform(context).strip().lower()
     enable_rm_motors            = _bool(LaunchConfiguration('enable_rm_motors').perform(context))
     enable_dxl_pro              = _bool(LaunchConfiguration('enable_dxl_pro').perform(context))
     enable_moveit               = _bool(LaunchConfiguration('enable_moveit').perform(context))
@@ -157,6 +164,16 @@ def launch_gz(context, *args, **kwargs):
     if head_cam_type not in ('orbbec', 'realsense'):
         print(f"Unknown head_cam_type '{head_cam_type}'. Use 'orbbec' or 'realsense'.")
         exit(1)
+    if not simulator:
+        simulator = 'gz' if enable_gz else 'none'
+    elif simulator not in ('none', 'gz', 'isaac'):
+        print(f"Unknown simulator '{simulator}'. Use 'none', 'gz' or 'isaac'.")
+        exit(1)
+    enable_gz = simulator == 'gz'
+    is_sim = simulator in ('gz', 'isaac')
+    # Isaac's controller_manager lives in the robot USD and only appears once the sim plays
+    spawner_timeout = ['--controller-manager-timeout', '120'] if simulator == 'isaac' else []
+
     if not head_cam_config_file:
         head_cam_config_file = os.path.join(
             get_package_share_directory(bringup_package), 'config', f'head_camera_{head_cam_type}.yaml')
@@ -172,7 +189,7 @@ def launch_gz(context, *args, **kwargs):
     # Find USB Cam port name from HOME_CAM_LEFT_PORT/HOME_CAM_RIGHT_PORT environment variable
     cam_left_port = ''
     cam_right_port = ''
-    if not enable_gz:
+    if simulator == 'none':
         dxl_x_lower_body_port = str(os.environ.get('DXL_X_LOWER_PORT'))
         dxl_x_upper_body_port = str(os.environ.get('DXL_X_UPPER_PORT'))
         dxl_p_upper_body_port = str(os.environ.get('DXL_P_UPPER_PORT'))
@@ -274,7 +291,7 @@ def launch_gz(context, *args, **kwargs):
 
     robot_state_publisher_params = [
         {"robot_description": robot_description_config.toxml()},
-        {"use_sim_time": enable_gz},
+        {"use_sim_time": is_sim},
         {"publish_frequency": 50.0},
     ]
     if enable_tf_prefix:
@@ -286,7 +303,7 @@ def launch_gz(context, *args, **kwargs):
         name="robot_state_publisher",
         namespace=robot_name,
         parameters=robot_state_publisher_params,
-        prefix=None if enable_gz else 'taskset -c 8-15',
+        prefix=None if is_sim else 'taskset -c 8-15',
         output="screen",
     )
 
@@ -321,16 +338,16 @@ def launch_gz(context, *args, **kwargs):
         namespace=robot_name,
         parameters=[
             controller_config,
-            {"use_sim_time": enable_gz},
+            {"use_sim_time": is_sim},
         ],
         remappings=[
             ("controller_manager/robot_description", "robot_description"),
         ],
-        prefix=None if enable_gz else 'taskset -c 2-7 chrt -f 80',
+        prefix=None if is_sim else 'taskset -c 2-7 chrt -f 80',
         output="both",
     )
 
-    if (not enable_gz and enable_lidar):
+    if (simulator == 'none' and enable_lidar):
         urg_node = IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 PathJoinSubstitution([
@@ -364,7 +381,7 @@ def launch_gz(context, *args, **kwargs):
                 'config_file' : merge_scan_config,
                 'pointcloud_remapping' : '/' + robot_name + '/lidar_scan/points',
                 'scan_remapping': '/' + robot_name + '/lidar_scan',
-                'use_sim_time': 'true' if enable_gz else 'false',
+                'use_sim_time': 'true' if is_sim else 'false',
             }.items()
         )
         controllers.append(merge_lidar_node)
@@ -377,7 +394,7 @@ def launch_gz(context, *args, **kwargs):
             namespace=robot_name,
             arguments=[
                 'wheel_steer_position_controller',
-                '-c', 'controller_manager', '--activate'
+                '-c', 'controller_manager', '--activate', *spawner_timeout
                 ],
         )
         swerve_controller = Node(
@@ -386,10 +403,10 @@ def launch_gz(context, *args, **kwargs):
             name='swerve_controller',
             namespace=robot_name,
             parameters=[
-                {'use_sim_time': enable_gz},
+                {'use_sim_time': is_sim},
                 swerve_config,
             ],
-            prefix=None if enable_gz else 'taskset -c 2-7',
+            prefix=None if is_sim else 'taskset -c 2-7',
             output='screen',
         )
         controllers.append(wheel_steer_position_controller)
@@ -401,7 +418,7 @@ def launch_gz(context, *args, **kwargs):
                 namespace=robot_name,
                 arguments=[
                     'wheel_drive_velocity_controller',
-                    '-c', 'controller_manager', '--activate'
+                    '-c', 'controller_manager', '--activate', *spawner_timeout
                     ],
             )
             controllers.append(wheel_drive_velocity_controller)
@@ -414,7 +431,7 @@ def launch_gz(context, *args, **kwargs):
             namespace=robot_name,
             arguments=[
                 'arm_left_position_controller',
-                '-c', 'controller_manager', '--activate'
+                '-c', 'controller_manager', '--activate', *spawner_timeout
                 ],
         )
         controllers.append(arm_left_position_controller)
@@ -427,7 +444,7 @@ def launch_gz(context, *args, **kwargs):
             namespace=robot_name,
             arguments=[
                 'arm_right_position_controller',
-                '-c', 'controller_manager', '--activate'
+                '-c', 'controller_manager', '--activate', *spawner_timeout
                 ],
         )
         controllers.append(arm_right_position_controller)
@@ -440,7 +457,7 @@ def launch_gz(context, *args, **kwargs):
             namespace=robot_name,
             arguments=[
                 'hand_left_position_controller',
-                '-c', 'controller_manager', '--activate'
+                '-c', 'controller_manager', '--activate', *spawner_timeout
                 ],
         )
         controllers.append(hand_left_position_controller)
@@ -453,7 +470,7 @@ def launch_gz(context, *args, **kwargs):
             namespace=robot_name,
             arguments=[
                 'hand_right_position_controller',
-                '-c', 'controller_manager', '--activate'
+                '-c', 'controller_manager', '--activate', *spawner_timeout
                 ],
         )
         controllers.append(hand_right_position_controller)
@@ -466,7 +483,7 @@ def launch_gz(context, *args, **kwargs):
             namespace=robot_name,
             arguments=[
                 'head_position_controller',
-                '-c', 'controller_manager', '--activate'
+                '-c', 'controller_manager', '--activate', *spawner_timeout
                 ],
         )
         controllers.append(head_position_controller)
@@ -479,7 +496,7 @@ def launch_gz(context, *args, **kwargs):
             namespace=robot_name,
             arguments=[
                 'body_position_controller',
-                '-c', 'controller_manager', '--activate'
+                '-c', 'controller_manager', '--activate', *spawner_timeout
                 ],
         )
         controllers.append(body_position_controller)
@@ -507,7 +524,7 @@ def launch_gz(context, *args, **kwargs):
         namespace=robot_name,
         arguments=[
             'joint_state_broadcaster',
-            '-c', 'controller_manager',
+            '-c', 'controller_manager', *spawner_timeout,
             ],
     )
     delayed_joint_state_broadcaster = RegisterEventHandler(
@@ -543,7 +560,7 @@ def launch_gz(context, *args, **kwargs):
         ]),
         launch_arguments={
             'robot_name'             : robot_name,
-            'use_sim_time'           : 'true' if enable_gz else 'false',
+            'use_sim_time'           : 'true' if is_sim else 'false',
             'enable_teleop'          : 'true' if enable_teleop else 'false',
             'enable_moveit'          : 'true' if enable_moveit else 'false',
             'enable_moveit_rviz'     : 'true' if enable_moveit_rviz else 'false',
@@ -565,7 +582,7 @@ def launch_gz(context, *args, **kwargs):
 
     # Real hardware head camera. Both drivers publish the same topics under /<robot_name>/head_camera
     # (color/image_raw, depth/image_raw, depth/points) with URDF frame ids, so consumers do not care.
-    if not enable_gz and (enable_head_cam_color or enable_head_cam_depth):
+    if simulator == 'none' and (enable_head_cam_color or enable_head_cam_depth):
         if head_cam_type == 'orbbec':
             # Orbbec Gemini 336L (vendor launch + flat config YAML)
             head_cam_launch = IncludeLaunchDescription(
@@ -752,7 +769,7 @@ def launch_gz(context, *args, **kwargs):
     )
 
     # Real hardware: ELP wrist cameras via usb_cam
-    if not enable_gz:
+    if simulator == 'none':
         hand_left_cam_node = Node(
             package='usb_cam',
             executable='usb_cam_node_exe',
@@ -854,6 +871,16 @@ def launch_gz(context, *args, **kwargs):
                     }],
                     output='log',
                 ))
+    elif simulator == 'isaac':
+        # The robot USD's OmniGraphs publish cameras (H.264 included), lidars, /clock and host
+        # controller_manager; spawners start directly and wait for it to appear after play.
+        nodes.append(joint_state_broadcaster)
+        nodes.append(delayed_controllers)
+        if enable_action_server:
+            nodes.append(delayed_action_server)
+
+        if enable_head_cam_depth:
+            nodes.append(head_camera_depth_compressed_node)
     else:
         # Real hardware: serialize startup so control_node doesn't race
         # robot_state_publisher for 'robot_description' and spawners don't pile up.
