@@ -393,7 +393,7 @@ Ctrl-C on the launch leaves Isaac running (and playing). Launching again reloads
 
 #### Launch Parameters
 
-[isaac_minimal.launch.py](sobit_home_bringup/launch/isaac_minimal.launch.py) takes the following Isaac-specific arguments, plus the module/sensor flags of gz_minimal.
+[isaac_minimal.launch.py](sobit_home_bringup/launch/isaac_minimal.launch.py) takes the following Isaac-specific arguments, plus the module/sensor flags of gz_minimal. A sensor flag set to `false` also switches that sensor off inside Isaac (its graph is deactivated before the spawn, so nothing is rendered or published); a module flag only drops the ROS-side controller, the joints stay in the USD.
 
 | Argument | Default | Description |
 | --- | --- | --- |
