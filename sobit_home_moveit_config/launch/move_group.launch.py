@@ -109,6 +109,16 @@ def _launch_setup(context, *args, **kwargs):
     urdf_model_path = os.path.join(
         FindPackageShare(package='sobit_home_description').find('sobit_home_description'),
         'robots', 'sobit_home_robot.urdf.xacro')
+    # Only request groups the SRDF xacro emits for these enable_* flags.
+    _on = {k: v.lower() == 'true' for k, v in module_mappings.items()}
+    active_planning_groups = [
+        group for group, present in (
+            ('arm_left',       _on['enable_arm_left']),
+            ('arm_right',      _on['enable_arm_right']),
+            ('arm_left_body',  _on['enable_arm_left'] and _on['enable_body']),
+            ('arm_right_body', _on['enable_arm_right'] and _on['enable_body']),
+        ) if present
+    ]
     # The URDF evaluates its flags as bare Python (${$(arg enable_head)}), so they
     # must be capitalized literals; the SRDF lowercases and compares as strings.
     def _py_bool(value):
@@ -282,9 +292,9 @@ def _launch_setup(context, *args, **kwargs):
                 parameters=[
                     moveit_server_params_file_path,
                     {'use_sim_time': use_sim_time},
-                    # Single-arm groups plus their whole-body counterparts. Any
-                    # other group declared in the SRDF can be added here.
-                    {'active_planning_groups': ['arm_left', 'arm_right', 'arm_left_body', 'arm_right_body']},
+                    # Single-arm groups plus their whole-body counterparts, filtered
+                    # by enable_*. Any other group declared in the SRDF can be added.
+                    {'active_planning_groups': active_planning_groups},
                 ],
                 extra_arguments=[{'use_intra_process_comms': False}]
             ),
