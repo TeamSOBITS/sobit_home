@@ -116,6 +116,9 @@ sensors:
         raw_topic: hand_left_camera/color/image_raw
         compressed_topic: hand_left_camera/color/image_raw/compressed
         info_topic: hand_left_camera/color/camera_info
+        width: 640
+        height: 480
+        fps: 30
     - name: hand_right_camera
       frame: hand_right_camera_link
       color:
@@ -123,6 +126,9 @@ sensors:
         raw_topic: hand_right_camera/color/image_raw
         compressed_topic: hand_right_camera/color/image_raw/compressed
         info_topic: hand_right_camera/color/camera_info
+        width: 640
+        height: 480
+        fps: 30
 
   lidars:
     - name: lidar_front
