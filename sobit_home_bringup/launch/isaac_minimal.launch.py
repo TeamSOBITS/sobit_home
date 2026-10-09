@@ -101,6 +101,26 @@ def _asset_root(context):
     return root
 
 
+def _graphs_off(context):
+    """Sensor graphs of the robot USD to deactivate for the disabled enable_* flags (Isaac then neither
+    renders nor publishes them, like Gazebo without the sensor). Graph names follow the descriptor sensors."""
+    def off(name):
+        return _bool(LaunchConfiguration(name), context) == 'False'
+    graphs = []
+    if off('enable_head_cam_color') and off('enable_head_cam_depth'):
+        graphs.append('ROS2_Camera_head_camera')
+    elif off('enable_head_cam_color'):
+        graphs += ['ROS2_Camera_head_camera/' + n for n in ('HelperRGB', 'HelperCompressed', 'InfoRGB')]
+    elif off('enable_head_cam_depth'):
+        graphs += ['ROS2_Camera_head_camera/' + n for n in ('HelperDepth', 'HelperPCL', 'InfoDepth')]
+    for side in ('left', 'right'):
+        if off(f'enable_hand_{side}_cam_color'):
+            graphs.append(f'ROS2_Camera_hand_{side}_camera')
+    if off('enable_lidar'):
+        graphs += ['ROS2_Lidar_lidar_front', 'ROS2_Lidar_lidar_back']
+    return graphs
+
+
 def _sim_control(*args):
     return ExecuteProcess(
         cmd=['ros2', 'run', 'sobits_gazebo_worlds', 'isaac_sim_control.py', *args],
@@ -181,6 +201,7 @@ def launch_setup(context, *args, **kwargs):
     wait = _sim_control('wait', '--timeout', wait_timeout)
     load_world = _sim_control('load-world', world_path)
     stop = _sim_control('state', 'stop')
+    graphs_off = _sim_control('graphs-off', *_graphs_off(context))
     spawn = _sim_control(
         'spawn', effective_robot_name, robot_usd,
         '--pose',
@@ -197,7 +218,8 @@ def launch_setup(context, *args, **kwargs):
     else:
         actions.append(_then(wait, [load_world], 'wait'))
         actions.append(_then(load_world, [stop], 'load-world'))
-    actions.append(_then(stop, [spawn], 'state stop'))
+    actions.append(_then(stop, [graphs_off], 'state stop'))
+    actions.append(_then(graphs_off, [spawn], 'graphs-off'))
     actions.append(_then(spawn, [play], 'spawn'))
     actions.append(_then(play, [robot] + _viewer(context, 'sobit_home'), 'state play'))
     return actions
