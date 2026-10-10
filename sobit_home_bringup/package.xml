@@ -25,7 +25,7 @@
   <exec_depend>ros_gz_bridge</exec_depend>
   <exec_depend>mujoco_ros2_control</exec_depend>
   <exec_depend>mujoco_ros2_control_plugins</exec_depend>
-  <exec_depend>sobits_mujoco_plugins</exec_depend>
+  <exec_depend>mujoco_3d_lidar</exec_depend>
   <exec_depend>ros_gz_sim</exec_depend>
   <exec_depend>depth_image_proc</exec_depend>
   <exec_depend>topic_tools</exec_depend>
