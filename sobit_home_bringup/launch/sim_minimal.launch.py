@@ -67,7 +67,7 @@ def _declared(path):
 def launch_setup(context, *args, **kwargs):
     simulator = LaunchConfiguration('simulator').perform(context).strip().lower()
     path = os.path.join(get_package_share_directory('sobit_home_bringup'),
-                        'launch', f'{simulator}_minimal.launch.py')
+                        'launch', 'include', f'{simulator}_minimal.launch.py')
     declared = _declared(path)
     return [IncludeLaunchDescription(
         PythonLaunchDescriptionSource(path),

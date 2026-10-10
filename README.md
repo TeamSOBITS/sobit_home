@@ -210,10 +210,10 @@ MoveIt can persist planning scenes, robot states and constraints in a database, 
 
 ```sh
 # Default: SQLite at ~/.ros/sobit_home_warehouse.sqlite
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py
 
 # Choose the file explicitly
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py \
   warehouse_database_path:=$HOME/.ros/my_scenes.sqlite
 ```
 
@@ -230,7 +230,7 @@ $ WAREHOUSE_MONGO=1 ./install.sh
 $ colcon build --packages-select warehouse_ros_mongo
 # Start the database server, then launch with the matching backend
 $ ros2 launch sobit_home_moveit_config warehouse_db.launch.py warehouse_backend:=mongo
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py warehouse_backend:=mongo
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py warehouse_backend:=mongo
 ```
 
 > [!WARNING]
@@ -249,7 +249,7 @@ The semantic description is generated from a single [sobit_home.srdf.xacro](sobi
 `enable_teleop:=true` drops the `mobile_base` planning groups and the planar virtual joint, because in teleoperation the operator commands the base directly and it must not belong to a planning group.
 
 ```sh
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py enable_teleop:=true
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py enable_teleop:=true
 ```
 
 > [!IMPORTANT]
@@ -274,7 +274,7 @@ $ ros2 launch sobit_home_description display.launch.py
 
 ### One entry point: sim_minimal
 
-[sim_minimal.launch.py](sobit_home_bringup/launch/sim_minimal.launch.py) starts any of the three simulators below with one command. `simulator:=gz|isaac|mujoco` (default `gz`) picks `<sim>_minimal.launch.py`; the other arguments are the union of theirs, and each launcher only receives the ones it declares (`--show-args` lists them all).
+[sim_minimal.launch.py](sobit_home_bringup/launch/sim_minimal.launch.py) starts any of the three simulators below with one command. `simulator:=gz|isaac|mujoco` (default `gz`) picks the backend `launch/include/<sim>_minimal.launch.py`; the other arguments are the union of theirs, and each launcher only receives the ones it declares (`--show-args` lists them all).
 
 ```sh
 $ ros2 launch sobit_home_bringup sim_minimal.launch.py simulator:=mujoco world_model:=rcw2026_arena headless:=true
@@ -288,7 +288,7 @@ $ ros2 launch sobit_home_bringup sim_minimal.launch.py simulator:=mujoco world_m
 SOBIT HOME has a simulation environment with Gazebo Harmonic, allowing you to verify operations even without the actual machine.
 
 ```sh
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py
 ```
 
 At present, the following virtual environments are available. They are provided by [sobits_gazebo_worlds](https://github.com/TeamSOBITS/sobits_gazebo_worlds) (`jazzy-devel` branch, cloned by `install.sh`), except `wrs` and `small_house`.
@@ -306,10 +306,10 @@ At present, the following virtual environments are available. They are provided 
 Choose the environment with the `world_model` launch argument. It also accepts an absolute path to a world file.
 
 ```sh
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py world_model:=empty
 
 # Closed arena (2.5 m walls, ceiling and room lights), without the Gazebo GUI
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py \
   world_model:=rcw2026_arena world_closed:=true headless:=true
 ```
 
@@ -318,7 +318,7 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
 
 #### Launch Parameters
 
-[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py) takes the following arguments (`name:=value`).
+[gz_minimal.launch.py](sobit_home_bringup/launch/include/gz_minimal.launch.py) takes the following arguments (`name:=value`).
 
 | Argument | Default | Description |
 | --- | --- | --- |
@@ -354,7 +354,7 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
 > Since it is equipped with sensors similar to the actual machine, the processing may become heavy depending on the computer. Turn off the sensors you do not need:
 >
 > ```sh
-> $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+> $ ros2 launch sobit_home_bringup sim_minimal.launch.py \
 >   enable_head_cam_depth:=false enable_hand_right_cam_color:=false enable_lidar:=false
 > ```
 
@@ -375,11 +375,11 @@ Additionally, multiple SOBIT HOMEs can be spawned in the same simulation environ
 
 ```sh
 # Robot 1
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py \
   robot_name:=sobit_home robot_id:=1 robot_coords_x:=0.0 robot_coords_y:=0.0 robot_coords_Y:=0.0
 
 # Robot 2
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py \
   robot_name:=sobit_home robot_id:=2 robot_coords_x:=0.0 robot_coords_y:=2.0 robot_coords_Y:=0.0
 ```
 
@@ -397,14 +397,14 @@ The host setup (Isaac install, assets, the `~/colcon_ws` link) is described in t
    ```
 2. In the container, launch the robot. The launch loads the world, spawns the robot and starts the ROS stack:
    ```sh
-   $ ros2 launch sobit_home_bringup isaac_minimal.launch.py world_model:=rcw2026_arena
+   $ ros2 launch sobit_home_bringup sim_minimal.launch.py simulator:=isaac world_model:=rcw2026_arena
    ```
 
 Ctrl-C on the launch leaves Isaac running (and playing). Launching again reloads the world and respawns the robot (a deleted robot leaves its sensor writers and controller_manager behind in Isaac, so a fresh stage is the only clean respawn); `spawn_only:=true` skips the reload for a world opened by hand in the GUI.
 
 #### Launch Parameters
 
-[isaac_minimal.launch.py](sobit_home_bringup/launch/isaac_minimal.launch.py) takes the following Isaac-specific arguments, plus the module/sensor flags of gz_minimal. A sensor flag set to `false` also switches that sensor off inside Isaac (its graph is deactivated before the spawn, so nothing is rendered or published); a module flag only drops the ROS-side controller, the joints stay in the USD.
+[isaac_minimal.launch.py](sobit_home_bringup/launch/include/isaac_minimal.launch.py) takes the following Isaac-specific arguments, plus the module/sensor flags of gz_minimal. A sensor flag set to `false` also switches that sensor off inside Isaac (its graph is deactivated before the spawn, so nothing is rendered or published); a module flag only drops the ROS-side controller, the joints stay in the USD.
 
 | Argument | Default | Description |
 | --- | --- | --- |
@@ -434,17 +434,17 @@ MuJoCo runs inside the container through [mujoco_ros2_control](https://github.co
 One process hosts MuJoCo, its Simulate window and the `controller_manager`, and publishes `/clock`.
 
 ```sh
-$ ros2 launch sobit_home_bringup mujoco_minimal.launch.py world_model:=rcw2026_arena
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py simulator:=mujoco world_model:=rcw2026_arena
 
 # Without the Simulate window
-$ ros2 launch sobit_home_bringup mujoco_minimal.launch.py headless:=true
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py simulator:=mujoco headless:=true
 ```
 
 At launch, `scripts/mujoco_scene.py` of sobits_gazebo_worlds merges the world MJCF (`<asset_root>/mjcf/<world>[_closed]/`) and the robot MJCF (`<asset_root>/mjcf/robots/sobit_home/`) at the spawn pose into `scene_<robot_name>.xml` next to the world, which `robot.launch.py simulator:=mujoco mujoco_model:=<scene>` loads.
 
 #### Launch Parameters
 
-[mujoco_minimal.launch.py](sobit_home_bringup/launch/mujoco_minimal.launch.py) takes the arguments of gz_minimal (world, spawn pose, module/sensor flags, `enable_viz`), plus:
+[mujoco_minimal.launch.py](sobit_home_bringup/launch/include/mujoco_minimal.launch.py) takes the arguments of gz_minimal (world, spawn pose, module/sensor flags, `enable_viz`), plus:
 
 | Argument | Default | Description |
 | --- | --- | --- |
@@ -470,7 +470,7 @@ The URDF switches to a single `MujocoSystem` `ros2_control` block (`enable_mujoc
 
 | Package | Role | Main Entry Points |
 | --- | --- | --- |
-| `sobit_home_bringup` | Integrated startup for real robot and Gazebo | `launch/real_minimal.launch.py`, `launch/gz_minimal.launch.py`, `launch/robot.launch.py` |
+| `sobit_home_bringup` | Integrated startup for real robot and Gazebo | `launch/real_minimal.launch.py`, `launch/include/gz_minimal.launch.py`, `launch/robot.launch.py` |
 | `sobit_home_control` | Swerve base control and MoveIt whole-body bridge | `swerve_controller_node`, `moveit_whole_body_bridge_node` |
 | `sobit_home_library` | High-level action/service servers (joint, wheel, MoveIt) | `launch/action_server.launch.py`, `joint_action_server`, `wheel_action_server`, `moveit_action_server` |
 | `sobit_home_description` | URDF/Xacro model, RViz config, and base world file | `launch/display.launch.py`, `robots/sobit_home_robot.urdf.xacro` |
