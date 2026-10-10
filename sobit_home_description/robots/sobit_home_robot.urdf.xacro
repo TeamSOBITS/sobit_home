@@ -37,6 +37,10 @@
   <xacro:arg name="enable_tf_prefix" default="False" />
 
   <xacro:arg name="enable_gz"                       default="True" />
+  <!-- MuJoCo (mujoco_ros2_control) supersedes enable_gz; mujoco_model = absolute scene.xml -->
+  <xacro:arg name="enable_mujoco"                   default="False" />
+  <xacro:arg name="mujoco_model"                    default="" />
+  <xacro:arg name="mujoco_headless"                 default="false" />
   <xacro:arg name="enable_head_cam_color"        default="True" />
   <xacro:arg name="enable_head_cam_depth"        default="True" />
   <xacro:arg name="enable_hand_left_cam_color"   default="True" />
@@ -54,7 +58,10 @@
   <xacro:arg name="enable_dxl_pro"      default="True" />
 
   <!-- ${...} evaluates a Python literal, where only True/False parse. -->
-  <xacro:property name="gz_on" value="${'$(arg enable_gz)'.lower() in ('true', '1')}" />
+  <xacro:property name="mujoco_on" value="${'$(arg enable_mujoco)'.lower() in ('true', '1')}" />
+  <xacro:property name="gz_on" value="${'$(arg enable_gz)'.lower() in ('true', '1') and not mujoco_on}" />
+  <!-- Any simulator: no real hardware params, sync hardware -->
+  <xacro:property name="sim_on" value="${gz_on or mujoco_on}" />
 
   <!-- DXL Ports -->
   <xacro:arg name="dxl_x_lower_body_port"  default="/dev/ttyUSB1" />
@@ -165,7 +172,7 @@
 
 
   <!-- Add Actuators Controllers -->
-  <xacro:controllers enable_gz="${gz_on}" robot_name="$(arg robot_name)" />
+  <xacro:controllers enable_gz="${gz_on}" enable_mujoco="${mujoco_on}" robot_name="$(arg robot_name)" />
 
   <!-- Add Gazebo plugins -->
   <xacro:if value="${gz_on}">

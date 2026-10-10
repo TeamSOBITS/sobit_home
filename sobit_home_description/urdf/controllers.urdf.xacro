@@ -2,7 +2,17 @@
 <!-- SOBIT HOME (Controllers) -->
 <robot name="sobit_home_controllers" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="controllers" params="enable_gz:=False robot_name:=sobit_home">
+  <xacro:macro name="controllers" params="enable_gz:=False enable_mujoco:=False robot_name:=sobit_home">
+    <xacro:if value="${mujoco_on}">
+      <xacro:mujoco_controllers robot_name="${robot_name}"/>
+    </xacro:if>
+    <xacro:unless value="${mujoco_on}">
+      <xacro:hardware_controllers/>
+    </xacro:unless>
+  </xacro:macro>
+
+  <!-- Per-bus hardware (real) or GazeboSimSystem blocks; MuJoCo replaces all of them -->
+  <xacro:macro name="hardware_controllers">
 
     <!-- Async hardware = separate read/write thread, decoupling I/O from the control
          loop. Real hardware only - gz_ros2_control steps sync, so force sync under Gazebo. -->
@@ -204,6 +214,51 @@
 
   </xacro:macro>
 
+  <!-- MuJoCo: ONE system block, since each block would start its own MuJoCo instance.
+       Joints map to the MJCF actuators of the same name; sensors live in mujoco_plugins.yaml. -->
+  <xacro:macro name="mujoco_controllers" params="robot_name:=sobit_home">
+    <ros2_control name="MujocoSystem" type="system" is_async="false">
+      <hardware>
+        <plugin>mujoco_ros2_control/MujocoSystemInterface</plugin>
+        <param name="mujoco_model">$(arg mujoco_model)</param>
+        <param name="headless">$(arg mujoco_headless)</param>
+        <param name="initial_keyframe">home</param>
+      </hardware>
+
+      <xacro:if value="${$(arg enable_mobile_base)}">
+        <xacro:dxl_wheel_steer_controllers   prefix="wheel"/>
+        <xacro:if value="${$(arg enable_rm_motors)}">
+          <xacro:rm_wheel_drive_controllers  prefix="wheel"/>
+        </xacro:if>
+      </xacro:if>
+      <xacro:if value="${$(arg enable_head)}">
+        <xacro:dxl_head_controllers          prefix="head"/>
+      </xacro:if>
+      <xacro:if value="${$(arg enable_arm_left)}">
+        <xacro:if value="${$(arg enable_dxl_pro)}">
+          <xacro:dxl_pro_arm_left_controllers  prefix="arm_left"/>
+        </xacro:if>
+        <xacro:dxl_arm_left_controllers      prefix="arm_left"/>
+      </xacro:if>
+      <xacro:if value="${$(arg enable_arm_right)}">
+        <xacro:if value="${$(arg enable_dxl_pro)}">
+          <xacro:dxl_pro_arm_right_controllers prefix="arm_right"/>
+        </xacro:if>
+        <xacro:dxl_arm_right_controllers     prefix="arm_right"/>
+      </xacro:if>
+      <xacro:if value="${$(arg enable_hand_left)}">
+        <xacro:dxl_hand_left_controllers     prefix="hand_left"/>
+      </xacro:if>
+      <xacro:if value="${$(arg enable_hand_right)}">
+        <xacro:dxl_hand_right_controllers    prefix="hand_right"/>
+      </xacro:if>
+      <xacro:if value="${$(arg enable_body)}">
+        <xacro:uirobot_control               prefix="body"/>
+      </xacro:if>
+    </ros2_control>
+  </xacro:macro>
+
+  <!-- temperature is RM-motor only; MuJoCo exports position/velocity/effort and rejects extra interfaces -->
   <xacro:macro name="rm_wheel_drive_controllers"  params="prefix enable_gz:=False">
     <joint name="${prefix}_drive_f_l_joint">
       <param name="motor_id">1</param>
@@ -219,7 +274,9 @@
       <state_interface name="position"/>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
-      <state_interface name="temperature"/>
+      <xacro:unless value="${mujoco_on}">
+        <state_interface name="temperature"/>
+      </xacro:unless>
     </joint>
 
     <joint name="${prefix}_drive_f_r_joint">
@@ -236,7 +293,9 @@
       <state_interface name="position"/>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
-      <state_interface name="temperature"/>
+      <xacro:unless value="${mujoco_on}">
+        <state_interface name="temperature"/>
+      </xacro:unless>
     </joint>
 
     <joint name="${prefix}_drive_b_l_joint">
@@ -253,7 +312,9 @@
       <state_interface name="position"/>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
-      <state_interface name="temperature"/>
+      <xacro:unless value="${mujoco_on}">
+        <state_interface name="temperature"/>
+      </xacro:unless>
     </joint>
 
     <joint name="${prefix}_drive_b_r_joint">
@@ -270,14 +331,16 @@
       <state_interface name="position"/>
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
-      <state_interface name="temperature"/>
+      <xacro:unless value="${mujoco_on}">
+        <state_interface name="temperature"/>
+      </xacro:unless>
     </joint>
   </xacro:macro>
 
 
   <xacro:macro name="dxl_wheel_steer_controllers"  params="prefix enable_gz:=False">
     <joint name="${prefix}_steer_f_l_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">11</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -295,7 +358,7 @@
     </joint>
 
     <joint name="${prefix}_steer_f_r_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">12</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -313,7 +376,7 @@
     </joint>
 
     <joint name="${prefix}_steer_b_l_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">13</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -331,7 +394,7 @@
     </joint>
 
     <joint name="${prefix}_steer_b_r_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">14</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -352,7 +415,7 @@
 
   <xacro:macro name="dxl_head_controllers"         params="prefix enable_gz:=False">
     <joint name="head_pan_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">21</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -370,7 +433,7 @@
     </joint>
 
     <joint name="head_tilt_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">22</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -391,7 +454,7 @@
 
   <xacro:macro name="dxl_pro_arm_left_controllers"     params="prefix enable_gz:=False">
     <joint name="${prefix}_shoulder_tilt_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">31</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -413,7 +476,7 @@
 
   <xacro:macro name="dxl_pro_arm_right_controllers"    params="prefix enable_gz:=False">
     <joint name="${prefix}_shoulder_tilt_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">41</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -435,7 +498,7 @@
 
   <xacro:macro name="dxl_arm_left_controllers"     params="prefix enable_gz:=False">
     <joint name="${prefix}_upper_roll_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">32</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -454,7 +517,7 @@
     </joint>
 
     <joint name="${prefix}_upper_flex_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">34</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -473,7 +536,7 @@
     </joint>
 
     <joint name="${prefix}_elbow_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">36</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -492,7 +555,7 @@
     </joint>
 
     <joint name="${prefix}_lower_flex_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">38</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -511,7 +574,7 @@
     </joint>
 
     <joint name="${prefix}_wrist_tilt_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">39</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -530,7 +593,7 @@
     </joint>
 
     <joint name="${prefix}_wrist_roll_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">40</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -551,7 +614,7 @@
 
   <xacro:macro name="dxl_arm_right_controllers"     params="prefix enable_gz:=False">
     <joint name="${prefix}_upper_roll_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">42</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -569,7 +632,7 @@
     </joint>
 
     <joint name="${prefix}_upper_flex_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">44</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -587,7 +650,7 @@
     </joint>
 
     <joint name="${prefix}_elbow_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">46</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -605,7 +668,7 @@
     </joint>
 
     <joint name="${prefix}_lower_flex_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">48</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -623,7 +686,7 @@
     </joint>
 
     <joint name="${prefix}_wrist_tilt_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">49</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -641,7 +704,7 @@
     </joint>
 
     <joint name="${prefix}_wrist_roll_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">50</param>
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
@@ -662,7 +725,7 @@
 
   <xacro:macro name="dxl_hand_left_controllers"    params="prefix enable_gz:=False">
     <joint name="${prefix}_finger_l_mcp_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">51</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">300</param>
@@ -680,7 +743,7 @@
       <state_interface name="effort"/>
     </joint>
 
-    <xacro:if value="${gz_on}">
+    <xacro:if value="${sim_on}">
       <joint name="${prefix}_finger_r_mcp_joint">
         <state_interface name="position">
           <param name="initial_value">0.0</param>
@@ -691,7 +754,7 @@
     </xacro:if>
 
     <joint name="${prefix}_finger_l_pip_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">52</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
@@ -710,7 +773,7 @@
     </joint>
 
     <joint name="${prefix}_finger_l_dip_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">53</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">75</param>
@@ -729,7 +792,7 @@
     </joint>
 
     <joint name="${prefix}_finger_c_mcp_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">54</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
@@ -748,7 +811,7 @@
     </joint>
 
     <joint name="${prefix}_finger_c_ip_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">55</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">75</param>
@@ -767,7 +830,7 @@
     </joint>
 
     <joint name="${prefix}_finger_r_pip_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">56</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
@@ -786,7 +849,7 @@
     </joint>
 
     <joint name="${prefix}_finger_r_dip_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">57</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">75</param>
@@ -808,7 +871,7 @@
 
   <xacro:macro name="dxl_hand_right_controllers"   params="prefix enable_gz:=False">
     <joint name="${prefix}_finger_l_mcp_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">61</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">300</param>
@@ -826,7 +889,7 @@
       <state_interface name="effort"/>
     </joint>
   
-    <xacro:if value="${gz_on}">
+    <xacro:if value="${sim_on}">
       <joint name="${prefix}_finger_r_mcp_joint">
         <state_interface name="position">
           <param name="initial_value">0.0</param>
@@ -837,7 +900,7 @@
     </xacro:if>
 
     <joint name="${prefix}_finger_l_pip_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">62</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
@@ -856,7 +919,7 @@
     </joint>
 
     <joint name="${prefix}_finger_l_dip_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">63</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">75</param>
@@ -875,7 +938,7 @@
     </joint>
 
     <joint name="${prefix}_finger_c_mcp_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">64</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
@@ -894,7 +957,7 @@
     </joint>
 
     <joint name="${prefix}_finger_c_ip_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">65</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">75</param>
@@ -913,7 +976,7 @@
     </joint>
 
     <joint name="${prefix}_finger_r_pip_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">66</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">50</param>
@@ -932,7 +995,7 @@
     </joint>
 
     <joint name="${prefix}_finger_r_dip_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">67</param>
         <param name="control_mode">6</param>
         <param name="Goal_Current">75</param>
@@ -955,7 +1018,7 @@
   <xacro:macro name="uirobot_control" params="prefix enable_gz:=False">
 
     <joint name="${prefix}_lift_joint">
-      <xacro:unless value="${gz_on}">
+      <xacro:unless value="${sim_on}">
         <param name="id">$(arg um_body_id)</param>
         <param name="gear_ratio">${200*M_PI}</param>
         <param name="position_kp">0.7</param>
