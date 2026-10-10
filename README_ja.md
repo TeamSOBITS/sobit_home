@@ -203,10 +203,10 @@ MoveItはプランニングシーン・ロボット状態・拘束条件をデ�
 
 ```sh
 # 既定：~/.ros/sobit_home_warehouse.sqlite
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py
 
 # ファイルを明示的に指定する
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py \
   warehouse_database_path:=$HOME/.ros/my_scenes.sqlite
 ```
 
@@ -223,7 +223,7 @@ $ WAREHOUSE_MONGO=1 ./install.sh
 $ colcon build --packages-select warehouse_ros_mongo
 # データベースサーバを起動してから，同じバックエンドでロボットを起動する
 $ ros2 launch sobit_home_moveit_config warehouse_db.launch.py warehouse_backend:=mongo
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py warehouse_backend:=mongo
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py warehouse_backend:=mongo
 ```
 
 > [!WARNING]
@@ -242,7 +242,7 @@ SRDFは構成ごとに静的ファイルを用意するのではなく，単一�
 `enable_teleop:=true`とすると，`mobile_base`の計画グループと平面仮想関節が除外されます．遠隔操作ではオペレータがベースを直接操作するため，ベースを計画グループに含めてはならないためです．
 
 ```sh
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py enable_teleop:=true
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py enable_teleop:=true
 ```
 
 > [!IMPORTANT]
@@ -266,10 +266,12 @@ $ ros2 launch sobit_home_description display.launch.py
 
 ### シミュレータの実行方法
 
+[sim_minimal.launch.py](sobit_home_bringup/launch/sim_minimal.launch.py)が3つのシミュレータ共通の入口です．`simulator:=gz|isaac|mujoco`（デフォルトは`gz`）でバックエンドの`launch/include/<sim>_minimal.launch.py`を選択し，その他の引数は各バックエンドが宣言するものだけが渡されます（`--show-args`で一覧）．Isaac SimとMuJoCoの詳細は英語版READMEの"Run on Isaac Sim"・"Run on MuJoCo"を参照してください．
+
 SOBIT HOMEにはGazebo Harmonicのシミュレーション環境が用意されておりますので，実機がなくても，動作確認が可能です．
 
 ```sh
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py
 ```
 
 現時点では，これらの仮想環境が用意されています．`wrs`と`small_house`以外は[sobits_gazebo_worlds](https://github.com/TeamSOBITS/sobits_gazebo_worlds)（`jazzy-devel`ブランチ，`install.sh`でクローン）が提供しています．
@@ -287,10 +289,10 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py
 環境は起動引数`world_model`で選択します．ワールドファイルの絶対パスも指定できます．
 
 ```sh
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py world_model:=empty
 
 # 閉じた環境（2.5 mの壁・天井・部屋ごとの照明），GazeboのGUIなし
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py \
   world_model:=rcw2026_arena world_closed:=true headless:=true
 ```
 
@@ -300,7 +302,7 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
 
 #### 起動引数
 
-[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py)は次の引数（`name:=value`）を受け取ります．
+[gz_minimal.launch.py](sobit_home_bringup/launch/include/gz_minimal.launch.py)は次の引数（`name:=value`）を受け取ります．
 
 | 引数 | デフォルト | 説明 |
 | --- | --- | --- |
@@ -336,7 +338,7 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
 > 実機と同じようなセンサも搭載されていますので，パソコンによって処理が重くなる可能性があります．不要なセンサは無効にしてください．
 >
 > ```sh
-> $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+> $ ros2 launch sobit_home_bringup sim_minimal.launch.py \
 >   enable_head_cam_depth:=false enable_hand_right_cam_color:=false enable_lidar:=false
 > ```
 
@@ -351,11 +353,11 @@ $ ros2 launch sobit_home_bringup real_minimal.launch.py head_cam_type:=orbbec
 
 ```sh
 # Robot 1
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py \
   robot_name:=sobit_home robot_id:=1 robot_coords_x:=0.0 robot_coords_y:=0.0 robot_coords_Y:=0.0
 
 # Robot 2
-$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py \
   robot_name:=sobit_home robot_id:=2 robot_coords_x:=0.0 robot_coords_y:=2.0 robot_coords_Y:=0.0
 ```
 
@@ -368,7 +370,7 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
 
 | パッケージ | 役割 | 主なエントリポイント |
 | --- | --- | --- |
-| `sobit_home_bringup` | 実機/シミュレータ起動を統合したbringup | `launch/real_minimal.launch.py`, `launch/gz_minimal.launch.py`, `launch/robot.launch.py` |
+| `sobit_home_bringup` | 実機/シミュレータ起動を統合したbringup | `launch/real_minimal.launch.py`, `launch/include/gz_minimal.launch.py`, `launch/robot.launch.py` |
 | `sobit_home_control` | スワーブ移動制御とMoveIt全身追従ブリッジ | `swerve_controller_node`, `moveit_whole_body_bridge_node` |
 | `sobit_home_library` | 関節/移動/MoveItの高レベルAction・Service群 | `launch/action_server.launch.py`, `joint_action_server`, `wheel_action_server`, `moveit_action_server` |
 | `sobit_home_description` | URDF/Xacroモデル，RViz設定，基本ワールド | `launch/display.launch.py`, `robots/sobit_home_robot.urdf.xacro` |
