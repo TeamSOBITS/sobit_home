@@ -272,6 +272,17 @@ $ ros2 launch sobit_home_description display.launch.py
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
+### One entry point: sim_minimal
+
+[sim_minimal.launch.py](sobit_home_bringup/launch/sim_minimal.launch.py) starts any of the three simulators below with one command. `simulator:=gz|isaac|mujoco` (default `gz`) picks `<sim>_minimal.launch.py`; the other arguments are the union of theirs, and each launcher only receives the ones it declares (`--show-args` lists them all).
+
+```sh
+$ ros2 launch sobit_home_bringup sim_minimal.launch.py simulator:=mujoco world_model:=rcw2026_arena headless:=true
+```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
 ### Run on Gazebo Sim
 
 SOBIT HOME has a simulation environment with Gazebo Harmonic, allowing you to verify operations even without the actual machine.
@@ -406,13 +417,48 @@ Ctrl-C on the launch leaves Isaac running (and playing). Launching again reloads
 
 The robot's spawn position and `enable_viz` are the same as in the Gazebo table.
 
-`robot.launch.py` takes a `simulator` argument (`none`, `gz` or `isaac`; empty derives it from `enable_gz`). With `isaac` it expects Isaac to be started externally, as above. `enable_gz:=true` still works and maps to `simulator:=gz`.
+`robot.launch.py` takes a `simulator` argument (`none`, `gz`, `isaac` or `mujoco`; empty derives it from `enable_gz`). With `isaac` it expects Isaac to be started externally, as above. `enable_gz:=true` still works and maps to `simulator:=gz`.
 
 **Known differences from the real robot**: the Gazebo list above applies, plus:
 
 - Compressed color images are H.264. Decode them with `isaac_compressed_image_decoder` from [IsaacSim-ros_workspaces](https://github.com/isaac-sim/IsaacSim-ros_workspaces).
 - The Quest app cannot decode H.264, so use the raw images there.
 - GPU PhysX needs `physxArticulation:sleepThreshold = 0` on articulations. The exported assets already set it (since v0.3.0, see `scripts/postprocess_usd.py` in sobits_gazebo_worlds); only custom USDs need it.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+### Run on MuJoCo
+
+MuJoCo runs inside the container through [mujoco_ros2_control](https://github.com/ros-controls/mujoco_ros2_control) (`ros-jazzy-mujoco-ros2-control`, installed by rosdep); the host needs nothing.
+One process hosts MuJoCo, its Simulate window and the `controller_manager`, and publishes `/clock`.
+
+```sh
+$ ros2 launch sobit_home_bringup mujoco_minimal.launch.py world_model:=rcw2026_arena
+
+# Without the Simulate window
+$ ros2 launch sobit_home_bringup mujoco_minimal.launch.py headless:=true
+```
+
+At launch, `scripts/mujoco_scene.py` of sobits_gazebo_worlds merges the world MJCF (`<asset_root>/mjcf/<world>[_closed]/`) and the robot MJCF (`<asset_root>/mjcf/robots/sobit_home/`) at the spawn pose into `scene_<robot_name>.xml` next to the world, which `robot.launch.py simulator:=mujoco mujoco_model:=<scene>` loads.
+
+#### Launch Parameters
+
+[mujoco_minimal.launch.py](sobit_home_bringup/launch/mujoco_minimal.launch.py) takes the arguments of gz_minimal (world, spawn pose, module/sensor flags, `enable_viz`), plus:
+
+| Argument | Default | Description |
+| --- | --- | --- |
+| `world_model` | `rcjo2026_arena` | World to load: a name from the Gazebo table above (resolved to `<asset_root>/mjcf/<name>/<name>.xml`), or an absolute path to an MJCF file. |
+| `asset_root` | (empty) | Asset directory. Empty uses `SOBITS_SIM_ASSET_ROOT`, else the `export/` directory of sobits_gazebo_worlds. |
+| `headless` | `false` | Run MuJoCo without the Simulate window. |
+
+The URDF switches to a single `MujocoSystem` `ros2_control` block (`enable_mujoco:=true`); its joints drive the MJCF actuators of the same name. The camera and lidar plugins take their topics, frames and rates from [mujoco_plugins.yaml](sobit_home_bringup/config/mujoco_plugins.yaml); a disabled camera is only rendered on request (`policy: polled`), `enable_lidar:=false` drops the lidar plugin.
+
+**Known differences from the real robot**: the Gazebo list above applies (topic names match), plus:
+
+- `head_camera/depth/image_raw` is `32FC1` metres and framed in `head_camera_color_optical_frame` (one MuJoCo camera renders color and depth); `head_camera/depth/camera_info` is relayed from the color one. `depth/points` comes from `depth_image_proc` as in Gazebo.
+- `*/image_raw/compressed` (JPEG) and `compressedDepth` come from the same `image_transport republish` nodes as Gazebo.
+- The lidars are MuJoCo rangefinder fans at 0.5° steps (±2.25 rad, 0.02-30 m); the real UST-10LX scans at 0.25°.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
