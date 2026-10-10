@@ -3,7 +3,7 @@ import subprocess
 from ament_index_python.packages import get_package_share_directory, PackageNotFoundError
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction, IncludeLaunchDescription, RegisterEventHandler, TimerAction, GroupAction
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction, IncludeLaunchDescription, RegisterEventHandler, TimerAction, GroupAction, Shutdown
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
@@ -12,10 +12,31 @@ from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node, SetRemap
 
 import xacro
+import yaml
 
 def _bool(val):
     """Normalize CLI true/True/1 → True, false/False/0 → False."""
     return val.lower() in ('true', '1', 'yes')
+
+
+def _mujoco_plugin_params(path, robot_name, cameras_on, enable_lidar, frame_prefix):
+    """mujoco_plugins.yaml with the enable_* flags applied: the CameraPlugin renders every MJCF
+    camera, so disabled ones are only polled; the lidar plugin is dropped without lidars."""
+    with open(path) as f:
+        params = yaml.safe_load(f)['/**']['ros__parameters']
+    plugins = params['mujoco_plugins']
+    for cam, on in cameras_on.items():
+        plugins['cameras'][cam]['policy'] = 'streaming' if on else 'polled'
+    if not enable_lidar:
+        del plugins['lidars']
+    for label in plugins.values():
+        for sensor in label.values():
+            if isinstance(sensor, dict):
+                sensor['frame_name'] = frame_prefix + sensor['frame_name']
+                # Relative topics would land under /<robot_name>/<label>/
+                for key in [k for k in sensor if k.endswith('_topic')]:
+                    sensor[key] = f'/{robot_name}/{sensor[key]}'
+    return params
 
 
 def generate_launch_description():
@@ -33,7 +54,13 @@ def generate_launch_description():
         description='Gazebo (true) or real hardware (false). Superseded by simulator when that is set.')
     arg_simulator                   = DeclareLaunchArgument(
         'simulator', default_value='',
-        description="'' (derive from enable_gz) | none (real hardware) | gz | isaac (started externally)")
+        description="'' (derive from enable_gz) | none (real hardware) | gz | isaac (started externally) | mujoco")
+    arg_mujoco_model                = DeclareLaunchArgument(
+        'mujoco_model', default_value='',
+        description='simulator:=mujoco only: absolute path of the MJCF scene (world + robot)')
+    arg_mujoco_headless             = DeclareLaunchArgument(
+        'mujoco_headless', default_value='false',
+        description='simulator:=mujoco only: run without the Simulate window')
     arg_enable_display              = DeclareLaunchArgument('enable_display', default_value='false')
     arg_enable_mobile_base          = DeclareLaunchArgument('enable_mobile_base', default_value='true')
     arg_enable_arm_left             = DeclareLaunchArgument('enable_arm_left', default_value='true')
@@ -95,6 +122,8 @@ def generate_launch_description():
         arg_robot_coords_Y,
         arg_enable_gz,
         arg_simulator,
+        arg_mujoco_model,
+        arg_mujoco_headless,
         arg_enable_display,
         arg_enable_mobile_base,
         arg_enable_arm_left,
@@ -151,6 +180,8 @@ def launch_gz(context, *args, **kwargs):
     enable_teleop               = _bool(LaunchConfiguration('enable_teleop').perform(context))
     enable_gz                   = _bool(LaunchConfiguration('enable_gz').perform(context))
     simulator                   = LaunchConfiguration('simulator').perform(context).strip().lower()
+    mujoco_model                = LaunchConfiguration('mujoco_model').perform(context)
+    mujoco_headless             = _bool(LaunchConfiguration('mujoco_headless').perform(context))
     enable_rm_motors            = _bool(LaunchConfiguration('enable_rm_motors').perform(context))
     enable_dxl_pro              = _bool(LaunchConfiguration('enable_dxl_pro').perform(context))
     enable_moveit               = _bool(LaunchConfiguration('enable_moveit').perform(context))
@@ -166,11 +197,14 @@ def launch_gz(context, *args, **kwargs):
         exit(1)
     if not simulator:
         simulator = 'gz' if enable_gz else 'none'
-    elif simulator not in ('none', 'gz', 'isaac'):
-        print(f"Unknown simulator '{simulator}'. Use 'none', 'gz' or 'isaac'.")
+    elif simulator not in ('none', 'gz', 'isaac', 'mujoco'):
+        print(f"Unknown simulator '{simulator}'. Use 'none', 'gz', 'isaac' or 'mujoco'.")
+        exit(1)
+    if simulator == 'mujoco' and not os.path.isfile(mujoco_model):
+        print(f"simulator:=mujoco needs mujoco_model:=<scene.xml>; '{mujoco_model}' does not exist.")
         exit(1)
     enable_gz = simulator == 'gz'
-    is_sim = simulator in ('gz', 'isaac')
+    is_sim = simulator in ('gz', 'isaac', 'mujoco')
     # Isaac's controller_manager lives in the robot USD and only appears once the sim plays
     spawner_timeout = ['--controller-manager-timeout', '120'] if simulator == 'isaac' else []
 
@@ -256,6 +290,7 @@ def launch_gz(context, *args, **kwargs):
     ]
     merge_scan_config = os.path.join(get_package_share_directory(bringup_package), "config", "laser_scan_merger.yaml")
     swerve_config = os.path.join(get_package_share_directory(bringup_package), "config", "swerve_config.yaml")
+    mujoco_plugins_config = os.path.join(get_package_share_directory(bringup_package), "config", "mujoco_plugins.yaml")
     hand_left_cam_config  = os.path.join(get_package_share_directory(bringup_package), "config", "hand_left_cam.yaml")
     hand_right_cam_config = os.path.join(get_package_share_directory(bringup_package), "config", "hand_right_cam.yaml")
 
@@ -264,6 +299,9 @@ def launch_gz(context, *args, **kwargs):
         mappings={
             'robot_name': robot_name,
             'enable_gz' : 'True' if enable_gz else 'False',
+            'enable_mujoco': 'True' if simulator == 'mujoco' else 'False',
+            'mujoco_model': mujoco_model,
+            'mujoco_headless': 'true' if mujoco_headless else 'false',
             'enable_mobile_base': 'True' if enable_mobile_base else 'False',
             'enable_body': 'True' if enable_body else 'False',
             'enable_arm_left': 'True' if enable_arm_left else 'False',
@@ -346,6 +384,34 @@ def launch_gz(context, *args, **kwargs):
         prefix=None if is_sim else 'taskset -c 2-7 chrt -f 80',
         output="both",
     )
+
+    if simulator == 'mujoco':
+        # Patched controller_manager hosting MuJoCo (+ Simulate window); publishes /clock
+        control_node = Node(
+            package="mujoco_ros2_control",
+            executable="ros2_control_node",
+            name="controller_manager",
+            namespace=robot_name,
+            parameters=[
+                controller_config,
+                {"use_sim_time": True},
+                _mujoco_plugin_params(
+                    mujoco_plugins_config,
+                    robot_name,
+                    {
+                        'head_camera':       enable_head and (enable_head_cam_color or enable_head_cam_depth),
+                        'hand_left_camera':  enable_arm_left and enable_hand_left_cam_color,
+                        'hand_right_camera': enable_arm_right and enable_hand_right_cam_color,
+                    },
+                    enable_mobile_base and enable_lidar,
+                    robot_name + '/' if enable_tf_prefix else ''),
+            ],
+            remappings=[
+                ("controller_manager/robot_description", "robot_description"),
+            ],
+            output="both",
+            on_exit=Shutdown(),
+        )
 
     if (simulator == 'none' and enable_lidar):
         urg_node = IncludeLaunchDescription(
@@ -768,6 +834,50 @@ def launch_gz(context, *args, **kwargs):
         output='log'
     )
 
+    # gz and MuJoCo publish raw depth only: points + compressedDepth come from the ROS side
+    depth_nodes = [head_camera_point_cloud_xyz_node, head_camera_depth_compressed_node]
+
+    # MuJoCo's CameraPlugin has one camera_info (color); depth_image_proc needs depth/camera_info
+    mujoco_depth_info_relay = Node(
+        package='topic_tools',
+        executable='relay',
+        name='head_camera_depth_info_relay',
+        namespace=robot_name,
+        parameters=[{
+            'use_sim_time': True,
+            'input_topic':  '/' + robot_name + '/head_camera/color/camera_info',
+            'output_topic': '/' + robot_name + '/head_camera/depth/camera_info',
+        }],
+        output='log',
+    )
+
+    # Republish raw sim images as compressed (JPEG) for each enabled camera
+    color_compressed_nodes = []
+    for cam_name, enabled in [
+        ('head_camera',       enable_head_cam_color),
+        ('hand_left_camera',  enable_hand_left_cam_color),
+        ('hand_right_camera', enable_hand_right_cam_color),
+    ]:
+        if enabled:
+            color_compressed_nodes.append(Node(
+                package='image_transport',
+                executable='republish',
+                name=cam_name + '_compressed_republisher',
+                namespace=robot_name,
+                remappings=[
+                    ('in',              '/' + robot_name + '/' + cam_name + '/color/image_raw'),
+                    ('out/compressed',  '/' + robot_name + '/' + cam_name + '/color/image_raw/compressed'),
+                ],
+                parameters=[{
+                    'use_sim_time': True,
+                    'in_transport': 'raw',
+                    'out_transport': 'compressed',
+                    f'qos_overrides./{robot_name}/{cam_name}/color/image_raw.subscription.reliability': 'best_effort',
+                    f'qos_overrides./{robot_name}/{cam_name}/color/image_raw/compressed.publisher.reliability': 'best_effort',
+                }],
+                output='log',
+            ))
+
     # Real hardware: ELP wrist cameras via usb_cam
     if simulator == 'none':
         hand_left_cam_node = Node(
@@ -843,34 +953,9 @@ def launch_gz(context, *args, **kwargs):
 
         if enable_head_cam_depth:
             nodes.append(gz_bridge_depth_image_node)
-            nodes.append(head_camera_point_cloud_xyz_node)
-            nodes.append(head_camera_depth_compressed_node)
+            nodes += depth_nodes
 
-        # Republish raw images as compressed for each camera in Gazebo
-        for cam_name, enabled in [
-            ('head_camera',       enable_head_cam_color),
-            ('hand_left_camera',  enable_hand_left_cam_color),
-            ('hand_right_camera', enable_hand_right_cam_color),
-        ]:
-            if enabled:
-                nodes.append(Node(
-                    package='image_transport',
-                    executable='republish',
-                    name=cam_name + '_compressed_republisher',
-                    namespace=robot_name,
-                    remappings=[
-                        ('in',              '/' + robot_name + '/' + cam_name + '/color/image_raw'),
-                        ('out/compressed',  '/' + robot_name + '/' + cam_name + '/color/image_raw/compressed'),
-                    ],
-                    parameters=[{
-                        'use_sim_time': True,
-                        'in_transport': 'raw',
-                        'out_transport': 'compressed',
-                        f'qos_overrides./{robot_name}/{cam_name}/color/image_raw.subscription.reliability': 'best_effort',
-                        f'qos_overrides./{robot_name}/{cam_name}/color/image_raw/compressed.publisher.reliability': 'best_effort',
-                    }],
-                    output='log',
-                ))
+        nodes += color_compressed_nodes
     elif simulator == 'isaac':
         # The robot USD's OmniGraphs publish cameras (H.264 included), lidars, /clock and host
         # controller_manager; spawners start directly and wait for it to appear after play.
@@ -882,7 +967,7 @@ def launch_gz(context, *args, **kwargs):
         if enable_head_cam_depth:
             nodes.append(head_camera_depth_compressed_node)
     else:
-        # Real hardware: serialize startup so control_node doesn't race
+        # Real hardware / MuJoCo: serialize startup so control_node doesn't race
         # robot_state_publisher for 'robot_description' and spawners don't pile up.
         delayed_control_node = RegisterEventHandler(
             event_handler=OnProcessStart(
@@ -907,10 +992,16 @@ def launch_gz(context, *args, **kwargs):
         nodes.append(delayed_controllers_real)
         if enable_action_server:
             nodes.append(delayed_action_server)
-        if enable_hand_left_cam_color:
-            nodes.append(hand_left_cam_node)
-        if enable_hand_right_cam_color:
-            nodes.append(hand_right_cam_node)
+        if simulator == 'mujoco':
+            if enable_head_cam_depth:
+                nodes.append(mujoco_depth_info_relay)
+                nodes += depth_nodes
+            nodes += color_compressed_nodes
+        else:
+            if enable_hand_left_cam_color:
+                nodes.append(hand_left_cam_node)
+            if enable_hand_right_cam_color:
+                nodes.append(hand_right_cam_node)
     nodes.append(robot_state_publisher_node)
     nodes.append(sobits_display_launch)
 
