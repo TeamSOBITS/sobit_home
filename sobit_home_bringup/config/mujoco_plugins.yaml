@@ -1,0 +1,43 @@
+# mujoco_ros2_control 0.1.2 plugins read their sensor settings here (mujoco_plugins.<label>.<sensor>.*),
+# not from the URDF <sensor> blocks. robot.launch.py prefixes the topics with /<robot_name>/.
+/**:
+  ros__parameters:
+    mujoco_plugins:
+      cameras:
+        type: "mujoco_ros2_control_plugins/CameraPlugin"
+        camera_publish_rate: 30.0
+        head_camera:
+          frame_name: head_camera_color_optical_frame
+          info_topic: head_camera/color/camera_info
+          image_topic: head_camera/color/image_raw
+          depth_topic: head_camera/depth/image_raw
+        hand_left_camera:
+          frame_name: hand_left_camera_optical_frame
+          info_topic: hand_left_camera/color/camera_info
+          image_topic: hand_left_camera/color/image_raw
+          depth_topic: hand_left_camera/depth/image_raw
+        hand_right_camera:
+          frame_name: hand_right_camera_optical_frame
+          info_topic: hand_right_camera/color/camera_info
+          image_topic: hand_right_camera/color/image_raw
+          depth_topic: hand_right_camera/depth/image_raw
+      # Must match the MJCF export's lidar_<side>-<i> rangefinder fans
+      lidars:
+        type: "mujoco_ros2_control_plugins/RangefinderLidarPlugin"
+        lidar_publish_rate: 10.0
+        lidar_front:
+          frame_name: lidar_front_laser
+          min_angle: -2.25
+          max_angle: 2.25
+          angle_increment: 0.00872665
+          range_min: 0.02
+          range_max: 30.0
+          laserscan_topic: lidar_front/scan
+        lidar_back:
+          frame_name: lidar_back_laser
+          min_angle: -2.25
+          max_angle: 2.25
+          angle_increment: 0.00872665
+          range_min: 0.02
+          range_max: 30.0
+          laserscan_topic: lidar_back/scan
