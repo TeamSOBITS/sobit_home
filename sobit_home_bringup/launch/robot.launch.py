@@ -34,7 +34,7 @@ def _mujoco_plugin_params(path, robot_name, cameras_on, enable_lidar, frame_pref
             if isinstance(sensor, dict):
                 sensor['frame_name'] = frame_prefix + sensor['frame_name']
                 # Relative topics would land under /<robot_name>/<label>/
-                for key in [k for k in sensor if k.endswith('_topic')]:
+                for key in [k for k in sensor if k.endswith('topic')]:
                     sensor[key] = f'/{robot_name}/{sensor[key]}'
     return params
 

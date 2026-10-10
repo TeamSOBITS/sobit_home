@@ -458,7 +458,7 @@ The URDF switches to a single `MujocoSystem` `ros2_control` block (`enable_mujoc
 
 - `head_camera/depth/image_raw` is `32FC1` metres and framed in `head_camera_color_optical_frame` (one MuJoCo camera renders color and depth); `head_camera/depth/camera_info` is relayed from the color one. `depth/points` comes from `depth_image_proc` as in Gazebo.
 - `*/image_raw/compressed` (JPEG) and `compressedDepth` come from the same `image_transport republish` nodes as Gazebo.
-- The lidars are MuJoCo rangefinder fans at 0.5° steps (±2.25 rad, 0.02-30 m); the real UST-10LX scans at 0.25°.
+- The lidars are ray-cast at the publish rate by `sobits_mujoco_plugins/RayLidarPlugin` (0.25° like the UST-10LX, ±2.25 rad, 0.02-30 m) from one MJCF site per lidar; MuJoCo rangefinder sensors would be evaluated every physics step.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
