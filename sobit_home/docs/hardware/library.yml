@@ -34,6 +34,7 @@ templates:
     pinlabels: [A.GND, A.VDD, A.DATA, B.GND, B.VDD, B.DATA]
   - &interface
     bgcolor_title: "#F9CB9C"
+    hide_disconnected_pins: true
   - &sensor
     bgcolor_title: "#A2C4C9"
     hide_disconnected_pins: true
@@ -105,7 +106,7 @@ connectors:
   LAPTOP:
     <<: *load
     type: Operator laptop (off-robot)
-    pinlabels: [LAN]
+    pinlabels: [LAN, HDMI]
   ROUTER:
     <<: *load
     type: Router
@@ -116,6 +117,18 @@ connectors:
     type: TP-Link TL-SG605 switching hub
     subtype: 5 V, 0.6 A, 5 x gigabit, unmanaged (ports interchangeable)
     pinlabels: ["-", "+", LAN]
+  USBC_HUB_6IN1:
+    <<: *distribution
+    type: UGREEN Revodok 6-in-1 USB-C hub (AMUH12H)
+    subtype: USB-C upstream; 10 Gbps data ports; PD in 100 W pass-through; HDMI 4K 60 Hz
+    pinlabels: [UP, PD, HDMI, C1, C2, A1, A2]
+    hide_disconnected_pins: false
+  USBA_HUB_4P:
+    <<: *distribution
+    type: UGREEN USB 3.0 4-port hub (20805)
+    subtype: USB-A upstream, 5 Gbps; optional USB-C power input 5 V 2 A
+    pinlabels: [UP, PWR, A1, A2, A3, A4]
+    hide_disconnected_pins: false
   RJ45_COUPLER:
     <<: *distribution
     type: UGREEN RJ45 coupler (female-female)
@@ -201,6 +214,15 @@ connectors:
     type: Waveshare 8DP-CAPLCD touch display
     subtype: 8 in, 1280 x 800
     pinlabels: [HDMI, USB-C, micro-USB]
+  DUALSHOCK4:
+    <<: *load
+    type: Sony DualShock 4 controller
+    pinlabels: [micro-USB]
+  SKB_TP01SVN:
+    <<: *load
+    type: Sanwa Supply SKB-TP01SVN keyboard with touchpad
+    subtype: wired, attached USB-A lead
+    pinlabels: [USB]
   ZEN16_ULTRA:
     <<: *load
     type: Acouto Zen16 Ultra monitor

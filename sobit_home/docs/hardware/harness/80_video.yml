@@ -1,0 +1,14 @@
+# Video: display links (HDMI). USB links to the same displays are in 70_usb.yml.
+# The display may use either NUC HDMI port; HDMI1 is drawn.
+
+cables:
+  W801: {type: HDMI cable, wirecount: 1, wirelabels: [HDMI]}
+  W802: {type: HDMI cable, wirecount: 1, wirelabels: [HDMI]}
+
+connections:
+  - - ZEN16_ULTRA.monitor: [HDMI]
+    - W801: [1]
+    - LAPTOP.K2: [HDMI]
+  - - WAVESHARE_8DP.display: [HDMI]
+    - W802: [1]
+    - NUC.K1: [HDMI1]

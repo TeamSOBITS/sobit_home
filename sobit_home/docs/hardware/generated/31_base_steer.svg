@@ -12,61 +12,61 @@
 <!-- X2 -->
 <g id="node1" class="node">
 <title>X2</title>
-<polygon fill="#ffffff" stroke="black" points="298.5,-390 67.5,-390 67.5,-298 298.5,-298 298.5,-390"/>
-<polygon fill="#9fc5e8" stroke="transparent" points="68,-367 68,-390 299,-390 299,-367 68,-367"/>
-<polygon fill="none" stroke="black" points="68,-367 68,-390 299,-390 299,-367 68,-367"/>
-<text text-anchor="start" x="175" y="-374.8" font-family="arial" font-size="14.00">X2</text>
-<polygon fill="none" stroke="black" points="68,-344 68,-367 152,-367 152,-344 68,-344"/>
-<text text-anchor="start" x="72" y="-351.8" font-family="arial" font-size="14.00">Power tower</text>
-<polygon fill="none" stroke="black" points="152,-344 152,-367 260,-367 260,-344 152,-344"/>
-<text text-anchor="start" x="156" y="-351.8" font-family="arial" font-size="14.00">4 x GND, 4 x V+</text>
-<polygon fill="none" stroke="black" points="260,-344 260,-367 299,-367 299,-344 260,-344"/>
-<text text-anchor="start" x="264" y="-351.8" font-family="arial" font-size="14.00">8&#45;pin</text>
-<polygon fill="none" stroke="black" points="68,-321 68,-344 199,-344 199,-321 68,-321"/>
-<text text-anchor="start" x="114" y="-328.8" font-family="arial" font-size="14.00">GND1</text>
-<polygon fill="none" stroke="black" points="199,-321 199,-344 299,-344 299,-321 199,-321"/>
-<text text-anchor="start" x="245" y="-328.8" font-family="arial" font-size="14.00">1</text>
-<polygon fill="none" stroke="black" points="68,-298 68,-321 199,-321 199,-298 68,-298"/>
-<text text-anchor="start" x="125" y="-305.8" font-family="arial" font-size="14.00">V1</text>
-<polygon fill="none" stroke="black" points="199,-298 199,-321 299,-321 299,-298 199,-298"/>
-<text text-anchor="start" x="245" y="-305.8" font-family="arial" font-size="14.00">5</text>
+<polygon fill="#ffffff" stroke="black" points="298.5,-353 67.5,-353 67.5,-261 298.5,-261 298.5,-353"/>
+<polygon fill="#9fc5e8" stroke="transparent" points="68,-330 68,-353 299,-353 299,-330 68,-330"/>
+<polygon fill="none" stroke="black" points="68,-330 68,-353 299,-353 299,-330 68,-330"/>
+<text text-anchor="start" x="175" y="-337.8" font-family="arial" font-size="14.00">X2</text>
+<polygon fill="none" stroke="black" points="68,-307 68,-330 152,-330 152,-307 68,-307"/>
+<text text-anchor="start" x="72" y="-314.8" font-family="arial" font-size="14.00">Power tower</text>
+<polygon fill="none" stroke="black" points="152,-307 152,-330 260,-330 260,-307 152,-307"/>
+<text text-anchor="start" x="156" y="-314.8" font-family="arial" font-size="14.00">4 x GND, 4 x V+</text>
+<polygon fill="none" stroke="black" points="260,-307 260,-330 299,-330 299,-307 260,-307"/>
+<text text-anchor="start" x="264" y="-314.8" font-family="arial" font-size="14.00">8&#45;pin</text>
+<polygon fill="none" stroke="black" points="68,-284 68,-307 199,-307 199,-284 68,-284"/>
+<text text-anchor="start" x="114" y="-291.8" font-family="arial" font-size="14.00">GND1</text>
+<polygon fill="none" stroke="black" points="199,-284 199,-307 299,-307 299,-284 199,-284"/>
+<text text-anchor="start" x="245" y="-291.8" font-family="arial" font-size="14.00">1</text>
+<polygon fill="none" stroke="black" points="68,-261 68,-284 199,-284 199,-261 68,-261"/>
+<text text-anchor="start" x="125" y="-268.8" font-family="arial" font-size="14.00">V1</text>
+<polygon fill="none" stroke="black" points="199,-261 199,-284 299,-284 299,-261 199,-261"/>
+<text text-anchor="start" x="245" y="-268.8" font-family="arial" font-size="14.00">5</text>
 </g>
 <!-- W311 -->
 <g id="node8" class="node">
 <title>W311</title>
-<polygon fill="#fafafa" stroke="black" stroke-dasharray="5,2" points="834,-401 510,-401 510,-267 834,-267 834,-401"/>
-<polygon fill="none" stroke="black" points="510,-378 510,-401 834,-401 834,-378 510,-378"/>
-<text text-anchor="start" x="653.5" y="-385.8" font-family="arial" font-size="14.00">W311</text>
-<polygon fill="none" stroke="black" points="510,-355 510,-378 834,-378 834,-355 510,-355"/>
-<text text-anchor="start" x="664.5" y="-362.8" font-family="arial" font-size="14.00">2x</text>
-<text text-anchor="start" x="545" y="-341.8" font-family="arial" font-size="14.00"> </text>
-<text text-anchor="start" x="512" y="-322.8" font-family="arial" font-size="14.00">X2:1:GND1</text>
-<text text-anchor="start" x="586.5" y="-322.8" font-family="arial" font-size="14.00"> &#160;&#160;&#160;&#160;BK:GND &#160;&#160;&#160;</text>
-<text text-anchor="start" x="678" y="-322.8" font-family="arial" font-size="14.00">wheel_steer_f_l:1:A.GND</text>
-<polygon fill="#000000" stroke="transparent" points="510,-315 510,-317 834,-317 834,-315 510,-315"/>
-<polygon fill="#000000" stroke="transparent" points="510,-313 510,-315 834,-315 834,-313 510,-313"/>
-<polygon fill="#000000" stroke="transparent" points="510,-311 510,-313 834,-313 834,-311 510,-311"/>
-<text text-anchor="start" x="522.5" y="-297.8" font-family="arial" font-size="14.00">X2:5:V1</text>
-<text text-anchor="start" x="586" y="-297.8" font-family="arial" font-size="14.00"> &#160;&#160;&#160;&#160;PK:+12V &#160;&#160;&#160;</text>
-<text text-anchor="start" x="679.5" y="-297.8" font-family="arial" font-size="14.00">wheel_steer_f_l:2:A.VDD</text>
-<polygon fill="#000000" stroke="transparent" points="510,-290 510,-292 834,-292 834,-290 510,-290"/>
-<polygon fill="#ff66cc" stroke="transparent" points="510,-288 510,-290 834,-290 834,-288 510,-288"/>
-<polygon fill="#000000" stroke="transparent" points="510,-286 510,-288 834,-288 834,-286 510,-286"/>
-<text text-anchor="start" x="545" y="-272.8" font-family="arial" font-size="14.00"> </text>
+<polygon fill="#fafafa" stroke="black" stroke-dasharray="5,2" points="834,-383 510,-383 510,-249 834,-249 834,-383"/>
+<polygon fill="none" stroke="black" points="510,-360 510,-383 834,-383 834,-360 510,-360"/>
+<text text-anchor="start" x="653.5" y="-367.8" font-family="arial" font-size="14.00">W311</text>
+<polygon fill="none" stroke="black" points="510,-337 510,-360 834,-360 834,-337 510,-337"/>
+<text text-anchor="start" x="664.5" y="-344.8" font-family="arial" font-size="14.00">2x</text>
+<text text-anchor="start" x="545" y="-323.8" font-family="arial" font-size="14.00"> </text>
+<text text-anchor="start" x="512" y="-304.8" font-family="arial" font-size="14.00">X2:1:GND1</text>
+<text text-anchor="start" x="586.5" y="-304.8" font-family="arial" font-size="14.00"> &#160;&#160;&#160;&#160;BK:GND &#160;&#160;&#160;</text>
+<text text-anchor="start" x="678" y="-304.8" font-family="arial" font-size="14.00">wheel_steer_f_l:1:A.GND</text>
+<polygon fill="#000000" stroke="transparent" points="510,-297 510,-299 834,-299 834,-297 510,-297"/>
+<polygon fill="#000000" stroke="transparent" points="510,-295 510,-297 834,-297 834,-295 510,-295"/>
+<polygon fill="#000000" stroke="transparent" points="510,-293 510,-295 834,-295 834,-293 510,-293"/>
+<text text-anchor="start" x="522.5" y="-279.8" font-family="arial" font-size="14.00">X2:5:V1</text>
+<text text-anchor="start" x="586" y="-279.8" font-family="arial" font-size="14.00"> &#160;&#160;&#160;&#160;PK:+12V &#160;&#160;&#160;</text>
+<text text-anchor="start" x="679.5" y="-279.8" font-family="arial" font-size="14.00">wheel_steer_f_l:2:A.VDD</text>
+<polygon fill="#000000" stroke="transparent" points="510,-272 510,-274 834,-274 834,-272 510,-272"/>
+<polygon fill="#ff66cc" stroke="transparent" points="510,-270 510,-272 834,-272 834,-270 510,-270"/>
+<polygon fill="#000000" stroke="transparent" points="510,-268 510,-270 834,-270 834,-268 510,-268"/>
+<text text-anchor="start" x="545" y="-254.8" font-family="arial" font-size="14.00"> </text>
 </g>
 <!-- X2&#45;&#45;W311 -->
 <g id="edge1" class="edge">
 <title>X2:e&#45;&#45;W311:w</title>
-<path fill="none" stroke="#000000" stroke-width="2" d="M300,-330C392.43,-330.43 415.08,-312.43 510,-312"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M300,-332C393.68,-332 416.32,-314 510,-314"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M300,-334C394.92,-333.57 417.57,-315.57 510,-316"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M300,-293C393.42,-293 416.75,-294 510,-294"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M300,-295C393.33,-295 416.67,-296 510,-296"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M300,-297C393.25,-297 416.58,-298 510,-298"/>
 </g>
 <!-- X2&#45;&#45;W311 -->
 <g id="edge3" class="edge">
 <title>X2:e&#45;&#45;W311:w</title>
-<path fill="none" stroke="#000000" stroke-width="2" d="M300,-307C392.43,-307.51 414.92,-287.51 510,-287"/>
-<path fill="none" stroke="#ff66cc" stroke-width="2" d="M300,-309C393.76,-309 416.24,-289 510,-289"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M300,-311C395.08,-310.49 417.57,-290.49 510,-291"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M300,-270C393.25,-270 416.58,-269 510,-269"/>
+<path fill="none" stroke="#ff66cc" stroke-width="2" d="M300,-272C393.33,-272 416.67,-271 510,-271"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M300,-274C393.42,-274 416.75,-273 510,-273"/>
 </g>
 <!-- wheel_steer_f_l -->
 <g id="node2" class="node">
@@ -163,9 +163,9 @@
 <!-- wheel_steer_f_l&#45;&#45;W312 -->
 <g id="edge7" class="edge">
 <title>wheel_steer_f_l:e&#45;&#45;W312:w</title>
-<path fill="none" stroke="#000000" stroke-width="2" d="M1293,-121C1356.76,-121.96 1370.38,-99.5 1436.74,-90.02 1659.06,-60.8 1716.32,-65.01 1940,-65"/>
-<path fill="none" stroke="#ff66cc" stroke-width="2" d="M1293,-123C1358.47,-123 1372.09,-100.54 1437,-92 1658.92,-62.79 1716.17,-67 1940,-67"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M1293,-125C1360.18,-124.04 1373.8,-101.58 1437.26,-93.98 1658.77,-64.79 1716.02,-68.99 1940,-69"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M1293,-121C1356.83,-122 1370.29,-98.7 1436.73,-89.02 1659.03,-59.29 1716.39,-65.01 1940,-65"/>
+<path fill="none" stroke="#ff66cc" stroke-width="2" d="M1293,-123C1358.56,-123 1372.02,-99.71 1437,-91 1658.83,-61.28 1716.19,-67 1940,-67"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M1293,-125C1360.29,-124 1373.75,-100.71 1437.27,-92.98 1658.63,-63.27 1715.99,-68.99 1940,-69"/>
 </g>
 <!-- W316 -->
 <g id="node13" class="node">
@@ -547,99 +547,75 @@
 <!-- A6 -->
 <g id="node7" class="node">
 <title>A6</title>
-<polygon fill="#ffffff" stroke="black" points="366,-274 0,-274 0,-44 366,-44 366,-274"/>
-<polygon fill="#f9cb9c" stroke="transparent" points="0,-251 0,-274 366,-274 366,-251 0,-251"/>
-<polygon fill="none" stroke="black" points="0,-251 0,-274 366,-274 366,-251 0,-251"/>
-<text text-anchor="start" x="174.5" y="-258.8" font-family="arial" font-size="14.00">A6</text>
-<polygon fill="none" stroke="black" points="0,-228 0,-251 109,-251 109,-228 0,-228"/>
-<text text-anchor="start" x="4" y="-235.8" font-family="arial" font-size="14.00">ROBOTIS U2D2</text>
-<polygon fill="none" stroke="black" points="109,-228 109,-251 327,-251 327,-228 109,-228"/>
-<text text-anchor="start" x="113" y="-235.8" font-family="arial" font-size="14.00">USB&#45;C, does not power Dynamixel</text>
-<polygon fill="none" stroke="black" points="327,-228 327,-251 366,-251 366,-228 327,-228"/>
-<text text-anchor="start" x="331" y="-235.8" font-family="arial" font-size="14.00">8&#45;pin</text>
-<polygon fill="none" stroke="black" points="0,-205 0,-228 217,-228 217,-205 0,-205"/>
-<text text-anchor="start" x="79" y="-212.8" font-family="arial" font-size="14.00">TTL.GND</text>
-<polygon fill="none" stroke="black" points="217,-205 217,-228 366,-228 366,-205 217,-205"/>
-<text text-anchor="start" x="287.5" y="-212.8" font-family="arial" font-size="14.00">1</text>
-<polygon fill="none" stroke="black" points="0,-182 0,-205 217,-205 217,-182 0,-182"/>
-<text text-anchor="start" x="80" y="-189.8" font-family="arial" font-size="14.00">TTL.VDD</text>
-<polygon fill="none" stroke="black" points="217,-182 217,-205 366,-205 366,-182 217,-182"/>
-<text text-anchor="start" x="287.5" y="-189.8" font-family="arial" font-size="14.00">2</text>
-<polygon fill="none" stroke="black" points="0,-159 0,-182 217,-182 217,-159 0,-159"/>
-<text text-anchor="start" x="76.5" y="-166.8" font-family="arial" font-size="14.00">TTL.DATA</text>
-<polygon fill="none" stroke="black" points="217,-159 217,-182 366,-182 366,-159 217,-159"/>
-<text text-anchor="start" x="287.5" y="-166.8" font-family="arial" font-size="14.00">3</text>
-<polygon fill="none" stroke="black" points="0,-136 0,-159 217,-159 217,-136 0,-136"/>
-<text text-anchor="start" x="70.5" y="-143.8" font-family="arial" font-size="14.00">RS485.GND</text>
-<polygon fill="none" stroke="black" points="217,-136 217,-159 366,-159 366,-136 217,-136"/>
-<text text-anchor="start" x="287.5" y="-143.8" font-family="arial" font-size="14.00">4</text>
-<polygon fill="none" stroke="black" points="0,-113 0,-136 217,-136 217,-113 0,-113"/>
-<text text-anchor="start" x="71.5" y="-120.8" font-family="arial" font-size="14.00">RS485.VDD</text>
-<polygon fill="none" stroke="black" points="217,-113 217,-136 366,-136 366,-113 217,-113"/>
-<text text-anchor="start" x="287.5" y="-120.8" font-family="arial" font-size="14.00">5</text>
-<polygon fill="none" stroke="black" points="0,-90 0,-113 217,-113 217,-90 0,-90"/>
-<text text-anchor="start" x="76.5" y="-97.8" font-family="arial" font-size="14.00">RS485.D+</text>
-<polygon fill="none" stroke="black" points="217,-90 217,-113 366,-113 366,-90 217,-90"/>
-<text text-anchor="start" x="287.5" y="-97.8" font-family="arial" font-size="14.00">6</text>
-<polygon fill="none" stroke="black" points="0,-67 0,-90 217,-90 217,-67 0,-67"/>
-<text text-anchor="start" x="78.5" y="-74.8" font-family="arial" font-size="14.00">RS485.D&#45;</text>
-<polygon fill="none" stroke="black" points="217,-67 217,-90 366,-90 366,-67 217,-67"/>
-<text text-anchor="start" x="287.5" y="-74.8" font-family="arial" font-size="14.00">7</text>
-<polygon fill="none" stroke="black" points="0,-44 0,-67 217,-67 217,-44 0,-44"/>
-<text text-anchor="start" x="94.5" y="-51.8" font-family="arial" font-size="14.00">USB</text>
-<polygon fill="none" stroke="black" points="217,-44 217,-67 366,-67 366,-44 217,-44"/>
-<text text-anchor="start" x="287.5" y="-51.8" font-family="arial" font-size="14.00">8</text>
+<polygon fill="#ffffff" stroke="black" points="366,-195 0,-195 0,-103 366,-103 366,-195"/>
+<polygon fill="#f9cb9c" stroke="transparent" points="0,-172 0,-195 366,-195 366,-172 0,-172"/>
+<polygon fill="none" stroke="black" points="0,-172 0,-195 366,-195 366,-172 0,-172"/>
+<text text-anchor="start" x="174.5" y="-179.8" font-family="arial" font-size="14.00">A6</text>
+<polygon fill="none" stroke="black" points="0,-149 0,-172 109,-172 109,-149 0,-149"/>
+<text text-anchor="start" x="4" y="-156.8" font-family="arial" font-size="14.00">ROBOTIS U2D2</text>
+<polygon fill="none" stroke="black" points="109,-149 109,-172 327,-172 327,-149 109,-149"/>
+<text text-anchor="start" x="113" y="-156.8" font-family="arial" font-size="14.00">USB&#45;C, does not power Dynamixel</text>
+<polygon fill="none" stroke="black" points="327,-149 327,-172 366,-172 366,-149 327,-149"/>
+<text text-anchor="start" x="331" y="-156.8" font-family="arial" font-size="14.00">8&#45;pin</text>
+<polygon fill="none" stroke="black" points="0,-126 0,-149 211,-149 211,-126 0,-126"/>
+<text text-anchor="start" x="73.5" y="-133.8" font-family="arial" font-size="14.00">RS485.D+</text>
+<polygon fill="none" stroke="black" points="211,-126 211,-149 366,-149 366,-126 211,-126"/>
+<text text-anchor="start" x="284.5" y="-133.8" font-family="arial" font-size="14.00">6</text>
+<polygon fill="none" stroke="black" points="0,-103 0,-126 211,-126 211,-103 0,-103"/>
+<text text-anchor="start" x="75.5" y="-110.8" font-family="arial" font-size="14.00">RS485.D&#45;</text>
+<polygon fill="none" stroke="black" points="211,-103 211,-126 366,-126 366,-103 211,-103"/>
+<text text-anchor="start" x="284.5" y="-110.8" font-family="arial" font-size="14.00">7</text>
 </g>
 <!-- W315 -->
 <g id="node12" class="node">
 <title>W315</title>
-<polygon fill="#ffffff" stroke="black" points="828,-208 516,-208 516,-74 828,-74 828,-208"/>
-<polygon fill="none" stroke="black" points="516,-185 516,-208 828,-208 828,-185 516,-185"/>
-<text text-anchor="start" x="653.5" y="-192.8" font-family="arial" font-size="14.00">W315</text>
-<polygon fill="none" stroke="black" points="516,-162 516,-185 828,-185 828,-162 516,-162"/>
-<text text-anchor="start" x="664.5" y="-169.8" font-family="arial" font-size="14.00">2x</text>
-<text text-anchor="start" x="563.5" y="-148.8" font-family="arial" font-size="14.00"> </text>
-<text text-anchor="start" x="518" y="-129.8" font-family="arial" font-size="14.00">A6:6:RS485.D+</text>
-<text text-anchor="start" x="617" y="-129.8" font-family="arial" font-size="14.00"> &#160;&#160;&#160;&#160;1:D+ &#160;&#160;&#160;</text>
-<text text-anchor="start" x="685" y="-129.8" font-family="arial" font-size="14.00">wheel_steer_f_l:3:A.D+</text>
-<polygon fill="#000000" stroke="transparent" points="516,-122 516,-124 828,-124 828,-122 516,-122"/>
-<polygon fill="#ffffff" stroke="transparent" points="516,-120 516,-122 828,-122 828,-120 516,-120"/>
-<polygon fill="#000000" stroke="transparent" points="516,-118 516,-120 828,-120 828,-118 516,-118"/>
-<text text-anchor="start" x="520" y="-104.8" font-family="arial" font-size="14.00">A6:7:RS485.D&#45;</text>
-<text text-anchor="start" x="619" y="-104.8" font-family="arial" font-size="14.00"> &#160;&#160;&#160;&#160;2:D&#45; &#160;&#160;&#160;</text>
-<text text-anchor="start" x="687" y="-104.8" font-family="arial" font-size="14.00">wheel_steer_f_l:4:A.D&#45;</text>
-<polygon fill="#000000" stroke="transparent" points="516,-97 516,-99 828,-99 828,-97 516,-97"/>
-<polygon fill="#ffffff" stroke="transparent" points="516,-95 516,-97 828,-97 828,-95 516,-95"/>
-<polygon fill="#000000" stroke="transparent" points="516,-93 516,-95 828,-95 828,-93 516,-93"/>
-<text text-anchor="start" x="563.5" y="-79.8" font-family="arial" font-size="14.00"> </text>
+<polygon fill="#ffffff" stroke="black" points="828,-225 516,-225 516,-91 828,-91 828,-225"/>
+<polygon fill="none" stroke="black" points="516,-202 516,-225 828,-225 828,-202 516,-202"/>
+<text text-anchor="start" x="653.5" y="-209.8" font-family="arial" font-size="14.00">W315</text>
+<polygon fill="none" stroke="black" points="516,-179 516,-202 828,-202 828,-179 516,-179"/>
+<text text-anchor="start" x="664.5" y="-186.8" font-family="arial" font-size="14.00">2x</text>
+<text text-anchor="start" x="563.5" y="-165.8" font-family="arial" font-size="14.00"> </text>
+<text text-anchor="start" x="518" y="-146.8" font-family="arial" font-size="14.00">A6:6:RS485.D+</text>
+<text text-anchor="start" x="617" y="-146.8" font-family="arial" font-size="14.00"> &#160;&#160;&#160;&#160;1:D+ &#160;&#160;&#160;</text>
+<text text-anchor="start" x="685" y="-146.8" font-family="arial" font-size="14.00">wheel_steer_f_l:3:A.D+</text>
+<polygon fill="#000000" stroke="transparent" points="516,-139 516,-141 828,-141 828,-139 516,-139"/>
+<polygon fill="#ffffff" stroke="transparent" points="516,-137 516,-139 828,-139 828,-137 516,-137"/>
+<polygon fill="#000000" stroke="transparent" points="516,-135 516,-137 828,-137 828,-135 516,-135"/>
+<text text-anchor="start" x="520" y="-121.8" font-family="arial" font-size="14.00">A6:7:RS485.D&#45;</text>
+<text text-anchor="start" x="619" y="-121.8" font-family="arial" font-size="14.00"> &#160;&#160;&#160;&#160;2:D&#45; &#160;&#160;&#160;</text>
+<text text-anchor="start" x="687" y="-121.8" font-family="arial" font-size="14.00">wheel_steer_f_l:4:A.D&#45;</text>
+<polygon fill="#000000" stroke="transparent" points="516,-114 516,-116 828,-116 828,-114 516,-114"/>
+<polygon fill="#ffffff" stroke="transparent" points="516,-112 516,-114 828,-114 828,-112 516,-112"/>
+<polygon fill="#000000" stroke="transparent" points="516,-110 516,-112 828,-112 828,-110 516,-110"/>
+<text text-anchor="start" x="563.5" y="-96.8" font-family="arial" font-size="14.00"> </text>
 </g>
 <!-- A6&#45;&#45;W315 -->
 <g id="edge17" class="edge">
 <title>A6:e&#45;&#45;W315:w</title>
-<path fill="none" stroke="#000000" stroke-width="2" d="M366,-99C434.4,-99.78 449.77,-119.78 515,-119"/>
-<path fill="none" stroke="#ffffff" stroke-width="2" d="M366,-101C432.82,-101 448.18,-121 515,-121"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M366,-103C431.23,-102.22 446.6,-122.22 515,-123"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M366,-135C432.34,-135 448.9,-136 515,-136"/>
+<path fill="none" stroke="#ffffff" stroke-width="2" d="M366,-137C432.22,-137 448.78,-138 515,-138"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M366,-139C432.1,-139 448.66,-140 515,-140"/>
 </g>
 <!-- A6&#45;&#45;W315 -->
 <g id="edge19" class="edge">
 <title>A6:e&#45;&#45;W315:w</title>
-<path fill="none" stroke="#000000" stroke-width="2" d="M366,-76C434.22,-76.69 449.81,-94.69 515,-94"/>
-<path fill="none" stroke="#ffffff" stroke-width="2" d="M366,-78C432.7,-78 448.3,-96 515,-96"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M366,-80C431.19,-79.31 446.78,-97.31 515,-98"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M366,-112C432.1,-112 448.66,-111 515,-111"/>
+<path fill="none" stroke="#ffffff" stroke-width="2" d="M366,-114C432.22,-114 448.78,-113 515,-113"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M366,-116C432.34,-116 448.9,-115 515,-115"/>
 </g>
 <!-- W311&#45;&#45;wheel_steer_f_l -->
 <g id="edge2" class="edge">
 <title>W311:e&#45;&#45;wheel_steer_f_l:w</title>
-<path fill="none" stroke="#000000" stroke-width="2" d="M834,-312C904.16,-314.01 903.84,-239.01 978,-237"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M834,-314C906.16,-314 905.84,-239 978,-239"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M834,-316C908.16,-313.99 907.84,-238.99 978,-241"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M834,-294C900.84,-295.78 907.18,-238.78 978,-237"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M834,-296C902.83,-296 909.17,-239 978,-239"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M834,-298C904.82,-296.22 911.16,-239.22 978,-241"/>
 </g>
 <!-- W311&#45;&#45;wheel_steer_f_l -->
 <g id="edge4" class="edge">
 <title>W311:e&#45;&#45;wheel_steer_f_l:w</title>
-<path fill="none" stroke="#000000" stroke-width="2" d="M834,-287C903.75,-288.99 904.25,-215.99 978,-214"/>
-<path fill="none" stroke="#ff66cc" stroke-width="2" d="M834,-289C905.75,-289 906.25,-216 978,-216"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M834,-291C907.75,-289.01 908.25,-216.01 978,-218"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M834,-269C900.53,-270.75 907.51,-215.75 978,-214"/>
+<path fill="none" stroke="#ff66cc" stroke-width="2" d="M834,-271C902.51,-271 909.49,-216 978,-216"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M834,-273C904.49,-271.25 911.47,-216.25 978,-218"/>
 </g>
 <!-- W312&#45;&#45;wheel_steer_b_l -->
 <g id="edge6" class="edge">
@@ -686,16 +662,16 @@
 <!-- W315&#45;&#45;wheel_steer_f_l -->
 <g id="edge18" class="edge">
 <title>W315:e&#45;&#45;wheel_steer_f_l:w</title>
-<path fill="none" stroke="#000000" stroke-width="2" d="M829,-119C904.55,-120.95 906.45,-192.95 978,-191"/>
-<path fill="none" stroke="#ffffff" stroke-width="2" d="M829,-121C902.55,-121 904.45,-193 978,-193"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M829,-123C900.55,-121.05 902.45,-193.05 978,-195"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M829,-136C901.57,-137.72 909.39,-192.72 978,-191"/>
+<path fill="none" stroke="#ffffff" stroke-width="2" d="M829,-138C899.59,-138 907.41,-193 978,-193"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M829,-140C897.61,-138.28 905.43,-193.28 978,-195"/>
 </g>
 <!-- W315&#45;&#45;wheel_steer_f_l -->
 <g id="edge20" class="edge">
 <title>W315:e&#45;&#45;wheel_steer_f_l:w</title>
-<path fill="none" stroke="#000000" stroke-width="2" d="M829,-94C904.74,-95.96 906.26,-168.96 978,-167"/>
-<path fill="none" stroke="#ffffff" stroke-width="2" d="M829,-96C902.74,-96 904.26,-169 978,-169"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M829,-98C900.74,-96.04 902.26,-169.04 978,-171"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M829,-111C901.73,-112.73 909.24,-168.73 978,-167"/>
+<path fill="none" stroke="#ffffff" stroke-width="2" d="M829,-113C899.74,-113 907.26,-169 978,-169"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M829,-115C897.76,-113.27 905.27,-169.27 978,-171"/>
 </g>
 <!-- W316&#45;&#45;wheel_steer_f_r -->
 <g id="edge22" class="edge">

@@ -1,0 +1,87 @@
+# USB: hubs and devices on the NUC. No hub has its power input connected, so all run on NUC bus power.
+# Hub P2 serves the shoulder (A5), arm + head (A9) and base steering (A6) U2D2s.
+# Hub P3 serves the display, right hand camera and mic.
+# Hub P4 serves the speaker, left hand camera and head camera.
+# Hub P5 serves the lift RS232 adapter (A2), gamepad, keyboard and monitor.
+# P5 and the USB-CAN adapter (A8) share the rear Type-A ports; which takes USB3 vs USB2 is not fixed.
+# The hand U2D2 (A10) has the second front port to itself.
+
+cables:
+  W700: {type: P2 hub attached lead, wirecount: 1, wirelabels: [USB]}
+  W701: {type: USB-C to USB-A cable, wirecount: 1, wirelabels: [USB]}
+  W702: {type: USB-C to USB-A cable, wirecount: 1, wirelabels: [USB]}
+  W703: {type: USB-C to USB-A cable, wirecount: 1, wirelabels: [USB]}
+  W710: {type: P3 hub attached lead, wirecount: 1, wirelabels: [USB]}
+  W711: {type: USB-C to USB-A cable, wirecount: 1, wirelabels: [USB]}
+  W712: {type: USB-A extension cable, wirecount: 1, wirelabels: [USB]}
+  W713: {type: USB-C to USB-C cable, wirecount: 1, wirelabels: [USB]}
+  W720: {type: P4 hub attached lead, wirecount: 1, wirelabels: [USB]}
+  W721: {type: USB-C to USB-A cable, wirecount: 1, wirelabels: [USB]}
+  W722: {type: USB-A extension cable, wirecount: 1, wirelabels: [USB]}
+  W723: {type: USB-C to USB-C cable, wirecount: 1, wirelabels: [USB]}
+  W730: {type: P5 hub attached lead, wirecount: 1, wirelabels: [USB]}
+  W731: {type: UIC321H attached lead, length: 1, wirecount: 1, wirelabels: [USB]}
+  W732: {type: Micro-USB to USB-A cable, wirecount: 1, wirelabels: [USB]}
+  W733: {type: keyboard attached lead, wirecount: 1, wirelabels: [USB]}
+  W734: {type: USB-C to USB-A cable, wirecount: 1, wirelabels: [USB]}
+  W740: {type: USB-B to USB-A cable, wirecount: 1, wirelabels: [USB]}
+  W741: {type: USB-C to USB-A cable, wirecount: 1, wirelabels: [USB]}
+
+connections:
+  - - NUC.K1: [USB3.FRONT1]
+    - W700: [1]
+    - USBA_HUB_4P.P2: [UP]
+  - - U2D2.A5: [USB]
+    - W701: [1]
+    - P2: [A1]
+  - - U2D2.A9: [USB]
+    - W702: [1]
+    - P2: [A2]
+  - - U2D2.A6: [USB]
+    - W703: [1]
+    - P2: [A3]
+  - - K1: [TB2]
+    - W710: [1]
+    - USBC_HUB_6IN1.P3: [UP]
+  - - WAVESHARE_8DP.display: [USB-C]
+    - W711: [1]
+    - P3: [A1]
+  - - ELP_GS1200P01.hand_right_camera: [USB]
+    - W712: [1]
+    - P3: [A2]
+  - - RODE_VMGOIIH.mic: [USB-C]
+    - W713: [1]
+    - P3: [C1]
+  - - K1: [TB1]
+    - W720: [1]
+    - USBC_HUB_6IN1.P4: [UP]
+  - - JBL_FLIP7.speaker: [USB-C]
+    - W721: [1]
+    - P4: [A1]
+  - - ELP_GS1200P01.hand_left_camera: [USB]
+    - W722: [1]
+    - P4: [A2]
+  - - GEMINI_336L.head_camera: [USB-C]
+    - W723: [1]
+    - P4: [C1]
+  - - K1: [USB3.REAR]
+    - W730: [1]
+    - USBA_HUB_4P.P5: [UP]
+  - - UIC321H.A2: [USB]
+    - W731: [1]
+    - P5: [A1]
+  - - DUALSHOCK4.gamepad: [micro-USB]
+    - W732: [1]
+    - P5: [A2]
+  - - SKB_TP01SVN.keyboard: [USB]
+    - W733: [1]
+    - P5: [A3]
+  - - ZEN16_ULTRA.monitor: [USB-C]
+    - W734: [1]
+    - P5: [A4]
+  - - SH_C31G.A8: [USB]
+    - W740: [1]
+    - K1: [USB2.REAR]
+  - - U2D2.A10: [USB]
+    - W741: [1]
+    - K1: [USB3.FRONT2]

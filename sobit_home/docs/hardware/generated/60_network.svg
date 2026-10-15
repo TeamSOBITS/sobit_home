@@ -269,7 +269,7 @@
 <polygon fill="none" stroke="black" points="1223,-33.5 1223,-56.5 1389,-56.5 1389,-33.5 1223,-33.5"/>
 <text text-anchor="start" x="1227" y="-41.3" font-family="arial" font-size="14.00">Operator laptop (off&#45;robot)</text>
 <polygon fill="none" stroke="black" points="1389,-33.5 1389,-56.5 1428,-56.5 1428,-33.5 1389,-33.5"/>
-<text text-anchor="start" x="1393" y="-41.3" font-family="arial" font-size="14.00">1&#45;pin</text>
+<text text-anchor="start" x="1393" y="-41.3" font-family="arial" font-size="14.00">2&#45;pin</text>
 <polygon fill="none" stroke="black" points="1223,-10.5 1223,-33.5 1335,-33.5 1335,-10.5 1223,-10.5"/>
 <text text-anchor="start" x="1265.5" y="-18.3" font-family="arial" font-size="14.00">LAN</text>
 <polygon fill="none" stroke="black" points="1335,-10.5 1335,-33.5 1428,-33.5 1428,-10.5 1335,-10.5"/>
