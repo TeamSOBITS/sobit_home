@@ -58,7 +58,7 @@ def generate_launch_description():
     arg_linear_arr_tol   = DeclareLaunchArgument('linear_arrival_tol', default_value='0.02')
     arg_rotate_arr_tol   = DeclareLaunchArgument('rotate_arrival_tol', default_value='0.02')
     arg_enable_tf_prefix = DeclareLaunchArgument('enable_tf_prefix', default_value='false')
-    arg_head_cam_type    = DeclareLaunchArgument('head_cam_type',    default_value='realsense')
+    arg_head_cam_type    = DeclareLaunchArgument('head_cam_type',    default_value='orbbec')
     # Forwarded untouched to move_group.launch.py.
     args_modules = [
         DeclareLaunchArgument(name, default_value='true')

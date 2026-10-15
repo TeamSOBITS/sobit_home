@@ -44,7 +44,7 @@ def generate_launch_description():
     # Head camera model. Selects the URDF camera (camera_head_<type>.urdf.xacro), the driver
     # node and the default config file, so swapping cameras is a one-argument change.
     arg_head_cam_type               = DeclareLaunchArgument(
-        'head_cam_type', default_value='realsense',
+        'head_cam_type', default_value='orbbec',
         description='Head RGB-D camera model: orbbec (Gemini 336L) | realsense (D415)')
     arg_head_cam_config_file        = DeclareLaunchArgument(
         'head_cam_config_file', default_value='',
@@ -640,7 +640,6 @@ def launch_gz(context, *args, **kwargs):
         name='parameter_bridge',
         namespace=robot_name,
         arguments=[
-                    "/" + robot_name + "/joint_states" + "@sensor_msgs/msg/JointState" + "[gz.msgs.Model",
                     # "/model/" + robot_name + "/pose" + "@geometry_msgs/msg/Pose" + "[gz.msgs.Pose",
                     "/" + robot_name + "/head_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
                     "/" + robot_name + "/head_camera/color" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
@@ -691,12 +690,11 @@ def launch_gz(context, *args, **kwargs):
         name='parameter_bridge_depth_image',
         namespace=robot_name,
         arguments=[
-            "/" + robot_name + "/head_camera/depth" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
-            "/" + robot_name + "/head_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
+            "/" + robot_name + "/head_camera/depth/image" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
+            "/" + robot_name + "/head_camera/depth/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
         ],
         remappings=[
-            ("/" + robot_name + "/head_camera/depth", "/" + robot_name + "/head_camera/depth/image_raw"),
-            ("/" + robot_name + "/head_camera/camera_info", "/" + robot_name + "/head_camera/depth/camera_info"),
+            ("/" + robot_name + "/head_camera/depth/image", "/" + robot_name + "/head_camera/depth/image_raw"),
         ],
         parameters=[{
             'use_sim_time': True,
@@ -737,13 +735,15 @@ def launch_gz(context, *args, **kwargs):
         executable='republish',
         name='head_camera_depth_compressed_republisher',
         namespace=robot_name,
-        arguments=['raw', 'compressedDepth'],
         remappings=[
             ("in",                  "/" + robot_name + "/head_camera/depth/image_raw"),
             ("out/compressedDepth", "/" + robot_name + "/head_camera/depth/image_raw/compressedDepth"),
         ],
         parameters=[{
             'use_sim_time': True,
+            # image_transport 5.x: positional transports are ignored; an empty out_transport loads every plugin (out, out/theora, ...)
+            'in_transport': 'raw',
+            'out_transport': 'compressedDepth',
             f'qos_overrides./{robot_name}/head_camera/depth/image_raw.subscription.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/depth/image_raw/compressedDepth.publisher.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/depth/image_raw/compressedDepth.publisher.depth': 1,
@@ -761,7 +761,7 @@ def launch_gz(context, *args, **kwargs):
             parameters=[
                 hand_left_cam_config,
                 {"video_device": cam_left_port},
-                {"frame_id": robot_name + '/hand_left_camera_optical_frame'},
+                {"frame_id": (robot_name + '/' if enable_tf_prefix else '') + 'hand_left_camera_optical_frame'},
                 ],
             remappings=[
                 ('image_raw', 'color/image_raw'),
@@ -783,7 +783,7 @@ def launch_gz(context, *args, **kwargs):
             parameters=[
                 hand_right_cam_config,
                 {"video_device": cam_right_port},
-                {"frame_id": robot_name + '/hand_right_camera_optical_frame'},
+                {"frame_id": (robot_name + '/' if enable_tf_prefix else '') + 'hand_right_camera_optical_frame'},
             ],
             remappings=[
                 ('image_raw', 'color/image_raw'),
@@ -841,13 +841,14 @@ def launch_gz(context, *args, **kwargs):
                     executable='republish',
                     name=cam_name + '_compressed_republisher',
                     namespace=robot_name,
-                    arguments=['raw', 'compressed'],
                     remappings=[
                         ('in',              '/' + robot_name + '/' + cam_name + '/color/image_raw'),
                         ('out/compressed',  '/' + robot_name + '/' + cam_name + '/color/image_raw/compressed'),
                     ],
                     parameters=[{
                         'use_sim_time': True,
+                        'in_transport': 'raw',
+                        'out_transport': 'compressed',
                         f'qos_overrides./{robot_name}/{cam_name}/color/image_raw.subscription.reliability': 'best_effort',
                         f'qos_overrides./{robot_name}/{cam_name}/color/image_raw/compressed.publisher.reliability': 'best_effort',
                     }],

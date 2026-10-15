@@ -36,7 +36,7 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_head_cam_depth',      default_value='true'),
         DeclareLaunchArgument('enable_hand_left_cam_color', default_value='true'),
         DeclareLaunchArgument('enable_hand_right_cam_color',default_value='true'),
-        DeclareLaunchArgument('head_cam_type',              default_value='realsense',
+        DeclareLaunchArgument('head_cam_type',              default_value='orbbec',
                               description='Head RGB-D camera model in the URDF: orbbec (Gemini 336L) | realsense (D415)'),
         DeclareLaunchArgument('enable_lidar',               default_value='true'),
         DeclareLaunchArgument('enable_display',             default_value='false'),

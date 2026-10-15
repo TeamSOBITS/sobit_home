@@ -347,11 +347,18 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
 >   enable_head_cam_depth:=false enable_hand_right_cam_color:=false enable_lidar:=false
 > ```
 
-The head RGB-D camera model is selected with `head_cam_type` (`realsense` = Intel RealSense D415, default; `orbbec` = Orbbec Gemini 336L). It switches the URDF, the driver node and its config file (`sobit_home_bringup/config/head_camera_<type>.yaml`) together, on the real robot and in the simulator:
+The head RGB-D camera model is selected with `head_cam_type` (`orbbec` = Orbbec Gemini 336L, default; `realsense` = Intel RealSense D415). It switches the URDF, the driver node and its config file (`sobit_home_bringup/config/head_camera_<type>.yaml`) together, on the real robot and in the simulator:
 
 ```sh
 $ ros2 launch sobit_home_bringup real_minimal.launch.py head_cam_type:=orbbec
 ```
+
+**Known differences from the real robot** (topic names match, payloads differ):
+
+- `head_camera/depth/image_raw` is `32FC1` metres in Gazebo and Isaac Sim; the Orbbec driver publishes `16UC1` millimetres (as the robot descriptor states). Not converted on purpose; consumers that read raw depth must handle both.
+- `*/image_raw/compressed` is JPEG from the driver and from Gazebo's republisher, H.264 from Isaac Sim's GPU encoder (same `sensor_msgs/CompressedImage` topic, different `format`).
+- `head_camera/depth/image_raw/compressedDepth` comes from an `image_transport republish` node on the ROS side (started by `robot.launch.py` in Gazebo); Isaac Sim needs the same node.
+- The Orbbec IMU (`head_camera/gyro_accel/sample`) is never enabled, so no simulator publishes it and the descriptor has no IMU.
 
 Additionally, multiple SOBIT HOMEs can be spawned in the same simulation environment by launching additional instances with different `robot_id` and spawn coordinates.
 

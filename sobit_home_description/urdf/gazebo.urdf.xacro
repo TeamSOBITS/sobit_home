@@ -49,7 +49,8 @@
           <pose>0 0 0 0 0 0 </pose>
 
           <gz_frame_id>head_camera_depth_frame</gz_frame_id>
-          <topic>${robot_name}/head_camera/depth</topic>
+          <!-- own subtree so gz derives head_camera/depth/camera_info instead of sharing the color sensor's -->
+          <topic>${robot_name}/head_camera/depth/image</topic>
 
           <always_on>1</always_on>
           <visualize>false</visualize>
@@ -173,13 +174,6 @@
         </sensor>
       </gazebo>
     </xacro:if>
-
-    <!-- Publish Joint States -->
-    <gazebo>
-      <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
-        <topic>${robot_name}/joint_states</topic>
-      </plugin>
-    </gazebo>
 
   </xacro:macro>
 </robot>
