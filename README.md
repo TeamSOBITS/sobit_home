@@ -710,7 +710,34 @@ SOBIT HOME is available as open hardware at [OnShape](https://cad.onshape.com/do
 
 ### Electronic Circuit Diagram
 
-![SOBIT HOME Circuit](sobit_home/docs/img/sobit_home_circuit.png)
+The wiring is documented as code in [sobit_home/docs/hardware](sobit_home/docs/hardware): device templates (ratings and pinouts) in `library.yml`, one harness file per subsystem in `harness/`, and diagrams rendered by [WireViz](https://github.com/wireviz/WireViz) into `generated/`. Edit the YAML, never the SVG.
+
+| Diagram | Content |
+| --- | --- |
+| [all](sobit_home/docs/hardware/generated/all.svg) | All harnesses merged |
+| [00_power_trunk](sobit_home/docs/hardware/generated/00_power_trunk.svg) | Batteries, DC-DC converters, emergency stop, power towers |
+| [10_compute](sobit_home/docs/hardware/generated/10_compute.svg) | Compute power: NUC, router and switching hub on their own battery |
+| [20_arm_left](sobit_home/docs/hardware/generated/20_arm_left.svg) | Left arm Dynamixel chain |
+| [21_arm_right](sobit_home/docs/hardware/generated/21_arm_right.svg) | Right arm Dynamixel chain |
+| [22_shoulders](sobit_home/docs/hardware/generated/22_shoulders.svg) | PH54 shoulder servos |
+| [23_head](sobit_home/docs/hardware/generated/23_head.svg) | Head pan-tilt |
+| [30_base_drive](sobit_home/docs/hardware/generated/30_base_drive.svg) | Wheel ESCs and motors, power + CAN hub, LiDAR power |
+| [31_base_steer](sobit_home/docs/hardware/generated/31_base_steer.svg) | Steering Dynamixel chain |
+| [40_hands](sobit_home/docs/hardware/generated/40_hands.svg) | Hand power and TTL Dynamixel chains |
+| [50_lift](sobit_home/docs/hardware/generated/50_lift.svg) | Lift servo stepper and CAN gateway |
+| [60_network](sobit_home/docs/hardware/generated/60_network.svg) | Ethernet |
+
+USB connections are not documented yet.
+
+Designators: `G` battery, `T` DC-DC converter, `S` emergency stop, `X` power tower or distribution board, `A` interface adapter, `P` hub, `K` computer, `N` network device, `W` cable. Actuators are named after their joint.
+
+Render the diagrams after editing:
+
+```bash
+sudo apt install graphviz
+pip install wireviz==0.4.1
+sobit_home/docs/hardware/tools/render.sh
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

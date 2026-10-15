@@ -608,7 +608,34 @@ SOBIT HOMEはオープンソースハードウェアとして[OnShape](https://c
 
 ### 電子回路図
 
-![SOBIT HOME Circuit](sobit_home/docs/img/sobit_home_circuit.png)
+配線は[sobit_home/docs/hardware](sobit_home/docs/hardware)でコードとして管理しています．`library.yml`に機器テンプレート（定格・ピン配置），`harness/`にサブシステムごとのハーネスファイルがあり，[WireViz](https://github.com/wireviz/WireViz)で`generated/`に図を出力します．編集はYAMLのみで，SVGは直接編集しません．
+
+| 図 | 内容 |
+| --- | --- |
+| [all](sobit_home/docs/hardware/generated/all.svg) | 全ハーネスを統合 |
+| [00_power_trunk](sobit_home/docs/hardware/generated/00_power_trunk.svg) | バッテリ，DC-DCコンバータ，非常停止，電源タワー |
+| [10_compute](sobit_home/docs/hardware/generated/10_compute.svg) | 計算機系電源：NUC，ルータ，スイッチングハブ（専用バッテリ） |
+| [20_arm_left](sobit_home/docs/hardware/generated/20_arm_left.svg) | 左腕のDynamixelチェーン |
+| [21_arm_right](sobit_home/docs/hardware/generated/21_arm_right.svg) | 右腕のDynamixelチェーン |
+| [22_shoulders](sobit_home/docs/hardware/generated/22_shoulders.svg) | PH54肩サーボ |
+| [23_head](sobit_home/docs/hardware/generated/23_head.svg) | 頭部パン・チルト |
+| [30_base_drive](sobit_home/docs/hardware/generated/30_base_drive.svg) | 車輪ESC・モータ，電源+CANハブ，LiDAR電源 |
+| [31_base_steer](sobit_home/docs/hardware/generated/31_base_steer.svg) | ステアリングのDynamixelチェーン |
+| [40_hands](sobit_home/docs/hardware/generated/40_hands.svg) | ハンドの電源とTTL Dynamixelチェーン |
+| [50_lift](sobit_home/docs/hardware/generated/50_lift.svg) | 昇降機構のサーボステッピングモータとCANゲートウェイ |
+| [60_network](sobit_home/docs/hardware/generated/60_network.svg) | Ethernet |
+
+USB接続はまだ記載していません．
+
+記号：`G` バッテリ，`T` DC-DCコンバータ，`S` 非常停止，`X` 電源タワー・分配基板，`A` インタフェースアダプタ，`P` ハブ，`K` コンピュータ，`N` ネットワーク機器，`W` ケーブル．アクチュエータは関節名で表記しています．
+
+編集後は図を再生成してください．
+
+```bash
+sudo apt install graphviz
+pip install wireviz==0.4.1
+sobit_home/docs/hardware/tools/render.sh
+```
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
