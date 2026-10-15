@@ -24,6 +24,22 @@ templates:
   - &distribution
     bgcolor_title: "#9FC5E8"
     hide_disconnected_pins: true
+  - &actuator
+    bgcolor_title: "#B4A7D6"
+  - &dxl_x_rs485
+    bgcolor_title: "#B4A7D6"
+    pinlabels: [A.GND, A.VDD, A.D+, A.D-, B.GND, B.VDD, B.D+, B.D-]
+  - &dxl_x_ttl
+    bgcolor_title: "#B4A7D6"
+    pinlabels: [A.GND, A.VDD, A.DATA, B.GND, B.VDD, B.DATA]
+  - &interface
+    bgcolor_title: "#F9CB9C"
+  - &sensor
+    bgcolor_title: "#A2C4C9"
+    hide_disconnected_pins: true
+  - &load
+    bgcolor_title: "#B6D7A8"
+    hide_disconnected_pins: true
 
 connectors:
   # Power sources
@@ -43,14 +59,14 @@ connectors:
     <<: *converter
     type: Step-down 36 V → 24 V
     subtype: 20 A
-  DCDC_24_12_30A:
+  DCDC_18_12_30A:
     <<: *converter
-    type: Step-down 24 V → 12 V
+    type: Step-down 18 V → 12 V
     subtype: 30 A
-  DCDC_12_5_10A:
+  DCDC_24_5_20A:
     <<: *converter
-    type: Step-down 12 V → 5 V
-    subtype: 10 A
+    type: Step-down 24 V → 5 V
+    subtype: 20 A
   DCDC_12_5_3A:
     <<: *converter
     type: Step-down 12 V → 5 V
@@ -62,8 +78,147 @@ connectors:
     type: Emergency stop
     subtype: 3 pole
     pinlabels: [IN1, OUT1, IN2, OUT2, IN3, OUT3]
+  POWER_HUB_24V:
+    <<: *distribution
+    type: Power + CAN hub
+    subtype: 24 V, 1 in, 6 x XT30 out, CANn next to On
+    pinlabels: [IN-, IN+, O1-, O1+, O2-, O2+, O3-, O3+, O4-, O4+, O5-, O5+, O6-, O6+,
+                CAN1.H, CAN1.L, CAN2.H, CAN2.L, CAN3.H, CAN3.L, CAN4.H, CAN4.L, CAN5.H, CAN5.L, CAN6.H, CAN6.L]
+  DXSDB_TTL:
+    <<: *distribution
+    type: Best Technology DXSDB-TTL (BTE103)
+    subtype: XT30 in 15 A, 5 x EH 3-pin in parallel
+    pinlabels: [XT30.-, XT30.+, P1.GND, P1.VDD, P1.DATA, P2.GND, P2.VDD, P2.DATA, P3.GND, P3.VDD, P3.DATA,
+                P4.GND, P4.VDD, P4.DATA, P5.GND, P5.VDD, P5.DATA]
   POWER_TOWER:
     <<: *distribution
     type: Power tower
     subtype: 4 x GND, 4 x V+
     pinlabels: [GND1, GND2, GND3, GND4, V1, V2, V3, V4]
+
+  # Compute and network
+  NUC:
+    <<: *load
+    type: Intel NUC 12 Pro (NUC12WSHi5)
+    subtype: 12-20 V, 120 W adapter; 2.5 GbE, TB = Thunderbolt 4 USB-C 15 W, USB3 = 3.2 Gen 2 Type-A
+    pinlabels: ["-", "+", LAN, HDMI1, HDMI2, TB1, TB2, USB3.REAR, USB2.REAR, USB3.FRONT1, USB3.FRONT2, AUDIO]
+  LAPTOP:
+    <<: *load
+    type: Operator laptop (off-robot)
+    pinlabels: [LAN]
+  ROUTER:
+    <<: *load
+    type: Router
+    subtype: 12 V, 1.5 A
+    pinlabels: ["-", "+"]
+  ETH_SWITCH:
+    <<: *load
+    type: TP-Link TL-SG605 switching hub
+    subtype: 5 V, 0.6 A, 5 x gigabit, unmanaged (ports interchangeable)
+    pinlabels: ["-", "+", LAN]
+  RJ45_COUPLER:
+    <<: *distribution
+    type: UGREEN RJ45 coupler (female-female)
+    pinlabels: [A, B]
+
+  # Actuators
+  XM430_W350:
+    <<: *dxl_x_rs485
+    type: Dynamixel XM430-W350-R
+    subtype: 12 V, 2.3 A stall
+  XM540_W270:
+    <<: *dxl_x_rs485
+    type: Dynamixel XM540-W270-R
+    subtype: 12 V, 4.4 A stall
+  XM540_W150:
+    <<: *dxl_x_rs485
+    type: Dynamixel XM540-W150-R
+    subtype: 12 V, 4.4 A stall
+  XL330_M288:
+    <<: *dxl_x_ttl
+    type: Dynamixel XL330-M288-T
+    subtype: 5 V, 1.47 A stall
+  M3508:
+    <<: *actuator
+    type: RoboMaster M3508 P19
+    subtype: 24 V, 10 A rated (ESC input)
+    pinlabels: [PH1, PH2, PH3, S1, S2, S3, S4, S5, S6, S7]
+  C620:
+    <<: *interface
+    type: RoboMaster C620 ESC
+    subtype: 24 V, 20 A continuous, CAN 1 Mbps, 120 Ω switch
+    pinlabels: [XT30.-, XT30.+, PH1, PH2, PH3, S1, S2, S3, S4, S5, S6, S7, CAN_L, CAN_H]
+  UIM8696CAB:
+    <<: *actuator
+    type: UIRobot UIM8696CAB (lift)
+    subtype: 24-48 V, 5 A rated
+    pinlabels: [+V, GND, CANH, CANL, IO.GND, IN01, IN02, IN03, OP01]
+  UIM2513:
+    <<: *interface
+    type: UIRobot UIM2513 RS232-CAN gateway
+    subtype: 12-48 V
+    pinlabels: [FG, CL, CH, 0V, V+, DB9.RXD, DB9.TXD, DB9.GND]
+  U2D2:
+    <<: *interface
+    type: ROBOTIS U2D2
+    subtype: USB-C, does not power Dynamixel
+    pinlabels: [TTL.GND, TTL.VDD, TTL.DATA, RS485.GND, RS485.VDD, RS485.D+, RS485.D-, USB]
+  U2D2_PHB:
+    <<: *distribution
+    type: ROBOTIS U2D2 Power Hub Board
+    subtype: 3.5-24 V, 10 A; RS-485 4-pin and TTL 3-pin ports
+    pinlabels: [PWR.-, PWR.+, P1.GND, P1.VDD, P1.D+, P1.D-, P2.GND, P2.VDD, P2.D+, P2.D-,
+                P3.GND, P3.VDD, P3.D+, P3.D-, P4.GND, P4.VDD, P4.D+, P4.D-,
+                T1.GND, T1.VDD, T1.DATA, T2.GND, T2.VDD, T2.DATA, T3.GND, T3.VDD, T3.DATA]
+  SH_C31G:
+    <<: *interface
+    type: DSD TECH SH-C31G USB-CAN (isolated, CAN FD)
+    subtype: USB-B, 120 Ω switch; GND/+5V isolated, not PC ground
+    pinlabels: [CAN_L, CAN_H, GND, +5V, USB]
+  UIC321H:
+    <<: *interface
+    type: UIRobot UIC321H USB-RS232 (isolated)
+    subtype: USB-A lead 1 m, USB powered, 3000 V DC isolation
+    pinlabels: [DB9.RXD, DB9.TXD, DB9.GND, USB]
+  PH54_200_S500:
+    <<: *actuator
+    type: Dynamixel PH54-200-S500-R
+    subtype: 24 V, 9.3 A continuous
+    pinlabels: [PWR.GND, PWR.VDD, A.GND, A.VDD, A.D+, A.D-, B.GND, B.VDD, B.D+, B.D-]
+    notes: "PWR: Molex 39-01-2020; A/B: JST EH 4-pin RS-485"
+
+  # Audio and displays
+  JBL_FLIP7:
+    <<: *load
+    type: JBL Flip 7 speaker
+    pinlabels: [USB-C]
+  RODE_VMGOIIH:
+    <<: *sensor
+    type: RØDE VideoMic GO II HELIX
+    pinlabels: [USB-C]
+  WAVESHARE_8DP:
+    <<: *load
+    type: Waveshare 8DP-CAPLCD touch display
+    subtype: 8 in, 1280 x 800
+    pinlabels: [HDMI, USB-C, micro-USB]
+  ZEN16_ULTRA:
+    <<: *load
+    type: Acouto Zen16 Ultra monitor
+    subtype: 16 in, 4K
+    pinlabels: [HDMI, USB-C]
+
+  # Sensors
+  GEMINI_336L:
+    <<: *sensor
+    type: Orbbec Gemini 336L RGB-D camera
+    pinlabels: [USB-C]
+  ELP_GS1200P01:
+    <<: *sensor
+    type: ELP-USBGS1200P01-H120 camera
+    subtype: AR0234 global shutter, 120°
+    pinlabels: [USB]
+  UST_20LX:
+    <<: *sensor
+    type: Hokuyo UST-20LX
+    subtype: 10-30 V, 0.15 A (0.45 A startup)
+    pinlabels: ["-", "+", ETH]

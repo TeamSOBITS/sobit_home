@@ -1,0 +1,50 @@
+# Right arm: RS-485 from power hub board X9, chain in ID order; servos 1-6 powered from X3, 7-9 from X2.
+# The link between the two power groups carries data only (D+/D-). Pairs (_a/_b) drive one joint.
+
+cables:
+  W221: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W222: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W223: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W224: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W225: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W226: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W227: {wirecount: 2, wirelabels: [D+, D-]}
+  W228: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W229: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W231: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W232: {wirecount: 2, wirelabels: [D+, D-]}
+
+connections:
+  - - POWER_TOWER.X3: [GND4, V4]
+    - W221: [1, 2]
+    - XM540_W270.arm_right_upper_roll_a: [A.GND, A.VDD]
+  - - arm_right_upper_roll_a: [B.GND, B.VDD, B.D+, B.D-]
+    - W222: [1, 2, 3, 4]
+    - XM540_W270.arm_right_upper_roll_b: [A.GND, A.VDD, A.D+, A.D-]
+  - - arm_right_upper_roll_b: [B.GND, B.VDD, B.D+, B.D-]
+    - W223: [1, 2, 3, 4]
+    - XM540_W270.arm_right_upper_flex_a: [A.GND, A.VDD, A.D+, A.D-]
+  - - arm_right_upper_flex_a: [B.GND, B.VDD, B.D+, B.D-]
+    - W224: [1, 2, 3, 4]
+    - XM540_W270.arm_right_upper_flex_b: [A.GND, A.VDD, A.D+, A.D-]
+  - - arm_right_upper_flex_b: [B.GND, B.VDD, B.D+, B.D-]
+    - W225: [1, 2, 3, 4]
+    - XM540_W270.arm_right_elbow_a: [A.GND, A.VDD, A.D+, A.D-]
+  - - arm_right_elbow_a: [B.GND, B.VDD, B.D+, B.D-]
+    - W226: [1, 2, 3, 4]
+    - XM540_W270.arm_right_elbow_b: [A.GND, A.VDD, A.D+, A.D-]
+  - - arm_right_elbow_b: [B.D+, B.D-]
+    - W227: [1, 2]
+    - XM540_W270.arm_right_lower_flex: [A.D+, A.D-]
+  - - arm_right_lower_flex: [B.GND, B.VDD, B.D+, B.D-]
+    - W228: [1, 2, 3, 4]
+    - XM430_W350.arm_right_wrist_tilt: [A.GND, A.VDD, A.D+, A.D-]
+  - - arm_right_wrist_tilt: [B.GND, B.VDD, B.D+, B.D-]
+    - W229: [1, 2, 3, 4]
+    - XM430_W350.arm_right_wrist_roll: [A.GND, A.VDD, A.D+, A.D-]
+  - - POWER_TOWER.X2: [GND3, V3]
+    - W231: [1, 2]
+    - arm_right_lower_flex: [A.GND, A.VDD]
+  - - U2D2_PHB.X9: [P3.D+, P3.D-]
+    - W232: [1, 2]
+    - arm_right_upper_roll_a: [A.D+, A.D-]

@@ -1,0 +1,37 @@
+# Compute power: own battery, not routed through the emergency stop.
+
+cables:
+  W101: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
+  W102: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
+  W103: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
+  W104: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W105: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W106: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W107: {category: bundle, colors: [*gnd, *v5], wirelabels: [GND, +5V]}
+
+connections:
+  - - BATT_18V.G4: ["-", "+"]
+    - W101: [1, 2]
+    - POWER_TOWER.X4: [GND1, V1]
+
+  # 18 V tower
+  - - X4: [GND2, V2]
+    - W102: [1, 2]
+    - NUC.K1: ["-", "+"]
+  - - X4: [GND3, V3]
+    - W103: [1, 2]
+    - DCDC_18_12_30A.T4: [IN-, IN+]
+
+  # 12 V tower
+  - - T4: [OUT-, OUT+]
+    - W104: [1, 2]
+    - POWER_TOWER.X5: [GND1, V1]
+  - - X5: [GND2, V2]
+    - W105: [1, 2]
+    - ROUTER.N2: ["-", "+"]
+  - - X5: [GND3, V3]
+    - W106: [1, 2]
+    - DCDC_12_5_3A.T5: [IN-, IN+]
+  - - T5: [OUT-, OUT+]
+    - W107: [1, 2]
+    - ETH_SWITCH.N1: ["-", "+"]
