@@ -1,0 +1,56 @@
+# Actuation power trunk: batteries -> converters -> emergency stop -> power towers.
+# Negative rails bypass the emergency stop; each pole cuts one positive rail.
+
+cables:
+  W001: {category: bundle, colors: [*gnd, *v36], wirelabels: [GND, +36V]}
+  W002: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
+  W003: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
+  W011: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
+  W012: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W013: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W021: {category: bundle, colors: [*v24], wirelabels: [+24V]}
+  W022: {category: bundle, colors: [*v12], wirelabels: [+12V]}
+  W023: {category: bundle, colors: [*v12], wirelabels: [+12V]}
+
+connections:
+  # Battery -> converter input
+  - - BATT_36V.G1: ["-", "+"]
+    - W001: [1, 2]
+    - DCDC_36_24_20A.T1: [IN-, IN+]
+  - - BATT_18V.G2: ["-", "+"]
+    - W002: [1, 2]
+    - DCDC_24_12_30A.T2: [IN-, IN+]
+  - - BATT_18V.G3: ["-", "+"]
+    - W003: [1, 2]
+    - DCDC_24_12_30A.T3: [IN-, IN+]
+
+  # Converter output: GND to tower, V+ to emergency stop
+  - - T1: [OUT-]
+    - W011: [1]
+    - POWER_TOWER.X1: [GND1]
+  - - T1: [OUT+]
+    - W011: [2]
+    - ESTOP_3P.S1: [IN3]
+  - - T2: [OUT-]
+    - W012: [1]
+    - POWER_TOWER.X2: [GND1]
+  - - T2: [OUT+]
+    - W012: [2]
+    - S1: [IN2]
+  - - T3: [OUT-]
+    - W013: [1]
+    - POWER_TOWER.X3: [GND1]
+  - - T3: [OUT+]
+    - W013: [2]
+    - S1: [IN1]
+
+  # Emergency stop -> tower V+
+  - - S1: [OUT3]
+    - W021: [1]
+    - X1: [V1]
+  - - S1: [OUT2]
+    - W022: [1]
+    - X2: [V1]
+  - - S1: [OUT1]
+    - W023: [1]
+    - X3: [V1]

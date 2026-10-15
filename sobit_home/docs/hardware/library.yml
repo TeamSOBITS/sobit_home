@@ -1,0 +1,69 @@
+# Device templates shared by every harness file (wireviz --prepend).
+# Ratings follow the circuit overview; leave a field out rather than guess it.
+
+options:
+  bgcolor_bundle: "#FAFAFA"
+
+templates:
+  # Rail colours, IEC 60757 codes (drawing convention, not measured insulation colours)
+  - &gnd BK
+  - &v36 BN
+  - &v24 RD
+  - &v18 OG
+  - &v12 PK
+  - &v5 YE
+
+  # Device categories
+  - &source
+    bgcolor_title: "#FFE599"
+  - &converter
+    bgcolor_title: "#D9D9D9"
+    pinlabels: [IN-, IN+, OUT-, OUT+]
+  - &safety
+    bgcolor_title: "#EA9999"
+  - &distribution
+    bgcolor_title: "#9FC5E8"
+    hide_disconnected_pins: true
+
+connectors:
+  # Power sources
+  BATT_18V:
+    <<: *source
+    type: Makita 18 V Li-ion
+    subtype: 6.0 Ah
+    pinlabels: ["-", "+"]
+  BATT_36V:
+    <<: *source
+    type: Makita BCV03 (2 x 18 V in series)
+    subtype: 36 V, 2 x 6.0 Ah
+    pinlabels: ["-", "+"]
+
+  # DC-DC converters
+  DCDC_36_24_20A:
+    <<: *converter
+    type: Step-down 36 V → 24 V
+    subtype: 20 A
+  DCDC_24_12_30A:
+    <<: *converter
+    type: Step-down 24 V → 12 V
+    subtype: 30 A
+  DCDC_12_5_10A:
+    <<: *converter
+    type: Step-down 12 V → 5 V
+    subtype: 10 A
+  DCDC_12_5_3A:
+    <<: *converter
+    type: Step-down 12 V → 5 V
+    subtype: 3 A
+
+  # Distribution
+  ESTOP_3P:
+    <<: *safety
+    type: Emergency stop
+    subtype: 3 pole
+    pinlabels: [IN1, OUT1, IN2, OUT2, IN3, OUT3]
+  POWER_TOWER:
+    <<: *distribution
+    type: Power tower
+    subtype: 4 x GND, 4 x V+
+    pinlabels: [GND1, GND2, GND3, GND4, V1, V2, V3, V4]
