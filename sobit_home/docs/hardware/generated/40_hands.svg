@@ -270,48 +270,24 @@
 <!-- A10 -->
 <g id="node4" class="node">
 <title>A10</title>
-<polygon fill="#ffffff" stroke="black" points="1110,-1154 744,-1154 744,-924 1110,-924 1110,-1154"/>
-<polygon fill="#f9cb9c" stroke="transparent" points="744,-1131 744,-1154 1110,-1154 1110,-1131 744,-1131"/>
-<polygon fill="none" stroke="black" points="744,-1131 744,-1154 1110,-1154 1110,-1131 744,-1131"/>
-<text text-anchor="start" x="914.5" y="-1138.8" font-family="arial" font-size="14.00">A10</text>
-<polygon fill="none" stroke="black" points="744,-1108 744,-1131 853,-1131 853,-1108 744,-1108"/>
-<text text-anchor="start" x="748" y="-1115.8" font-family="arial" font-size="14.00">ROBOTIS U2D2</text>
-<polygon fill="none" stroke="black" points="853,-1108 853,-1131 1071,-1131 1071,-1108 853,-1108"/>
-<text text-anchor="start" x="857" y="-1115.8" font-family="arial" font-size="14.00">USB&#45;C, does not power Dynamixel</text>
-<polygon fill="none" stroke="black" points="1071,-1108 1071,-1131 1110,-1131 1110,-1108 1071,-1108"/>
-<text text-anchor="start" x="1075" y="-1115.8" font-family="arial" font-size="14.00">8&#45;pin</text>
-<polygon fill="none" stroke="black" points="744,-1085 744,-1108 961,-1108 961,-1085 744,-1085"/>
-<text text-anchor="start" x="823" y="-1092.8" font-family="arial" font-size="14.00">TTL.GND</text>
-<polygon fill="none" stroke="black" points="961,-1085 961,-1108 1110,-1108 1110,-1085 961,-1085"/>
-<text text-anchor="start" x="1031.5" y="-1092.8" font-family="arial" font-size="14.00">1</text>
-<polygon fill="none" stroke="black" points="744,-1062 744,-1085 961,-1085 961,-1062 744,-1062"/>
-<text text-anchor="start" x="824" y="-1069.8" font-family="arial" font-size="14.00">TTL.VDD</text>
-<polygon fill="none" stroke="black" points="961,-1062 961,-1085 1110,-1085 1110,-1062 961,-1062"/>
-<text text-anchor="start" x="1031.5" y="-1069.8" font-family="arial" font-size="14.00">2</text>
-<polygon fill="none" stroke="black" points="744,-1039 744,-1062 961,-1062 961,-1039 744,-1039"/>
-<text text-anchor="start" x="820.5" y="-1046.8" font-family="arial" font-size="14.00">TTL.DATA</text>
-<polygon fill="none" stroke="black" points="961,-1039 961,-1062 1110,-1062 1110,-1039 961,-1039"/>
-<text text-anchor="start" x="1031.5" y="-1046.8" font-family="arial" font-size="14.00">3</text>
-<polygon fill="none" stroke="black" points="744,-1016 744,-1039 961,-1039 961,-1016 744,-1016"/>
-<text text-anchor="start" x="814.5" y="-1023.8" font-family="arial" font-size="14.00">RS485.GND</text>
-<polygon fill="none" stroke="black" points="961,-1016 961,-1039 1110,-1039 1110,-1016 961,-1016"/>
-<text text-anchor="start" x="1031.5" y="-1023.8" font-family="arial" font-size="14.00">4</text>
-<polygon fill="none" stroke="black" points="744,-993 744,-1016 961,-1016 961,-993 744,-993"/>
-<text text-anchor="start" x="815.5" y="-1000.8" font-family="arial" font-size="14.00">RS485.VDD</text>
-<polygon fill="none" stroke="black" points="961,-993 961,-1016 1110,-1016 1110,-993 961,-993"/>
-<text text-anchor="start" x="1031.5" y="-1000.8" font-family="arial" font-size="14.00">5</text>
-<polygon fill="none" stroke="black" points="744,-970 744,-993 961,-993 961,-970 744,-970"/>
-<text text-anchor="start" x="820.5" y="-977.8" font-family="arial" font-size="14.00">RS485.D+</text>
-<polygon fill="none" stroke="black" points="961,-970 961,-993 1110,-993 1110,-970 961,-970"/>
-<text text-anchor="start" x="1031.5" y="-977.8" font-family="arial" font-size="14.00">6</text>
-<polygon fill="none" stroke="black" points="744,-947 744,-970 961,-970 961,-947 744,-947"/>
-<text text-anchor="start" x="822.5" y="-954.8" font-family="arial" font-size="14.00">RS485.D&#45;</text>
-<polygon fill="none" stroke="black" points="961,-947 961,-970 1110,-970 1110,-947 961,-947"/>
-<text text-anchor="start" x="1031.5" y="-954.8" font-family="arial" font-size="14.00">7</text>
-<polygon fill="none" stroke="black" points="744,-924 744,-947 961,-947 961,-924 744,-924"/>
-<text text-anchor="start" x="838.5" y="-931.8" font-family="arial" font-size="14.00">USB</text>
-<polygon fill="none" stroke="black" points="961,-924 961,-947 1110,-947 1110,-924 961,-924"/>
-<text text-anchor="start" x="1031.5" y="-931.8" font-family="arial" font-size="14.00">8</text>
+<polygon fill="#ffffff" stroke="black" points="1110,-1143 744,-1143 744,-1051 1110,-1051 1110,-1143"/>
+<polygon fill="#f9cb9c" stroke="transparent" points="744,-1120 744,-1143 1110,-1143 1110,-1120 744,-1120"/>
+<polygon fill="none" stroke="black" points="744,-1120 744,-1143 1110,-1143 1110,-1120 744,-1120"/>
+<text text-anchor="start" x="914.5" y="-1127.8" font-family="arial" font-size="14.00">A10</text>
+<polygon fill="none" stroke="black" points="744,-1097 744,-1120 853,-1120 853,-1097 744,-1097"/>
+<text text-anchor="start" x="748" y="-1104.8" font-family="arial" font-size="14.00">ROBOTIS U2D2</text>
+<polygon fill="none" stroke="black" points="853,-1097 853,-1120 1071,-1120 1071,-1097 853,-1097"/>
+<text text-anchor="start" x="857" y="-1104.8" font-family="arial" font-size="14.00">USB&#45;C, does not power Dynamixel</text>
+<polygon fill="none" stroke="black" points="1071,-1097 1071,-1120 1110,-1120 1110,-1097 1071,-1097"/>
+<text text-anchor="start" x="1075" y="-1104.8" font-family="arial" font-size="14.00">8&#45;pin</text>
+<polygon fill="none" stroke="black" points="744,-1074 744,-1097 955,-1097 955,-1074 744,-1074"/>
+<text text-anchor="start" x="820" y="-1081.8" font-family="arial" font-size="14.00">TTL.GND</text>
+<polygon fill="none" stroke="black" points="955,-1074 955,-1097 1110,-1097 1110,-1074 955,-1074"/>
+<text text-anchor="start" x="1028.5" y="-1081.8" font-family="arial" font-size="14.00">1</text>
+<polygon fill="none" stroke="black" points="744,-1051 744,-1074 955,-1074 955,-1051 744,-1051"/>
+<text text-anchor="start" x="817.5" y="-1058.8" font-family="arial" font-size="14.00">TTL.DATA</text>
+<polygon fill="none" stroke="black" points="955,-1051 955,-1074 1110,-1074 1110,-1051 955,-1051"/>
+<text text-anchor="start" x="1028.5" y="-1058.8" font-family="arial" font-size="14.00">3</text>
 </g>
 <!-- W403 -->
 <g id="node24" class="node">
@@ -339,16 +315,16 @@
 <!-- A10&#45;&#45;W403 -->
 <g id="edge9" class="edge">
 <title>A10:e&#45;&#45;W403:w</title>
-<path fill="none" stroke="#000000" stroke-width="2" d="M1110,-1095C1173.04,-1095.36 1188.66,-1084.36 1254,-1084"/>
-<path fill="none" stroke="#ffffff" stroke-width="2" d="M1110,-1097C1174.19,-1097 1189.81,-1086 1254,-1086"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M1110,-1099C1175.34,-1098.64 1190.96,-1087.64 1254,-1088"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M1110,-1083C1174.13,-1083 1190.12,-1084 1254,-1084"/>
+<path fill="none" stroke="#ffffff" stroke-width="2" d="M1110,-1085C1174,-1085 1190,-1086 1254,-1086"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M1110,-1087C1173.88,-1087 1189.87,-1088 1254,-1088"/>
 </g>
 <!-- A10&#45;&#45;W403 -->
 <g id="edge11" class="edge">
 <title>A10:e&#45;&#45;W403:w</title>
-<path fill="none" stroke="#000000" stroke-width="2" d="M1110,-1049C1175.23,-1049.31 1190.92,-1059.31 1254,-1059"/>
-<path fill="none" stroke="#ffffff" stroke-width="2" d="M1110,-1051C1174.15,-1051 1189.85,-1061 1254,-1061"/>
-<path fill="none" stroke="#000000" stroke-width="2" d="M1110,-1053C1173.08,-1052.69 1188.77,-1062.69 1254,-1063"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M1110,-1060C1173.88,-1060 1189.87,-1059 1254,-1059"/>
+<path fill="none" stroke="#ffffff" stroke-width="2" d="M1110,-1062C1174,-1062 1190,-1061 1254,-1061"/>
+<path fill="none" stroke="#000000" stroke-width="2" d="M1110,-1064C1174.13,-1064 1190.12,-1063 1254,-1063"/>
 </g>
 <!-- X10 -->
 <g id="node5" class="node">

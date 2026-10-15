@@ -1150,48 +1150,24 @@
 <!-- A9 -->
 <g id="node12" class="node">
 <title>A9</title>
-<polygon fill="#ffffff" stroke="black" points="366,-928 0,-928 0,-698 366,-698 366,-928"/>
-<polygon fill="#f9cb9c" stroke="transparent" points="0,-905 0,-928 366,-928 366,-905 0,-905"/>
-<polygon fill="none" stroke="black" points="0,-905 0,-928 366,-928 366,-905 0,-905"/>
-<text text-anchor="start" x="174.5" y="-912.8" font-family="arial" font-size="14.00">A9</text>
-<polygon fill="none" stroke="black" points="0,-882 0,-905 109,-905 109,-882 0,-882"/>
-<text text-anchor="start" x="4" y="-889.8" font-family="arial" font-size="14.00">ROBOTIS U2D2</text>
-<polygon fill="none" stroke="black" points="109,-882 109,-905 327,-905 327,-882 109,-882"/>
-<text text-anchor="start" x="113" y="-889.8" font-family="arial" font-size="14.00">USB&#45;C, does not power Dynamixel</text>
-<polygon fill="none" stroke="black" points="327,-882 327,-905 366,-905 366,-882 327,-882"/>
-<text text-anchor="start" x="331" y="-889.8" font-family="arial" font-size="14.00">8&#45;pin</text>
-<polygon fill="none" stroke="black" points="0,-859 0,-882 217,-882 217,-859 0,-859"/>
-<text text-anchor="start" x="79" y="-866.8" font-family="arial" font-size="14.00">TTL.GND</text>
-<polygon fill="none" stroke="black" points="217,-859 217,-882 366,-882 366,-859 217,-859"/>
-<text text-anchor="start" x="287.5" y="-866.8" font-family="arial" font-size="14.00">1</text>
-<polygon fill="none" stroke="black" points="0,-836 0,-859 217,-859 217,-836 0,-836"/>
-<text text-anchor="start" x="80" y="-843.8" font-family="arial" font-size="14.00">TTL.VDD</text>
-<polygon fill="none" stroke="black" points="217,-836 217,-859 366,-859 366,-836 217,-836"/>
-<text text-anchor="start" x="287.5" y="-843.8" font-family="arial" font-size="14.00">2</text>
-<polygon fill="none" stroke="black" points="0,-813 0,-836 217,-836 217,-813 0,-813"/>
-<text text-anchor="start" x="76.5" y="-820.8" font-family="arial" font-size="14.00">TTL.DATA</text>
-<polygon fill="none" stroke="black" points="217,-813 217,-836 366,-836 366,-813 217,-813"/>
-<text text-anchor="start" x="287.5" y="-820.8" font-family="arial" font-size="14.00">3</text>
-<polygon fill="none" stroke="black" points="0,-790 0,-813 217,-813 217,-790 0,-790"/>
-<text text-anchor="start" x="70.5" y="-797.8" font-family="arial" font-size="14.00">RS485.GND</text>
-<polygon fill="none" stroke="black" points="217,-790 217,-813 366,-813 366,-790 217,-790"/>
-<text text-anchor="start" x="287.5" y="-797.8" font-family="arial" font-size="14.00">4</text>
-<polygon fill="none" stroke="black" points="0,-767 0,-790 217,-790 217,-767 0,-767"/>
-<text text-anchor="start" x="71.5" y="-774.8" font-family="arial" font-size="14.00">RS485.VDD</text>
-<polygon fill="none" stroke="black" points="217,-767 217,-790 366,-790 366,-767 217,-767"/>
-<text text-anchor="start" x="287.5" y="-774.8" font-family="arial" font-size="14.00">5</text>
-<polygon fill="none" stroke="black" points="0,-744 0,-767 217,-767 217,-744 0,-744"/>
-<text text-anchor="start" x="76.5" y="-751.8" font-family="arial" font-size="14.00">RS485.D+</text>
-<polygon fill="none" stroke="black" points="217,-744 217,-767 366,-767 366,-744 217,-744"/>
-<text text-anchor="start" x="287.5" y="-751.8" font-family="arial" font-size="14.00">6</text>
-<polygon fill="none" stroke="black" points="0,-721 0,-744 217,-744 217,-721 0,-721"/>
-<text text-anchor="start" x="78.5" y="-728.8" font-family="arial" font-size="14.00">RS485.D&#45;</text>
-<polygon fill="none" stroke="black" points="217,-721 217,-744 366,-744 366,-721 217,-721"/>
-<text text-anchor="start" x="287.5" y="-728.8" font-family="arial" font-size="14.00">7</text>
-<polygon fill="none" stroke="black" points="0,-698 0,-721 217,-721 217,-698 0,-698"/>
-<text text-anchor="start" x="94.5" y="-705.8" font-family="arial" font-size="14.00">USB</text>
-<polygon fill="none" stroke="black" points="217,-698 217,-721 366,-721 366,-698 217,-698"/>
-<text text-anchor="start" x="287.5" y="-705.8" font-family="arial" font-size="14.00">8</text>
+<polygon fill="#ffffff" stroke="black" points="366,-813 0,-813 0,-721 366,-721 366,-813"/>
+<polygon fill="#f9cb9c" stroke="transparent" points="0,-790 0,-813 366,-813 366,-790 0,-790"/>
+<polygon fill="none" stroke="black" points="0,-790 0,-813 366,-813 366,-790 0,-790"/>
+<text text-anchor="start" x="174.5" y="-797.8" font-family="arial" font-size="14.00">A9</text>
+<polygon fill="none" stroke="black" points="0,-767 0,-790 109,-790 109,-767 0,-767"/>
+<text text-anchor="start" x="4" y="-774.8" font-family="arial" font-size="14.00">ROBOTIS U2D2</text>
+<polygon fill="none" stroke="black" points="109,-767 109,-790 327,-790 327,-767 109,-767"/>
+<text text-anchor="start" x="113" y="-774.8" font-family="arial" font-size="14.00">USB&#45;C, does not power Dynamixel</text>
+<polygon fill="none" stroke="black" points="327,-767 327,-790 366,-790 366,-767 327,-767"/>
+<text text-anchor="start" x="331" y="-774.8" font-family="arial" font-size="14.00">8&#45;pin</text>
+<polygon fill="none" stroke="black" points="0,-744 0,-767 211,-767 211,-744 0,-744"/>
+<text text-anchor="start" x="73.5" y="-751.8" font-family="arial" font-size="14.00">RS485.D+</text>
+<polygon fill="none" stroke="black" points="211,-744 211,-767 366,-767 366,-744 211,-744"/>
+<text text-anchor="start" x="284.5" y="-751.8" font-family="arial" font-size="14.00">6</text>
+<polygon fill="none" stroke="black" points="0,-721 0,-744 211,-744 211,-721 0,-721"/>
+<text text-anchor="start" x="75.5" y="-728.8" font-family="arial" font-size="14.00">RS485.D&#45;</text>
+<polygon fill="none" stroke="black" points="211,-721 211,-744 366,-744 366,-721 211,-721"/>
+<text text-anchor="start" x="284.5" y="-728.8" font-family="arial" font-size="14.00">7</text>
 </g>
 <!-- W212 -->
 <g id="node24" class="node">
