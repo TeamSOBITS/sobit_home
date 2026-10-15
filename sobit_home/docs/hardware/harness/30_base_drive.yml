@@ -1,0 +1,91 @@
+# Base drive: 24 V power + CAN hub P1 for the C620 ESCs and LiDARs, M3508 motors, USB-CAN adapter.
+# Wheel and LiDAR positions are read from the overview layout (top = front).
+
+cables:
+  W301: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
+  W302: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
+  W303: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
+  W304: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
+  W305: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
+  W306: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
+  W307: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
+  W321: {wirecount: 2, wirelabels: [CAN_H, CAN_L]}
+  W322: {wirecount: 2, wirelabels: [CAN_H, CAN_L]}
+  W323: {wirecount: 2, wirelabels: [CAN_H, CAN_L]}
+  W324: {wirecount: 2, wirelabels: [CAN_H, CAN_L]}
+  W325: {wirecount: 2, wirelabels: [CAN_H, CAN_L]}
+  W331: {type: 3-phase motor lead, wirecount: 3, wirelabels: [PH1, PH2, PH3]}
+  W332: {type: 7-pin sensor cable, wirecount: 7}
+  W333: {type: 3-phase motor lead, wirecount: 3, wirelabels: [PH1, PH2, PH3]}
+  W334: {type: 7-pin sensor cable, wirecount: 7}
+  W335: {type: 3-phase motor lead, wirecount: 3, wirelabels: [PH1, PH2, PH3]}
+  W336: {type: 7-pin sensor cable, wirecount: 7}
+  W337: {type: 3-phase motor lead, wirecount: 3, wirelabels: [PH1, PH2, PH3]}
+  W338: {type: 7-pin sensor cable, wirecount: 7}
+
+connections:
+  # 24 V hub: wheel ESCs and LiDARs
+  - - POWER_TOWER.X1: [GND3, V3]
+    - W301: [1, 2]
+    - POWER_HUB_24V.P1: [IN-, IN+]
+  - - P1: [O1-, O1+]
+    - W302: [1, 2]
+    - UST_20LX.lidar_front: ["-", "+"]
+  - - P1: [O2-, O2+]
+    - W303: [1, 2]
+    - C620.wheel_drive_f_l_esc: ["XT30.-", "XT30.+"]
+  - - P1: [O3-, O3+]
+    - W304: [1, 2]
+    - C620.wheel_drive_f_r_esc: ["XT30.-", "XT30.+"]
+  - - P1: [O4-, O4+]
+    - W305: [1, 2]
+    - C620.wheel_drive_b_r_esc: ["XT30.-", "XT30.+"]
+  - - P1: [O5-, O5+]
+    - W306: [1, 2]
+    - UST_20LX.lidar_back: ["-", "+"]
+  - - P1: [O6-, O6+]
+    - W307: [1, 2]
+    - C620.wheel_drive_b_l_esc: ["XT30.-", "XT30.+"]
+
+  # ESC → motor: 3-phase lead and 7-pin sensor cable
+  - - wheel_drive_f_l_esc: [PH1, PH2, PH3]
+    - W331: [1-3]
+    - M3508.wheel_drive_f_l: [PH1, PH2, PH3]
+  - - wheel_drive_f_l_esc: [S1, S2, S3, S4, S5, S6, S7]
+    - W332: [1-7]
+    - wheel_drive_f_l: [S1, S2, S3, S4, S5, S6, S7]
+  - - wheel_drive_f_r_esc: [PH1, PH2, PH3]
+    - W333: [1-3]
+    - M3508.wheel_drive_f_r: [PH1, PH2, PH3]
+  - - wheel_drive_f_r_esc: [S1, S2, S3, S4, S5, S6, S7]
+    - W334: [1-7]
+    - wheel_drive_f_r: [S1, S2, S3, S4, S5, S6, S7]
+  - - wheel_drive_b_r_esc: [PH1, PH2, PH3]
+    - W335: [1-3]
+    - M3508.wheel_drive_b_r: [PH1, PH2, PH3]
+  - - wheel_drive_b_r_esc: [S1, S2, S3, S4, S5, S6, S7]
+    - W336: [1-7]
+    - wheel_drive_b_r: [S1, S2, S3, S4, S5, S6, S7]
+  - - wheel_drive_b_l_esc: [PH1, PH2, PH3]
+    - W337: [1-3]
+    - M3508.wheel_drive_b_l: [PH1, PH2, PH3]
+  - - wheel_drive_b_l_esc: [S1, S2, S3, S4, S5, S6, S7]
+    - W338: [1-7]
+    - wheel_drive_b_l: [S1, S2, S3, S4, S5, S6, S7]
+
+  # CAN: each C620 on the port next to its power output, adapter next to the front LiDAR
+  - - P1: [CAN1.H, CAN1.L]
+    - W321: [1, 2]
+    - SH_C31G.A8: [CAN_H, CAN_L]
+  - - P1: [CAN2.H, CAN2.L]
+    - W322: [1, 2]
+    - wheel_drive_f_l_esc: [CAN_H, CAN_L]
+  - - P1: [CAN3.H, CAN3.L]
+    - W323: [1, 2]
+    - wheel_drive_f_r_esc: [CAN_H, CAN_L]
+  - - P1: [CAN4.H, CAN4.L]
+    - W324: [1, 2]
+    - wheel_drive_b_r_esc: [CAN_H, CAN_L]
+  - - P1: [CAN6.H, CAN6.L]
+    - W325: [1, 2]
+    - wheel_drive_b_l_esc: [CAN_H, CAN_L]

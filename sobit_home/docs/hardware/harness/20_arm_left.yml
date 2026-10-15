@@ -1,0 +1,54 @@
+# Left arm: RS-485 from the shared U2D2 + power hub board X9, chain in ID order; servos 1-6 powered from X2, 7-9 from X3.
+# The link between the two power groups carries data only (D+/D-). Pairs (_a/_b) drive one joint.
+
+cables:
+  W201: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W202: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W203: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W204: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W205: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W206: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W207: {wirecount: 2, wirelabels: [D+, D-]}
+  W208: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W209: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W211: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W212: {wirecount: 2, wirelabels: [D+, D-]}
+  W213: {wirecount: 2, wirelabels: [D+, D-]}
+
+connections:
+  - - POWER_TOWER.X2: [GND2, V2]
+    - W201: [1, 2]
+    - XM540_W270.arm_left_upper_roll_a: [A.GND, A.VDD]
+  - - arm_left_upper_roll_a: [B.GND, B.VDD, B.D+, B.D-]
+    - W202: [1, 2, 3, 4]
+    - XM540_W270.arm_left_upper_roll_b: [A.GND, A.VDD, A.D+, A.D-]
+  - - arm_left_upper_roll_b: [B.GND, B.VDD, B.D+, B.D-]
+    - W203: [1, 2, 3, 4]
+    - XM540_W270.arm_left_upper_flex_a: [A.GND, A.VDD, A.D+, A.D-]
+  - - arm_left_upper_flex_a: [B.GND, B.VDD, B.D+, B.D-]
+    - W204: [1, 2, 3, 4]
+    - XM540_W270.arm_left_upper_flex_b: [A.GND, A.VDD, A.D+, A.D-]
+  - - arm_left_upper_flex_b: [B.GND, B.VDD, B.D+, B.D-]
+    - W205: [1, 2, 3, 4]
+    - XM540_W270.arm_left_elbow_a: [A.GND, A.VDD, A.D+, A.D-]
+  - - arm_left_elbow_a: [B.GND, B.VDD, B.D+, B.D-]
+    - W206: [1, 2, 3, 4]
+    - XM540_W270.arm_left_elbow_b: [A.GND, A.VDD, A.D+, A.D-]
+  - - arm_left_elbow_b: [B.D+, B.D-]
+    - W207: [1, 2]
+    - XM540_W270.arm_left_lower_flex: [A.D+, A.D-]
+  - - arm_left_lower_flex: [B.GND, B.VDD, B.D+, B.D-]
+    - W208: [1, 2, 3, 4]
+    - XM430_W350.arm_left_wrist_tilt: [A.GND, A.VDD, A.D+, A.D-]
+  - - arm_left_wrist_tilt: [B.GND, B.VDD, B.D+, B.D-]
+    - W209: [1, 2, 3, 4]
+    - XM430_W350.arm_left_wrist_roll: [A.GND, A.VDD, A.D+, A.D-]
+  - - POWER_TOWER.X3: [GND3, V3]
+    - W211: [1, 2]
+    - arm_left_lower_flex: [A.GND, A.VDD]
+  - - U2D2.A9: [RS485.D+, RS485.D-]
+    - W212: [1, 2]
+    - U2D2_PHB.X9: [P1.D+, P1.D-]
+  - - X9: [P2.D+, P2.D-]
+    - W213: [1, 2]
+    - arm_left_upper_roll_a: [A.D+, A.D-]

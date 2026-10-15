@@ -19,10 +19,10 @@ connections:
     - DCDC_36_24_20A.T1: [IN-, IN+]
   - - BATT_18V.G2: ["-", "+"]
     - W002: [1, 2]
-    - DCDC_24_12_30A.T2: [IN-, IN+]
+    - DCDC_18_12_30A.T2: [IN-, IN+]
   - - BATT_18V.G3: ["-", "+"]
     - W003: [1, 2]
-    - DCDC_24_12_30A.T3: [IN-, IN+]
+    - DCDC_18_12_30A.T3: [IN-, IN+]
 
   # Converter output: GND to tower, V+ to emergency stop
   - - T1: [OUT-]

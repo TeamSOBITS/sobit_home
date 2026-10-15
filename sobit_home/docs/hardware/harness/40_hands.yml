@@ -1,0 +1,90 @@
+# Hands: X1 supply terminal → 5 V 20 A converter → X6 → one DXSDB-TTL per hand (rotation + fingers, proximal to distal).
+# TTL data (GND + DATA) from one U2D2 through the unpowered hub board X10.
+
+cables:
+  W401: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
+  W402: {category: bundle, colors: [*gnd, *v5], wirelabels: [GND, +5V]}
+  W403: {wirecount: 2, wirelabels: [GND, DATA]}
+  W411: {category: bundle, colors: [*gnd, *v5], wirelabels: [GND, +5V]}
+  W412: {wirecount: 2, wirelabels: [GND, DATA]}
+  W413: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W414: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W415: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W416: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W417: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W418: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W419: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W431: {category: bundle, colors: [*gnd, *v5], wirelabels: [GND, +5V]}
+  W432: {wirecount: 2, wirelabels: [GND, DATA]}
+  W433: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W434: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W435: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W436: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W437: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W438: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+  W439: {wirecount: 3, wirelabels: [GND, VDD, DATA]}
+
+connections:
+  - - POWER_TOWER.X1: [GND1, V1]
+    - W401: [1, 2]
+    - DCDC_24_5_20A.T6: [IN-, IN+]
+  - - T6: [OUT-, OUT+]
+    - W402: [1, 2]
+    - POWER_TOWER.X6: [GND1, V1]
+  - - U2D2.A10: [TTL.GND, TTL.DATA]
+    - W403: [1, 2]
+    - U2D2_PHB.X10: [T1.GND, T1.DATA]
+  - - X6: [GND2, V2]
+    - W411: [1, 2]
+    - DXSDB_TTL.X7: [XT30.-, XT30.+]
+  - - X10: [T2.GND, T2.DATA]
+    - W412: [1, 2]
+    - X7: [P1.GND, P1.DATA]
+  - - X7: [P2.GND, P2.VDD, P2.DATA]
+    - W413: [1, 2, 3]
+    - XL330_M288.hand_left_finger_l_mcp: [A.GND, A.VDD, A.DATA]
+  - - X7: [P3.GND, P3.VDD, P3.DATA]
+    - W414: [1, 2, 3]
+    - XL330_M288.hand_left_finger_l_pip: [A.GND, A.VDD, A.DATA]
+  - - hand_left_finger_l_pip: [B.GND, B.VDD, B.DATA]
+    - W415: [1, 2, 3]
+    - XL330_M288.hand_left_finger_l_dip: [A.GND, A.VDD, A.DATA]
+  - - X7: [P4.GND, P4.VDD, P4.DATA]
+    - W416: [1, 2, 3]
+    - XL330_M288.hand_left_finger_c_mcp: [A.GND, A.VDD, A.DATA]
+  - - hand_left_finger_c_mcp: [B.GND, B.VDD, B.DATA]
+    - W417: [1, 2, 3]
+    - XL330_M288.hand_left_finger_c_ip: [A.GND, A.VDD, A.DATA]
+  - - X7: [P5.GND, P5.VDD, P5.DATA]
+    - W418: [1, 2, 3]
+    - XL330_M288.hand_left_finger_r_pip: [A.GND, A.VDD, A.DATA]
+  - - hand_left_finger_r_pip: [B.GND, B.VDD, B.DATA]
+    - W419: [1, 2, 3]
+    - XL330_M288.hand_left_finger_r_dip: [A.GND, A.VDD, A.DATA]
+  - - X6: [GND3, V3]
+    - W431: [1, 2]
+    - DXSDB_TTL.X8: [XT30.-, XT30.+]
+  - - X10: [T3.GND, T3.DATA]
+    - W432: [1, 2]
+    - X8: [P1.GND, P1.DATA]
+  - - X8: [P2.GND, P2.VDD, P2.DATA]
+    - W433: [1, 2, 3]
+    - XL330_M288.hand_right_finger_l_mcp: [A.GND, A.VDD, A.DATA]
+  - - X8: [P3.GND, P3.VDD, P3.DATA]
+    - W434: [1, 2, 3]
+    - XL330_M288.hand_right_finger_l_pip: [A.GND, A.VDD, A.DATA]
+  - - hand_right_finger_l_pip: [B.GND, B.VDD, B.DATA]
+    - W435: [1, 2, 3]
+    - XL330_M288.hand_right_finger_l_dip: [A.GND, A.VDD, A.DATA]
+  - - X8: [P4.GND, P4.VDD, P4.DATA]
+    - W436: [1, 2, 3]
+    - XL330_M288.hand_right_finger_c_mcp: [A.GND, A.VDD, A.DATA]
+  - - hand_right_finger_c_mcp: [B.GND, B.VDD, B.DATA]
+    - W437: [1, 2, 3]
+    - XL330_M288.hand_right_finger_c_ip: [A.GND, A.VDD, A.DATA]
+  - - X8: [P5.GND, P5.VDD, P5.DATA]
+    - W438: [1, 2, 3]
+    - XL330_M288.hand_right_finger_r_pip: [A.GND, A.VDD, A.DATA]
+  - - hand_right_finger_r_pip: [B.GND, B.VDD, B.DATA]
+    - W439: [1, 2, 3]
+    - XL330_M288.hand_right_finger_r_dip: [A.GND, A.VDD, A.DATA]

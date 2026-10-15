@@ -210,7 +210,7 @@
 <polygon fill="none" stroke="black" points="844.5,-584 844.5,-607 1073.5,-607 1073.5,-584 844.5,-584"/>
 <text text-anchor="start" x="951" y="-591.8" font-family="arial" font-size="14.00">T2</text>
 <polygon fill="none" stroke="black" points="844.5,-561 844.5,-584 998.5,-584 998.5,-561 844.5,-561"/>
-<text text-anchor="start" x="848.5" y="-568.8" font-family="arial" font-size="14.00">Step&#45;down 24 V → 12 V</text>
+<text text-anchor="start" x="848.5" y="-568.8" font-family="arial" font-size="14.00">Step&#45;down 18 V → 12 V</text>
 <polygon fill="none" stroke="black" points="998.5,-561 998.5,-584 1034.5,-584 1034.5,-561 998.5,-561"/>
 <text text-anchor="start" x="1002.5" y="-568.8" font-family="arial" font-size="14.00">30 A</text>
 <polygon fill="none" stroke="black" points="1034.5,-561 1034.5,-584 1073.5,-584 1073.5,-561 1034.5,-561"/>
@@ -344,7 +344,7 @@
 <polygon fill="none" stroke="black" points="844.5,-127 844.5,-150 1073.5,-150 1073.5,-127 844.5,-127"/>
 <text text-anchor="start" x="951" y="-134.8" font-family="arial" font-size="14.00">T3</text>
 <polygon fill="none" stroke="black" points="844.5,-104 844.5,-127 998.5,-127 998.5,-104 844.5,-104"/>
-<text text-anchor="start" x="848.5" y="-111.8" font-family="arial" font-size="14.00">Step&#45;down 24 V → 12 V</text>
+<text text-anchor="start" x="848.5" y="-111.8" font-family="arial" font-size="14.00">Step&#45;down 18 V → 12 V</text>
 <polygon fill="none" stroke="black" points="998.5,-104 998.5,-127 1034.5,-127 1034.5,-104 998.5,-104"/>
 <text text-anchor="start" x="1002.5" y="-111.8" font-family="arial" font-size="14.00">30 A</text>
 <polygon fill="none" stroke="black" points="1034.5,-104 1034.5,-127 1073.5,-127 1073.5,-104 1034.5,-104"/>

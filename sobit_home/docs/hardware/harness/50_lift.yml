@@ -1,0 +1,36 @@
+# Lift: UIM8696CAB servo stepper; power and CAN land on the UIM2513 gateway terminal.
+# Gateway RS232 goes to the PC through the UIC321H.
+
+cables:
+  W501: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
+  W502:
+    type: UL2464 power cable (motor lead)
+    gauge: 20 AWG
+    colors: [BK, RD]
+    wirelabels: [GND, +24V]
+  W503:
+    type: UL2464 signal cable (motor lead)
+    gauge: 24 AWG
+    colors: [WH, GN, BU, BN, YE, VT, GY]
+    wirelabels: [CANH, CANL, IO.GND, IN01, IN02, IN03, OP01]
+    notes: Wires 3-7 unused
+  W504:
+    type: DB9 plugged directly
+    wirecount: 3
+    wirelabels: [RXD, TXD, GND]
+
+connections:
+  - - POWER_TOWER.X1: [GND4, V4]
+    - W501: [1, 2]
+    - UIM2513.A1: [0V, V+]
+  - - A1: [0V, V+]
+    - W502: [1, 2]
+    - UIM8696CAB.body_lift: [GND, +V]
+  - - A1: [CH, CL]
+    - W503: [1, 2]
+    - body_lift: [CANH, CANL]
+  - - W503: [3-7]
+    - body_lift: [IO.GND, IN01, IN02, IN03, OP01]
+  - - A1: [DB9.RXD, DB9.TXD, DB9.GND]
+    - W504: [1, 2, 3]
+    - UIC321H.A2: [DB9.RXD, DB9.TXD, DB9.GND]
