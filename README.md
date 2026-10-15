@@ -726,8 +726,8 @@ The wiring is documented as code in [sobit_home/docs/hardware](sobit_home/docs/h
 | [40_hands](sobit_home/docs/hardware/generated/40_hands.svg) | Hand power and TTL Dynamixel chains |
 | [50_lift](sobit_home/docs/hardware/generated/50_lift.svg) | Lift servo stepper and CAN gateway |
 | [60_network](sobit_home/docs/hardware/generated/60_network.svg) | Ethernet |
-
-USB connections are not documented yet.
+| [70_usb](sobit_home/docs/hardware/generated/70_usb.svg) | USB hubs and devices |
+| [80_video](sobit_home/docs/hardware/generated/80_video.svg) | HDMI |
 
 Designators: `G` battery, `T` DC-DC converter, `S` emergency stop, `X` power tower or distribution board, `A` interface adapter, `P` hub, `K` computer, `N` network device, `W` cable. Actuators are named after their joint.
 

@@ -624,8 +624,8 @@ SOBIT HOMEはオープンソースハードウェアとして[OnShape](https://c
 | [40_hands](sobit_home/docs/hardware/generated/40_hands.svg) | ハンドの電源とTTL Dynamixelチェーン |
 | [50_lift](sobit_home/docs/hardware/generated/50_lift.svg) | 昇降機構のサーボステッピングモータとCANゲートウェイ |
 | [60_network](sobit_home/docs/hardware/generated/60_network.svg) | Ethernet |
-
-USB接続はまだ記載していません．
+| [70_usb](sobit_home/docs/hardware/generated/70_usb.svg) | USBハブと機器 |
+| [80_video](sobit_home/docs/hardware/generated/80_video.svg) | HDMI |
 
 記号：`G` バッテリ，`T` DC-DCコンバータ，`S` 非常停止，`X` 電源タワー・分配基板，`A` インタフェースアダプタ，`P` ハブ，`K` コンピュータ，`N` ネットワーク機器，`W` ケーブル．アクチュエータは関節名で表記しています．
 
