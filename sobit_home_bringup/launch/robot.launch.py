@@ -205,8 +205,9 @@ def launch_gz(context, *args, **kwargs):
         exit(1)
     enable_gz = simulator == 'gz'
     is_sim = simulator in ('gz', 'isaac', 'mujoco')
-    # Isaac's controller_manager lives in the robot USD and only appears once the sim plays
-    spawner_timeout = ['--controller-manager-timeout', '120'] if simulator == 'isaac' else []
+    # Isaac's controller_manager lives in the robot USD and only appears once the sim plays;
+    # the first switch can land before sim time ticks (Isaac 6.2), so give it a longer window
+    spawner_timeout = ['--controller-manager-timeout', '120', '--switch-timeout', '30'] if simulator == 'isaac' else []
 
     if not head_cam_config_file:
         head_cam_config_file = os.path.join(
