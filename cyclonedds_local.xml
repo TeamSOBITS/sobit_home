@@ -2,17 +2,15 @@
   <Domain>
     <General>
       <Interfaces>
-        <NetworkInterface name="UPDATE_INTERFACE_NAME"/>
+        <NetworkInterface name="lo"/>
       </Interfaces>
       <AllowMulticast>false</AllowMulticast>
-      <EnableMulticastLoopback>false</EnableMulticastLoopback>
     </General>
 
     <Discovery>
       <ParticipantIndex>auto</ParticipantIndex>
       <MaxAutoParticipantIndex>512</MaxAutoParticipantIndex>
       <Peers>
-        <Peer Address="172.16.10.80"/>
         <Peer Address="localhost"/>
       </Peers>
     </Discovery>

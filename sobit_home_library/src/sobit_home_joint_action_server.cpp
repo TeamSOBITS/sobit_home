@@ -197,102 +197,133 @@ void JointActionServer::load_poses_from_params()
   std::vector<PoseParams> new_poses, new_right, new_left;
 
   for (const auto & pose_name : pose_names) {
-    for (const auto & key : {
-        "arm_right_shoulder_tilt", "arm_right_upper_roll", "arm_right_upper_flex",
-        "arm_right_elbow", "arm_right_lower_flex", "arm_right_wrist_tilt", "arm_right_wrist_roll",
-        "hand_right_finger_l_mcp", "hand_right_finger_l_pip", "hand_right_finger_l_dip",
-        "hand_right_finger_c_mcp", "hand_right_finger_c_ip", "hand_right_finger_r_pip",
-        "hand_right_finger_r_dip",
-        "arm_left_shoulder_tilt", "arm_left_upper_roll", "arm_left_upper_flex",
-        "arm_left_elbow", "arm_left_lower_flex", "arm_left_wrist_tilt", "arm_left_wrist_roll",
-        "hand_left_finger_l_mcp", "hand_left_finger_l_pip", "hand_left_finger_l_dip",
-        "hand_left_finger_c_mcp", "hand_left_finger_c_ip", "hand_left_finger_r_pip",
-        "hand_left_finger_r_dip",
-        "body_lift", "head_pan", "head_tilt"})
-    {
-      try_declare(pose_name + "." + key, 0.0);
+    try {
+      for (const auto & key : {
+          "arm_right_shoulder_tilt", "arm_right_upper_roll", "arm_right_upper_flex",
+          "arm_right_elbow", "arm_right_lower_flex", "arm_right_wrist_tilt", "arm_right_wrist_roll",
+          "hand_right_finger_l_mcp", "hand_right_finger_l_pip", "hand_right_finger_l_dip",
+          "hand_right_finger_c_mcp", "hand_right_finger_c_ip", "hand_right_finger_r_pip",
+          "hand_right_finger_r_dip",
+          "arm_left_shoulder_tilt", "arm_left_upper_roll", "arm_left_upper_flex",
+          "arm_left_elbow", "arm_left_lower_flex", "arm_left_wrist_tilt", "arm_left_wrist_roll",
+          "hand_left_finger_l_mcp", "hand_left_finger_l_pip", "hand_left_finger_l_dip",
+          "hand_left_finger_c_mcp", "hand_left_finger_c_ip", "hand_left_finger_r_pip",
+          "hand_left_finger_r_dip",
+          "body_lift", "head_pan", "head_tilt"})
+      {
+        try_declare(pose_name + "." + key, 0.0);
+      }
+
+      auto get = [&](const std::string & key) {
+          return get_parameter(pose_name + "." + key).as_double();
+        };
+
+      PoseParams p;
+      p.pose_name = pose_name;
+      p.arm_right_shoulder_tilt = get("arm_right_shoulder_tilt");
+      p.arm_right_upper_roll = get("arm_right_upper_roll");
+      p.arm_right_upper_flex = get("arm_right_upper_flex");
+      p.arm_right_elbow = get("arm_right_elbow");
+      p.arm_right_lower_flex = get("arm_right_lower_flex");
+      p.arm_right_wrist_tilt = get("arm_right_wrist_tilt");
+      p.arm_right_wrist_roll = get("arm_right_wrist_roll");
+      p.hand_right_finger_l_mcp = get("hand_right_finger_l_mcp");
+      p.hand_right_finger_l_pip = get("hand_right_finger_l_pip");
+      p.hand_right_finger_l_dip = get("hand_right_finger_l_dip");
+      p.hand_right_finger_c_mcp = get("hand_right_finger_c_mcp");
+      p.hand_right_finger_c_ip = get("hand_right_finger_c_ip");
+      p.hand_right_finger_r_pip = get("hand_right_finger_r_pip");
+      p.hand_right_finger_r_dip = get("hand_right_finger_r_dip");
+      p.arm_left_shoulder_tilt = get("arm_left_shoulder_tilt");
+      p.arm_left_upper_roll = get("arm_left_upper_roll");
+      p.arm_left_upper_flex = get("arm_left_upper_flex");
+      p.arm_left_elbow = get("arm_left_elbow");
+      p.arm_left_lower_flex = get("arm_left_lower_flex");
+      p.arm_left_wrist_tilt = get("arm_left_wrist_tilt");
+      p.arm_left_wrist_roll = get("arm_left_wrist_roll");
+      p.hand_left_finger_l_mcp = get("hand_left_finger_l_mcp");
+      p.hand_left_finger_l_pip = get("hand_left_finger_l_pip");
+      p.hand_left_finger_l_dip = get("hand_left_finger_l_dip");
+      p.hand_left_finger_c_mcp = get("hand_left_finger_c_mcp");
+      p.hand_left_finger_c_ip = get("hand_left_finger_c_ip");
+      p.hand_left_finger_r_pip = get("hand_left_finger_r_pip");
+      p.hand_left_finger_r_dip = get("hand_left_finger_r_dip");
+      p.body_lift = get("body_lift");
+      p.head_pan = get("head_pan");
+      p.head_tilt = get("head_tilt");
+      new_poses.push_back(p);
+    } catch (const rclcpp::exceptions::InvalidParameterTypeException & e) {
+      // One bad field must not lose every other correctly-specified pose.
+      RCLCPP_ERROR(get_logger(), "Pose '%s' has a bad parameter type: %s; skipping",
+        pose_name.c_str(), e.what());
+      continue;
+    } catch (const std::exception & e) {
+      RCLCPP_ERROR(get_logger(), "Pose '%s' failed to load: %s; skipping",
+        pose_name.c_str(), e.what());
+      continue;
     }
-
-    auto get = [&](const std::string & key) {
-        return get_parameter(pose_name + "." + key).as_double();
-      };
-
-    PoseParams p;
-    p.pose_name = pose_name;
-    p.arm_right_shoulder_tilt = get("arm_right_shoulder_tilt");
-    p.arm_right_upper_roll = get("arm_right_upper_roll");
-    p.arm_right_upper_flex = get("arm_right_upper_flex");
-    p.arm_right_elbow = get("arm_right_elbow");
-    p.arm_right_lower_flex = get("arm_right_lower_flex");
-    p.arm_right_wrist_tilt = get("arm_right_wrist_tilt");
-    p.arm_right_wrist_roll = get("arm_right_wrist_roll");
-    p.hand_right_finger_l_mcp = get("hand_right_finger_l_mcp");
-    p.hand_right_finger_l_pip = get("hand_right_finger_l_pip");
-    p.hand_right_finger_l_dip = get("hand_right_finger_l_dip");
-    p.hand_right_finger_c_mcp = get("hand_right_finger_c_mcp");
-    p.hand_right_finger_c_ip = get("hand_right_finger_c_ip");
-    p.hand_right_finger_r_pip = get("hand_right_finger_r_pip");
-    p.hand_right_finger_r_dip = get("hand_right_finger_r_dip");
-    p.arm_left_shoulder_tilt = get("arm_left_shoulder_tilt");
-    p.arm_left_upper_roll = get("arm_left_upper_roll");
-    p.arm_left_upper_flex = get("arm_left_upper_flex");
-    p.arm_left_elbow = get("arm_left_elbow");
-    p.arm_left_lower_flex = get("arm_left_lower_flex");
-    p.arm_left_wrist_tilt = get("arm_left_wrist_tilt");
-    p.arm_left_wrist_roll = get("arm_left_wrist_roll");
-    p.hand_left_finger_l_mcp = get("hand_left_finger_l_mcp");
-    p.hand_left_finger_l_pip = get("hand_left_finger_l_pip");
-    p.hand_left_finger_l_dip = get("hand_left_finger_l_dip");
-    p.hand_left_finger_c_mcp = get("hand_left_finger_c_mcp");
-    p.hand_left_finger_c_ip = get("hand_left_finger_c_ip");
-    p.hand_left_finger_r_pip = get("hand_left_finger_r_pip");
-    p.hand_left_finger_r_dip = get("hand_left_finger_r_dip");
-    p.body_lift = get("body_lift");
-    p.head_pan = get("head_pan");
-    p.head_tilt = get("head_tilt");
-    new_poses.push_back(p);
   }
 
   for (const auto & name : right_hand_pose_names) {
-    for (const auto & key : {
-        "hand_right_finger_l_mcp", "hand_right_finger_l_pip", "hand_right_finger_l_dip",
-        "hand_right_finger_c_mcp", "hand_right_finger_c_ip", "hand_right_finger_r_pip",
-        "hand_right_finger_r_dip"})
-    {
-      try_declare(name + "." + key, 0.0);
+    try {
+      for (const auto & key : {
+          "hand_right_finger_l_mcp", "hand_right_finger_l_pip", "hand_right_finger_l_dip",
+          "hand_right_finger_c_mcp", "hand_right_finger_c_ip", "hand_right_finger_r_pip",
+          "hand_right_finger_r_dip"})
+      {
+        try_declare(name + "." + key, 0.0);
+      }
+      auto get = [&](const std::string & key) {return get_parameter(name + "." + key).as_double();};
+      PoseParams p;
+      p.pose_name = name;
+      p.hand_right_finger_l_mcp = get("hand_right_finger_l_mcp");
+      p.hand_right_finger_l_pip = get("hand_right_finger_l_pip");
+      p.hand_right_finger_l_dip = get("hand_right_finger_l_dip");
+      p.hand_right_finger_c_mcp = get("hand_right_finger_c_mcp");
+      p.hand_right_finger_c_ip = get("hand_right_finger_c_ip");
+      p.hand_right_finger_r_pip = get("hand_right_finger_r_pip");
+      p.hand_right_finger_r_dip = get("hand_right_finger_r_dip");
+      new_right.push_back(p);
+    } catch (const rclcpp::exceptions::InvalidParameterTypeException & e) {
+      RCLCPP_ERROR(get_logger(), "Right-hand pose '%s' has a bad parameter type: %s; skipping",
+        name.c_str(), e.what());
+      continue;
+    } catch (const std::exception & e) {
+      RCLCPP_ERROR(get_logger(), "Right-hand pose '%s' failed to load: %s; skipping",
+        name.c_str(), e.what());
+      continue;
     }
-    auto get = [&](const std::string & key) {return get_parameter(name + "." + key).as_double();};
-    PoseParams p;
-    p.pose_name = name;
-    p.hand_right_finger_l_mcp = get("hand_right_finger_l_mcp");
-    p.hand_right_finger_l_pip = get("hand_right_finger_l_pip");
-    p.hand_right_finger_l_dip = get("hand_right_finger_l_dip");
-    p.hand_right_finger_c_mcp = get("hand_right_finger_c_mcp");
-    p.hand_right_finger_c_ip = get("hand_right_finger_c_ip");
-    p.hand_right_finger_r_pip = get("hand_right_finger_r_pip");
-    p.hand_right_finger_r_dip = get("hand_right_finger_r_dip");
-    new_right.push_back(p);
   }
 
   for (const auto & name : left_hand_pose_names) {
-    for (const auto & key : {
-        "hand_left_finger_l_mcp", "hand_left_finger_l_pip", "hand_left_finger_l_dip",
-        "hand_left_finger_c_mcp", "hand_left_finger_c_ip", "hand_left_finger_r_pip",
-        "hand_left_finger_r_dip"})
-    {
-      try_declare(name + "." + key, 0.0);
+    try {
+      for (const auto & key : {
+          "hand_left_finger_l_mcp", "hand_left_finger_l_pip", "hand_left_finger_l_dip",
+          "hand_left_finger_c_mcp", "hand_left_finger_c_ip", "hand_left_finger_r_pip",
+          "hand_left_finger_r_dip"})
+      {
+        try_declare(name + "." + key, 0.0);
+      }
+      auto get = [&](const std::string & key) {return get_parameter(name + "." + key).as_double();};
+      PoseParams p;
+      p.pose_name = name;
+      p.hand_left_finger_l_mcp = get("hand_left_finger_l_mcp");
+      p.hand_left_finger_l_pip = get("hand_left_finger_l_pip");
+      p.hand_left_finger_l_dip = get("hand_left_finger_l_dip");
+      p.hand_left_finger_c_mcp = get("hand_left_finger_c_mcp");
+      p.hand_left_finger_c_ip = get("hand_left_finger_c_ip");
+      p.hand_left_finger_r_pip = get("hand_left_finger_r_pip");
+      p.hand_left_finger_r_dip = get("hand_left_finger_r_dip");
+      new_left.push_back(p);
+    } catch (const rclcpp::exceptions::InvalidParameterTypeException & e) {
+      RCLCPP_ERROR(get_logger(), "Left-hand pose '%s' has a bad parameter type: %s; skipping",
+        name.c_str(), e.what());
+      continue;
+    } catch (const std::exception & e) {
+      RCLCPP_ERROR(get_logger(), "Left-hand pose '%s' failed to load: %s; skipping",
+        name.c_str(), e.what());
+      continue;
     }
-    auto get = [&](const std::string & key) {return get_parameter(name + "." + key).as_double();};
-    PoseParams p;
-    p.pose_name = name;
-    p.hand_left_finger_l_mcp = get("hand_left_finger_l_mcp");
-    p.hand_left_finger_l_pip = get("hand_left_finger_l_pip");
-    p.hand_left_finger_l_dip = get("hand_left_finger_l_dip");
-    p.hand_left_finger_c_mcp = get("hand_left_finger_c_mcp");
-    p.hand_left_finger_c_ip = get("hand_left_finger_c_ip");
-    p.hand_left_finger_r_pip = get("hand_left_finger_r_pip");
-    p.hand_left_finger_r_dip = get("hand_left_finger_r_dip");
-    new_left.push_back(p);
   }
 
   std::lock_guard<std::mutex> lock(poses_mutex_);
@@ -737,11 +768,18 @@ void JointActionServer::serve_get_finger_angle(
 void JointActionServer::joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg)
 {
   std::lock_guard<std::mutex> lock(joint_state_mutex_);
+  // position/velocity/effort may each be shorter than name (or empty) per sensor_msgs/JointState
+  if (msg->position.size() < msg->name.size() || msg->effort.size() < msg->name.size() ||
+      msg->velocity.size() < msg->name.size()) {
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+      "JointState has %zu names but %zu positions, %zu velocities, %zu efforts; ignoring the remainder",
+      msg->name.size(), msg->position.size(), msg->velocity.size(), msg->effort.size());
+  }
   for (size_t i = 0; i < msg->name.size(); ++i) {
-    curt_joint_state_[msg->name[i]] = msg->position[i];
-    // Added effort and velosity parameter to judge open/close of hand: t.tsukada 
-    curt_joint_effort_[msg->name[i]] = msg->effort[i];
-    curt_joint_velocity_[msg->name[i]] = msg->velocity[i]; 
+    if (i < msg->position.size()) curt_joint_state_[msg->name[i]] = msg->position[i];
+    // Added effort and velosity parameter to judge open/close of hand: t.tsukada
+    if (i < msg->effort.size()) curt_joint_effort_[msg->name[i]] = msg->effort[i];
+    if (i < msg->velocity.size()) curt_joint_velocity_[msg->name[i]] = msg->velocity[i];
   }
 }
 
@@ -755,6 +793,8 @@ void JointActionServer::update_commanded_joint_position(
         is_right ? hand_right_target_joint_rad_
                 : hand_left_target_joint_rad_;
 
+    // Guards the map against concurrent iteration in check_grasp() (timer callback).
+    std::lock_guard<std::mutex> lock(hand_target_mutex_);
     for(size_t i = 0; i < names.size(); i++)
     {
         target_map[names[i]] = rads[i];
@@ -764,9 +804,13 @@ void JointActionServer::update_commanded_joint_position(
 // check grasp result
 void JointActionServer::check_grasp(bool is_right)
 {
-  const auto & target_map =
-    is_right ? hand_right_target_joint_rad_
-             : hand_left_target_joint_rad_;
+  // Copy out under lock: target_map is read for the whole function, so a
+  // reference would keep hand_target_mutex_ needed well past this scope.
+  std::map<std::string, double> target_map;
+  {
+    std::lock_guard<std::mutex> lock(hand_target_mutex_);
+    target_map = is_right ? hand_right_target_joint_rad_ : hand_left_target_joint_rad_;
+  }
 
   if (target_map.empty()) {
     std_msgs::msg::Bool msg;
@@ -812,26 +856,34 @@ void JointActionServer::check_grasp(bool is_right)
 
     for (const auto & joint : finger)
     {
-      auto it_q = curt_joint_state_.find(joint);
+      double q = 0.0, v = 0.0, e = 0.0;
+      bool found = false;
+      {
+        // Small critical section: races the joint_state_callback subscriber.
+        std::lock_guard<std::mutex> lock(joint_state_mutex_);
+        auto it_q = curt_joint_state_.find(joint);
+        auto it_v = curt_joint_velocity_.find(joint);
+        auto it_e = curt_joint_effort_.find(joint);
+        if (it_q != curt_joint_state_.end() &&
+            it_v != curt_joint_velocity_.end() &&
+            it_e != curt_joint_effort_.end()) {
+          q = it_q->second; v = it_v->second; e = it_e->second;
+          found = true;
+        }
+      }
       auto it_t = target_map.find(joint);
-      auto it_v = curt_joint_velocity_.find(joint);
-      auto it_e = curt_joint_effort_.find(joint);
-
-      if (it_q == curt_joint_state_.end() ||
-          it_t == target_map.end() ||
-          it_v == curt_joint_velocity_.end() ||
-          it_e == curt_joint_effort_.end()) {
+      if (!found || it_t == target_map.end()) {
         continue;
       }
 
-      const double q_err = std::abs(it_q->second - it_t->second);
-      const double v = std::abs(it_v->second);
+      const double q_err = std::abs(q - it_t->second);
+      const double v_abs = std::abs(v);
 
-      const double e_mA_raw = std::abs(it_e->second);
-      const double e_mA = e_mA_raw /current_scale; 
+      const double e_mA_raw = std::abs(e);
+      const double e_mA = e_mA_raw /current_scale;
 
       const bool position_blocked = (q_err > angle_th);
-      const bool nearly_stopped = (v < vel_th);
+      const bool nearly_stopped = (v_abs < vel_th);
       const bool current_increased = (e_mA > current_th_mA);
 
       if (position_blocked && nearly_stopped && current_increased) {
@@ -861,7 +913,9 @@ trajectory_msgs::msg::JointTrajectory JointActionServer::set_joints(
   const builtin_interfaces::msg::Duration & dur,
   const std::string & grp)
 {
-  static const std::unordered_map<std::string, const std::vector<std::string> *> group_map = {
+  // Not static: a function-local static would cache pointers into THIS instance's
+  // members, corrupting other component instances (RCLCPP_COMPONENTS_REGISTER_NODE).
+  const std::unordered_map<std::string, const std::vector<std::string> *> group_map = {
     {"arm_left", &JointNamesArmLeft},
     {"arm_right", &JointNamesArmRight},
     {"hand_left", &JointNamesHandLeft},
@@ -879,7 +933,21 @@ trajectory_msgs::msg::JointTrajectory JointActionServer::set_joints(
     for (size_t i = 0; i < names.size(); ++i) {
       if (std::find(target_names.begin(), target_names.end(), names[i]) != target_names.end()) {
         traj.joint_names.push_back(names[i]);
-        point.positions.push_back(rads[i]);
+        double rad = rads[i];
+        // joint_limits_ is loaded from the URDF but was never enforced here,
+        // so out-of-range pose values reached the trajectory unclamped.
+        auto lim_it = joint_limits_.find(names[i]);
+        if (lim_it != joint_limits_.end() && lim_it->second.has) {
+          const auto & lim = lim_it->second;
+          double clamped = std::clamp(rad, lim.lower, lim.upper);
+          if (clamped != rad) {
+            RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+              "Joint '%s' target %f out of range [%f, %f]; clamped to %f",
+              names[i].c_str(), rad, lim.lower, lim.upper, clamped);
+          }
+          rad = clamped;
+        }
+        point.positions.push_back(rad);
       }
     }
   }

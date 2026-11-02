@@ -1,6 +1,6 @@
-sensors:
-  #- head_camera_pointcloud
-  - head_camera_depth
+sensors: []
+  # - head_camera_pointcloud
+  # - head_camera_depth
 
 head_camera_pointcloud:
   sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater

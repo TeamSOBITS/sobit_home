@@ -3,6 +3,10 @@
        xmlns:xacro="http://ros.org/wiki/xacro" >
   <xacro:include filename="$(find sobit_home_description)/urdf/hand/hand.transmission.xacro" />
   
+  <!-- Closing travel measured on the assembled gripper: the c_ip and dip joints
+       reach 120 deg, past the pi/2 the CAD model assumed. -->
+  <xacro:property name="FINGER_CLOSE" value="${radians(120)}" />
+
   <xacro:macro name="hand" params="prefix_hand position prefix_finger parent" >
     <xacro:if value="${position == 'left'}">
       <xacro:property name="y_sign" value="1.0" />
@@ -47,7 +51,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_l_mcp_link" />
       <origin xyz="-0.002855 ${y_sign * 0.018025} ${y_sign * 0.024532}" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 1.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
+      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${0.52 * finger_effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_l_mcp_link" >
@@ -73,7 +77,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_l_pip_link" />
       <origin xyz="-0.02125 ${y_sign * 0.019006} ${y_sign * 0.040125}" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
-      <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
+      <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="${0.52 * finger_effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_l_pip_link" >
@@ -107,7 +111,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_l_dip_link" />
       <origin xyz="0.0 ${y_sign * 0.050} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
+      <limit lower="${-FINGER_CLOSE}" upper="${M_PI/6}" effort="${0.52 * finger_effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_l_dip_link" >
@@ -142,7 +146,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_r_mcp_link" />
       <origin xyz="-0.002855 ${y_sign * 0.020025} ${-y_sign * 0.024532}" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 -1.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
+      <limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="${0.52 * finger_effort_ratio}" velocity="11.031179004" />
       <mimic joint="${prefix_hand}_${position}_${prefix_finger}_l_mcp_joint" multiplier="1.0" />
     </joint>
 
@@ -169,7 +173,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_r_pip_link" />
       <origin xyz="-0.02125 ${y_sign * 0.016750} ${-y_sign * 0.040125}" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
-      <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
+      <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * finger_effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_r_pip_link" >
@@ -202,7 +206,7 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_r_dip_link" />
       <origin xyz="0.0 ${y_sign * 0.050} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="1.0 0.0 0.0 " />
-      <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031179004" />
+      <limit lower="${-M_PI/6}" upper="${FINGER_CLOSE}" effort="${0.52 * finger_effort_ratio}" velocity="11.031179004" />
     </joint>
 
     <link name="${prefix_hand}_${position}_${prefix_finger}_r_dip_link" >
@@ -236,12 +240,12 @@
       <child link="${prefix_hand}_${position}_${prefix_finger}_c_mcp_link" />
       <origin xyz="0.036751 ${y_sign * 0.036625} ${y_sign * 0.014550} " rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 0.0 1.0 " />
-      <!-- <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031179004" /> -->
+      <!-- <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * finger_effort_ratio}" velocity="11.031179004" /> -->
       <xacro:if value="${position == 'left'}">
-        <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031" />
+        <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * finger_effort_ratio}" velocity="11.031" />
       </xacro:if>
       <xacro:if value="${position == 'right'}">
-        <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031" />
+        <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="${0.52 * finger_effort_ratio}" velocity="11.031" />
       </xacro:if>
     </joint>
 
@@ -276,10 +280,10 @@
       <origin xyz="0.0 ${y_sign * 0.050} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 0.0 1.0 " />
       <xacro:if value="${position == 'right'}">
-        <limit lower="${-M_PI/2}" upper="${M_PI/6}" effort="${0.52 * effort_ratio}" velocity="11.031" />
+        <limit lower="${-FINGER_CLOSE}" upper="${M_PI/6}" effort="${0.52 * finger_effort_ratio}" velocity="11.031" />
       </xacro:if>
       <xacro:if value="${position == 'left'}">
-        <limit lower="${-M_PI/6}" upper="${M_PI/2}" effort="${0.52 * effort_ratio}" velocity="11.031" />
+        <limit lower="${-M_PI/6}" upper="${FINGER_CLOSE}" effort="${0.52 * finger_effort_ratio}" velocity="11.031" />
       </xacro:if>
     </joint>
 
@@ -306,32 +310,6 @@
                  iyy="${1/12*0.0171*(0.022**2+0.0334**2)}" iyz="0.0"
                  izz="${1/12*0.0171*(0.022**2+0.031**2)}" />
       </inertial>
-    </link>
-
-    <!-- Joint: End Effector -->
-    <joint name="${prefix_hand}_${position}_end_effector_joint" type="fixed">
-      <origin xyz="0.0 ${y_sign*0.13} 0.0" rpy="${y_sign * M_PI/2} 0.0 ${y_sign * M_PI/2}"/>
-      <parent link="${parent}"/>
-      <child link="${prefix_hand}_${position}_end_effector_link"/>
-    </joint>
-
-    <!-- Link: End Effector -->
-    <link name="${prefix_hand}_${position}_end_effector_link">
-      <!-- <visual>
-        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
-        <geometry>
-          <box size="0.01 0.01 0.01" />
-        </geometry>
-        <material name="red"/>
-      </visual> -->
-
-      <!-- <inertial>
-        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
-        <mass value="0.0001" />
-        <inertia  ixx="${1/12*0.0001*(0.01**2+0.01**2)}" ixy="0.0" ixz="0.0"
-                  iyy="${1/12*0.0001*(0.01**2+0.01**2)}" iyz="0.0"
-                  izz="${1/12*0.0001*(0.01**2+0.01**2)}" />
-      </inertial> -->
     </link>
 
   <xacro:hand_transmission prefix_hand="${prefix_hand}" position="${position}" prefix_finger="${prefix_finger}"/>

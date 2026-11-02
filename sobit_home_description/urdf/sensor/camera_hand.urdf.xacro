@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- ELP-USBGS1200P01-H120 USB Global Shutter Camera
      Sensor: Aptina AR0234 (1/2.6"), 1920x1200 @ 90fps MJPEG
-     Lens: M12 no-distortion, HFOV 126 deg / VFOV ~84 deg / DFOV ~148 deg
+     Lens: M12 no-distortion, datasheet HFOV 126 / VFOV ~84 / DFOV ~148 deg (full 1920x1200)
+     Calibrated 640x480 mode: HFOV ~106 / VFOV ~90 deg (hand_*_cam_info.yaml)
      Board: 38x38mm -->
 <robot name="sobit_home"
        xmlns:xacro="http://ros.org/wiki/xacro">

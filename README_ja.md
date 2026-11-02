@@ -110,19 +110,25 @@
     use_rviz:=true
   ```
 
-3. 実機では，起動前に`.bashrc`を読み込み，SOBIT HOME用のドメインに切り替えてください．
+3. 起動前に，DDS通信の範囲を選択してください．新しいターミナルは常に`dds_local_mode`で始まります．
+  | モード | コマンド | 用途 |
+  | --- | --- | --- |
+  | ローカル | `dds_local_mode` | シミュレータ，またはロボット単体での動作．DDSはPC内（ループバック）に留まり，LANやWi-Fiには流れません． |
+  | LAN | `dds_lan_mode` | 開発PC（`172.16.10.70`）とNUC（`172.16.10.80`）が有線のロボットLAN経由でトピックを共有します（`ROS_DOMAIN_ID=80`）． |
+
   ```sh
   $ source ~/.bashrc
-  $ sobit_home_mode
+  $ dds_lan_mode
   ```
+  `dds_lan_mode`は有線の`172.16.10.x`インタフェースのみを使用し，存在しない場合はローカルモードのままになるため，ロボットのデータがWi-Fiに流れることはありません．1台のマシンでは全てのターミナルで同じモードを使用してください（2つのモードは互いに見えません）．LiDAR（`172.16.10.20`，`172.16.10.30`）は`urg_node`がTCPで読み取るため，どちらのモードでも動作します．
 
 実機接続に失敗する場合は，以下を確認してください．
 
 - 非常停止ボタンが押されていないか．
 - バッテリー残量が十分か．
 - USBハブがPCに接続されているか．
-- 必要な環境変数が設定されているか（`DXL_X_LOWER_PORT`，`DXL_X_UPPER_PORT`，`DXL_P_UPPER_PORT`，`UM_PORT`，`HOME_CAM_LEFT_PORT`，`HOME_CAM_RIGHT_PORT`）．
-- `enable_mobile_base:=true`時に`can0`が利用可能か．
+- 必要な環境変数が設定されているか（`DXL_X_LOWER_PORT`，`DXL_X_UPPER_PORT`，`DXL_P_UPPER_PORT`，`UM_PORT`，`HOME_CAM_LEFT_PORT`，`HOME_CAM_RIGHT_PORT`，`RM_CAN_PORT`）．
+- `enable_mobile_base:=true`時に`RM_CAN_PORT`が指すCANインタフェースが存在するか（`ip link show $RM_CAN_PORT`）．`RM_CAN_PORT`は`install.sh`でSH-C31GアダプタのUSBシリアル番号から解決され，空の場合はそのアダプタが検出されていない．未設定の場合は`can0`にフォールバックする．
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -142,7 +148,105 @@
 
 `plan_to_pose`は指定した計画グループ（`arm_left`，`arm_right`，`arm_left_body`，`arm_right_body`）に対して軌道を生成してキャッシュします．`execute_plan`でキャッシュした軌道を再生します．全身グループ（`arm_left_body`，`arm_right_body`）では，アームと同時にベースもオドメトリフィードバックで追従します．
 
+`plan_to_named_pose`も同様ですが，目標姿勢の代わりにSRDFで定義された名前付き姿勢（`initial_pose`，`move_pose`など）を指定します．生成した軌道は同じくキャッシュされ，`execute_plan`で実行します．
+
+サーバが初期化する計画グループは`active_planning_groups`パラメータで決まります．`arm`，`head_arm_body`，`mobile_base_*`などSRDFで定義された他のグループを使う場合は，起動時にこのパラメータを指定してください．
+
 実機・Gazeboシミュレーションの両方で動作します．
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+
+### 実行時変更可能なパラメータ
+
+以下のパラメータはノードの動作中に再読み込みされるため，再起動・再ビルドなしで`ros2 param set`により調整できます．
+
+`wheel_action_server` — 移動制御：
+
+| パラメータ | 既定値 | 意味 |
+| --- | --- | --- |
+| `wheel_linear_kp` / `_ki` / `_kd` | 起動時に指定 | `move_wheel_linear`のPIDゲイン |
+| `wheel_rotate_kp` / `_ki` / `_kd` | 起動時に指定 | `move_wheel_rotate`のPIDゲイン |
+| `wheel_linear_arrival_tol` | `0.02` | 到達判定の許容誤差 [m] |
+| `wheel_rotate_arrival_tol` | `0.02` | 到達判定の許容誤差 [rad] |
+| `wheel_max_linear_vel` | `0.2` | 速度上限 [m/s] |
+| `wheel_max_lateral_vel` | `0.2` | 横方向の速度上限 [m/s] |
+
+`moveit_server` — 計画時間とワークスペース（既定値は[moveit_server.yaml](sobit_home_moveit_config/config/moveit_server.yaml)）：
+
+| パラメータ | 既定値 | 意味 |
+| --- | --- | --- |
+| `plan_time_sec` | `10.0` | 1回の計画試行あたりの時間上限 [s] |
+| `plan_attempts` | `10` | OMPLの試行回数 |
+| `workspace_min_x/y/z` | `-5.0`，`-5.0`，`0.0` | 計画ワークスペースの最小座標 [m] |
+| `workspace_max_x/y/z` | `5.0`，`5.0`，`5.0` | 計画ワークスペースの最大座標 [m] |
+
+```sh
+# 到達判定の許容誤差と計画時間を動作中に変更する
+$ ros2 param set /sobit_home/wheel_action_server wheel_linear_arrival_tol 0.01
+$ ros2 param set /sobit_home/moveit_server plan_time_sec 5.0
+```
+
+起動時に`moveit_server_config:=<path>`を指定すると，パッケージ既定のYAMLの代わりに別の計画パラメータYAMLを読み込めます．
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+
+### プランニングシーンWarehouse
+
+MoveItはプランニングシーン・ロボット状態・拘束条件をデータベースに保存できます．RVizの**Stored Scenes**・**Stored States**パネルはこのデータベースを読み書きします．`move_group`が直接接続するため，ロボットを起動した時点で利用可能です．
+
+| バックエンド | `warehouse_backend` | 保存先 | 備考 |
+| --- | --- | --- | --- |
+| SQLite | `sqlite`（既定） | 単一ファイル（`warehouse_database_path`） | `install.sh`でインストール．サーバ不要 |
+| MongoDB | `mongo` | `mongod`が管理するディレクトリ | ソースからビルド（下記参照） |
+
+```sh
+# 既定：~/.ros/sobit_home_warehouse.sqlite
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py
+
+# ファイルを明示的に指定する
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+  warehouse_database_path:=$HOME/.ros/my_scenes.sqlite
+```
+
+空のデータベースに既定の内容を投入するには，warehouseのlaunchを1度実行します．
+
+```sh
+$ ros2 launch sobit_home_moveit_config warehouse_db.launch.py
+```
+
+MongoDBはROS 2 Jazzy向けのバイナリ配布もrosdepルールも存在しないため，任意選択でソースからビルドします．
+
+```sh
+$ WAREHOUSE_MONGO=1 ./install.sh
+$ colcon build --packages-select warehouse_ros_mongo
+# データベースサーバを起動してから，同じバックエンドでロボットを起動する
+$ ros2 launch sobit_home_moveit_config warehouse_db.launch.py warehouse_backend:=mongo
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py warehouse_backend:=mongo
+```
+
+> [!WARNING]
+> SQLiteバックエンドでは，既に存在する名前でシーンを保存すると`warehouse_ros_sqlite::InternalError`（`no such column: M_planning_scene_id`）が送出され，呼び出し元のプロセスが異常終了します．これは`warehouse_ros_sqlite` 1.0.5の上流の不具合です．メタデータの列は遅延生成されるため，`planning_scene_id`を一度も受け取っていないテーブルには上書き処理が参照する列が存在しません．**新規の名前**での保存と読み込みは正常に動作します．`move_group`自体には影響ありません．
+
+> [!NOTE]
+> `warehouse_db.launch.py`とロボットのlaunchでは`warehouse_backend`を一致させてください．異なる場合はそれぞれ別のデータベースを開くことになります．
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+
+### 意味論的記述（SRDF）
+
+SRDFは構成ごとに静的ファイルを用意するのではなく，単一の[sobit_home.srdf.xacro](sobit_home_moveit_config/config/sobit_home.srdf.xacro)から生成されます．launchファイルと同じ`enable_*`モジュールフラグを受け取るため，一部の部位を無効にして起動した場合，存在しないリンクを参照する計画グループ・姿勢・エンドエフェクタ・干渉ペアは生成されません．
+
+`enable_teleop:=true`とすると，`mobile_base`の計画グループと平面仮想関節が除外されます．遠隔操作ではオペレータがベースを直接操作するため，ベースを計画グループに含めてはならないためです．
+
+```sh
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py enable_teleop:=true
+```
+
+> [!IMPORTANT]
+> URDFとSRDFは同じフラグで展開されるため，常に同一のロボットを表します．どちらか一方にしかモジュールフラグを渡さないと，MoveItは実際に生成されていないロボットに対して計画することになります．
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -168,35 +272,78 @@ SOBIT HOMEにはGazebo Harmonicのシミュレーション環境が用意され�
 $ ros2 launch sobit_home_bringup gz_minimal.launch.py
 ```
 
-現時点では，これらの仮想環境が用意されています．
+現時点では，これらの仮想環境が用意されています．`wrs`と`small_house`以外は[sobits_gazebo_worlds](https://github.com/TeamSOBITS/sobits_gazebo_worlds)（`jazzy-devel`ブランチ，`install.sh`でクローン）が提供しています．
 
 | World Name | 説明 |
 | --- | --- |
 | `empty`      | 家具などのない環境を出現． |
 | `wrs`        | WRS2020に実施されたTidy Up環境を出現． |
 | `small_house` | AWSが開発した小型部屋のレイアウトを出現．|
+| `precomp2025_arena` | 2025年プレ大会向けのアリーナ環境を出現．|
 | `rcjo2025_arena` | RCJ Open 2025向けのアリーナ環境を出現．|
 | `rcjo2026_arena` | RCJ Open 2026向けのアリーナ環境を出現（デフォルト）．|
+| `rcw2026_arena` | RoboCup 2026向けのアリーナ環境を出現（開閉できるドア付き）．|
 
-環境を変更するために，`world_model`を[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py)で変更してください．
+環境は起動引数`world_model`で選択します．ワールドファイルの絶対パスも指定できます．
 
 ```sh
 $ ros2 launch sobit_home_bringup gz_minimal.launch.py world_model:=empty
+
+# 閉じた環境（2.5 mの壁・天井・部屋ごとの照明），GazeboのGUIなし
+$ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+  world_model:=rcw2026_arena world_closed:=true headless:=true
 ```
 
 
 <!-- 正常に動作した場合は，次のようなGazeboの画面が表示されます．
 ![SOBIT HOME Gazebo Harmonic](sobit_home/docs/img/sobit_home_gz_sim.png) -->
 
-> [!TIP]
-> 実機と同じようなセンサも搭載されていますので，パソコンによって処理が重くなる可能性がありますので，必要なセンサだけを[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py)で選択してください．
+#### 起動引数
 
-```python
-'enable_head_cam_color'       : 'true',
-'enable_head_cam_depth'       : 'true',
-'enable_hand_left_cam_color'  : 'true',
-'enable_hand_right_cam_color' : 'true',
-'enable_lidar'                : 'true',
+[gz_minimal.launch.py](sobit_home_bringup/launch/gz_minimal.launch.py)は次の引数（`name:=value`）を受け取ります．
+
+| 引数 | デフォルト | 説明 |
+| --- | --- | --- |
+| **ワールド** | | |
+| `world_model` | `rcjo2026_arena` | 読み込むワールド．上の表の名前，またはワールドファイルの絶対パス． |
+| `world_closed` | `false` | 閉じた環境：2.5 mの壁，天井，部屋ごとの照明．sobits_gazebo_worldsのアリーナのみ対応． |
+| `headless` | `false` | GazeboをGUIなし（サーバのみ）で実行．GPUメモリを節約． |
+| **ロボット** | | |
+| `robot_name` | `sobit_home` | ロボット名（名前空間として使用）． |
+| `robot_id` | `0` | 複数台構成でのロボット番号．`0`より大きい値で名前に`_<id>`を付加． |
+| `robot_coords_x` / `_y` / `_z` | `-6.0` / `1.5` / `0.0` | 出現位置 [m]． |
+| `robot_coords_Y` | `0.0` | 出現時のヨー角 [rad]． |
+| `enable_tf_prefix` | `false` | TFフレームに`<robot_name>/`を付加．複数台で1つのTFツリーを共有する場合に必要． |
+| **モジュール** | | |
+| `enable_mobile_base` | `true` | 移動台車を含める． |
+| `enable_body` | `true` | 昇降機構を含める． |
+| `enable_arm_left` / `enable_arm_right` | `true` | 左 / 右アームを含める． |
+| `enable_hand_left` / `enable_hand_right` | `true` | 左 / 右ハンドを含める． |
+| `enable_head` | `true` | 頭部（パン・チルト）を含める． |
+| **センサ** | | |
+| `enable_head_cam_color` / `enable_head_cam_depth` | `true` | 頭部カメラのカラー / 深度． |
+| `head_cam_type` | `realsense` | 頭部RGB-Dカメラの機種：`realsense`（D415）または`orbbec`（Gemini 336L）． |
+| `enable_hand_left_cam_color` / `enable_hand_right_cam_color` | `true` | 左 / 右ハンドの手首カメラ． |
+| `enable_lidar` | `true` | 前後のレーザスキャナ． |
+| **ソフトウェア** | | |
+| `enable_moveit` | `true` | MoveIt（`move_group`）を起動． |
+| `enable_moveit_rviz` | `false` | MoveIt専用のプランニングシーンRVizを起動． |
+| `enable_viz` | （空） | [sobits_viz](https://github.com/TeamSOBITS/sobits_viz)のビューア：`rerun`，`rviz`，`foxglove`．空の場合は起動しない． |
+| `enable_teleop` | `false` | 遠隔操作モード． |
+| `enable_display` | `false` | 頭部ディスプレイ（`sobits_display`）を起動． |
+
+> [!TIP]
+> 実機と同じようなセンサも搭載されていますので，パソコンによって処理が重くなる可能性があります．不要なセンサは無効にしてください．
+>
+> ```sh
+> $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
+>   enable_head_cam_depth:=false enable_hand_right_cam_color:=false enable_lidar:=false
+> ```
+
+ヘッドのRGB-Dカメラは `head_cam_type` で切り替えます（`realsense` = Intel RealSense D415（デフォルト），`orbbec` = Orbbec Gemini 336L）．URDF，ドライバノード，設定ファイル（`sobit_home_bringup/config/head_camera_<type>.yaml`）が実機・シミュレータともに一括で切り替わります．
+
+```sh
+$ ros2 launch sobit_home_bringup real_minimal.launch.py head_cam_type:=orbbec
 ```
 
 また，複数のSOBIT HOMEを同じシミュレーション環境でも出現できます．
@@ -268,8 +415,12 @@ SOBIT HOMEのパンチルト機構と昇降機構とマニピュレータを動�
    | `orientation` | 目標方向へのヨー角 |
 
 3. MoveIt連携（`action_server.launch.py`で起動）
-   - Service: `plan_to_pose`
-   - Action: `execute_plan`
+   - Service: `plan_to_pose` — 計画グループに対して目標姿勢への軌道を生成
+   - Service: `plan_to_named_pose` — SRDFで定義された名前付き姿勢（`initial_pose`，`move_pose`など）への軌道を生成
+   - Action: `execute_plan` — いずれかのServiceでキャッシュした軌道を実行
+
+4. 配信トピック
+   - `hand_left/grasp_state`，`hand_right/grasp_state`（`std_msgs/Bool`）— 把持判定．ハンド動作の完了ごとに1回配信されます．2本以上の指が指令角度に到達せず停止した場合（物体に阻まれている場合）は`true`，指が目標角度まで到達した場合（何も把持していない場合）は`false`となります．
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -455,7 +606,34 @@ SOBIT HOMEはオープンソースハードウェアとして[OnShape](https://c
 
 ### 電子回路図
 
-![SOBIT HOME Circuit](sobit_home/docs/img/sobit_home_circuit.png)
+配線は[sobit_home/docs/hardware](sobit_home/docs/hardware)でコードとして管理しています．`library.yml`に機器テンプレート（定格・ピン配置），`harness/`にサブシステムごとのハーネスファイルがあり，[WireViz](https://github.com/wireviz/WireViz)で`generated/`に図を出力します．編集はYAMLのみで，SVGは直接編集しません．
+
+| 図 | 内容 |
+| --- | --- |
+| [all](sobit_home/docs/hardware/generated/all.svg) | 全ハーネスを統合 |
+| [00_power_trunk](sobit_home/docs/hardware/generated/00_power_trunk.svg) | バッテリ，DC-DCコンバータ，非常停止，電源タワー |
+| [10_compute](sobit_home/docs/hardware/generated/10_compute.svg) | 計算機系電源：NUC，ルータ，スイッチングハブ（専用バッテリ） |
+| [20_arm_left](sobit_home/docs/hardware/generated/20_arm_left.svg) | 左腕のDynamixelチェーン |
+| [21_arm_right](sobit_home/docs/hardware/generated/21_arm_right.svg) | 右腕のDynamixelチェーン |
+| [22_shoulders](sobit_home/docs/hardware/generated/22_shoulders.svg) | PH54肩サーボ |
+| [23_head](sobit_home/docs/hardware/generated/23_head.svg) | 頭部パン・チルト |
+| [30_base_drive](sobit_home/docs/hardware/generated/30_base_drive.svg) | 車輪ESC・モータ，電源+CANハブ，LiDAR電源 |
+| [31_base_steer](sobit_home/docs/hardware/generated/31_base_steer.svg) | ステアリングのDynamixelチェーン |
+| [40_hands](sobit_home/docs/hardware/generated/40_hands.svg) | ハンドの電源とTTL Dynamixelチェーン |
+| [50_lift](sobit_home/docs/hardware/generated/50_lift.svg) | 昇降機構のサーボステッピングモータとCANゲートウェイ |
+| [60_network](sobit_home/docs/hardware/generated/60_network.svg) | Ethernet |
+| [70_usb](sobit_home/docs/hardware/generated/70_usb.svg) | USBハブと機器 |
+| [80_video](sobit_home/docs/hardware/generated/80_video.svg) | HDMI |
+
+記号：`G` バッテリ，`F` ヒューズアダプタ，`T` DC-DCコンバータ，`S` 非常停止，`X` 電源タワー・分配基板（`XG` スターグラウンド），`A` インタフェースアダプタ，`P` ハブ，`K` コンピュータ，`N` ネットワーク機器，`W` ケーブル．アクチュエータは関節名で表記しています．規約・接地・データリンクのルールは[sobit_home/docs/hardware/README.md](sobit_home/docs/hardware/README.md)を参照してください．
+
+編集後は図を再生成してください．
+
+```bash
+sudo apt install graphviz
+pip install wireviz==0.4.1
+sobit_home/docs/hardware/tools/render.sh
+```
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
@@ -479,7 +657,7 @@ TBD
 | 重量 | 16.0[kg] |
 | リモートコントローラー | PS4 |
 | LiDAR | 不明 |
-| RGB-D | RealSense D415（ヘッド）、RealSense D405（ハンド） |
+| RGB-D | Orbbec Gemini 336L（ヘッド，現在は `head_cam_type:=realsense` で RealSense D415 に交換中）、RealSense D405（ハンド） |
 | スピーカー | Jabra Speak 710 |
 | マイク | MKE 400 |
 | アクチュエータ（アーム） | XM540-W150 ×4、XM430-W320 ×6 |
@@ -491,7 +669,136 @@ TBD
 
 ### 部品リスト（BOM）
 
-TBD
+<!-- アクチュエータ・センサ・計算機・機構部品の一覧．数量は実機（Dynamixelバススキャン＋センサへの実照会）で確認済み（右ハンドは左の構成をミラー）．単価とリンクは2026-08-30時点 — † = 在庫切れ/長納期，‡ = 価格未確認，n/a = その地域で販売元未確認，「login」= MISUMIはログイン後に価格表示．価格はすべて単価（合計は数量を乗算）． -->
+
+**概算費用（日本欄・税込・単価×数量）：必須部品 ≈ ¥3,502,141（電装 ≈ ¥3,130,635 ＋ 機構 ≈ ¥371,506）／オプション ≈ ¥110,299．**
+<!-- LiDARは概算見積値，‡/†の価格も記載値のまま合算． -->
+
+#### アクチュエータ・駆動系（小計 ≈ ¥2,072,415）
+
+| 部位 | 部品 | 型番 | 数量 | 日本 | 米国 | 欧州 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Head + Arms | Dynamixel Actuator | XM430-W350-R | 6 | [¥31,504†](https://e-shop.robotis.co.jp/product.php?id=44) | [$333.39](https://www.robotis.us/dynamixel-xm430-w350-r/) | [€325.56](https://www.generationrobots.com/en/402477-xm430-w350-r-dynamixel-servomotor.html) |
+| Arms + Mobile base | Dynamixel Actuator | XM540-W270-R | 16 | [¥51,865†](https://e-shop.robotis.co.jp/product.php?id=43) | [$494.39†](https://www.robotis.us/dynamixel-xm540-w270-r/) | [€489.96†](https://www.generationrobots.com/en/402931-dynamixel-xm540-w270-r-servo.html) |
+| Mobile base | Dynamixel Actuator | XM540-W150-R | 2 | [¥51,865](https://e-shop.robotis.co.jp/product.php?id=42) | [$494.39](https://www.robotis.us/dynamixel-xm540-w150-r/) | [€489.96](https://www.generationrobots.com/en/402832-servomoteur-dynamixel-xm540-w150-r.html) |
+| Hands | Dynamixel Actuator (Hand) | XL330-M288-T | 14 | [¥4,070†](https://e-shop.robotis.co.jp/product.php?id=417) | [$27.49](https://www.robotis.us/dynamixel-xl330-m288-t/) | [€41.95†](https://www.mybotshop.de/DYNAMIXEL-XL330-M288-T_1) |
+| Arms | Dynamixel PRO Actuator (Shoulder) | PH54-200-S500-R | 2 | [¥354,200†](https://e-shop.robotis.co.jp/product.php?id=285) | [$3,541.89†](https://www.robotis.us/dynamixel-ph54-200-s500-r/) | [€3,782.06†](https://www.generationrobots.com/en/403321-dynamixel-pro-plus-h54p-200-s500-r-servo.html) |
+| Torso | Dynamixel USB Interface | U2D2 | 4 | [¥6,963](https://e-shop.robotis.co.jp/product.php?id=190) | [$36.92](https://www.robotis.us/u2d2/) | n/a |
+| Torso | Dynamixel Power Hub | U2D2 PHB Set | 2 | [¥4,180](https://e-shop.robotis.co.jp/product.php?id=325) | [$21.85](https://www.robotis.us/u2d2-power-hub-board-set/) | n/a |
+| Mobile base | Wheel Drive Motor | RoboMaster M3508 P19 | 4 | [¥11,500†](https://store.dji.com/jp/product/rm-m3508-p19-brushless-dc-gear-motor) | [$115.00†](https://www.seeedstudio.com/RoboMaster-M3508-P19-Brushless-DC-Gear-Motor-p-2904.html) | n/a |
+| Mobile base | Wheel Motor ESC | RoboMaster C620 | 4 | [¥8,900†](https://store.dji.com/jp/product/rm-c620-brushless-dc-motor-speed-controller) | [$89.00†](https://www.seeedstudio.com/RoboMaster-C620-Brushless-DC-Motor-Speed-Controller-p-2905.html) | n/a |
+| Torso (lift) | Lift Motor (NEMA 34 CAN servo stepper, brake) | UIrobot UIM8696CAB | 1 | [¥43,706](https://www.amazon.com/dp/B0DK4W9FTY) ([quote](https://jpacontrol.com/products/show-50.html)) | [‡](https://www.amazon.com/UIROBOT-Stepper-Integrated-Controller-24-48VDC/dp/B0FJQPX36P) (UIM8696CA, no brake) | n/a |
+| Torso (lift) | Lift Motor Gateway (RS232 to CAN) | UIrobot UIM2513 | 1 | [¥12,806](https://www.amazon.com/UIROBOT-Adapters-Converter-Hardware-Isolation/dp/B0CNSMJHB1) ([quote](https://jpacontrol.com/products/show-29.html)) | [$125.99‡](https://www.amazon.com/UIROBOT-Adapters-Converter-Hardware-Isolation/dp/B0CNSMJHB1) | n/a |
+| Torso (lift) | Lift Motor USB-RS232 Adapter (isolated) | UIrobot UIC321H | 1 | [¥4,481](https://us.amazon.com/UIROBOT-Universal-Converter-Industrial-Ultra-Flexible/dp/B0FKY29JP3) ([quote](https://jpacontrol.com/products/show-63.html)) | [‡](https://us.amazon.com/UIROBOT-Universal-Converter-Industrial-Ultra-Flexible/dp/B0FKY29JP3) | n/a |
+| Mobile base | USB-CAN Adapter (isolated, CAN FD) | DSD TECH SH-C31G (CANable 2.0 Pro) | 1 | [¥3,849](https://www.amazon.co.jp/dp/B0FHHCSZY8) | n/a | n/a |
+| Mobile base | CAN Bus Hub (CANバスハブ) | — | 1 | [¥1,787](https://www.amazon.co.jp/dp/B0G814QVFB) | n/a | n/a |
+
+#### センサ・AV（小計 ≈ ¥520,883）
+
+| 部位 | 部品 | 型番 | 数量 | 日本 | 米国 | 欧州 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Head | RGB-D Camera (Head) | Orbbec Gemini 336L | 1 | [¥68,420](https://www.digikey.jp/ja/product-highlight/o/orbbec/gemini-330-series-stereo-depth-cameras) | [$379.00](https://store.orbbec.com/products/gemini-336l) | [€586.31](https://www.mybotshop.de/Orbbec-Gemini-336L_1) |
+| Mobile base | 2D LiDAR | Hokuyo UST-10LX | 2 | [quote (approx ¥165,000)](https://www.hokuyo-aut.co.jp/search/single.php?serial=16) | [$1,200.00](https://acroname.com/store/scanning-laser-rangefinder-ethernet-r359-ust-10lx) | [€1,878.00†](https://www.generationrobots.com/en/401755-hokuyo-ust-10lx-scanning-laser-range-finder.html) |
+| Hands | Wrist Camera (AR0234 global shutter, 1920x1200@90fps, 120deg) | ELP-USBGS1200P01-H120 | 2 | [¥6,066](https://www.amazon.co.jp/dp/B08FD2N9WG) | [$70.64‡](https://www.elpcctv.com/elp-2mp-global-shutter-1200p-1080p-90fps-no-distortion-120-degree-usb-camera-p-557.html) | n/a |
+| Torso | Speaker (USB/BT speakerphone) | Jabra Speak 710 | 1 | [¥58,800](https://www.amazon.co.jp/dp/B06XX2N987) | [‡](https://www.jabra.com/business/speakerphones/jabra-speak-series/jabra-speak-710) | n/a |
+| Head | Microphone | RØDE VideoMic GO II HELIX (VMGOIIH) | 1 | [¥15,455](https://www.amazon.co.jp/dp/B0D6X93C58/) | [$94.99‡](https://www.sweetwater.com/store/detail/VideoMicGo2H--rode-videomic-go-ii-camera-mounted-shotgun-microphone) | [€85.00](https://www.thomann.de/de/rode_videomic_go_ii.htm) |
+| Head | Head Display (8in 1280x800 IPS touch, HDMI) | Waveshare 8DP-CAPLCD | 1 | [¥13,097](https://jp.robotshop.com/products/waveshare-8inch-capacitive-touch-display-toughened-glass-1280x800-ips-hdmi) | [$69.99](https://www.waveshare.com/8dp-caplcd.htm) | [€79.90](https://www.botnroll.com/en/5-89/5242-8-0inch-capacitive-touch-display-toughened-glass-1280-800-hdmi-ips-optical-bonding-screen-waveshare-23741.html) |
+| Torso (rear display) | Rear Monitor (16in 4K portable, USB-C/HDMI) | Acouto Zen16 Ultra | 1 | [¥22,979](https://www.amazon.co.jp/dp/B0G7H44RGD) | n/a | n/a |
+
+#### 計算機・ネットワーク（小計 ≈ ¥314,848）
+
+| 部位 | 部品 | 型番 | 数量 | 日本 | 米国 | 欧州 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Torso | Ethernet Switch (5-port GbE) | TP-Link TL-SG605 | 1 | [¥2,033](https://www.amazon.co.jp/dp/B0DP2KSNCK) | n/a | n/a |
+| Torso | USB Hub (4-port USB3.0, powered) | UGREEN | 2 | [¥2,999](https://www.amazon.co.jp/dp/B08Y8CJKJC) | n/a | n/a |
+| Torso | USB Hub (USB-C 6-in-1, 100W PD) | UGREEN Revodok | 2 | [¥2,999](https://www.amazon.co.jp/dp/B0D1XLNWP2) | n/a | n/a |
+| Mobile base (lidar) | LAN Extension Connector (RJ45, 2-pack) | UGREEN | 2 | [¥1,274](https://www.amazon.co.jp/dp/B0DMF8G398) | n/a | n/a |
+| Torso | PC | Intel NUC 12 Pro Kit NUC12WSHi5 (RNUC12WSHI50000, i5-1240P) | 1 | [¥188,800](https://www.amazon.co.jp/dp/B0BCWDST4J/) | [$519.00](https://www.newegg.com/asus-barebone-systems-mini-pc-12th-gen-intel-core-i5-1240p/p/2SW-000N-00046) | [€444.00†](https://www.alternate.de/ASUS/NUC-13-Pro-Tall-Kit-NUC13ANHi5-Barebone/html/product/100052198) (NUC 13 substitute) |
+| Torso | PC RAM (2x16GB DDR4-3200) | Crucial CT2K16G4SFRA32A | 1 | [¥44,491](https://kakaku.com/item/K0001372325/) | [$229.00](https://www.newegg.com/crucial-32gb-ddr4-3200-cas-latency-cl22-laptop-memory/p/N82E16820156263) | [€264.03‡](https://www.amazon.de/dp/B08C4X9VR5) |
+| Torso | PC SSD (NVMe 500GB) | Crucial P5 Plus CT500P5PSSD8 (discontinued — successor: T500) | 1 | [¥64,980‡](https://kakaku.com/item/K0001588760/) (T500) | [$72.84†](https://www.sabrepc.com/CT500P5PSSD8-Crucial-S4602797) | [€204.90†](https://www.reichelt.de/de/de/shop/produkt/crucial_t500_pcie_4_0_nvme_m_2_ssd_500_gb-405533) (T500) |
+
+#### 電源（小計 ≈ ¥196,376）
+
+| 部位 | 部品 | 型番 | 数量 | 日本 | 米国 | 欧州 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Mobile base | Battery 18V 9.0Ah | BL1890 | 5 | [¥26,318](https://makitashop.jp/?pid=189052500) | [$92.99](https://www.vanonbatteries.com/products/for-makita-9000mah-18v-bl1830-bl1840-bl1845-bl1850-bl1860-bl1890-lxt-li-ion-battery2-pack) (Vanon, 2-pack) | [€124.50](https://geizhals.de/makita-bl1890-lxt-werkzeug-akku-18v-1915h4-0-a3589148.html) |
+| Mobile base | Battery Connector (18V DIY power connector, 2-pc set) | Gakkiti (Makita compatible) | 2 | [¥1,599](https://www.amazon.co.jp/dp/B094XXC8LL) | n/a | n/a |
+| Mobile base | Battery Adapter (2x18V to 36V) | Makita BCV03 (A-57255 / 196809-7) | 1 | [¥14,190](https://makitashop.jp/?pid=108094683) | [$113.99](https://dryitcenter.com/products/makita-36v-adaptor-cordless-bcv03) | [€89.25](https://geizhals.de/makita-bcv03-2x-18v-adapter-fuer-akkus-196809-7-a2202258.html) |
+| Offboard (charger) | Battery Charger (2-port rapid; alt: DC18RC / DC18WC) | Makita DC18RD | 1 | [¥16,200](https://search.kakaku.com/dc18rd/) | [$164.99†](https://www.masterwholesale.com/makita-dc18rd-18v-lxt-lithium-ion-dual-port-rapid-optimum-charger.html) | [€71.88](https://geizhals.de/makita-dc18rd-ladegeraet-196933-6-a1292788.html) |
+| Mobile base | DC-DC Converter (30-90V to 24V, 20A/480W) | Mzhou buck converter | 1 | [¥7,499](https://www.amazon.co.jp/dp/B0D1G6P599) | n/a | n/a |
+| Mobile base | DC-DC Converter (24V to 12V, 30A/360W) | — | 3 | [¥3,799](https://www.amazon.co.jp/dp/B0976VJ5CS) | n/a | n/a |
+| Mobile base | DC-DC Converter (12/24V to 5V, 20A/100W, waterproof) | HOMELYLIFE step-down | 2 | [¥4,303](https://www.amazon.co.jp/dp/B089M5R3NJ) | n/a | n/a |
+| Mobile base | Screw Terminal Block (8P, 2-row) | — | 1 | [¥3,696](https://www.amazon.co.jp/dp/B0GT8QMDZZ) | n/a | n/a |
+
+#### ケーブル・その他（小計 ≈ ¥26,113）
+
+| 部位 | 部品 | 型番 | 数量 | 日本 | 米国 | 欧州 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Torso | HDMI 2.1 Cable (2m, 8K) | UGREEN | 1 | [¥1,601](https://www.amazon.co.jp/dp/B0CFFFSFFN) | n/a | n/a |
+| Torso (cabling) | Drag Chain (15x30mm, 1m) | Akozon | 4 | [¥1,492](https://www.amazon.co.jp/dp/B07YG2C1D7) | n/a | n/a |
+| Torso (cabling) | USB 3.0 Extension Cable (2m) | UGREEN | 4 | [¥1,038](https://www.amazon.co.jp/dp/B086ZJB2JN) | n/a | n/a |
+| Torso (cabling) | USB-C Cable (L-shape, 100W, 4K, 2m) | UGREEN | 2 | [¥2,880](https://www.amazon.co.jp/dp/B08R86PLCS) | n/a | n/a |
+| Torso (cabling) | Micro-USB Cable (2m) | UGREEN | 3 | [¥954](https://www.amazon.co.jp/dp/B07VNM61ZL) | n/a | n/a |
+| Torso (cabling) | Micro-USB Cable (0.5m) | UGREEN | 1 | [¥674](https://www.amazon.co.jp/dp/B07VQTRYY4) | n/a | n/a |
+| Mobile base (lidar, NUC) | LAN Cable (CAT8 mesh, short) | UGREEN | 3 | [¥1,099](https://www.amazon.co.jp/dp/B0CMWFN5R8) | n/a | n/a |
+| Mobile base (Remote PC) | LAN Cable (CAT8 mesh, long) | UGREEN | 1 | [¥1,799](https://www.amazon.co.jp/dp/B0CMWFN5R8) | n/a | n/a |
+
+#### 機構部品（小計 ≈ ¥371,506）
+
+| 部位 | 部品 | 型番 | 数量 | 日本 | 米国 | 欧州 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Mobile base | Drive Wheel (150mm rubber, 12mm shaft) | Inoac LR-150W-BK-12 | 4 | [¥2,013](https://www.genbaichiba.com/shop/g/g00621419/) | n/a | n/a |
+| Mobile base | Timing Pulley (S5M, 20T, 10mm belt) | MISUMI HTPS20S5M100-A-P10 | 8 | [¥3,343](https://jp.misumi-ec.com/vona2/detail/110300406030/?HissuCode=HTPS20S5M100-A-P10) | [$52.67](https://us.misumi-ec.com/vona2/detail/110300406030/?HissuCode=HTPS20S5M100-A-P10) | [€44.84](https://de.misumi-ec.com/vona2/detail/110300406030/?HissuCode=HTPS20S5M100-A-P10) |
+| Mobile base | Timing Belt (S5M, 300mm, 10mm wide) | MISUMI HTBN300S5M-100 | 4 | [¥736](https://jp.misumi-ec.com/vona2/detail/110302653030/?HissuCode=HTBN300S5M-100) | [$15.79](https://us.misumi-ec.com/vona2/detail/110302653030/?HissuCode=HTBN300S5M-100) | [€10.36](https://de.misumi-ec.com/vona2/detail/110302566230/?HissuCode=HTBN300S5M-100) |
+| Mobile base | Spur Gear (module 1.0, 40T, 8mm face, 10mm bore) | MISUMI GEAB1.0-40-8-B-10 | 4 | [¥1,533](https://jp.misumi-ec.com/vona2/detail/110300428430/?HissuCode=GEAB1.0-40-8-B-10) | [$40.44‡](https://us.misumi-ec.com/vona2/detail/110300428430/?HissuCode=GEAB1.0-40-8-B-10) | n/a |
+| Mobile base | Spur Gear (module 1.0, 40T, hub, 15mm bore) | MISUMI GEAHB1.0-40-8-A-15 | 4 | [¥1,477](https://jp.misumi-ec.com/vona2/detail/110300428430/?HissuCode=GEAHB1.0-40-8-A-15) | [‡](https://us.misumi-ec.com/vona2/detail/110300428430/?HissuCode=GEAHB1.0-40-8-A-15) | n/a |
+| Mobile base | Miter Gear (module 1.5, 20T 1:1, SUS304) | MISUMI KGTS1.5-2020-10 | 8 | [¥8,973](https://jp.misumi-ec.com/vona2/detail/110300429650/?HissuCode=KGTS1.5-2020-10) | [$130.65‡](https://us.misumi-ec.com/vona2/result/?Keyword=KGTS1.5-2020-10) | n/a |
+| Mobile base | Precision Shaft (10mm dia; L=55/60/120/130) | MISUMI PSSFG10-55/-60/-120/-130 | 4 each | [¥485-802](https://jp.misumi-ec.com/vona2/detail/110302634310/?HissuCode=PSSFG10-55) | [$7.96-13.69](https://us.misumi-ec.com/vona2/detail/110302634310/?HissuCode=PSSFG10-55) | [login](https://de.misumi-ec.com/vona2/detail/110302634310/?HissuCode=PSSFG10-55) |
+| Mobile base | Bearing Spacer (10x12mm, L=2) | MISUMI CLBUB10-12-2 | 32 | [¥496](https://jp.misumi-ec.com/vona2/detail/110302644450/?HissuCode=CLBUB10-12-2) | [$22.52](https://us.misumi-ec.com/vona2/detail/110302644450/?HissuCode=CLBUB10-12-2) | n/a |
+| Mobile base | Bearing Spacer (10x12mm, L=30) | MISUMI CLBUB10-12-30 | 4 | [¥707](https://jp.misumi-ec.com/vona2/detail/110302644450/?HissuCode=CLBUB10-12-30) | [$24.15‡](https://us.misumi-ec.com/vona2/detail/110302644450/?HissuCode=CLBUB10-12-30) | [€7.84](https://de.misumi-ec.com/vona2/detail/110302644450/?HissuCode=CLBUB10-12-30) |
+| Mobile base | Shaft Support (flanged, slit, 10mm dia) | MISUMI SSTHMR10 | 12 | [¥2,166](https://jp.misumi-ec.com/vona2/detail/110300013150/?HissuCode=SSTHMR10) | [login](https://us.misumi-ec.com/vona2/detail/110300013150/?HissuCode=SSTHMR10) | [€28.23](https://de.misumi-ec.com/vona2/detail/110300013150/?HissuCode=SSTHMR10) |
+| Mobile base | Flanged Bearing (stainless, 10x15x4) | SFL6700ZZ | 48 | [¥1,099](https://jp.misumi-ec.com/vona2/detail/110302273720/?HissuCode=SFL6700ZZ) | [$19.99](https://vxb.com/products/sf6700zz-stainless-steel-flanged-shielded-bearing-10x15x4) | [€5.31](https://www.123kugellager.de/kugellager-gehauselager/rillenkugellager/einreihig/f6700-zz) (steel equiv.) |
+| Mobile base | Bearing (40x52x7) | 6808ZZ | 4 | [¥1,804](https://jp.misumi-ec.com/vona2/detail/221000058301/?HissuCode=6808ZZ) | [$19.99](https://vxb.com/products/6808zz-bearing-40x52x7-shielded) | [€3.25](https://www.hug-technik.com/shop/kugellager-61808-2z-von-zen-rillenkugellager-40x52x7-mm.html) (ZEN) |
+| Mobile base | Thrust Bearing (55x78x16) | 51111 | 4 | [¥2,400](https://jp.misumi-ec.com/vona2/detail/221000058299/?HissuCode=51111) | [$49.99](https://vxb.com/products/51111-thrust-bearing-55x78x16) | [€7.71](https://www.hug-technik.com/shop/axial-rillenkugellager-51111-von-zen-55x78x16-mm.html) (ZEN) |
+| Mobile base | Standoff (SUS303, M4, 45mm, M-F slotted) | Hirosugi BRU-445S | 16 | [¥280](https://www.hirosugi-net.co.jp/shop/g/g41214/) (20-pc min) | n/a | n/a |
+| Mobile base | Standoff (SUS303, M4, 50mm, M-F slotted) | Hirosugi BRU-450S | 16 | [¥294](https://www.hirosugi-net.co.jp/shop/g/g41215/) (20-pc min) | n/a | n/a |
+| Mobile base | Aluminium Frame (20x20, 472mm) | MISUMI HFS5-2020-472 | 4 | [¥283](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-472) | [login](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-472) | [login](https://de.misumi-ec.com/vona2/result/?Keyword=HFS5-2020) |
+| Mobile base | Aluminium Frame (20x20, 432mm) | MISUMI HFS5-2020-432 | 10 | [¥253](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-432) | [login](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-432) | [login](https://de.misumi-ec.com/vona2/result/?Keyword=HFS5-2020) |
+| Mobile base | Aluminium Frame (20x20, 236mm) | MISUMI HFS5-2020-236 | 4 | [¥325](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-236) | [login](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-236) | [login](https://de.misumi-ec.com/vona2/result/?Keyword=HFS5-2020) |
+| Mobile base | Aluminium Frame (20x20, 78mm) | MISUMI HFS5-2020-78 | 8 | [¥325](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-78) | [login](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-78) | [login](https://de.misumi-ec.com/vona2/result/?Keyword=HFS5-2020) |
+| Mobile base (battery tray) | Telescopic Slide Rail (3-step, SUS304, W27) | MISUMI SSRXC2718 | 2 | [¥4,461](https://jp.misumi-ec.com/vona2/detail/110300072560/?HissuCode=SSRXC2718) | [login](https://us.misumi-ec.com/vona2/detail/110300072560/?HissuCode=SSRXC2718) | [login](https://uk.misumi-ec.com/vona2/detail/110300072560/?HissuCode=SSRXC2718) |
+| Mobile base (battery tray) | Aluminium Frame (20x20, 200mm) | MISUMI HFS5-2020-200 | 4 | [¥325](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-200) | [login](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-200) | [login](https://de.misumi-ec.com/vona2/result/?Keyword=HFS5-2020) |
+| Torso lift | Lift Ball Screw (rolled, 20mm dia, 10mm lead, 860mm) | MISUMI C-BSSTA2010-860 | 1 | [¥24,475](https://jp.misumi-ec.com/vona2/detail/110302588540/?HissuCode=C-BSSTA2010-860) | n/a | n/a |
+| Torso lift | Lift Linear Guide Rail (SX, W28, 1000mm) | MISUMI SXR28-1000 | 2 | [¥7,904](https://jp.misumi-ec.com/vona2/detail/110300048850/?HissuCode=SXR28-1000) | [login](https://us.misumi-ec.com/vona2/detail/110300048850/?HissuCode=SXR28-1000) | [login](https://uk.misumi-ec.com/vona2/detail/110300048850/?HissuCode=SXR28-1000) |
+| Torso lift | Lift Coupling (disc type, OD32, 12/14mm bores) | MISUMI MCSLCRK32-12-14 | 1 | [¥4,694](https://jp.misumi-ec.com/vona2/detail/110302556340/?HissuCode=MCSLCRK32-12-14) | [login](https://us.misumi-ec.com/vona2/detail/110302556340/?HissuCode=MCSLCRK32-12-14) | [login](https://uk.misumi-ec.com/vona2/detail/110302556340/?HissuCode=MCSLCRK32-12-14) |
+| Torso lift | Lift Ball Screw Support Unit | MISUMI C-TFF15 | 1 | [¥2,376](https://jp.misumi-ec.com/vona2/detail/110310392309/?HissuCode=C-TFF15) | n/a | n/a |
+| Torso frame | Aluminium Frame (20x20, 600mm) | MISUMI HFS5-2020-600 | 1 | [¥364](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-600) | [$9.42‡](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-600) | [login](https://de.misumi-ec.com/vona2/result/?Keyword=HFS5-2020) |
+| Torso frame | Aluminium Frame (20x20, 100mm) | MISUMI HFS5-2020-100 | 6 | [¥325](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-100) | [$4.66‡](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-100) | [login](https://de.misumi-ec.com/vona2/result/?Keyword=HFS5-2020) |
+| Torso frame | Aluminium Frame (20x20, 110mm) | MISUMI HFS5-2020-110 | 1 | [¥325](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-110) | [$4.66‡](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-110) | [login](https://de.misumi-ec.com/vona2/result/?Keyword=HFS5-2020) |
+| Torso (back) | Emergency Stop Button | IDEC HW1B-V404R | 1 | [¥3,504](https://jp.misumi-ec.com/vona2/detail/222000393180/?HissuCode=HW1B-V404R) | [login](https://us.misumi-ec.com/vona2/detail/222000393180/?HissuCode=HW1B-V404R) | n/a |
+| Arms + steer (X540 joints) | Flanged Bearing (12x18x4) | F6701ZZ | 18 | [¥1,239](https://jp.misumi-ec.com/vona2/detail/221000529012/?HissuCode=F6701ZZ) | [$6.19](https://bearingsdirect.com/f6701-zz-flanged-ball-bearing-12x18x4mm-shielded/) | [€2.20‡](https://rcbay.de/Kugellager-mit-Bund-F6701-ZZ-12x18x4-mm-Flanschlager-Bundlager) |
+| Arms (shoulder) | Bearing (50x65x7) | 6810ZZ | 6 | [¥2,330](https://jp.misumi-ec.com/vona2/detail/221000058301/?HissuCode=6810ZZ) | [$39.99](https://vxb.com/products/6810-open-bearing-50x65x7) (open) | [€4.52](https://www.hug-technik.com/shop/kugellager-61810-von-zen-rillenkugellager-50x65x7-mm.html) (ZEN, open) |
+| Arms (joints) | Bearing (20x27x4) | 6704ZZ | 6 | [¥1,268](https://jp.misumi-ec.com/vona2/detail/221000058301/?HissuCode=6704ZZ) | [$9.99](https://vxb.com/products/6704zz-shielded-bearing-20x27x4) | [€10.59](https://www.123kugellager.de/kugellager-gehauselager/rillenkugellager/einreihig/61704-zz) |
+| Arms (upper arm) | Aluminium Frame (20x20, 180mm; verified from CAD) | MISUMI HFS5-2020-180 | 2 | [¥325](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-180) | [login](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-180) | [login](https://de.misumi-ec.com/vona2/result/?Keyword=HFS5-2020) |
+| Arms (forearm) | Aluminium Frame (20x20, 330mm; verified from CAD) | MISUMI HFS5-2020-330 | 2 | [¥191](https://jp.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-330) | [login](https://us.misumi-ec.com/vona2/detail/110302683830/?HissuCode=HFS5-2020-330) | [login](https://de.misumi-ec.com/vona2/result/?Keyword=HFS5-2020) |
+
+#### オプション（小計 ≈ ¥110,299）
+
+| 部位 | 部品 | 型番 | 数量 | 日本 | 米国 | 欧州 |
+| --- | --- | --- | --- | --- | --- | --- |
+| (Optional) Torso | USB-C GbE LAN Adapter | UGREEN | 1 | [¥2,099](https://www.amazon.co.jp/dp/B082K62S48) | n/a | n/a |
+| (Optional) Torso | Mobile WiFi Router (+ home kit) | Fujisoft +F FS040W | 1 | [¥33,000](https://www.amazon.co.jp/dp/B09HRH6XBL) | n/a | n/a |
+| (Optional) Offboard (teleop) | Game Controller | Sony DualShock 4 (CUH-ZCT2J) | 1 | [¥15,800](https://www.amazon.co.jp/dp/B01LPTFJ8W) | n/a | n/a |
+| (Optional) Offboard (teleop) | VR Headset | Meta Quest 3S 128GB | 1 | [¥59,400](https://www.amazon.co.jp/dp/B0F8VJ57Q1) | n/a | n/a |
+
+<!-- サーボ配置（バススキャンより）：頭部パン/チルト = XM430-W350 ×2；腕1本 = PH54-200（肩）×1 + XM540-W270 ×7 + XM430-W350（手首）×2；ハンド1個 = XL330-M288 ×7；ステア = XM540-W150 ×2 + XM540-W270 ×2． -->
+
+<!-- 今後追加予定：USB延長ケーブル，電源ケーブル，電源ハブ，ネジ・ナット類，3Dプリント用フィラメント． -->
+
+> [!IMPORTANT]
+> 価格は販売店により変動する場合があります．最新の価格は各リンクをご確認ください．
+
+</details>
 
 <!-- > [!NOTE]
 > 日本のサイト・値段(円)に更新していく予定です． -->
@@ -554,6 +861,18 @@ TBD
 > 販売店によって価格は変動します．最新の価格は各リンク先でご確認ください．
 
 </details> -->
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+
+<!-- マイルストーン -->
+## マイルストーン
+
+- [ ] [ロボットの特徴](#ロボットの特徴) — 仕様表の記入（速度，可搬重量，寸法，重量，センサ，アクチュエータ，電源）
+- [ ] [部品リスト（BOM）](#部品リストbom) — 型番・数量・価格・購入先を含む部品リストの作成
+- [ ] ロボットの組み立て — 組み立て手順
+
+いずれの節も現在は`TBD`であり，Markdownソース中にドラフトの表がコメントアウトされています．公開前に，記載値を現在の機体構成に対して実測・確認する必要があります．
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 

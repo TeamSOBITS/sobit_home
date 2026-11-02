@@ -11,10 +11,10 @@ find_package(rclcpp REQUIRED)
 find_package(moveit_core REQUIRED)
 find_package(moveit_ros_planning REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(class_loader REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(moveit_msgs REQUIRED)
-find_package(tf2_eigen REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
@@ -29,8 +29,11 @@ target_include_directories(${PROJECT_NAME}
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
   pluginlib
+  class_loader
   moveit_core
+  moveit_ros_planning
   moveit_msgs
+  geometry_msgs
   tf2_eigen
 )
 

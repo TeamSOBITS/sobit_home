@@ -95,7 +95,8 @@
       <collision>
         <origin xyz="0.0 0.0 0.0" rpy="${M_PI/2.0} 0.0 ${M_PI}" />
         <geometry>
-          <cylinder length="0.035" radius="0.075"/>
+          <!-- Gazebo: 5 mm, since DART's two edge contacts on the 35 mm tyre scrub in a spin (~5% yaw lost) -->
+          <cylinder length="${0.005 if gz_on else 0.035}" radius="0.075"/>
         </geometry>
       </collision>
       <inertial>

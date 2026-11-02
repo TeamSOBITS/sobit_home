@@ -41,18 +41,19 @@ def generate_launch_description():
     arg_enable_head_cam_depth       = DeclareLaunchArgument('enable_head_cam_depth', default_value='true')
     arg_enable_hand_left_cam_color  = DeclareLaunchArgument('enable_hand_left_cam_color', default_value='true')
     arg_enable_hand_right_cam_color = DeclareLaunchArgument('enable_hand_right_cam_color', default_value='true')
+    # Head camera model. Selects the URDF camera (camera_head_<type>.urdf.xacro), the driver
+    # node and the default config file, so swapping cameras is a one-argument change.
+    arg_head_cam_type               = DeclareLaunchArgument(
+        'head_cam_type', default_value='orbbec',
+        description='Head RGB-D camera model: orbbec (Gemini 336L) | realsense (D415)')
     arg_head_cam_config_file        = DeclareLaunchArgument(
-        'head_cam_config_file',
-        default_value=os.path.join(
-            get_package_share_directory('sobit_home_bringup'),
-            'config',
-            'head_camera_orbbec.yaml',
-        ),
-    )
+        'head_cam_config_file', default_value='',
+        description='Driver config YAML for the head camera. Empty = config/head_camera_<head_cam_type>.yaml')
     arg_enable_teleop          = DeclareLaunchArgument('enable_teleop',          default_value='false')
     arg_enable_rm_motors       = DeclareLaunchArgument('enable_rm_motors',       default_value='true')
     arg_enable_dxl_pro         = DeclareLaunchArgument('enable_dxl_pro',         default_value='true')
     arg_enable_moveit          = DeclareLaunchArgument('enable_moveit',          default_value='true')
+    arg_enable_moveit_rviz     = DeclareLaunchArgument('enable_moveit_rviz',     default_value='false')
     arg_enable_tf_prefix       = DeclareLaunchArgument('enable_tf_prefix',       default_value='false')
     arg_enable_action_server   = DeclareLaunchArgument(
         'enable_action_server', default_value='true',
@@ -100,11 +101,13 @@ def generate_launch_description():
         arg_enable_head_cam_depth,
         arg_enable_hand_left_cam_color,
         arg_enable_hand_right_cam_color,
+        arg_head_cam_type,
         arg_head_cam_config_file,
         arg_enable_teleop,
         arg_enable_rm_motors,
         arg_enable_dxl_pro,
         arg_enable_moveit,
+        arg_enable_moveit_rviz,
         arg_enable_tf_prefix,
         arg_enable_action_server,
         arg_pose_config,
@@ -136,6 +139,7 @@ def launch_gz(context, *args, **kwargs):
     enable_head_cam_depth       = _bool(LaunchConfiguration('enable_head_cam_depth').perform(context))
     enable_hand_left_cam_color  = _bool(LaunchConfiguration('enable_hand_left_cam_color').perform(context))
     enable_hand_right_cam_color = _bool(LaunchConfiguration('enable_hand_right_cam_color').perform(context))
+    head_cam_type               = LaunchConfiguration('head_cam_type').perform(context).lower()
     head_cam_config_file        = LaunchConfiguration('head_cam_config_file').perform(context)
     enable_display              = _bool(LaunchConfiguration('enable_display').perform(context))
     enable_teleop               = _bool(LaunchConfiguration('enable_teleop').perform(context))
@@ -143,11 +147,19 @@ def launch_gz(context, *args, **kwargs):
     enable_rm_motors            = _bool(LaunchConfiguration('enable_rm_motors').perform(context))
     enable_dxl_pro              = _bool(LaunchConfiguration('enable_dxl_pro').perform(context))
     enable_moveit               = _bool(LaunchConfiguration('enable_moveit').perform(context))
+    enable_moveit_rviz          = _bool(LaunchConfiguration('enable_moveit_rviz').perform(context))
     enable_tf_prefix            = _bool(LaunchConfiguration('enable_tf_prefix').perform(context))
     enable_action_server        = _bool(LaunchConfiguration('enable_action_server').perform(context))
     pose_config                 = LaunchConfiguration('pose_config').perform(context)
     right_hand_pose_config      = LaunchConfiguration('right_hand_pose_config').perform(context)
     left_hand_pose_config       = LaunchConfiguration('left_hand_pose_config').perform(context)
+
+    if head_cam_type not in ('orbbec', 'realsense'):
+        print(f"Unknown head_cam_type '{head_cam_type}'. Use 'orbbec' or 'realsense'.")
+        exit(1)
+    if not head_cam_config_file:
+        head_cam_config_file = os.path.join(
+            get_package_share_directory(bringup_package), 'config', f'head_camera_{head_cam_type}.yaml')
 
     # Find Dynamixel Port name from DXL_LOWER_PORT/DXL_UPPER_PORT environment variable
     dxl_x_lower_body_port = ''
@@ -156,6 +168,7 @@ def launch_gz(context, *args, **kwargs):
     dxl_x_hand_port = ''
     um_body_port = ''
     um_body_id = ''
+    rm_can_port = 'can0'
     # Find USB Cam port name from HOME_CAM_LEFT_PORT/HOME_CAM_RIGHT_PORT environment variable
     cam_left_port = ''
     cam_right_port = ''
@@ -163,38 +176,49 @@ def launch_gz(context, *args, **kwargs):
         dxl_x_lower_body_port = str(os.environ.get('DXL_X_LOWER_PORT'))
         dxl_x_upper_body_port = str(os.environ.get('DXL_X_UPPER_PORT'))
         dxl_p_upper_body_port = str(os.environ.get('DXL_P_UPPER_PORT'))
-        dxl_x_hand_port       = str(os.environ.get('DXL_X_HAND_PORT'))
+        dxl_x_hand_port = str(os.environ.get('DXL_X_HAND_PORT'))
 
         um_body_port = str(os.environ.get('UM_PORT'))
         um_body_id = str(os.environ.get('UM_ID', '5'))
         print('Dynamixel Lower Body Port : ' + dxl_x_lower_body_port)
         print('Dynamixel Upper Body Port : ' + dxl_x_upper_body_port)
         print('Dynamixel PRO Upper Port  : ' + dxl_p_upper_body_port)
-        print('Dynamixel Hand Port       : ' + dxl_x_hand_port)
+        print('Dynamixel Hand Port : ' + dxl_x_hand_port)
         print('Uirobot Gateway Port : ' + um_body_port)
         print('Uirobot Body Node ID : ' + um_body_id)
 
         if enable_mobile_base and enable_rm_motors:
+            # RM_CAN_PORT is resolved in .bashrc from the SH-C31G adapter's USB serial
+            # (like the DXL_*_PORT realpath lookups). Unset keeps the historical can0;
+            # set-but-empty means the pinned adapter was not found, so fail loudly
+            # rather than silently driving through whichever adapter took can0.
+            if 'RM_CAN_PORT' in os.environ and not os.environ['RM_CAN_PORT']:
+                print('RM_CAN_PORT is empty: the pinned USB-CAN adapter was not found. '
+                      'Check its USB connection, then re-source ~/.bashrc.')
+                exit(1)
+            rm_can_port = os.environ.get('RM_CAN_PORT', 'can0')
+            print('RM Motors CAN Port : ' + rm_can_port)
+
             can_setup_cmds = [
-                ['sudo', 'ip', 'link', 'set', 'can0', 'down'],
-                ['sudo', 'ip', 'link', 'set', 'can0', 'type', 'can', 'bitrate', '1000000'],
+                ['sudo', 'ip', 'link', 'set', rm_can_port, 'down'],
+                ['sudo', 'ip', 'link', 'set', rm_can_port, 'type', 'can', 'bitrate', '1000000'],
                 # The default 10-frame TX queue jams with ENOBUFS if the bus briefly stops draining
-                ['sudo', 'ip', 'link', 'set', 'can0', 'txqueuelen', '65536'],
-                ['sudo', 'ip', 'link', 'set', 'can0', 'up'],
+                ['sudo', 'ip', 'link', 'set', rm_can_port, 'txqueuelen', '65536'],
+                ['sudo', 'ip', 'link', 'set', rm_can_port, 'up'],
             ]
             if any(subprocess.run(cmd).returncode != 0 for cmd in can_setup_cmds):
-                print('Failed to set up CAN0 interface. Please check CAN adapter connection.')
+                print(f'Failed to set up {rm_can_port} interface. Please check CAN adapter connection.')
                 exit(1)
-            print('CAN0 interface is set up.')
+            print(f'{rm_can_port} interface is set up.')
 
             # Powered RM motors broadcast feedback at 1 kHz; a silent bus cannot ACK
             # our frames and ros2_control write() would fail with ENOBUFS (os error 105)
             try:
-                subprocess.run(['candump', '-n', '1', 'can0'],
+                subprocess.run(['candump', '-n', '1', rm_can_port],
                                timeout=1.5, stdout=subprocess.DEVNULL, check=True)
-                print('CAN0 bus is alive (motor feedback detected).')
+                print(f'{rm_can_port} bus is alive (motor feedback detected).')
             except (subprocess.TimeoutExpired, subprocess.CalledProcessError, FileNotFoundError):
-                print('No traffic on CAN0. Is the emergency stop released and motor power on?')
+                print(f'No traffic on {rm_can_port}. Is the emergency stop released and motor power on?')
                 exit(1)
 
         # Find USB Cam port
@@ -221,7 +245,7 @@ def launch_gz(context, *args, **kwargs):
     robot_description_config = xacro.process_file(
         robot_description,
         mappings={
-            'robot_namespace': robot_name,
+            'robot_name': robot_name,
             'enable_gz' : 'True' if enable_gz else 'False',
             'enable_mobile_base': 'True' if enable_mobile_base else 'False',
             'enable_body': 'True' if enable_body else 'False',
@@ -232,6 +256,7 @@ def launch_gz(context, *args, **kwargs):
             'enable_head': 'True' if enable_head else 'False',
             'enable_head_cam_color' : 'True' if enable_head_cam_color else 'False',
             'enable_head_cam_depth' : 'True' if enable_head_cam_depth else 'False',
+            'head_cam_type': head_cam_type,
             'enable_hand_left_cam_color' : 'True' if enable_hand_left_cam_color else 'False',
             'enable_hand_right_cam_color' : 'True' if enable_hand_right_cam_color else 'False',
             'enable_rm_motors': 'True' if enable_rm_motors else 'False',
@@ -243,6 +268,7 @@ def launch_gz(context, *args, **kwargs):
             'dxl_x_hand_port': dxl_x_hand_port,
             'um_body_port': um_body_port,
             'um_body_id': um_body_id,
+            'can_interface': rm_can_port,
         })
 
 
@@ -260,6 +286,7 @@ def launch_gz(context, *args, **kwargs):
         name="robot_state_publisher",
         namespace=robot_name,
         parameters=robot_state_publisher_params,
+        prefix=None if enable_gz else 'taskset -c 8-15',
         output="screen",
     )
 
@@ -299,7 +326,7 @@ def launch_gz(context, *args, **kwargs):
         remappings=[
             ("controller_manager/robot_description", "robot_description"),
         ],
-        # prefix='chrt -f 80',
+        prefix=None if enable_gz else 'taskset -c 2-7 chrt -f 80',
         output="both",
     )
 
@@ -314,11 +341,11 @@ def launch_gz(context, *args, **kwargs):
             ]),
             launch_arguments={
                 'namespace' : robot_name,
-                'lidar_num' : '1',
+                'lidar_num' : '2',
                 'config_file1': urg_configs[0],
                 'topic_namespace1': 'lidar_front',
-                # 'config_file2': urg_configs[1],
-                # 'topic_namespace2': 'lidar_back',
+                'config_file2': urg_configs[1],
+                'topic_namespace2': 'lidar_back',
                 'enable_tf_prefix': 'true' if enable_tf_prefix else 'false',
             }.items()
         )
@@ -372,6 +399,7 @@ def launch_gz(context, *args, **kwargs):
             remappings=[
                 ('cmd_vel_out', 'cmd_vel'),
             ],
+            prefix=None if enable_gz else 'taskset -c 2-7',
             output='screen',
         )
         controllers.append(swerve_controller)
@@ -514,44 +542,92 @@ def launch_gz(context, *args, **kwargs):
             'use_sim_time'           : 'true' if enable_gz else 'false',
             'enable_teleop'          : 'true' if enable_teleop else 'false',
             'enable_moveit'          : 'true' if enable_moveit else 'false',
+            'enable_moveit_rviz'     : 'true' if enable_moveit_rviz else 'false',
             'enable_tf_prefix'       : 'true' if enable_tf_prefix else 'false',
+            'head_cam_type'          : head_cam_type,
+            # Module switches -> SRDF xacro args.
+            'enable_mobile_base'     : 'true' if enable_mobile_base else 'false',
+            'enable_arm_left'        : 'true' if enable_arm_left else 'false',
+            'enable_arm_right'       : 'true' if enable_arm_right else 'false',
+            'enable_hand_left'       : 'true' if enable_hand_left else 'false',
+            'enable_hand_right'      : 'true' if enable_hand_right else 'false',
+            'enable_head'            : 'true' if enable_head else 'false',
+            'enable_body'            : 'true' if enable_body else 'false',
             'pose_config'            : pose_config,
             'right_hand_pose_config' : right_hand_pose_config,
             'left_hand_pose_config'  : left_hand_pose_config,
         }.items(),
     )
 
+    # Real hardware head camera. Both drivers publish the same topics under /<robot_name>/head_camera
+    # (color/image_raw, depth/image_raw, depth/points) with URDF frame ids, so consumers do not care.
     if not enable_gz and (enable_head_cam_color or enable_head_cam_depth):
-        head_cam_launch = IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                PathJoinSubstitution([
-                    FindPackageShare('orbbec_camera'),
-                    'launch',
-                    'gemini_330_series.launch.py'
-                ])
-            ]),
-            launch_arguments={
-                'namespace': robot_name,
-                'camera_name': 'head_camera',
-                'config_file_path': head_cam_config_file,
-                # 'head_camera_depth_frame_id':    robot_name + '/head_camera_depth_frame',
-                # 'depth_optical_frame_id':        robot_name + '/head_camera_depth_optical_frame',
-                # 'head_camera_color_frame_id':    robot_name + '/head_camera_color_frame',
-                # 'color_optical_frame_id':        robot_name + '/head_camera_color_optical_frame',
-                # 'head_camera_left_ir_frame_id':  robot_name + '/head_camera_infra_1_frame',
-                # 'left_ir_optical_frame_id':      robot_name + '/head_camera_infra_1_optical_frame',
-                # 'head_camera_right_ir_frame_id': robot_name + '/head_camera_infra2_frame',
-                # 'right_ir_optical_frame_id':     robot_name + '/head_camera_infra2_optical_frame',
-                # 'head_camera_depth_frame_id':    'head_camera_depth_frame',
-                'depth_optical_frame_id':        'head_camera_depth_optical_frame',
-                # 'head_camera_color_frame_id':    'head_camera_color_frame',
-                'color_optical_frame_id':        'head_camera_color_optical_frame',
-                # 'head_camera_left_ir_frame_id':  'head_camera_infra_1_frame',
-                'left_ir_optical_frame_id':      'head_camera_left_ir_optical_frame',
-                # 'head_camera_right_ir_frame_id': 'head_camera_infra2_frame',
-                'right_ir_optical_frame_id':     'head_camera_right_ir_optical_frame',
-            }.items(),
-        )
+        if head_cam_type == 'orbbec':
+            # Orbbec Gemini 336L (vendor launch + flat config YAML)
+            head_cam_launch = IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([
+                    PathJoinSubstitution([
+                        FindPackageShare('orbbec_camera'),
+                        'launch',
+                        'gemini_330_series.launch.py'
+                    ])
+                ]),
+                launch_arguments={
+                    'namespace': robot_name,
+                    'camera_name': 'head_camera',
+                    'config_file_path': head_cam_config_file,
+                    # 'head_camera_depth_frame_id':    robot_name + '/head_camera_depth_frame',
+                    # 'depth_optical_frame_id':        robot_name + '/head_camera_depth_optical_frame',
+                    # 'head_camera_color_frame_id':    robot_name + '/head_camera_color_frame',
+                    # 'color_optical_frame_id':        robot_name + '/head_camera_color_optical_frame',
+                    # 'head_camera_left_ir_frame_id':  robot_name + '/head_camera_infra_1_frame',
+                    # 'left_ir_optical_frame_id':      robot_name + '/head_camera_infra_1_optical_frame',
+                    # 'head_camera_right_ir_frame_id': robot_name + '/head_camera_infra2_frame',
+                    # 'right_ir_optical_frame_id':     robot_name + '/head_camera_infra2_optical_frame',
+                    # 'head_camera_depth_frame_id':    'head_camera_depth_frame',
+                    'depth_optical_frame_id':        'head_camera_depth_optical_frame',
+                    # 'head_camera_color_frame_id':    'head_camera_color_frame',
+                    'color_optical_frame_id':        'head_camera_color_optical_frame',
+                    # 'head_camera_left_ir_frame_id':  'head_camera_infra_1_frame',
+                    'left_ir_optical_frame_id':      'head_camera_left_ir_optical_frame',
+                    # 'head_camera_right_ir_frame_id': 'head_camera_infra2_frame',
+                    'right_ir_optical_frame_id':     'head_camera_right_ir_optical_frame',
+                }.items(),
+            )
+        else:
+            # Intel RealSense D415. A plain Node instead of rs_launch.py so the process can be
+            # pinned like every other non-RT node and its topics remapped onto the Orbbec names.
+            head_cam_launch = Node(
+                package='realsense2_camera',
+                executable='realsense2_camera_node',
+                name='head_camera',
+                namespace=robot_name,
+                parameters=[
+                    head_cam_config_file,
+                    {
+                        # Frame ids are <tf_prefix><camera_name>_<stream>_optical_frame; the
+                        # URDF (camera_head_realsense.urdf.xacro) defines them, publish_tf is off.
+                        'camera_name': 'head_camera',
+                        'tf_prefix': robot_name + '/' if enable_tf_prefix else '',
+                        'enable_color': enable_head_cam_color,
+                        'enable_depth': enable_head_cam_depth,
+                        'pointcloud.enable': enable_head_cam_depth,
+                    },
+                ],
+                remappings=[
+                    ('~/depth/image_rect_raw',                 '~/depth/image_raw'),
+                    ('~/depth/image_rect_raw/compressed',      '~/depth/image_raw/compressed'),
+                    ('~/depth/image_rect_raw/compressedDepth', '~/depth/image_raw/compressedDepth'),
+                    ('~/depth/image_rect_raw/theora',          '~/depth/image_raw/theora'),
+                    ('~/depth/image_rect_raw/zstd',            '~/depth/image_raw/zstd'),
+                    ('~/depth/color/points',                   '~/depth/points'),
+                ],
+                ros_arguments=['--log-level', 'warn'],
+                # Keep off the isolated RT control-loop cores (2-7) and the OS housekeeping cores (0-1).
+                prefix='taskset -c 8-15',
+                emulate_tty=True,
+                output='screen',
+            )
         nodes.append(head_cam_launch)
 
     gz_bridge_node = Node(
@@ -560,7 +636,6 @@ def launch_gz(context, *args, **kwargs):
         name='parameter_bridge',
         namespace=robot_name,
         arguments=[
-                    "/" + robot_name + "/joint_states" + "@sensor_msgs/msg/JointState" + "[gz.msgs.Model",
                     # "/model/" + robot_name + "/pose" + "@geometry_msgs/msg/Pose" + "[gz.msgs.Pose",
                     "/" + robot_name + "/head_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
                     "/" + robot_name + "/head_camera/color" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
@@ -577,6 +652,7 @@ def launch_gz(context, *args, **kwargs):
                     # "/" + robot_name + "/imu" + "@sensor_msgs/msg/Imu" + "[gz.msgs.IMU",
                 ],
         remappings=[
+                    ("/" + robot_name + "/head_camera/camera_info", "/" + robot_name + "/head_camera/color/camera_info"),
                     ("/" + robot_name + "/head_camera/color", "/" + robot_name + "/head_camera/color/image_raw"),
                     ("/" + robot_name + "/hand_left_camera/camera_info", "/" + robot_name + "/hand_left_camera/color/camera_info"),
                     ("/" + robot_name + "/hand_left_camera/color", "/" + robot_name + "/hand_left_camera/color/image_raw"),
@@ -610,12 +686,11 @@ def launch_gz(context, *args, **kwargs):
         name='parameter_bridge_depth_image',
         namespace=robot_name,
         arguments=[
-            "/" + robot_name + "/head_camera/depth" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
-            "/" + robot_name + "/head_camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
+            "/" + robot_name + "/head_camera/depth/image" + "@sensor_msgs/msg/Image" + "[gz.msgs.Image",
+            "/" + robot_name + "/head_camera/depth/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[gz.msgs.CameraInfo",
         ],
         remappings=[
-            ("/" + robot_name + "/head_camera/depth", "/" + robot_name + "/head_camera/depth/image_raw"),
-            ("/" + robot_name + "/head_camera/camera_info", "/" + robot_name + "/head_camera/depth/camera_info"),
+            ("/" + robot_name + "/head_camera/depth/image", "/" + robot_name + "/head_camera/depth/image_raw"),
         ],
         parameters=[{
             'use_sim_time': True,
@@ -656,13 +731,15 @@ def launch_gz(context, *args, **kwargs):
         executable='republish',
         name='head_camera_depth_compressed_republisher',
         namespace=robot_name,
-        arguments=['raw', 'compressedDepth'],
         remappings=[
             ("in",                  "/" + robot_name + "/head_camera/depth/image_raw"),
             ("out/compressedDepth", "/" + robot_name + "/head_camera/depth/image_raw/compressedDepth"),
         ],
         parameters=[{
             'use_sim_time': True,
+            # image_transport 5.x: positional transports are ignored; an empty out_transport loads every plugin (out, out/theora, ...)
+            'in_transport': 'raw',
+            'out_transport': 'compressedDepth',
             f'qos_overrides./{robot_name}/head_camera/depth/image_raw.subscription.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/depth/image_raw/compressedDepth.publisher.reliability': 'best_effort',
             f'qos_overrides./{robot_name}/head_camera/depth/image_raw/compressedDepth.publisher.depth': 1,
@@ -680,11 +757,7 @@ def launch_gz(context, *args, **kwargs):
             parameters=[
                 hand_left_cam_config,
                 {"video_device": cam_left_port},
-                {"frame_id": robot_name + '/hand_left_camera_optical_frame'},
-                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw.publisher.reliability': 'best_effort'},
-                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw.publisher.depth': 1},
-                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw/compressed.publisher.reliability': 'best_effort'},
-                {f'qos_overrides./{robot_name}/hand_left_camera/color/image_raw/compressed.publisher.depth': 1},
+                {"frame_id": (robot_name + '/' if enable_tf_prefix else '') + 'hand_left_camera_optical_frame'},
                 ],
             remappings=[
                 ('image_raw', 'color/image_raw'),
@@ -692,7 +765,9 @@ def launch_gz(context, *args, **kwargs):
                 ('image_raw/compressedDepth', 'color/image_raw/compressedDepth'),
                 ('image_raw/theora', 'color/image_raw/theora'),
                 ('image_raw/zstd', 'color/image_raw/zstd'),
+                ('camera_info', 'color/camera_info'),
             ],
+            prefix='taskset -c 8-15',
             output='log',
         )
 
@@ -704,11 +779,7 @@ def launch_gz(context, *args, **kwargs):
             parameters=[
                 hand_right_cam_config,
                 {"video_device": cam_right_port},
-                {"frame_id": robot_name + '/hand_right_camera_optical_frame'},
-                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw.publisher.reliability': 'best_effort'},
-                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw.publisher.depth': 1},
-                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw/compressed.publisher.reliability': 'best_effort'},
-                {f'qos_overrides./{robot_name}/hand_right_camera/color/image_raw/compressed.publisher.depth': 1},
+                {"frame_id": (robot_name + '/' if enable_tf_prefix else '') + 'hand_right_camera_optical_frame'},
             ],
             remappings=[
                 ('image_raw', 'color/image_raw'),
@@ -716,7 +787,9 @@ def launch_gz(context, *args, **kwargs):
                 ('image_raw/compressedDepth', 'color/image_raw/compressedDepth'),
                 ('image_raw/theora', 'color/image_raw/theora'),
                 ('image_raw/zstd', 'color/image_raw/zstd'),
+                ('camera_info', 'color/camera_info'),
             ],
+            prefix='taskset -c 8-15',
             output='log',
         )
 
@@ -764,22 +837,43 @@ def launch_gz(context, *args, **kwargs):
                     executable='republish',
                     name=cam_name + '_compressed_republisher',
                     namespace=robot_name,
-                    arguments=['raw', 'compressed'],
                     remappings=[
                         ('in',              '/' + robot_name + '/' + cam_name + '/color/image_raw'),
                         ('out/compressed',  '/' + robot_name + '/' + cam_name + '/color/image_raw/compressed'),
                     ],
                     parameters=[{
                         'use_sim_time': True,
+                        'in_transport': 'raw',
+                        'out_transport': 'compressed',
                         f'qos_overrides./{robot_name}/{cam_name}/color/image_raw.subscription.reliability': 'best_effort',
                         f'qos_overrides./{robot_name}/{cam_name}/color/image_raw/compressed.publisher.reliability': 'best_effort',
                     }],
                     output='log',
                 ))
     else:
-        nodes.append(joint_state_broadcaster)
-        nodes.append(control_node)
-        nodes.extend(controllers)
+        # Real hardware: serialize startup so control_node doesn't race
+        # robot_state_publisher for 'robot_description' and spawners don't pile up.
+        delayed_control_node = RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=robot_state_publisher_node,
+                on_start=[control_node],
+            )
+        )
+        delayed_joint_state_broadcaster_real = RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=control_node,
+                on_start=[joint_state_broadcaster],
+            )
+        )
+        delayed_controllers_real = RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=joint_state_broadcaster,
+                on_exit=controllers,
+            )
+        )
+        nodes.append(delayed_control_node)
+        nodes.append(delayed_joint_state_broadcaster_real)
+        nodes.append(delayed_controllers_real)
         if enable_action_server:
             nodes.append(delayed_action_server)
         if enable_hand_left_cam_color:

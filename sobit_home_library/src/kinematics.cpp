@@ -84,7 +84,9 @@ bool Kinematics::newton_solve(
   const double err = std::hypot(x_f - tx, z_f - tz);
   const double wt = M_PI_2 - st - el;
 
-  if (err > 1e-3 || std::abs(wt) > M_PI_2 + 0.01) {
+  // Finite input can still yield NaN (det underflow); the err/wt tests above
+  // are false for NaN, so check the outputs explicitly.
+  if (err > 1e-3 || std::abs(wt) > M_PI_2 + 0.01 || !std::isfinite(st) || !std::isfinite(el)) {
     return false;
   }
 
@@ -99,6 +101,12 @@ bool Kinematics::newton_solve(
   // -----------------------------------------------------------------------
 bool Kinematics::ik_solve(double tx, double tz, double & st_out, double & el_out)
 {
+  // The convergence guards use < / > comparisons, which are false for NaN,
+  // so a NaN target would otherwise be reported as a valid solution.
+  if (!std::isfinite(tx) || !std::isfinite(tz)) {
+    return false;
+  }
+
     // Z-seed: initial shoulder_tilt from z-only model (el=0 approximation)
   const double arg0 = std::clamp((tz - ZA) / ZR, -1.0, 1.0);
   const double st_z = std::clamp(std::asin(arg0) - ZPhi, 0.05, M_PI - 0.05);

@@ -1,11 +1,25 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 
+import xacro
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
+
+
+# Module switches passed through to move_group.launch.py for the SRDF xacro.
+MODULE_ARGS = (
+    'enable_mobile_base',
+    'enable_arm_left',
+    'enable_arm_right',
+    'enable_hand_left',
+    'enable_hand_right',
+    'enable_head',
+    'enable_body',
+)
 
 
 def generate_launch_description():
@@ -15,7 +29,7 @@ def generate_launch_description():
 
     arg_robot_name       = DeclareLaunchArgument('robot_name',       default_value='sobit_home')
     arg_use_sim_time     = DeclareLaunchArgument('use_sim_time',     default_value='true')
-    arg_use_rviz         = DeclareLaunchArgument('use_rviz',         default_value='false')
+    arg_use_rviz         = DeclareLaunchArgument('enable_moveit_rviz', default_value='false')
     arg_enable_teleop    = DeclareLaunchArgument('enable_teleop',    default_value='false')
     arg_enable_moveit    = DeclareLaunchArgument('enable_moveit',    default_value='true')
     arg_pose_config            = DeclareLaunchArgument(
@@ -44,6 +58,12 @@ def generate_launch_description():
     arg_linear_arr_tol   = DeclareLaunchArgument('linear_arrival_tol', default_value='0.02')
     arg_rotate_arr_tol   = DeclareLaunchArgument('rotate_arrival_tol', default_value='0.02')
     arg_enable_tf_prefix = DeclareLaunchArgument('enable_tf_prefix', default_value='false')
+    arg_head_cam_type    = DeclareLaunchArgument('head_cam_type',    default_value='orbbec')
+    # Forwarded untouched to move_group.launch.py.
+    args_modules = [
+        DeclareLaunchArgument(name, default_value='true')
+        for name in MODULE_ARGS
+    ]
 
     return LaunchDescription([
         arg_robot_name,
@@ -60,10 +80,12 @@ def generate_launch_description():
         arg_linear_arr_tol,
         arg_rotate_arr_tol,
         arg_enable_tf_prefix,
+        arg_head_cam_type,
         arg_pose_config,
         arg_right_hand_pose_config,
         arg_left_hand_pose_config,
         arg_moveit_server_config,
+        *args_modules,
         OpaqueFunction(function=launch_setup),
     ])
 
@@ -71,7 +93,7 @@ def generate_launch_description():
 def launch_setup(context, *args, **kwargs):
     robot_name       = LaunchConfiguration('robot_name').perform(context)
     use_sim_time     = LaunchConfiguration('use_sim_time').perform(context)
-    use_rviz         = LaunchConfiguration('use_rviz').perform(context)
+    use_rviz         = LaunchConfiguration('enable_moveit_rviz').perform(context)
     enable_teleop    = LaunchConfiguration('enable_teleop').perform(context)
     enable_moveit    = LaunchConfiguration('enable_moveit').perform(context)
     linear_kp        = float(LaunchConfiguration('linear_kp').perform(context))
@@ -83,6 +105,7 @@ def launch_setup(context, *args, **kwargs):
     linear_arr_tol   = float(LaunchConfiguration('linear_arrival_tol').perform(context))
     rotate_arr_tol   = float(LaunchConfiguration('rotate_arrival_tol').perform(context))
     enable_tf_prefix = LaunchConfiguration('enable_tf_prefix').perform(context)
+    head_cam_type    = LaunchConfiguration('head_cam_type').perform(context)
 
     use_sim_time_bool = use_sim_time.lower() == 'true'
     enable_tf_prefix_bool = enable_tf_prefix.lower() in ('true', '1', 'yes')
@@ -91,6 +114,22 @@ def launch_setup(context, *args, **kwargs):
     right_hand_pose_config = LaunchConfiguration('right_hand_pose_config').perform(context)
     left_hand_pose_config  = LaunchConfiguration('left_hand_pose_config').perform(context)
     moveit_server_config   = LaunchConfiguration('moveit_server_config').perform(context)
+
+    # The URDF is the source of the joint limits the pose values are clamped to,
+    # expanded with the same module flags the rest of this launch forwards.
+    urdf_path = os.path.join(
+        get_package_share_directory('sobit_home_description'),
+        'robots', 'sobit_home_robot.urdf.xacro')
+    urdf_mappings = {
+        name: ('True' if LaunchConfiguration(name).perform(context).lower()
+               in ('true', '1', 'yes') else 'False')
+        for name in MODULE_ARGS
+    }
+    urdf_mappings['robot_name'] = robot_name
+    urdf_mappings['enable_gz'] = 'True' if use_sim_time_bool else 'False'
+    urdf_mappings['enable_tf_prefix'] = 'True' if enable_tf_prefix_bool else 'False'
+    urdf_mappings['head_cam_type'] = head_cam_type
+    robot_description = xacro.process_file(urdf_path, mappings=urdf_mappings).toxml()
 
     joint_action_server_node = Node(
         package="sobit_home_library",
@@ -103,7 +142,11 @@ def launch_setup(context, *args, **kwargs):
             left_hand_pose_config,
             {"use_sim_time": use_sim_time_bool},
             {"enable_tf_prefix": enable_tf_prefix_bool},
+            # Without this the node's URDF poll never resolves, so the joint
+            # limits stay empty and pose values are published unclamped.
+            {"robot_description": robot_description},
         ],
+        prefix=None if use_sim_time_bool else 'taskset -c 8-15',
         output="screen",
     )
 
@@ -123,6 +166,7 @@ def launch_setup(context, *args, **kwargs):
             {"wheel_linear_arrival_tol": linear_arr_tol},
             {"wheel_rotate_arrival_tol": rotate_arr_tol},
         ],
+        prefix=None if use_sim_time_bool else 'taskset -c 8-15',
         # Route through twist_mux instead of publishing cmd_vel directly.
         remappings=[
             ("cmd_vel", "cmd_vel_action"),
@@ -147,7 +191,11 @@ def launch_setup(context, *args, **kwargs):
             'use_sim_time': use_sim_time,
             'use_rviz':     use_rviz,
             'enable_teleop':   enable_teleop,
+            'enable_tf_prefix': enable_tf_prefix,
+            'head_cam_type': head_cam_type,
             'moveit_server_config': moveit_server_config,
+            # Module switches -> URDF + SRDF xacro args.
+            **{name: LaunchConfiguration(name).perform(context) for name in MODULE_ARGS},
         }.items(),
     )
 

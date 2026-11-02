@@ -55,8 +55,12 @@ MoveitServer::MoveitServer(const rclcpp::NodeOptions & options)
     std::chrono::seconds(10),
     [this]() {purge_stale_plans();});
 
+  // Single-arm groups plus their whole-body counterparts, which move the base
+  // through MoveitWholeBodyBridge. Override per launch to plan for other groups.
   if (!has_parameter("active_planning_groups")) {
-    declare_parameter("active_planning_groups", std::vector<std::string>{"arm_left", "arm_right", "arm", "head_arm_body"});
+    declare_parameter(
+      "active_planning_groups",
+      std::vector<std::string>{"arm_left", "arm_right", "arm_left_body", "arm_right_body"});
   }
 
   // Planning budget + workspace bounds
@@ -162,8 +166,8 @@ bool MoveitServer::init_move_groups()
     if (!robot_model->hasJointModelGroup(group_name)) {
       RCLCPP_ERROR(get_logger(),
         "Planning group '%s' is not defined in the loaded SRDF — skipping. "
-        "Check active_planning_groups against the SRDF selected at launch "
-        "(teleop and non-teleop use different SRDFs).",
+        "Check active_planning_groups against the enable_* flags passed to "
+        "the SRDF xacro at launch.",
         group_name.c_str());
       continue;
     }
@@ -547,10 +551,28 @@ rclcpp_action::GoalResponse MoveitServer::handle_exec_goal(
   (void)uuid;
   RCLCPP_INFO(get_logger(), "handle_exec_goal called for plan_id: %s", goal->plan_id.c_str());
   std::lock_guard<std::mutex> lock(plan_cache_mutex_);
-  if (plan_cache_.find(goal->plan_id) == plan_cache_.end()) {
+  auto plan_it = plan_cache_.find(goal->plan_id);
+  if (plan_it == plan_cache_.end()) {
     RCLCPP_ERROR(get_logger(), "Plan ID not found or expired: %s", goal->plan_id.c_str());
     return rclcpp_action::GoalResponse::REJECT;
   }
+
+  // Reject if ANY active execution already targets this planning group, so two
+  // cached plans for the same group can never call move_group->execute() concurrently.
+  const std::string requested_group = plan_it->second.planning_group;
+  for (const auto & [active_plan_id, active_group] : active_executions_) {
+    if (active_group == requested_group) {
+      RCLCPP_ERROR(get_logger(),
+        "Rejecting plan_id %s: planning group '%s' already executing (plan_id %s)",
+        goal->plan_id.c_str(), requested_group.c_str(), active_plan_id.c_str());
+      return rclcpp_action::GoalResponse::REJECT;
+    }
+  }
+
+  // Reserve the group here (same lock as the scan above) so a second goal for
+  // this group can't be accepted before execute_plan_thread's own registration runs.
+  active_executions_[goal->plan_id] = requested_group;
+
   RCLCPP_INFO(get_logger(), "Goal ACCEPTED for plan_id: %s", goal->plan_id.c_str());
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
@@ -604,6 +626,8 @@ void MoveitServer::execute_plan_thread(const std::shared_ptr<GoalHandleExecutePl
     std::lock_guard<std::mutex> lock(plan_cache_mutex_);
     auto it = plan_cache_.find(plan_id);
     if (it == plan_cache_.end()) {
+      // handle_exec_goal already reserved this plan_id's group; release it.
+      active_executions_.erase(plan_id);
       result->success = false;
       result->message = "Plan ID not found during execute";
       goal_handle->abort(result);
@@ -615,19 +639,28 @@ void MoveitServer::execute_plan_thread(const std::shared_ptr<GoalHandleExecutePl
 
   // 2. Find the MoveGroup
   std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group;
+  bool group_lost = false;
   {
     std::lock_guard<std::mutex> lock(active_groups_mutex_);
     auto move_group_it = active_groups_.find(cached_plan.planning_group);
     if (move_group_it == active_groups_.end()) {
-      result->success = false;
-      result->message = "Planning group lost";
-      goal_handle->abort(result);
-      return;
+      group_lost = true;
+    } else {
+      move_group = move_group_it->second;
     }
-    move_group = move_group_it->second;
+  }
+  if (group_lost) {
+    // Never nest with active_groups_mutex_ held: take plan_cache_mutex_ only after releasing it above.
+    std::lock_guard<std::mutex> lock(plan_cache_mutex_);
+    active_executions_.erase(plan_id);
+    result->success = false;
+    result->message = "Planning group lost";
+    goal_handle->abort(result);
+    return;
   }
 
-  // 3. Register this execution so handle_exec_cancel knows which arm to stop
+  // 3. Already registered by handle_exec_goal under plan_cache_mutex_; kept
+  // here too in case this thread's registration would ever run standalone.
   {
     std::lock_guard<std::mutex> lock(plan_cache_mutex_);
     active_executions_[plan_id] = cached_plan.planning_group;

@@ -16,7 +16,8 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('robot_name',                  default_value='sobit_home'),
         DeclareLaunchArgument('robot_id',                    default_value='0'),
-        DeclareLaunchArgument('use_rviz',                    default_value='true'),
+        DeclareLaunchArgument('enable_viz',                  default_value='',
+                              description='Viewer to start: rerun, rviz, foxglove, or empty for none'),
         DeclareLaunchArgument('enable_mobile_base',          default_value='true'),
         DeclareLaunchArgument('enable_body',                 default_value='true'),
         DeclareLaunchArgument('enable_arm_left',             default_value='true'),
@@ -28,15 +29,40 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_head_cam_depth',       default_value='true'),
         DeclareLaunchArgument('enable_hand_left_cam_color',  default_value='true'),
         DeclareLaunchArgument('enable_hand_right_cam_color', default_value='true'),
+        DeclareLaunchArgument('head_cam_type',               default_value='orbbec',
+                              description='Head RGB-D camera model: orbbec (Gemini 336L) | realsense (D415)'),
         DeclareLaunchArgument('enable_lidar',                default_value='true'),
         DeclareLaunchArgument('enable_display',              default_value='true'),
         DeclareLaunchArgument('enable_teleop',               default_value='false'),
         DeclareLaunchArgument('enable_rm_motors',            default_value='true'),
         DeclareLaunchArgument('enable_dxl_pro',              default_value='true'),
         DeclareLaunchArgument('enable_moveit',               default_value='true'),
+        DeclareLaunchArgument('enable_moveit_rviz',          default_value='false',
+                              description="MoveIt's own planning-scene RViz"),
         DeclareLaunchArgument('enable_tf_prefix',            default_value='false'),
         OpaqueFunction(function=launch_setup),
     ])
+
+
+
+def _viewer(context, robot_name):
+    """Return the launch action for the chosen viewer, or nothing."""
+    choice = LaunchConfiguration('enable_viz').perform(context).strip().lower()
+    if not choice:
+        return []
+    if choice not in ('rerun', 'rviz', 'foxglove'):
+        raise RuntimeError(
+            f"enable_viz must be rerun, rviz, foxglove or empty, not '{choice}'")
+    return [IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution(
+            [FindPackageShare(f'sobits_viz_{choice}'), 'launch', f'{choice}.launch.py'])),
+        launch_arguments={
+            'robot_name': robot_name,
+            'use_sim_time': 'false',
+            'enable_tf_prefix': _bool(
+                LaunchConfiguration('enable_tf_prefix'), context),
+        }.items(),
+    )]
 
 
 def launch_setup(context, *args, **kwargs):
@@ -45,17 +71,6 @@ def launch_setup(context, *args, **kwargs):
 
     effective_robot_name = robot_name if robot_id == 0 else f'{robot_name}_{robot_id}'
 
-    rviz_config = PathJoinSubstitution([
-        FindPackageShare('sobit_home_bringup'), 'rviz', 'sobit_home.rviz'
-    ])
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        arguments=['-d', rviz_config],
-        output='screen',
-        condition=IfCondition(LaunchConfiguration('use_rviz')),
-    )
 
     robot = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
@@ -74,6 +89,7 @@ def launch_setup(context, *args, **kwargs):
             'enable_head_cam_depth'       : _bool(LaunchConfiguration('enable_head_cam_depth'), context),
             'enable_hand_left_cam_color'  : _bool(LaunchConfiguration('enable_hand_left_cam_color'), context),
             'enable_hand_right_cam_color' : _bool(LaunchConfiguration('enable_hand_right_cam_color'), context),
+            'head_cam_type'               : LaunchConfiguration('head_cam_type').perform(context),
             'enable_lidar'                : _bool(LaunchConfiguration('enable_lidar'), context),
             'enable_display'              : _bool(LaunchConfiguration('enable_display'), context),
             'enable_teleop'               : _bool(LaunchConfiguration('enable_teleop'), context),
@@ -81,8 +97,9 @@ def launch_setup(context, *args, **kwargs):
             'enable_dxl_pro'              : _bool(LaunchConfiguration('enable_dxl_pro'), context),
             'enable_gz'                   : 'False',  # never Gazebo on real hardware
             'enable_moveit'               : _bool(LaunchConfiguration('enable_moveit'), context),
+            'enable_moveit_rviz'          : _bool(LaunchConfiguration('enable_moveit_rviz'), context),
             'enable_tf_prefix'            : _bool(LaunchConfiguration('enable_tf_prefix'), context),
         }.items(),
     )
 
-    return [robot, rviz_node]
+    return [robot] + _viewer(context, 'sobit_home')

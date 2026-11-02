@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- SOBIT HOME (Gazebo) -->
 <robot name="sobit_home_gazebo" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:macro name="gazebo_sensors" params="robot_name enable_head_cam_color:=True enable_head_cam_depth:=True enable_hand_left_cam_color:=True enable_hand_right_cam_color:=True">
+  <xacro:macro name="gazebo_sensors" params="robot_name head_cam_type:=realsense enable_head_cam_color:=True enable_head_cam_depth:=True enable_hand_left_cam_color:=True enable_hand_right_cam_color:=True">
+
+    <!-- Head camera horizontal FOV [rad]: Gemini 336L 1.64061 (pre-swap value); D415 69 deg color, 65 deg depth -->
+    <xacro:property name="head_cam_color_hfov" value="${1.64061 if head_cam_type == 'orbbec' else 1.2113}" />
+    <xacro:property name="head_cam_depth_hfov" value="${1.64061 if head_cam_type == 'orbbec' else 1.1345}" />
 
     <!-- Sensor - Head Camera (Color) -->
     <xacro:if value="${enable_head_cam_color}">
@@ -14,10 +18,10 @@
 
           <always_on>1</always_on>
           <visualize>false</visualize>
-          <update_rate>10</update_rate>
+          <update_rate>30</update_rate>
 
           <camera name="head_camera_color">
-            <horizontal_fov>1.64061</horizontal_fov>
+            <horizontal_fov>${head_cam_color_hfov}</horizontal_fov>
             <image>
               <width>640</width>
               <height>480</height>
@@ -45,14 +49,15 @@
           <pose>0 0 0 0 0 0 </pose>
 
           <gz_frame_id>head_camera_depth_frame</gz_frame_id>
-          <topic>${robot_name}/head_camera/depth</topic>
+          <!-- own subtree so gz derives head_camera/depth/camera_info instead of sharing the color sensor's -->
+          <topic>${robot_name}/head_camera/depth/image</topic>
 
           <always_on>1</always_on>
           <visualize>false</visualize>
-          <update_rate>10</update_rate>
+          <update_rate>30</update_rate>
 
           <camera name="head_camera_depth">
-            <horizontal_fov>1.64061</horizontal_fov>
+            <horizontal_fov>${head_cam_depth_hfov}</horizontal_fov>
             <image>
               <width>640</width>
               <height>480</height>
@@ -73,7 +78,7 @@
     </xacro:if>
 
     <!-- Sensor - Wrist Left Camera (ELP-USBGS1200P01-H120, Color) -->
-    <!-- AR0234 Global Shutter, HFOV 126 deg (2.19911 rad), 1920x1200 @ 90fps -->
+    <!-- AR0234 Global Shutter; simulated in the calibrated 640x480 @ 30fps mode (HFOV ~106 deg) -->
     <xacro:if value="${enable_hand_left_cam_color}">
       <gazebo reference="hand_left_camera_optical_frame">
         <sensor name="hand_left_camera_color" type="camera">
@@ -84,16 +89,34 @@
 
           <always_on>1</always_on>
           <visualize>false</visualize>
-          <update_rate>10</update_rate>
+          <update_rate>30</update_rate>
 
           <camera name="hand_left_camera_color">
-            <!-- ELP-USBGS1200P01-H120: HFOV 126 deg -->
-            <horizontal_fov>2.19911</horizontal_fov>
+            <!-- Real 640x480 calibration: mean fx 240.91 px (hand_*_cam_info.yaml) -> HFOV 106.1 deg -->
+            <horizontal_fov>1.85097</horizontal_fov>
             <image>
               <width>640</width>
-              <height>400</height>
+              <height>480</height>
               <format>RGB_INT8</format>
             </image>
+            <!-- Calibrated K (hand_left_cam_info.yaml) off: gz renders blocky noise with a custom <lens> -->
+            <!-- <lens>
+              <intrinsics>
+                <fx>242.22058</fx>
+                <fy>243.31355</fy>
+                <cx>322.72581</cx>
+                <cy>216.81771</cy>
+                <s>0</s>
+              </intrinsics>
+              <projection>
+                <p_fx>242.22058</p_fx>
+                <p_fy>243.31355</p_fy>
+                <p_cx>322.72581</p_cx>
+                <p_cy>216.81771</p_cy>
+                <tx>0</tx>
+                <ty>0</ty>
+              </projection>
+            </lens> -->
             <clip>
               <near>0.01</near>
               <!-- <far>10</far> -->
@@ -104,7 +127,7 @@
     </xacro:if>
 
     <!-- Sensor - Wrist Right Camera (ELP-USBGS1200P01-H120, Color) -->
-    <!-- AR0234 Global Shutter, HFOV 126 deg (2.19911 rad), 1920x1200 @ 90fps -->
+    <!-- AR0234 Global Shutter; simulated in the calibrated 640x480 @ 30fps mode (HFOV ~106 deg) -->
     <xacro:if value="${enable_hand_right_cam_color}">
       <gazebo reference="hand_right_camera_optical_frame">
         <sensor name="hand_right_camera_color" type="camera">
@@ -115,16 +138,34 @@
 
           <always_on>1</always_on>
           <visualize>false</visualize>
-          <update_rate>10</update_rate>
+          <update_rate>30</update_rate>
 
           <camera name="hand_right_camera_color">
-            <!-- ELP-USBGS1200P01-H120: HFOV 126 deg -->
-            <horizontal_fov>2.19911</horizontal_fov>
+            <!-- Real 640x480 calibration: mean fx 240.91 px (hand_*_cam_info.yaml) -> HFOV 106.1 deg -->
+            <horizontal_fov>1.85097</horizontal_fov>
             <image>
               <width>640</width>
-              <height>400</height>
+              <height>480</height>
               <format>RGB_INT8</format>
             </image>
+            <!-- Calibrated K (hand_right_cam_info.yaml) off: gz renders blocky noise with a custom <lens> -->
+            <!-- <lens>
+              <intrinsics>
+                <fx>239.59393</fx>
+                <fy>239.9392</fy>
+                <cx>298.30787</cx>
+                <cy>250.48436</cy>
+                <s>0</s>
+              </intrinsics>
+              <projection>
+                <p_fx>239.59393</p_fx>
+                <p_fy>239.9392</p_fy>
+                <p_cx>298.30787</p_cx>
+                <p_cy>250.48436</p_cy>
+                <tx>0</tx>
+                <ty>0</ty>
+              </projection>
+            </lens> -->
             <clip>
               <near>0.01</near>
               <!-- <far>10</far> -->
@@ -133,13 +174,6 @@
         </sensor>
       </gazebo>
     </xacro:if>
-
-    <!-- Publish Joint States -->
-    <gazebo>
-      <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
-        <topic>${robot_name}/joint_states</topic>
-      </plugin>
-    </gazebo>
 
   </xacro:macro>
 </robot>

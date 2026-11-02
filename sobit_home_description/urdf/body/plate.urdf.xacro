@@ -93,9 +93,11 @@
     </link>
     
 
+    <!-- Parent is the middle plate (a massive link), not base_footprint: Isaac Sim pins
+         fixed joints hanging off massless frames to the world. Same world pose. -->
     <joint name="${prefix}_cover_joint" type="fixed">
-      <origin xyz="0.0 0.0 ${0.421258 + 0.15/2}" rpy="0.0 0.0 0.0" />
-      <parent link="base_footprint" />
+      <origin xyz="0.0 0.0 ${0.421258 + 0.15/2 - 0.271358}" rpy="0.0 0.0 0.0" />
+      <parent link="${prefix}_middle_link" />
       <child link="${prefix}_cover_link" />
     </joint>
 

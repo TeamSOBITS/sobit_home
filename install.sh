@@ -11,7 +11,9 @@ cd ..
 ros_packages=(
     "urg_node"
     "sobits_interfaces"
+    "sobits_robot_descriptor"
     "orbbecsdk_ros2"
+    "realsense_ros"
     "dynamixel_hardware"
     "uirobot_hardware"
     "rm_motors_ros"
@@ -21,6 +23,7 @@ ros_packages=(
     "aws_small_house_world"
     "sobits_gazebo_worlds"
     "sobits_display"
+    "usb_cam"
 )
 
 #Clone all packages
@@ -44,57 +47,17 @@ cd ${DIR}
 python3 -m pip install --break-system-packages \
     transforms3d
 
-# Download ROS packages
+# Every ROS dependency is declared in the package.xml files and comes from
+# rosdep, including those of the cloned sibling packages.
 sudo apt-get update
-sudo apt-get install -y \
-    ros-$ROS_DISTRO-ros2-control \
-    ros-$ROS_DISTRO-ros2-controllers \
-    ros-$ROS_DISTRO-control-msgs \
-    ros-$ROS_DISTRO-control-toolbox \
-    ros-$ROS_DISTRO-controller-interface \
-    ros-$ROS_DISTRO-controller-manager \
-    ros-$ROS_DISTRO-controller-manager-msgs \
-    ros-$ROS_DISTRO-position-controllers \
-    ros-$ROS_DISTRO-velocity-controllers \
-    ros-$ROS_DISTRO-effort-controllers \
-    ros-$ROS_DISTRO-joint-trajectory-controller \
-    ros-$ROS_DISTRO-twist-mux \
-    ros-$ROS_DISTRO-joint-state-publisher \
-    ros-$ROS_DISTRO-joint-state-publisher-gui \
-    ros-$ROS_DISTRO-joint-state-broadcaster \
-    ros-$ROS_DISTRO-joint-limits \
-    ros-$ROS_DISTRO-robot-state-publisher \
-    ros-$ROS_DISTRO-hardware-interface \
-    ros-$ROS_DISTRO-transmission-interface \
-    ros-$ROS_DISTRO-urdf \
-    ros-$ROS_DISTRO-urdf-launch \
-    ros-$ROS_DISTRO-xacro \
-    ros-$ROS_DISTRO-moveit \
-    ros-$ROS_DISTRO-moveit-ros-perception \
-    ros-$ROS_DISTRO-std-msgs \
-    ros-$ROS_DISTRO-geometry-msgs \
-    ros-$ROS_DISTRO-sensor-msgs \
-    ros-$ROS_DISTRO-nav-msgs \
-    ros-$ROS_DISTRO-trajectory-msgs \
-    ros-$ROS_DISTRO-tf2-geometry-msgs \
-    ros-$ROS_DISTRO-tf2-ros \
-    ros-$ROS_DISTRO-tf2 \
-    ros-$ROS_DISTRO-tf-transformations \
-    ros-$ROS_DISTRO-joy-linux \
-    ros-$ROS_DISTRO-launch \
-    ros-$ROS_DISTRO-launch-ros \
-    ros-$ROS_DISTRO-gz-ros2-control \
-    ros-$ROS_DISTRO-actuator-msgs \
-    ros-$ROS_DISTRO-gps-msgs \
-    ros-$ROS_DISTRO-ros-gz-bridge \
-    ros-$ROS_DISTRO-ros-gz-sim \
-    ros-$ROS_DISTRO-ros-gz-interfaces \
-    ros-$ROS_DISTRO-usb-cam \
-    ros-$ROS_DISTRO-topic-tools \
-    ros-$ROS_DISTRO-image-transport \
-    ros-$ROS_DISTRO-compressed-depth-image-transport \
-    ros-$ROS_DISTRO-depth-image-proc \
-    ros-$ROS_DISTRO-rmw-cyclonedds-cpp
+if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
+    sudo rosdep init
+fi
+rosdep update
+rosdep install -r -y -i --from-paths ${DIR}
+for pkg in "${ros_packages[@]}"; do
+    rosdep install -r -y -i --from-paths ${DIR}/../${pkg}
+done
 
 # Set up the environment
 sudo usermod -aG dialout $USERNAME
@@ -114,21 +77,44 @@ sudo apt-get update
 sudo apt-get install -y \
     gz-harmonic
 
+# MoveIt warehouse (stored planning scenes / robot states / constraints).
+# The sqlite backend is installed by rosdep and is the default. MongoDB has no
+# binary release for this ROS distribution and no rosdep rule, so it is opt-in
+# and built from source together with its C++ driver:
+#     WAREHOUSE_MONGO=1 ./install.sh
+if [ "${WAREHOUSE_MONGO}" = "1" ]; then
+    echo "╠══╣ Installing the MongoDB warehouse backend from source"
+    sudo apt-get install -y \
+        build-essential \
+        cmake \
+        libssl-dev \
+        libsasl2-dev \
+        mongodb-server-core || \
+        echo "WARNING: mongodb-server-core unavailable; install mongod from the MongoDB apt repository"
+
+    if [ ! -d ../warehouse_ros_mongo ]; then
+        git clone -b ros2 https://github.com/moveit/warehouse_ros_mongo.git ../warehouse_ros_mongo
+    fi
+    echo "Cloned warehouse_ros_mongo. Build it with the rest of the workspace:"
+    echo "    colcon build --packages-select warehouse_ros_mongo"
+    echo "Then launch with warehouse_backend:=mongo"
+fi
+
 # Set up environment variables
 echo "" >> $HOME/.bashrc
 echo "# SOBIT HOME environment variables" >> $HOME/.bashrc
 echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> $HOME/.bashrc
 echo "export HOST_ROS_DOMAIN_ID=\${ROS_DOMAIN_ID}" >> $HOME/.bashrc
-echo "export REMOTE_CYCLONEDDS_URI=file://${DIR}/cyclonedds_profile.xml" >> $HOME/.bashrc
 echo "source ${DIR}/mode_ctr.sh" >> $HOME/.bashrc
 echo "if [ \"\$ROS_DOMAIN_ID\" = \"80\" ]; then" >> $HOME/.bashrc
 echo "    export DXL_X_LOWER_PORT=\`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W9E4N-if00-port0\`" >> $HOME/.bashrc
 echo "    export DXL_X_UPPER_PORT=\`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W9E57-if00-port0\`" >> $HOME/.bashrc
 echo "    export DXL_P_UPPER_PORT=\`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4TCRFG-if00-port0\`" >> $HOME/.bashrc
-echo "    export DXL_X_HAND_PORT=\`realpath /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7922NO-if00-port0\`" >> $HOME/.bashrc
+echo "    export DXL_X_HAND_PORT=\`realpath /dev/serial/by-id/usb-BestTechnology_E160_E160-if00-port0\`" >> $HOME/.bashrc
 echo "    export UM_PORT=\`realpath /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_dabce0b66407f0118d421f2e6d9880ab-if00-port0\`" >> $HOME/.bashrc
 echo "    export HOME_CAM_LEFT_PORT=\"/dev/\$(ls /sys/bus/usb/devices/3-5.4:1.0/video4linux/ | sort -V | head -1)\"" >> $HOME/.bashrc
 echo "    export HOME_CAM_RIGHT_PORT=\"/dev/\$(ls /sys/bus/usb/devices/3-6.4:1.0/video4linux/ | sort -V | head -1)\"" >> $HOME/.bashrc
+echo "    export RM_CAN_PORT=\`for n in /sys/class/net/can*; do [ \"\$(cat \$n/device/../serial 2>/dev/null)\" = 005200624B45501420313352 ] && basename \$n; done\`" >> $HOME/.bashrc
 echo "fi" >> $HOME/.bashrc
 echo "" >> $HOME/.bashrc
 

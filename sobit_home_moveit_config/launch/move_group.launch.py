@@ -1,3 +1,4 @@
+import importlib.util
 import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
@@ -9,6 +10,65 @@ from launch_ros.descriptions import ComposableNode
 from moveit_configs_utils import MoveItConfigsBuilder
 
 
+def _load_warehouse_db_launch():
+    """Import warehouse_db.launch.py, which sits beside this file.
+
+    Launch files are not importable as modules, so the backend registry is
+    loaded by path instead of being duplicated here.
+    """
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                        'warehouse_db.launch.py')
+    spec = importlib.util.spec_from_file_location('sobit_home_warehouse_db', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+_warehouse_db = _load_warehouse_db_launch()
+WAREHOUSE_BACKENDS = _warehouse_db.WAREHOUSE_BACKENDS
+warehouse_parameters = _warehouse_db.warehouse_parameters
+
+
+# Which enable_* flag owns each entry of moveit_controllers.yaml.
+_CONTROLLER_OWNER = {
+    'head_position_controller': 'enable_head',
+    'arm_left_position_controller': 'enable_arm_left',
+    'arm_right_position_controller': 'enable_arm_right',
+    'hand_left_position_controller': 'enable_hand_left',
+    'hand_right_position_controller': 'enable_hand_right',
+    'body_position_controller': 'enable_body',
+}
+
+# Declared in moveit_controllers.yaml but no longer spawned by
+# sobit_home_control/config/controllers.yaml, so never advertise them.
+_CONTROLLERS_REMOVED = ('mobile_base_controller',)
+
+
+def _prune_disabled_controllers(trajectory_execution, module_mappings):
+    """Strip controllers for disabled modules from the trajectory_execution dict.
+
+    Drops both the controller_names entry and the controller's own definition,
+    so MoveIt never advertises a controller that no spawner will create.
+    """
+    scm = trajectory_execution.get('moveit_simple_controller_manager')
+    if not scm:
+        return
+
+    def _enabled(name):
+        if name in _CONTROLLERS_REMOVED:
+            return False
+        owner = _CONTROLLER_OWNER.get(name)
+        if owner is None:
+            return True
+        return module_mappings.get(owner, 'true').lower() in ('true', '1', 'yes')
+
+    kept = [n for n in scm.get('controller_names', []) if _enabled(n)]
+    for name in list(scm):
+        if name != 'controller_names' and name not in kept:
+            del scm[name]
+    scm['controller_names'] = kept
+
+
 def _launch_setup(context, *args, **kwargs):
 
     package_name_moveit_config = 'sobit_home_moveit_config'
@@ -17,18 +77,62 @@ def _launch_setup(context, *args, **kwargs):
     pkg_share_control = FindPackageShare(package='sobit_home_control').find('sobit_home_control')
     bridge_config_file = os.path.join(pkg_share_control, 'config', 'moveit_whole_body_bridge.yaml')
 
-    # Resolve runtime values
-    enable_teleop = LaunchConfiguration('enable_teleop').perform(context).lower() == 'true'
-
     # Launch configuration variables (substitutions for node parameters)
     robot_name = LaunchConfiguration('robot_name')
     use_sim_time = LaunchConfiguration('use_sim_time')
+    use_sim_time_bool = use_sim_time.perform(context).lower() in ('true', '1', 'yes')
     use_rviz = LaunchConfiguration('use_rviz')
-    # Configuration file paths — SRDF chosen based on enable_teleop
-    if enable_teleop:
-        srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home_teleop.srdf')
-    else:
-        srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home.srdf')
+    # One xacro SRDF for every configuration; teleop is just an argument.
+    srdf_model_path = os.path.join(pkg_share_moveit_config, 'config', 'sobit_home.srdf.xacro')
+    # Module switches shared by the URDF and the SRDF.
+    module_mappings = {
+        name: LaunchConfiguration(name).perform(context)
+        for name in (
+            'enable_mobile_base',
+            'enable_arm_left',
+            'enable_arm_right',
+            'enable_hand_left',
+            'enable_hand_right',
+            'enable_head',
+            'enable_body',
+        )
+    }
+    # Forward enable_* flags so the SRDF matches the spawned URDF.
+    srdf_mappings = dict(
+        module_mappings,
+        enable_teleop=LaunchConfiguration('enable_teleop').perform(context),
+        head_cam_type=LaunchConfiguration('head_cam_type').perform(context),
+    )
+    # Without an explicit robot_description the builder expands the URDF with its
+    # xacro defaults (every module on), so move_group would plan against a robot
+    # that does not match the one actually spawned.
+    urdf_model_path = os.path.join(
+        FindPackageShare(package='sobit_home_description').find('sobit_home_description'),
+        'robots', 'sobit_home_robot.urdf.xacro')
+    # Only request groups the SRDF xacro emits for these enable_* flags.
+    _on = {k: v.lower() == 'true' for k, v in module_mappings.items()}
+    active_planning_groups = [
+        group for group, present in (
+            ('arm_left',       _on['enable_arm_left']),
+            ('arm_right',      _on['enable_arm_right']),
+            ('arm_left_body',  _on['enable_arm_left'] and _on['enable_body']),
+            ('arm_right_body', _on['enable_arm_right'] and _on['enable_body']),
+        ) if present
+    ]
+    # The URDF evaluates its flags as bare Python (${$(arg enable_head)}), so they
+    # must be capitalized literals; the SRDF lowercases and compares as strings.
+    def _py_bool(value):
+        return 'True' if value.lower() in ('true', '1', 'yes') else 'False'
+
+    # enable_gz picks the ros2_control hardware plugin; it tracks use_sim_time,
+    # which robot.launch.py already derives from enable_gz.
+    urdf_mappings = {k: _py_bool(v) for k, v in module_mappings.items()}
+    urdf_mappings.update(
+        robot_name=LaunchConfiguration('robot_name').perform(context),
+        enable_gz=_py_bool(LaunchConfiguration('use_sim_time').perform(context)),
+        enable_tf_prefix=_py_bool(LaunchConfiguration('enable_tf_prefix').perform(context)),
+        head_cam_type=LaunchConfiguration('head_cam_type').perform(context),
+    )
     # Planning params for MoveitServer. Defaults to this package's generic yaml;
     # override with the rc_doinglaundry path at launch for competition tuning.
     moveit_server_params_file_path = LaunchConfiguration('moveit_server_config').perform(context)
@@ -45,7 +149,8 @@ def _launch_setup(context, *args, **kwargs):
     # Build MoveIt configuration
     moveit_config = (
         MoveItConfigsBuilder("sobit_home", package_name=package_name_moveit_config)
-        .robot_description_semantic(file_path=srdf_model_path)
+        .robot_description(file_path=urdf_model_path, mappings=urdf_mappings)
+        .robot_description_semantic(file_path=srdf_model_path, mappings=srdf_mappings)
         .robot_description_kinematics(file_path=kinematics_file_path)
         .joint_limits(file_path=joint_limits_file_path)
         # .moveit_cpp(file_path=moveit_cpp_file_path)
@@ -68,6 +173,10 @@ def _launch_setup(context, *args, **kwargs):
         .to_moveit_configs()
     )
 
+    # Drop controllers whose module is disabled: MoveIt otherwise keeps trying to
+    # connect to a FollowJointTrajectory action that no spawner ever created.
+    _prune_disabled_controllers(moveit_config.trajectory_execution, module_mappings)
+
     # Add frame_prefix so MoveIt maps URDF frames to TF frames
     config_dict = moveit_config.to_dict()
     # config_dict['robot_description_planning.frame_prefix'] = robot_name + '/'
@@ -78,11 +187,21 @@ def _launch_setup(context, *args, **kwargs):
         'max_range': 5.0
     }
 
+    # Warehouse backend, shared with warehouse_db.launch.py so move_group and the
+    # database server can never be pointed at different stores.
+    warehouse_config = warehouse_parameters(
+        LaunchConfiguration('warehouse_backend').perform(context).lower(),
+        LaunchConfiguration('warehouse_database_path').perform(context),
+        LaunchConfiguration('warehouse_host').perform(context),
+        LaunchConfiguration('warehouse_port').perform(context),
+    )
+
     # move_group node
     start_move_group_node_cmd = Node(
         package="moveit_ros_move_group",
         executable="move_group",
         namespace=robot_name,
+        prefix=None if use_sim_time_bool else 'taskset -c 8-15',
         output="screen",
         parameters=[
             config_dict,
@@ -90,6 +209,9 @@ def _launch_setup(context, *args, **kwargs):
             {'use_sim_time': use_sim_time},
             {'trajectory_execution.control_multi_dof_joint_variables': True},
             {'planning_scene_monitor.transform_buffer_duration': 20.0},
+            # Warehouse: lets RViz store and reload planning scenes, robot states
+            # and constraints. SQLite is a plain file, so no server is needed.
+            warehouse_config,
             # {'robot_description_planning.frame_prefix': robot_name + '/'},
         ],
         remappings=[
@@ -114,6 +236,9 @@ def _launch_setup(context, *args, **kwargs):
         executable="rviz2",
         # name="rviz2_moveit",
         arguments=["-d", rviz_config_file],
+        # 8-15 = unused E-cores - keeps this off the isolated RT cores (2-7)
+        # and the OS housekeeping cores (0-1), same as the other rviz2 instance.
+        prefix='taskset -c 8-15',
         output="screen",
         parameters=[
             moveit_config.robot_description,
@@ -147,6 +272,7 @@ def _launch_setup(context, *args, **kwargs):
         namespace=robot_name,
         package='rclcpp_components',
         executable='component_container_mt',
+        prefix=None if use_sim_time_bool else 'taskset -c 8-15',
         parameters=[{'use_sim_time': use_sim_time}],
         composable_node_descriptions=[
             ComposableNode(
@@ -168,7 +294,9 @@ def _launch_setup(context, *args, **kwargs):
                 parameters=[
                     moveit_server_params_file_path,
                     {'use_sim_time': use_sim_time},
-                    {'active_planning_groups': ['arm_left', 'arm_right', 'arm_left_body', 'arm_right_body', 'head_arm_body']},
+                    # Single-arm groups plus their whole-body counterparts, filtered
+                    # by enable_*. Any other group declared in the SRDF can be added.
+                    {'active_planning_groups': active_planning_groups},
                 ],
                 extra_arguments=[{'use_intra_process_comms': False}]
             ),
@@ -211,11 +339,69 @@ def generate_launch_description():
         description='Path to MoveitServer planning-params YAML. Empty = package default. '
                     'Override with the rc_doinglaundry path for competition.')
 
+    # Warehouse: lets RViz store and reload planning scenes, robot states and
+    # constraints. Must match whatever warehouse_db.launch.py was started with.
+    declare_warehouse_backend_cmd = DeclareLaunchArgument(
+        name='warehouse_backend',
+        default_value='sqlite',
+        choices=sorted(WAREHOUSE_BACKENDS),
+        description='Warehouse storage backend')
+
+    declare_warehouse_database_path_cmd = DeclareLaunchArgument(
+        name='warehouse_database_path',
+        default_value=os.path.join(
+            os.path.expanduser('~'), '.ros', 'sobit_home_warehouse.sqlite'),
+        description='SQLite: database file. MongoDB: data directory')
+
+    declare_warehouse_host_cmd = DeclareLaunchArgument(
+        name='warehouse_host',
+        default_value='localhost',
+        description='MongoDB host (ignored by the sqlite backend)')
+
+    declare_warehouse_port_cmd = DeclareLaunchArgument(
+        name='warehouse_port',
+        default_value='33829',
+        description='MongoDB port (ignored by the sqlite backend)')
+
+    declare_enable_tf_prefix_cmd = DeclareLaunchArgument(
+        name='enable_tf_prefix',
+        default_value='false',
+        description='Prefix TF frames with the robot name; must match robot.launch.py')
+
+    declare_head_cam_type_cmd = DeclareLaunchArgument(
+        name='head_cam_type',
+        default_value='orbbec',
+        description='Head camera model (orbbec | realsense); selects its URDF/SRDF links, must match robot.launch.py')
+
+    # Module switches for the SRDF xacro; names match robot.launch.py.
+    declare_module_cmds = [
+        DeclareLaunchArgument(
+            name=name,
+            default_value='true',
+            description=f'Whether {label} is present; disables its SRDF planning groups when false')
+        for name, label in (
+            ('enable_mobile_base', 'the mobile base'),
+            ('enable_arm_left', 'the left arm'),
+            ('enable_arm_right', 'the right arm'),
+            ('enable_hand_left', 'the left hand'),
+            ('enable_hand_right', 'the right hand'),
+            ('enable_head', 'the head'),
+            ('enable_body', 'the body lift'),
+        )
+    ]
+
     return LaunchDescription([
         declare_robot_name_cmd,
         declare_use_sim_time_cmd,
         declare_use_rviz_cmd,
         declare_enable_teleop_cmd,
         declare_moveit_server_config_cmd,
+        declare_enable_tf_prefix_cmd,
+        declare_head_cam_type_cmd,
+        declare_warehouse_backend_cmd,
+        declare_warehouse_database_path_cmd,
+        declare_warehouse_host_cmd,
+        declare_warehouse_port_cmd,
+        *declare_module_cmds,
         OpaqueFunction(function=_launch_setup),
     ])

@@ -3,7 +3,7 @@ moveit_setup_assistant_config:
     package: sobit_home_description
     relative_path: robots/sobit_home_robot.urdf.xacro
   srdf:
-    relative_path: config/sobit_home.srdf
+    relative_path: config/sobit_home.srdf.xacro
   package_settings:
     author_name: j.lee
     author_email: dlwnsgh58@gmail.com

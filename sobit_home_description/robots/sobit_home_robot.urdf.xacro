@@ -16,7 +16,10 @@
   <xacro:include filename="$(find sobit_home_description)/urdf/hand/hand.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/head/head.urdf.xacro" />
 
-  <xacro:include filename="$(find sobit_home_description)/urdf/sensor/camera_head.urdf.xacro" />
+  <!-- Head camera model: orbbec (Gemini 336L) | realsense (D415). Declared before the sensor
+       includes because it selects camera_head_<type>.urdf.xacro; robot.launch.py sets it. -->
+  <xacro:arg name="head_cam_type" default="realsense" />
+  <xacro:include filename="$(find sobit_home_description)/urdf/sensor/camera_head_$(arg head_cam_type).urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/mic.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/lidar.urdf.xacro" />
   <xacro:include filename="$(find sobit_home_description)/urdf/sensor/camera_hand.urdf.xacro" />
@@ -50,15 +53,19 @@
   <xacro:arg name="enable_head"         default="True" />
   <xacro:arg name="enable_dxl_pro"      default="True" />
 
+  <!-- ${...} evaluates a Python literal, where only True/False parse. -->
+  <xacro:property name="gz_on" value="${'$(arg enable_gz)'.lower() in ('true', '1')}" />
+
   <!-- DXL Ports -->
   <xacro:arg name="dxl_x_lower_body_port"  default="/dev/ttyUSB1" />
   <xacro:arg name="dxl_x_upper_body_port"  default="/dev/ttyUSB3" />
   <xacro:arg name="dxl_p_upper_body_port"  default="/dev/ttyUSB2" />
   <xacro:arg name="dxl_x_hand_port"        default="/dev/ttyUSB4" />
-  
+
   <!-- Uirobot Body Lift Gateway Port -->
   <xacro:arg name="um_body_port" default="/dev/ttyUSB0" />
   <xacro:arg name="um_body_id" default="5" />
+  <xacro:arg name="can_interface" default="can0" />
 
   <xacro:if value="${ $(arg enable_mobile_base) }">
     <xacro:base/>
@@ -138,6 +145,18 @@
     <xacro:hand  prefix_hand="hand" position="right" prefix_finger="finger" parent="arm_right_wrist_roll_link" />
   </xacro:if>
 
+  <!-- EE frames: wrist_roll_link exists (real or stub) for every arm/hand combination. -->
+  <xacro:macro name="end_effector" params="position y_sign">
+    <joint name="hand_${position}_end_effector_joint" type="fixed">
+      <origin xyz="0.0 ${y_sign*0.13} 0.0" rpy="${y_sign * M_PI/2} 0.0 ${y_sign * M_PI/2}"/>
+      <parent link="arm_${position}_wrist_roll_link"/>
+      <child link="hand_${position}_end_effector_link"/>
+    </joint>
+    <link name="hand_${position}_end_effector_link"/>
+  </xacro:macro>
+  <xacro:end_effector position="left"  y_sign="1.0" />
+  <xacro:end_effector position="right" y_sign="-1.0" />
+
   <xacro:if value="${ $(arg enable_head) }">
     <xacro:head  prefix="head"  parent="body_lift_link" /> 
     <xacro:mic   prefix="mic"   parent="head_tilt_link" /> 
@@ -146,11 +165,12 @@
 
 
   <!-- Add Actuators Controllers -->
-  <xacro:controllers enable_gz="$(arg enable_gz)" robot_name="$(arg robot_name)" />
+  <xacro:controllers enable_gz="${gz_on}" robot_name="$(arg robot_name)" />
 
   <!-- Add Gazebo plugins -->
-  <xacro:if value="${$(arg enable_gz)}">
+  <xacro:if value="${gz_on}">
     <xacro:gazebo_sensors robot_name="$(arg robot_name)"
+      head_cam_type="$(arg head_cam_type)"
       enable_head_cam_color="$(arg enable_head_cam_color)"
       enable_head_cam_depth="$(arg enable_head_cam_depth)"
       enable_hand_left_cam_color="$(arg enable_hand_left_cam_color)"
