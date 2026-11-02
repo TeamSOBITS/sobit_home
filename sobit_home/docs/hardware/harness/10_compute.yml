@@ -1,6 +1,7 @@
 # Compute power: own battery, not routed through the emergency stop.
 
 cables:
+  W100: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
   W101: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
   W102: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
   W103: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
@@ -11,6 +12,9 @@ cables:
 
 connections:
   - - BATT_18V.G4: ["-", "+"]
+    - W100: [1, 2]
+    - FUSE_ADAPTER.F4: [IN-, IN+]
+  - - F4: [OUT-, OUT+]
     - W101: [1, 2]
     - POWER_TOWER.X4: [GND1, V1]
 

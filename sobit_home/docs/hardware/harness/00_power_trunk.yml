@@ -1,10 +1,13 @@
-# Actuation power trunk: batteries -> converters -> emergency stop -> power towers.
+# Actuation power trunk: batteries -> fuse adapters -> converters -> emergency stop -> power towers.
 # Negative rails bypass the emergency stop; each pole cuts one positive rail.
 
 cables:
   W001: {category: bundle, colors: [*gnd, *v36], wirelabels: [GND, +36V]}
   W002: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
   W003: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
+  W004: {category: bundle, colors: [*gnd, *v36], wirelabels: [GND, +36V]}
+  W005: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
+  W006: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
   W011: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
   W012: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
   W013: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
@@ -13,15 +16,24 @@ cables:
   W023: {category: bundle, colors: [*v12], wirelabels: [+12V]}
 
 connections:
-  # Battery -> converter input
+  # Battery -> fuse adapter -> converter input
   - - BATT_36V.G1: ["-", "+"]
     - W001: [1, 2]
+    - FUSE_ADAPTER.F1: [IN-, IN+]
+  - - F1: [OUT-, OUT+]
+    - W004: [1, 2]
     - DCDC_36_24_20A.T1: [IN-, IN+]
   - - BATT_18V.G2: ["-", "+"]
     - W002: [1, 2]
+    - FUSE_ADAPTER.F2: [IN-, IN+]
+  - - F2: [OUT-, OUT+]
+    - W005: [1, 2]
     - DCDC_18_12_30A.T2: [IN-, IN+]
   - - BATT_18V.G3: ["-", "+"]
     - W003: [1, 2]
+    - FUSE_ADAPTER.F3: [IN-, IN+]
+  - - F3: [OUT-, OUT+]
+    - W006: [1, 2]
     - DCDC_18_12_30A.T3: [IN-, IN+]
 
   # Converter output: GND to tower, V+ to emergency stop
@@ -30,7 +42,7 @@ connections:
     - POWER_TOWER.X1: [GND1]
   - - T1: [OUT+]
     - W011: [2]
-    - ESTOP_3P.S1: [IN3]
+    - ESTOP_4P.S1: [IN3]
   - - T2: [OUT-]
     - W012: [1]
     - POWER_TOWER.X2: [GND1]
