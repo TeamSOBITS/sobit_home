@@ -1,0 +1,17 @@
+# Head: pan-tilt chain powered from X3 (shares the supply terminal), RS-485 from power hub board X9 shared with the arms.
+
+cables:
+  W261: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W262: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+  W263: {wirecount: 2, wirelabels: [D+, D-]}
+
+connections:
+  - - POWER_TOWER.X3: [GND1, V1]
+    - W261: [1, 2]
+    - XM430_W350.head_pan: [A.GND, A.VDD]
+  - - head_pan: [B.GND, B.VDD, B.D+, B.D-]
+    - W262: [1, 2, 3, 4]
+    - XM430_W350.head_tilt: [A.GND, A.VDD, A.D+, A.D-]
+  - - U2D2_PHB.X9: [P4.D+, P4.D-]
+    - W263: [1, 2]
+    - head_pan: [A.D+, A.D-]

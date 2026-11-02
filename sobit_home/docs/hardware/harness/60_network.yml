@@ -1,0 +1,30 @@
+# Ethernet: NUC, LiDARs and operator laptop on the switching hub N1 (unmanaged, so ports are not tracked).
+# Each LiDAR's own Ethernet lead meets a LAN cable at an RJ45 coupler.
+
+cables:
+  W601: {type: LiDAR Ethernet lead, wirecount: 1, wirelabels: [Ethernet]}
+  W602: {type: LAN cable, wirecount: 1, wirelabels: [Ethernet]}
+  W603: {type: LiDAR Ethernet lead, wirecount: 1, wirelabels: [Ethernet]}
+  W604: {type: LAN cable, wirecount: 1, wirelabels: [Ethernet]}
+  W605: {type: LAN cable, wirecount: 1, wirelabels: [Ethernet]}
+  W606: {type: LAN cable, wirecount: 1, wirelabels: [Ethernet]}
+
+connections:
+  - - UST_20LX.lidar_front: [ETH]
+    - W601: [1]
+    - RJ45_COUPLER.X11: [A]
+  - - X11: [B]
+    - W602: [1]
+    - ETH_SWITCH.N1: [LAN]
+  - - UST_20LX.lidar_back: [ETH]
+    - W603: [1]
+    - RJ45_COUPLER.X12: [A]
+  - - X12: [B]
+    - W604: [1]
+    - N1: [LAN]
+  - - NUC.K1: [LAN]
+    - W605: [1]
+    - N1: [LAN]
+  - - LAPTOP.K2: [LAN]
+    - W606: [1]
+    - N1: [LAN]
