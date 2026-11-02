@@ -625,7 +625,7 @@ SOBIT HOMEはオープンソースハードウェアとして[OnShape](https://c
 | [70_usb](sobit_home/docs/hardware/generated/70_usb.svg) | USBハブと機器 |
 | [80_video](sobit_home/docs/hardware/generated/80_video.svg) | HDMI |
 
-記号：`G` バッテリ，`T` DC-DCコンバータ，`S` 非常停止，`X` 電源タワー・分配基板，`A` インタフェースアダプタ，`P` ハブ，`K` コンピュータ，`N` ネットワーク機器，`W` ケーブル．アクチュエータは関節名で表記しています．
+記号：`G` バッテリ，`F` ヒューズアダプタ，`T` DC-DCコンバータ，`S` 非常停止，`X` 電源タワー・分配基板（`XG` スターグラウンド），`A` インタフェースアダプタ，`P` ハブ，`K` コンピュータ，`N` ネットワーク機器，`W` ケーブル．アクチュエータは関節名で表記しています．規約・接地・データリンクのルールは[sobit_home/docs/hardware/README.md](sobit_home/docs/hardware/README.md)を参照してください．
 
 編集後は図を再生成してください．
 

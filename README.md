@@ -639,7 +639,7 @@ The wiring is documented as code in [sobit_home/docs/hardware](sobit_home/docs/h
 | [70_usb](sobit_home/docs/hardware/generated/70_usb.svg) | USB hubs and devices |
 | [80_video](sobit_home/docs/hardware/generated/80_video.svg) | HDMI |
 
-Designators: `G` battery, `T` DC-DC converter, `S` emergency stop, `X` power tower or distribution board, `A` interface adapter, `P` hub, `K` computer, `N` network device, `W` cable. Actuators are named after their joint.
+Designators: `G` battery, `F` fuse adapter, `T` DC-DC converter, `S` emergency stop, `X` power tower or distribution board (`XG` star ground), `A` interface adapter, `P` hub, `K` computer, `N` network device, `W` cable. Actuators are named after their joint. Conventions, grounding and data-link rules: [sobit_home/docs/hardware/README.md](sobit_home/docs/hardware/README.md).
 
 Render the diagrams after editing:
 
