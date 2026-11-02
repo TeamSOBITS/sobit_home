@@ -74,11 +74,21 @@ connectors:
     subtype: 3 A
 
   # Distribution
-  ESTOP_3P:
+  ESTOP_4P:
     <<: *safety
-    type: Emergency stop
-    subtype: 3 pole
-    pinlabels: [IN1, OUT1, IN2, OUT2, IN3, OUT3]
+    type: IDEC HW1B-V404R emergency stop
+    subtype: 4b, 10 A per contact at 24 V DC
+    pinlabels: [IN1, OUT1, IN2, OUT2, IN3, OUT3, IN4, OUT4]
+  FUSE_ADAPTER:
+    <<: *safety
+    type: Makita 18 V adapter with fuse and switch
+    subtype: 14 AWG leads; fuse value per battery not recorded yet
+    pinlabels: [IN-, IN+, OUT-, OUT+]
+  GND_STAR:
+    <<: *distribution
+    type: GND star point
+    subtype: one wire per battery domain
+    pinlabels: [X0, X2, X3, X4]
   POWER_HUB_24V:
     <<: *distribution
     type: Power + CAN hub
