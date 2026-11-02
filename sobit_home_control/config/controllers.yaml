@@ -126,6 +126,7 @@
   ros__parameters:
     robot_base_frame: base_footprint
     cmd_vel_topic: cmd_vel
+    cmd_vel_timeout: 0.5  # [s] zero twist once cmd_vel is older than this; twist_mux sends no zero
     enable_tf_prefix: false
     cycle_frequency: 50.0
     driving_status_threshold: 0.26  # [rad] steer settle tolerance before drives engage

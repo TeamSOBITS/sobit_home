@@ -3,8 +3,9 @@
 # Three input command sources are muxed by priority (higher wins) into a single
 # output topic, which the swerve controller subscribes to as `cmd_vel`. Each input
 # has its own timeout: if the highest-priority active source stops publishing for
-# longer than its timeout, twist_mux falls through to the next priority (and to a
-# zero-velocity stop once every source is stale).
+# longer than its timeout, twist_mux falls through to the next priority. Once every
+# source is stale twist_mux stops publishing (it sends no zero); the swerve controller's
+# cmd_vel_timeout is what stops the base.
 #
 # Priority: software e-stop > joystick (manual override) > action > moveit > tracker > navigation.
 #
