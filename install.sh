@@ -17,7 +17,7 @@ ros_packages=(
     "dynamixel_hardware"
     "uirobot_hardware"
     "rm_motors_ros"
-    # "swerve_steering_controller"
+    "swerve_steering_controller_cpp"
     "ros2_laser_scan_merger"
     "tmc_wrs_gz"
     "aws_small_house_world"

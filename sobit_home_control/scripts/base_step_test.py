@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Straight-line / pure-rotation step test for the sobit_home swerve base drive loop.
 
-Publishes a bounded cmd_vel step and logs odom, the two wheel controller command
-topics, and per-wheel position/velocity/effort/temperature from dynamic_joint_states,
-to analyse the RoboMaster M3508 drive loop and the Dynamixel steering gate.
+Publishes a bounded cmd_vel step through twist_mux and logs odom and per-wheel
+position/velocity/effort/temperature from dynamic_joint_states, to analyse the RoboMaster
+M3508 drive loop and the steering gate of swerve_steering_controller_cpp. The controller
+writes its wheel commands straight to the hardware interfaces, so they are not logged; the
+drive speed is compared with the speed the commanded twist implies instead.
 
 THIS MOVES THE ROBOT (>80 kg, real hardware). It never launches anything and only
 talks to topics on an already-running bringup.
@@ -13,14 +15,18 @@ SAFETY:
      angle <= 6.4 rad, timeout <= 45 s.
   2. Exactly one of --vx/--vy/--wz may be non-zero (no diagonal or combined motion); the
      other two Twist fields are always forced to exactly 0.0 before publishing.
-  3. WAIT_DATA gate: won't publish a non-zero command until odom, dynamic_joint_states,
-     and both wheel command echoes have all been seen (5 s timeout, names what's missing).
+  3. WAIT_DATA gate: won't publish a non-zero command until odom and dynamic_joint_states
+     have been seen and the command topic has a subscriber (5 s timeout, names what's
+     missing). The default command topic is twist_mux's cmd_vel_action input, so the
+     joystick (cmd_vel_joy) and the software e-stop (cmd_vel_estop) override the test.
   4. RUN stops on: target distance/angle reached, --timeout elapsed, odom or
      dynamic_joint_states stale (> 0.3 s / > 0.5 s), any drive temp >= 80 degC,
      drift off the starting heading > 0.3 m (perpendicular for translate/rotate runs,
      longitudinal -- i.e. along the intended direction -- for lateral runs), or all four
      drive joints' feedback bit-identical for > 0.5 s while commanding motion (e-stop can
-     freeze dynamic_joint_states without making it stale).
+     freeze dynamic_joint_states without making it stale), or odom at rest for > 1 s after
+     the base had moved (joystick / software e-stop took over on twist_mux), so the base
+     does not drive off again when the override is released.
   5. rclpy is initialised with SignalHandlerOptions.NO: Ctrl-C and SIGTERM both raise a
      plain KeyboardInterrupt that unwinds through the same try/finally, so the ROS
      context stays valid long enough for the shutdown burst to actually publish.
@@ -36,15 +42,16 @@ Usage:
     ros2 run sobit_home_control base_step_test.py --wz 0.3 --angle 1.0
     ros2 run sobit_home_control base_step_test.py --vy 0.1 --distance 0.3
     python3 base_step_test.py --ns sobit_home --vx 0.1 --distance 1.0 --yes --out ~/log.csv
+    ros2 run sobit_home_control base_step_test.py --vx 0.1 --cmd-topic cmd_vel_joy
 
 CSV columns: one row per 50 Hz control tick (latest-value sampling), t (seconds, relative
 to the start of RUN; negative during SETTLE), t_mono (time.monotonic() of the tick), state,
 cmd_vx, cmd_vy, cmd_wz, odom x/y/yaw, odom qz/qw (raw orientation quaternion), odom twist
 vx/vy/wz, displacement from the run-start pose, acc_yaw (accumulated yaw, rad, keeps
-accumulating through POST), then per wheel (f_l, f_r, b_l, b_r): drive_cmd [rad/s],
-drive_vel [rad/s], drive_effort [N*m], drive_temp [degC], steer_goal [rad], steer_pos
-[rad], drive_pos [rad, cumulative], steer_vel [rad/s], steer_effort [N*m]; finally the
-age of the last dynamic_joint_states message.
+accumulating through POST), drive_expected (|wheel speed| the commanded twist implies,
+rad/s), then per wheel (f_l, f_r, b_l, b_r): drive_vel [rad/s], drive_effort [N*m],
+drive_temp [degC], steer_pos [rad], drive_pos [rad, cumulative], steer_vel [rad/s],
+steer_effort [N*m]; finally the age of the last dynamic_joint_states message.
 """
 import argparse
 import csv
@@ -64,12 +71,10 @@ from rclpy.signals import SignalHandlerOptions
 from control_msgs.msg import DynamicJointState
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-from std_msgs.msg import Float64MultiArray
 
-# --- Fixed physical / kinematic facts (see swerve_config.yaml) --------------------------
+# --- Fixed physical / kinematic facts (see controllers.yaml, swerve_steering_controller) --
 WHEEL_RADIUS_M = 0.075
-# Joint order matches controllers.yaml (steer & drive controllers both list
-# f_l, f_r, b_l, b_r), so the command arrays are indexed the same way.
+WHEEL_LEVER_ARM_M = math.hypot(0.35355339 / 2.0, 0.35355339 / 2.0)  # steer axis to base centre
 WHEELS = ("f_l", "f_r", "b_l", "b_r")
 DRIVE_JOINT_NAMES = {w: f"wheel_drive_{w}_joint" for w in WHEELS}
 STEER_JOINT_NAMES = {w: f"wheel_steer_{w}_joint" for w in WHEELS}
@@ -85,6 +90,8 @@ HARD_MAX_TIMEOUT = 45.0    # s
 STALE_ODOM_S = 0.3         # s
 STALE_DYN_JS_S = 0.5       # s
 FROZEN_FEEDBACK_S = 0.5    # s, bit-identical drive feedback while commanding motion
+STALLED_S = 1.0            # s, odom at rest while commanding motion after the base moved
+STALLED_SPEED_MPS = 0.01   # m/s at the wheel (yaw rate scaled by the lever arm)
 MAX_DRIVE_TEMP_C = 80.0    # degC
 MAX_LATERAL_DRIFT_M = 0.3  # m
 WAIT_DATA_TIMEOUT_S = 5.0  # s
@@ -123,6 +130,11 @@ def dyn_lookup(msg, joint_name, interface_name):
     except ValueError:
         return math.nan
     return iv.values[k]
+
+
+def expected_wheel_speed(vx, vy, wz):
+    """|drive speed| [rad/s] the swerve IK gives every wheel for a pure translate or rotate."""
+    return math.hypot(vx, vy, wz * WHEEL_LEVER_ARM_M) / WHEEL_RADIUS_M
 
 
 def lstsq_slope(xs, ys):
@@ -170,8 +182,7 @@ class BaseStepTest(Node):
             history=HistoryPolicy.KEEP_LAST,
             durability=DurabilityPolicy.VOLATILE,
         )
-        # swerve_controller_main.cpp subscribes to cmd_vel with depth=1 RELIABLE VOLATILE;
-        # match it so this publisher is never silently incompatible with that subscription.
+        # RELIABLE VOLATILE matches twist_mux's (and the controller's) default-QoS subscription.
         pub_qos = QoSProfile(
             depth=1,
             reliability=ReliabilityPolicy.RELIABLE,
@@ -179,7 +190,8 @@ class BaseStepTest(Node):
             durability=DurabilityPolicy.VOLATILE,
         )
 
-        self.pub_cmd_vel = self.create_publisher(Twist, f"/{ns}/cmd_vel", pub_qos)
+        self.cmd_topic = f"/{ns}/{args.cmd_topic}"
+        self.pub_cmd_vel = self.create_publisher(Twist, self.cmd_topic, pub_qos)
 
         # BEST_EFFORT requests match both BEST_EFFORT and RELIABLE publishers, so these
         # subscriptions can't silently fail to match on QoS.
@@ -187,24 +199,20 @@ class BaseStepTest(Node):
             Odometry, f"/{ns}/odom", self._on_odom, sub_qos)
         self.sub_dyn = self.create_subscription(
             DynamicJointState, f"/{ns}/dynamic_joint_states", self._on_dyn, sub_qos)
-        self.sub_drive_cmd = self.create_subscription(
-            Float64MultiArray, f"/{ns}/wheel_drive_velocity_controller/commands",
-            self._on_drive_cmd, sub_qos)
-        self.sub_steer_cmd = self.create_subscription(
-            Float64MultiArray, f"/{ns}/wheel_steer_position_controller/commands",
-            self._on_steer_cmd, sub_qos)
 
         self.last_odom = None
         self.last_odom_recv_mono = None
         self.last_dyn = None
         self.last_dyn_recv_mono = None
-        self.last_drive_cmd = None   # list[4] rad/s, WHEELS order
-        self.last_steer_cmd = None   # list[4] rad, WHEELS order
 
         # Drive feedback-freeze tracking (see _check_run_stop): tuple of
         # (position, velocity, effort) per drive joint, and when it last changed.
         self.last_feedback_tuple = None
         self.last_feedback_change_mono = None
+        # Override tracking: twist_mux lets the joystick / software e-stop take over, after
+        # which odom stops while this script still commands; see _check_run_stop.
+        self.base_moved = False
+        self.last_moving_mono = None
 
         self.rows = []
         self.state = "WAIT_DATA"
@@ -238,16 +246,10 @@ class BaseStepTest(Node):
         self.last_dyn = msg
         self.last_dyn_recv_mono = time.monotonic()
 
-    def _on_drive_cmd(self, msg):
-        self.last_drive_cmd = list(msg.data)
-
-    def _on_steer_cmd(self, msg):
-        self.last_steer_cmd = list(msg.data)
-
     # --- helpers ---------------------------------------------------------------------------
     def _have_all_topics(self):
         return (self.last_odom is not None and self.last_dyn is not None
-                and self.last_drive_cmd is not None and self.last_steer_cmd is not None)
+                and self.pub_cmd_vel.get_subscription_count() > 0)
 
     def _max_drive_temp(self):
         if self.last_dyn is None:
@@ -324,13 +326,12 @@ class BaseStepTest(Node):
             "odom_wz": odom.twist.twist.angular.z if odom else math.nan,
             "displacement": self.displacement,
             "acc_yaw": self.accumulated_yaw,
+            "drive_expected": expected_wheel_speed(self.cmd_vx, self.cmd_vy, self.cmd_wz),
         }
-        for i, w in enumerate(WHEELS):
-            row[f"{w}_drive_cmd"] = self.last_drive_cmd[i] if self.last_drive_cmd else math.nan
+        for w in WHEELS:
             row[f"{w}_drive_vel"] = dyn_lookup(self.last_dyn, DRIVE_JOINT_NAMES[w], "velocity")
             row[f"{w}_drive_effort"] = dyn_lookup(self.last_dyn, DRIVE_JOINT_NAMES[w], "effort")
             row[f"{w}_drive_temp"] = dyn_lookup(self.last_dyn, DRIVE_JOINT_NAMES[w], "temperature")
-            row[f"{w}_steer_goal"] = self.last_steer_cmd[i] if self.last_steer_cmd else math.nan
             row[f"{w}_steer_pos"] = dyn_lookup(self.last_dyn, STEER_JOINT_NAMES[w], "position")
             row[f"{w}_drive_pos"] = dyn_lookup(self.last_dyn, DRIVE_JOINT_NAMES[w], "position")
             row[f"{w}_steer_vel"] = dyn_lookup(self.last_dyn, STEER_JOINT_NAMES[w], "velocity")
@@ -361,6 +362,8 @@ class BaseStepTest(Node):
         self.accumulated_yaw = 0.0
         self.last_feedback_tuple = None
         self.last_feedback_change_mono = None
+        self.base_moved = False
+        self.last_moving_mono = now_mono
 
     def _enter_post(self, now_mono):
         self.state = "POST"
@@ -393,6 +396,15 @@ class BaseStepTest(Node):
                 self.last_feedback_change_mono = now_mono
             elif now_mono - self.last_feedback_change_mono > FROZEN_FEEDBACK_S:
                 return "feedback_frozen"
+        # Overridden (joystick / software e-stop on twist_mux) or blocked: stop rather than
+        # drive off again when the override is released.
+        tw = self.last_odom.twist.twist
+        speed = math.hypot(tw.linear.x, tw.linear.y, tw.angular.z * WHEEL_LEVER_ARM_M)
+        if speed > STALLED_SPEED_MPS:
+            self.base_moved = True
+            self.last_moving_mono = now_mono
+        elif cmd_nonzero and self.base_moved and now_mono - self.last_moving_mono > STALLED_S:
+            return "base_stalled"
         max_temp = self._max_drive_temp()
         if max_temp is not None and max_temp >= MAX_DRIVE_TEMP_C:
             return "over_temperature"
@@ -425,13 +437,12 @@ class BaseStepTest(Node):
                     missing.append(f"/{self.args.ns}/odom")
                 if self.last_dyn is None:
                     missing.append(f"/{self.args.ns}/dynamic_joint_states")
-                if self.last_drive_cmd is None:
-                    missing.append(f"/{self.args.ns}/wheel_drive_velocity_controller/commands")
-                if self.last_steer_cmd is None:
-                    missing.append(f"/{self.args.ns}/wheel_steer_position_controller/commands")
+                if self.pub_cmd_vel.get_subscription_count() == 0:
+                    missing.append(f"a subscriber on {self.cmd_topic}")
                 self.get_logger().error(
-                    "Timed out after %.1fs waiting for: %s. Is bringup + the swerve "
-                    "controller running?" % (WAIT_DATA_TIMEOUT_S, ", ".join(missing)))
+                    "Timed out after %.1fs waiting for: %s. Is bringup (twist_mux + "
+                    "swerve_steering_controller) running?"
+                    % (WAIT_DATA_TIMEOUT_S, ", ".join(missing)))
                 self.stop_reason = "wait_data_timeout"
                 self._finish()
             return
@@ -471,6 +482,10 @@ def parse_args():
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ns", default="sobit_home", help="robot namespace (default: sobit_home)")
+    ap.add_argument("--cmd-topic", default="cmd_vel_action",
+                     help="Twist topic under the namespace (default: cmd_vel_action, a twist_mux "
+                          "input that the joystick and the software e-stop override; 'cmd_vel' "
+                          "bypasses twist_mux and with it the software e-stop)")
     ap.add_argument("--vx", type=float, default=None,
                      help="forward(+)/backward(-) speed [m/s], hard max |vx|=%.1f. Defaults "
                           "to 0.1 when --vx/--vy/--wz are all omitted, else defaults to 0."
@@ -549,6 +564,7 @@ def print_plan(args, mode, out_path):
     print("BASE STEP TEST -- this will move a >80 kg real robot")
     print("=" * 78)
     print(f"  namespace    : {args.ns}")
+    print(f"  command topic: /{args.ns}/{args.cmd_topic}")
     if mode == "translate":
         direction = "forward" if args.vx > 0 else "backward"
         print(f"  mode         : straight line, {direction}")
@@ -570,7 +586,7 @@ def print_plan(args, mode, out_path):
     print(f"  other stop conditions: odom stale > {STALE_ODOM_S}s, dynamic_joint_states "
           f"stale > {STALE_DYN_JS_S}s, any drive temp >= {MAX_DRIVE_TEMP_C} degC, "
           f"{drift_desc} > {MAX_LATERAL_DRIFT_M} m, drive feedback frozen > "
-          f"{FROZEN_FEEDBACK_S}s")
+          f"{FROZEN_FEEDBACK_S}s, base at rest > {STALLED_S}s after moving")
     print(f"  output CSV   : {out_path}")
     print("=" * 78)
 
@@ -604,10 +620,11 @@ def publish_zero_burst(node):
 
 CSV_FIELDNAMES = (
     ["t", "t_mono", "state", "cmd_vx", "cmd_vy", "cmd_wz", "odom_x", "odom_y", "odom_yaw",
-     "odom_qz", "odom_qw", "odom_vx", "odom_vy", "odom_wz", "displacement", "acc_yaw"]
+     "odom_qz", "odom_qw", "odom_vx", "odom_vy", "odom_wz", "displacement", "acc_yaw",
+     "drive_expected"]
     + [f"{w}_{field}" for w in WHEELS
-       for field in ("drive_cmd", "drive_vel", "drive_effort", "drive_temp",
-                     "steer_goal", "steer_pos", "drive_pos", "steer_vel", "steer_effort")]
+       for field in ("drive_vel", "drive_effort", "drive_temp",
+                     "steer_pos", "drive_pos", "steer_vel", "steer_effort")]
     + ["dyn_js_age"]
 )
 
@@ -645,30 +662,27 @@ def print_summary(rows, args, stop_reason):
         print("  no RUN-phase samples were recorded; nothing further to analyse.")
         return
 
-    if args.vx != 0.0:
-        expected = args.vx / WHEEL_RADIUS_M
-        print(f"  expected wheel speed (vx / {WHEEL_RADIUS_M} m): {expected:+.3f} rad/s")
-    elif args.vy != 0.0:
-        expected = abs(args.vy) / WHEEL_RADIUS_M
-        print(f"  expected wheel speed (|vy| / {WHEEL_RADIUS_M} m): {expected:.3f} rad/s")
-    else:
-        print("  expected wheel speed: n/a (pure rotation; vx/R formula assumes translation)")
+    expected = expected_wheel_speed(args.vx, args.vy, args.wz)
+    print(f"  expected |wheel speed| at full command: {expected:.3f} rad/s")
 
     n_ticks = len(run_rows)
-    gate_ticks = 0
-    longest_gate_streak = 0
+    # Wheel commands are not observable; "held" = command non-zero but every drive below
+    # the first-motion threshold (steering gate, slew ramp or stall).
+    held_ticks = 0
+    longest_held_streak = 0
     cur_streak = 0
     for r in run_rows:
         cmd_nonzero = (r["cmd_vx"] != 0.0) or (r["cmd_vy"] != 0.0) or (r["cmd_wz"] != 0.0)
-        all_drive_zero = all(r[f"{w}_drive_cmd"] == 0.0 for w in WHEELS)
-        if cmd_nonzero and all_drive_zero:
-            gate_ticks += 1
+        all_drive_still = all(abs(r[f"{w}_drive_vel"]) <= FIRST_MOTION_VEL_THRESH
+                              for w in WHEELS if not math.isnan(r[f"{w}_drive_vel"]))
+        if cmd_nonzero and all_drive_still:
+            held_ticks += 1
             cur_streak += 1
-            longest_gate_streak = max(longest_gate_streak, cur_streak)
+            longest_held_streak = max(longest_held_streak, cur_streak)
         else:
             cur_streak = 0
-    print(f"  steering-gate active: {100.0 * gate_ticks / n_ticks:.1f}% of RUN ticks, "
-          f"longest streak {longest_gate_streak / TICK_HZ:.2f} s")
+    print(f"  drives held while commanded: {100.0 * held_ticks / n_ticks:.1f}% of RUN ticks, "
+          f"longest streak {longest_held_streak / TICK_HZ:.2f} s")
 
     odom_first_motion_t = None
     for r in run_rows:
@@ -682,10 +696,9 @@ def print_summary(rows, args, stop_reason):
     tail_rows = run_rows[last_30pct_start_idx:] or run_rows[-1:]
 
     print(f"  {'wheel':6s} {'t_first_mot[s]':>14s} {'peak|eff|':>10s} {'mean|eff|':>10s} "
-          f"{'stall_slope[Nm/s]':>18s} {'max|steer_err|':>15s} {'PID-reset_events':>16s} "
-          f"{'vel_ss_err':>10s}")
+          f"{'stall_slope[Nm/s]':>18s} {'PID-reset_events':>16s} {'|vel|_ss_err':>12s}")
     for w in WHEELS:
-        cmd_key, vel_key, eff_key = f"{w}_drive_cmd", f"{w}_drive_vel", f"{w}_drive_effort"
+        vel_key, eff_key = f"{w}_drive_vel", f"{w}_drive_effort"
 
         t_first_motion = None
         for r in run_rows:
@@ -705,10 +718,6 @@ def print_summary(rows, args, stop_reason):
         stall_ys = [r[eff_key] for r in stall_rows if not math.isnan(r[eff_key])]
         stall_slope = lstsq_slope(stall_xs, stall_ys)
 
-        steer_errs = [abs(r[f"{w}_steer_goal"] - r[f"{w}_steer_pos"]) for r in run_rows
-                      if not (math.isnan(r[f"{w}_steer_goal"]) or math.isnan(r[f"{w}_steer_pos"]))]
-        max_steer_err = max(steer_errs) if steer_errs else math.nan
-
         pid_reset_events = 0
         for i, r in enumerate(run_rows):
             if math.isnan(r[eff_key]) or abs(r[eff_key]) <= PID_RESET_HIGH_EFFORT:
@@ -720,21 +729,21 @@ def print_summary(rows, args, stop_reason):
                 span = run_rows[i:j + 1]
                 if any(math.isnan(x[eff_key]) for x in span):
                     continue
-                if not all(x[cmd_key] != 0.0 for x in span):
+                if not all(x["drive_expected"] != 0.0 for x in span):
                     continue
                 if abs(run_rows[j][eff_key]) < PID_RESET_LOW_EFFORT:
                     pid_reset_events += 1
                     break
 
-        ss_errs = [r[vel_key] - r[cmd_key] for r in tail_rows
-                   if not (math.isnan(r[vel_key]) or math.isnan(r[cmd_key]))]
+        ss_errs = [abs(r[vel_key]) - r["drive_expected"] for r in tail_rows
+                   if not math.isnan(r[vel_key])]
         vel_ss_err = _mean(ss_errs) if ss_errs else math.nan
 
         print(f"  {w:6s} "
               f"{('%.3f' % t_first_motion) if t_first_motion is not None else 'never':>14s} "
               f"{peak_eff:>10.3f} {mean_eff:>10.3f} "
               f"{('%.4f' % stall_slope) if stall_slope is not None else 'n/a':>18s} "
-              f"{max_steer_err:>15.4f} {pid_reset_events:>16d} {vel_ss_err:>10.3f}")
+              f"{pid_reset_events:>16d} {vel_ss_err:>12.3f}")
 
     max_temp = max((r[f"{w}_drive_temp"] for r in run_rows for w in WHEELS
                     if not math.isnan(r[f"{w}_drive_temp"])), default=math.nan)

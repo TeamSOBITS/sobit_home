@@ -40,6 +40,8 @@
   <exec_depend>sobit_home_library</exec_depend>
   <exec_depend>sobit_home_moveit_config</exec_depend>
   <exec_depend>sobits_display</exec_depend>
+  <exec_depend>swerve_steering_controller_cpp</exec_depend>
+  <exec_depend>twist_mux</exec_depend>
   <exec_depend>sobits_gazebo_worlds</exec_depend>
   <!-- Viewers enable_viz picks from; each is optional at runtime. -->
   <exec_depend>sobits_viz_rviz</exec_depend>

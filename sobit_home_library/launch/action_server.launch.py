@@ -167,6 +167,10 @@ def launch_setup(context, *args, **kwargs):
             {"wheel_rotate_arrival_tol": rotate_arr_tol},
         ],
         prefix=None if use_sim_time_bool else 'taskset -c 8-15',
+        # Route through twist_mux instead of publishing cmd_vel directly.
+        remappings=[
+            ("cmd_vel", "cmd_vel_action"),
+        ],
         output="screen",
     )
 
