@@ -204,14 +204,25 @@
 
   </xacro:macro>
 
+  <!-- Drive-loop tuning, shared by all four rm_wheel_drive_controllers joints -->
+  <xacro:property name="rm_drive_velocity_kp" value="0.5"/>
+  <xacro:property name="rm_drive_velocity_ki" value="3.0"/>
+  <xacro:property name="rm_drive_velocity_kd" value="0.0"/>
+  <xacro:property name="rm_drive_velocity_i_decay_tau" value="0.15"/>
+  <xacro:property name="rm_drive_velocity_lpf_hz" value="0.0"/>
+  <xacro:property name="rm_drive_max_current" value="10.0"/>
+
   <xacro:macro name="rm_wheel_drive_controllers"  params="prefix enable_gz:=False">
     <joint name="${prefix}_drive_f_l_joint">
       <param name="motor_id">1</param>
       <param name="motor_type">m3508</param>
       <param name="invert_rotation">true</param>
-      <param name="velocity_kp">0.75</param>
-      <param name="velocity_ki">1.0</param>
-      <param name="velocity_kd">0.001</param>
+      <param name="velocity_kp">${rm_drive_velocity_kp}</param>
+      <param name="velocity_ki">${rm_drive_velocity_ki}</param>
+      <param name="velocity_kd">${rm_drive_velocity_kd}</param>
+      <param name="velocity_i_decay_tau">${rm_drive_velocity_i_decay_tau}</param>
+      <param name="velocity_lpf_hz">${rm_drive_velocity_lpf_hz}</param>
+      <param name="max_current">${rm_drive_max_current}</param>
       <command_interface name="velocity">
         <param name="min">-10</param>
         <param name="max">10</param>
@@ -226,9 +237,12 @@
       <param name="motor_id">2</param>
       <param name="motor_type">m3508</param>
       <param name="invert_rotation">false</param>
-      <param name="velocity_kp">0.75</param>
-      <param name="velocity_ki">1.0</param>
-      <param name="velocity_kd">0.001</param>
+      <param name="velocity_kp">${rm_drive_velocity_kp}</param>
+      <param name="velocity_ki">${rm_drive_velocity_ki}</param>
+      <param name="velocity_kd">${rm_drive_velocity_kd}</param>
+      <param name="velocity_i_decay_tau">${rm_drive_velocity_i_decay_tau}</param>
+      <param name="velocity_lpf_hz">${rm_drive_velocity_lpf_hz}</param>
+      <param name="max_current">${rm_drive_max_current}</param>
       <command_interface name="velocity">
         <param name="min">-10</param>
         <param name="max">10</param>
@@ -243,9 +257,12 @@
       <param name="motor_id">3</param>
       <param name="motor_type">m3508</param>
       <param name="invert_rotation">true</param>
-      <param name="velocity_kp">0.75</param>
-      <param name="velocity_ki">1.0</param>
-      <param name="velocity_kd">0.001</param>
+      <param name="velocity_kp">${rm_drive_velocity_kp}</param>
+      <param name="velocity_ki">${rm_drive_velocity_ki}</param>
+      <param name="velocity_kd">${rm_drive_velocity_kd}</param>
+      <param name="velocity_i_decay_tau">${rm_drive_velocity_i_decay_tau}</param>
+      <param name="velocity_lpf_hz">${rm_drive_velocity_lpf_hz}</param>
+      <param name="max_current">${rm_drive_max_current}</param>
       <command_interface name="velocity">
         <param name="min">-10</param>
         <param name="max">10</param>
@@ -260,9 +277,12 @@
       <param name="motor_id">4</param>
       <param name="motor_type">m3508</param>
       <param name="invert_rotation">false</param>
-      <param name="velocity_kp">0.75</param>
-      <param name="velocity_ki">1.0</param>
-      <param name="velocity_kd">0.001</param>
+      <param name="velocity_kp">${rm_drive_velocity_kp}</param>
+      <param name="velocity_ki">${rm_drive_velocity_ki}</param>
+      <param name="velocity_kd">${rm_drive_velocity_kd}</param>
+      <param name="velocity_i_decay_tau">${rm_drive_velocity_i_decay_tau}</param>
+      <param name="velocity_lpf_hz">${rm_drive_velocity_lpf_hz}</param>
+      <param name="max_current">${rm_drive_max_current}</param>
       <command_interface name="velocity">
         <param name="min">-10</param>
         <param name="max">10</param>
@@ -275,6 +295,9 @@
   </xacro:macro>
 
 
+    <!-- Steer servo integral gain: removes the load-dependent holding error (servo default is 0) -->
+  <xacro:property name="dxl_steer_position_i_gain" value="100"/>
+
   <xacro:macro name="dxl_wheel_steer_controllers"  params="prefix enable_gz:=False">
     <joint name="${prefix}_steer_f_l_joint">
       <xacro:unless value="${gz_on}">
@@ -282,6 +305,7 @@
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
+        <param name="Position_I_Gain">${dxl_steer_position_i_gain}</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI}</param>
@@ -300,6 +324,7 @@
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
+        <param name="Position_I_Gain">${dxl_steer_position_i_gain}</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI}</param>
@@ -318,6 +343,7 @@
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
+        <param name="Position_I_Gain">${dxl_steer_position_i_gain}</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI}</param>
@@ -336,6 +362,7 @@
         <param name="control_mode">0</param>
         <param name="interface">rs</param>
         <param name="Return_Delay_Time">0</param>
+        <param name="Position_I_Gain">${dxl_steer_position_i_gain}</param>
       </xacro:unless>
       <command_interface name="position">
         <param name="min">-${M_PI}</param>

@@ -54,8 +54,10 @@ private:
   int CYCLE_FEQUENCY;
   double STEER_MAX_VEL;
   double DRIVING_STATUS_THRESHOLD; // Steer position error below which drives may engage [rad]
+  double CMD_VEL_TIMEOUT; // Force STOP if cmd_vel is older than this [s]; <=0 disables
 
   rclcpp::Time prev_cycle_time_;
+  rclcpp::Time last_cmd_vel_time_; // Receipt time of the last Twist, for the watchdog above
 };
 
 } // namespace sobit_home
