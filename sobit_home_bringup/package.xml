@@ -9,35 +9,38 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>launch</depend>
-  <depend>launch_ros</depend>
-  <depend>xacro</depend>
-  <depend>rviz2</depend>
+  <!-- Launch-only package: everything below is started from the launch files. -->
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rmw_cyclonedds_cpp</exec_depend>
 
-  <depend>controller_manager</depend>
-  <depend>ros2_control</depend>
-  <depend>ros2_controllers</depend>
-  <depend>robot_state_publisher</depend>
-  <depend>joint_state_broadcaster</depend>
-  <depend>joint_trajectory_controller</depend>
-  <depend>velocity_controllers</depend>
-  <depend>position_controllers</depend>
-  <depend>diff_drive_controller</depend>
-  <depend>tf2_ros</depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>joint_trajectory_controller</exec_depend>
+  <exec_depend>velocity_controllers</exec_depend>
+  <exec_depend>position_controllers</exec_depend>
 
-  <depend>ros_gz_bridge</depend>
-  <depend>ros_gz_sim</depend>
-  <depend>gz_ros2_control</depend>
-  <depend>depth_image_proc</depend>
-  <depend>image_transport</depend>
-  <depend>compressed_depth_image_transport</depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+  <exec_depend>depth_image_proc</exec_depend>
+  <exec_depend>image_transport</exec_depend>
+  <exec_depend>compressed_depth_image_transport</exec_depend>
+
+  <!-- Sensors started by robot.launch.py. -->
   <exec_depend>realsense2_camera</exec_depend>
-  <exec_depend>sobits_gazebo_worlds</exec_depend>
+  <exec_depend>orbbec_camera</exec_depend>
+  <exec_depend>urg_node</exec_depend>
+  <exec_depend>ros2_laser_scan_merger</exec_depend>
+  <exec_depend>usb_cam</exec_depend>
 
-  <depend>sobit_home_description</depend>
-  <depend>sobit_home_control</depend>
-  <depend>sobit_home_library</depend>
-  <depend>sobits_display</depend>
+  <exec_depend>sobit_home_description</exec_depend>
+  <exec_depend>sobit_home_control</exec_depend>
+  <exec_depend>sobit_home_library</exec_depend>
+  <exec_depend>sobit_home_moveit_config</exec_depend>
+  <exec_depend>sobits_display</exec_depend>
+  <exec_depend>sobits_gazebo_worlds</exec_depend>
   <!-- Viewers enable_viz picks from; each is optional at runtime. -->
   <exec_depend>sobits_viz_rviz</exec_depend>
   <exec_depend>sobits_viz_foxglove</exec_depend>

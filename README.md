@@ -347,11 +347,18 @@ $ ros2 launch sobit_home_bringup gz_minimal.launch.py \
 >   enable_head_cam_depth:=false enable_hand_right_cam_color:=false enable_lidar:=false
 > ```
 
-The head RGB-D camera model is selected with `head_cam_type` (`realsense` = Intel RealSense D415, default; `orbbec` = Orbbec Gemini 336L). It switches the URDF, the driver node and its config file (`sobit_home_bringup/config/head_camera_<type>.yaml`) together, on the real robot and in the simulator:
+The head RGB-D camera model is selected with `head_cam_type` (`orbbec` = Orbbec Gemini 336L, default; `realsense` = Intel RealSense D415). It switches the URDF, the driver node and its config file (`sobit_home_bringup/config/head_camera_<type>.yaml`) together, on the real robot and in the simulator:
 
 ```sh
 $ ros2 launch sobit_home_bringup real_minimal.launch.py head_cam_type:=orbbec
 ```
+
+**Known differences from the real robot** (topic names match, payloads differ):
+
+- `head_camera/depth/image_raw` is `32FC1` metres in Gazebo and Isaac Sim; the Orbbec driver publishes `16UC1` millimetres (as the robot descriptor states). Not converted on purpose; consumers that read raw depth must handle both.
+- `*/image_raw/compressed` is JPEG from the driver and from Gazebo's republisher, H.264 from Isaac Sim's GPU encoder (same `sensor_msgs/CompressedImage` topic, different `format`).
+- `head_camera/depth/image_raw/compressedDepth` comes from an `image_transport republish` node on the ROS side (started by `robot.launch.py` in Gazebo); Isaac Sim needs the same node.
+- The Orbbec IMU (`head_camera/gyro_accel/sample`) is never enabled, so no simulator publishes it and the descriptor has no IMU.
 
 Additionally, multiple SOBIT HOMEs can be spawned in the same simulation environment by launching additional instances with different `robot_id` and spawn coordinates.
 
@@ -613,7 +620,34 @@ SOBIT HOME is available as open hardware at [OnShape](https://cad.onshape.com/do
 
 ### Electronic Circuit Diagram
 
-![SOBIT HOME Circuit](sobit_home/docs/img/sobit_home_circuit.png)
+The wiring is documented as code in [sobit_home/docs/hardware](sobit_home/docs/hardware): device templates (ratings and pinouts) in `library.yml`, one harness file per subsystem in `harness/`, and diagrams rendered by [WireViz](https://github.com/wireviz/WireViz) into `generated/`. Edit the YAML, never the SVG.
+
+| Diagram | Content |
+| --- | --- |
+| [all](sobit_home/docs/hardware/generated/all.svg) | All harnesses merged |
+| [00_power_trunk](sobit_home/docs/hardware/generated/00_power_trunk.svg) | Batteries, DC-DC converters, emergency stop, power towers |
+| [10_compute](sobit_home/docs/hardware/generated/10_compute.svg) | Compute power: NUC, router and switching hub on their own battery |
+| [20_arm_left](sobit_home/docs/hardware/generated/20_arm_left.svg) | Left arm Dynamixel chain |
+| [21_arm_right](sobit_home/docs/hardware/generated/21_arm_right.svg) | Right arm Dynamixel chain |
+| [22_shoulders](sobit_home/docs/hardware/generated/22_shoulders.svg) | PH54 shoulder servos |
+| [23_head](sobit_home/docs/hardware/generated/23_head.svg) | Head pan-tilt |
+| [30_base_drive](sobit_home/docs/hardware/generated/30_base_drive.svg) | Wheel ESCs and motors, power + CAN hub, LiDAR power |
+| [31_base_steer](sobit_home/docs/hardware/generated/31_base_steer.svg) | Steering Dynamixel chain |
+| [40_hands](sobit_home/docs/hardware/generated/40_hands.svg) | Hand power and TTL Dynamixel chains |
+| [50_lift](sobit_home/docs/hardware/generated/50_lift.svg) | Lift servo stepper and CAN gateway |
+| [60_network](sobit_home/docs/hardware/generated/60_network.svg) | Ethernet |
+| [70_usb](sobit_home/docs/hardware/generated/70_usb.svg) | USB hubs and devices |
+| [80_video](sobit_home/docs/hardware/generated/80_video.svg) | HDMI |
+
+Designators: `G` battery, `F` fuse adapter, `T` DC-DC converter, `S` emergency stop, `X` power tower or distribution board (`XG` star ground), `A` interface adapter, `P` hub, `K` computer, `N` network device, `W` cable. Actuators are named after their joint. Conventions, grounding and data-link rules: [sobit_home/docs/hardware/README.md](sobit_home/docs/hardware/README.md).
+
+Render the diagrams after editing:
+
+```bash
+sudo apt install graphviz
+pip install wireviz==0.4.1
+sobit_home/docs/hardware/tools/render.sh
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

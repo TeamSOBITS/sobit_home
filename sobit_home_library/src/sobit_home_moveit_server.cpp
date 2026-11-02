@@ -166,8 +166,8 @@ bool MoveitServer::init_move_groups()
     if (!robot_model->hasJointModelGroup(group_name)) {
       RCLCPP_ERROR(get_logger(),
         "Planning group '%s' is not defined in the loaded SRDF — skipping. "
-        "Check active_planning_groups against the SRDF selected at launch "
-        "(teleop and non-teleop use different SRDFs).",
+        "Check active_planning_groups against the enable_* flags passed to "
+        "the SRDF xacro at launch.",
         group_name.c_str());
       continue;
     }

@@ -1,0 +1,41 @@
+# Base steering: XM540 power chains on X2 and X3, one RS-485 chain from the U2D2.
+# RS-485 data links carry D+/D- only.
+
+cables:
+  W311: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W312: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W313: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W314: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W315: {wirecount: 2, wirelabels: [D+, D-]}
+  W316: {wirecount: 2, wirelabels: [D+, D-]}
+  W317: {wirecount: 2, wirelabels: [D+, D-]}
+  W318: {wirecount: 2, wirelabels: [D+, D-]}
+
+connections:
+  # Steering power: X2 → f_l → b_l, X3 → f_r → b_r
+  - - POWER_TOWER.X2: [GND1, V1]
+    - W311: [1, 2]
+    - XM540_W150.wheel_steer_f_l: [A.GND, A.VDD]
+  - - wheel_steer_f_l: [B.GND, B.VDD]
+    - W312: [1, 2]
+    - XM540_W270.wheel_steer_b_l: [A.GND, A.VDD]
+  - - POWER_TOWER.X3: [GND2, V2]
+    - W313: [1, 2]
+    - XM540_W150.wheel_steer_f_r: [A.GND, A.VDD]
+  - - wheel_steer_f_r: [B.GND, B.VDD]
+    - W314: [1, 2]
+    - XM540_W270.wheel_steer_b_r: [A.GND, A.VDD]
+
+  # Steering data: U2D2 → f_l → f_r → b_l → b_r
+  - - U2D2.A6: [RS485.D+, RS485.D-]
+    - W315: [1, 2]
+    - wheel_steer_f_l: [A.D+, A.D-]
+  - - wheel_steer_f_l: [B.D+, B.D-]
+    - W316: [1, 2]
+    - wheel_steer_f_r: [A.D+, A.D-]
+  - - wheel_steer_f_r: [B.D+, B.D-]
+    - W317: [1, 2]
+    - wheel_steer_b_l: [A.D+, A.D-]
+  - - wheel_steer_b_l: [B.D+, B.D-]
+    - W318: [1, 2]
+    - wheel_steer_b_r: [A.D+, A.D-]

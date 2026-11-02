@@ -145,6 +145,18 @@
     <xacro:hand  prefix_hand="hand" position="right" prefix_finger="finger" parent="arm_right_wrist_roll_link" />
   </xacro:if>
 
+  <!-- EE frames: wrist_roll_link exists (real or stub) for every arm/hand combination. -->
+  <xacro:macro name="end_effector" params="position y_sign">
+    <joint name="hand_${position}_end_effector_joint" type="fixed">
+      <origin xyz="0.0 ${y_sign*0.13} 0.0" rpy="${y_sign * M_PI/2} 0.0 ${y_sign * M_PI/2}"/>
+      <parent link="arm_${position}_wrist_roll_link"/>
+      <child link="hand_${position}_end_effector_link"/>
+    </joint>
+    <link name="hand_${position}_end_effector_link"/>
+  </xacro:macro>
+  <xacro:end_effector position="left"  y_sign="1.0" />
+  <xacro:end_effector position="right" y_sign="-1.0" />
+
   <xacro:if value="${ $(arg enable_head) }">
     <xacro:head  prefix="head"  parent="body_lift_link" /> 
     <xacro:mic   prefix="mic"   parent="head_tilt_link" /> 

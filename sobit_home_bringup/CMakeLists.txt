@@ -8,28 +8,6 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 
-find_package(xacro REQUIRED)
-find_package(rviz2 REQUIRED)
-
-find_package(controller_manager REQUIRED)
-find_package(ros2_control REQUIRED)
-find_package(ros2_controllers REQUIRED)
-find_package(robot_state_publisher REQUIRED)
-find_package(joint_state_broadcaster REQUIRED)
-find_package(joint_trajectory_controller REQUIRED)
-find_package(velocity_controllers REQUIRED)
-find_package(position_controllers REQUIRED)
-find_package(diff_drive_controller REQUIRED)
-find_package(tf2_ros REQUIRED)
-
-find_package(ros_gz_bridge REQUIRED)
-find_package(ros_gz_sim REQUIRED)
-find_package(gz_ros2_control REQUIRED)
-
-find_package(sobit_home_description REQUIRED)
-find_package(sobit_home_control REQUIRED)
-
-
 install(DIRECTORY
   launch
   config

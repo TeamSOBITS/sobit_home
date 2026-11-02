@@ -1,0 +1,18 @@
+# Shoulders: both PH54 shoulder-tilt actuators, lower ID first; X1 powers the left via its 2-pin port.
+# Left → right over one 4-pin cable (power + data); U2D2 link carries D+/D- only.
+
+cables:
+  W241: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
+  W243: {wirecount: 2, wirelabels: [D+, D-]}
+  W244: {wirecount: 4, wirelabels: [GND, VDD, D+, D-]}
+
+connections:
+  - - POWER_TOWER.X1: [GND2, V2]
+    - W241: [1, 2]
+    - PH54_200_S500.arm_left_shoulder_tilt: [PWR.GND, PWR.VDD]
+  - - U2D2.A5: [RS485.D+, RS485.D-]
+    - W243: [1, 2]
+    - arm_left_shoulder_tilt: [A.D+, A.D-]
+  - - arm_left_shoulder_tilt: [B.GND, B.VDD, B.D+, B.D-]
+    - W244: [1, 2, 3, 4]
+    - PH54_200_S500.arm_right_shoulder_tilt: [A.GND, A.VDD, A.D+, A.D-]
