@@ -1,48 +1,69 @@
 # Actuation power trunk: batteries -> fuse adapters -> converters -> emergency stop -> power towers.
-# Negative rails bypass the emergency stop; each pole cuts one positive rail.
+# Negative rails bypass the emergency stop; each pole cuts one positive rail (T1, T1b, T2, T3 outputs).
+# G1 feeds a 36 V tower X0 that splits into T1 (X1: shoulders, lift, hands) and T1b (wheel hub P1).
 
 cables:
   W001: {category: bundle, colors: [*gnd, *v36], wirelabels: [GND, +36V]}
-  W002: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
+  W002: {category: bundle, colors: [*gnd, *v36], wirelabels: [GND, +36V]}
   W003: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
-  W004: {category: bundle, colors: [*gnd, *v36], wirelabels: [GND, +36V]}
+  W004: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
   W005: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
   W006: {category: bundle, colors: [*gnd, *v18], wirelabels: [GND, +18V]}
+  W007: {category: bundle, colors: [*gnd, *v36], wirelabels: [GND, +36V]}
+  W008: {category: bundle, colors: [*gnd, *v36], wirelabels: [GND, +36V]}
   W011: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
   W012: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
   W013: {category: bundle, colors: [*gnd, *v12], wirelabels: [GND, +12V]}
+  W014: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
   W021: {category: bundle, colors: [*v24], wirelabels: [+24V]}
   W022: {category: bundle, colors: [*v12], wirelabels: [+12V]}
   W023: {category: bundle, colors: [*v12], wirelabels: [+12V]}
+  W024: {category: bundle, colors: [*v24], wirelabels: [+24V]}
 
 connections:
-  # Battery -> fuse adapter -> converter input
+  # Battery -> fuse adapter
   - - BATT_36V.G1: ["-", "+"]
     - W001: [1, 2]
     - FUSE_ADAPTER.F1: [IN-, IN+]
-  - - F1: [OUT-, OUT+]
-    - W004: [1, 2]
-    - DCDC_36_24_20A.T1: [IN-, IN+]
   - - BATT_18V.G2: ["-", "+"]
-    - W002: [1, 2]
-    - FUSE_ADAPTER.F2: [IN-, IN+]
-  - - F2: [OUT-, OUT+]
-    - W005: [1, 2]
-    - DCDC_18_12_30A.T2: [IN-, IN+]
-  - - BATT_18V.G3: ["-", "+"]
     - W003: [1, 2]
+    - FUSE_ADAPTER.F2: [IN-, IN+]
+  - - BATT_18V.G3: ["-", "+"]
+    - W005: [1, 2]
     - FUSE_ADAPTER.F3: [IN-, IN+]
+
+  # 36 V: fuse adapter -> tower X0 -> T1 and T1b
+  - - F1: [OUT-, OUT+]
+    - W002: [1, 2]
+    - POWER_TOWER.X0: [GND1, V1]
+  - - X0: [GND2, V2]
+    - W007: [1, 2]
+    - DCDC_36_24_20A.T1: [IN-, IN+]
+  - - X0: [GND3, V3]
+    - W008: [1, 2]
+    - DCDC_36_24_20A.T1b: [IN-, IN+]
+
+  # 18 V: fuse adapter -> converter input
+  - - F2: [OUT-, OUT+]
+    - W004: [1, 2]
+    - DCDC_18_12_30A.T2: [IN-, IN+]
   - - F3: [OUT-, OUT+]
     - W006: [1, 2]
     - DCDC_18_12_30A.T3: [IN-, IN+]
 
-  # Converter output: GND to tower, V+ to emergency stop
+  # Converter output: GND to tower or hub, V+ to emergency stop
   - - T1: [OUT-]
     - W011: [1]
     - POWER_TOWER.X1: [GND1]
   - - T1: [OUT+]
     - W011: [2]
     - ESTOP_4P.S1: [IN3]
+  - - T1b: [OUT-]
+    - W014: [1]
+    - POWER_HUB_24V.P1: [IN-]
+  - - T1b: [OUT+]
+    - W014: [2]
+    - S1: [IN4]
   - - T2: [OUT-]
     - W012: [1]
     - POWER_TOWER.X2: [GND1]
@@ -56,13 +77,17 @@ connections:
     - W013: [2]
     - S1: [IN1]
 
-  # Emergency stop -> tower V+
+  # Emergency stop -> tower or hub V+
   - - S1: [OUT3]
     - W021: [1]
     - X1: [V1]
+  - - S1: [OUT4]
+    - W024: [1]
+    - P1: [IN+]
   - - S1: [OUT2]
     - W022: [1]
     - X2: [V1]
   - - S1: [OUT1]
     - W023: [1]
     - X3: [V1]
+

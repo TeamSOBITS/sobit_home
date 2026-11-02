@@ -1,8 +1,7 @@
-# Base drive: 24 V power + CAN hub P1 for the C620 ESCs and LiDARs, M3508 motors, USB-CAN adapter.
+# Base drive: 24 V power + CAN hub P1 (fed by T1b, see 00_power_trunk) for the C620 ESCs and LiDARs, M3508 motors, USB-CAN adapter.
 # Wheel and LiDAR positions are read from the overview layout (top = front).
 
 cables:
-  W301: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
   W302: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
   W303: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
   W304: {category: bundle, colors: [*gnd, *v24], wirelabels: [GND, +24V]}
@@ -25,10 +24,7 @@ cables:
 
 connections:
   # 24 V hub: wheel ESCs and LiDARs
-  - - POWER_TOWER.X1: [GND3, V3]
-    - W301: [1, 2]
-    - POWER_HUB_24V.P1: [IN-, IN+]
-  - - P1: [O1-, O1+]
+  - - POWER_HUB_24V.P1: [O1-, O1+]
     - W302: [1, 2]
     - UST_20LX.lidar_front: ["-", "+"]
   - - P1: [O2-, O2+]
