@@ -153,8 +153,9 @@ void SobitHomeOdometry::update_odom(double dt)
 
 // Distance calculation
 double SobitHomeOdometry::distance_calculation(double wheel_delta_pos) {
-  if (M_PI < fabsf(wheel_delta_pos)) wheel_delta_pos -= 2 * M_PI * safe_sign(wheel_delta_pos);
-  return WHEEL_RADIUS * wheel_delta_pos;
+  // Fold any multiple of 2*pi: drive positions may wrap at +-pi or +-2*pi (Isaac Sim).
+  // Valid while the wheel turns less than pi per cycle.
+  return WHEEL_RADIUS * wrap_pi(wheel_delta_pos);
 }
 
 // Pose broadcaster (Generate a pose from Odometry)
